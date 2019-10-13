@@ -1,4 +1,4 @@
-# These additional PIP3 packages are required.
+# These additional PIP3 packages are required
 Flask
 gunicorn
 requests
