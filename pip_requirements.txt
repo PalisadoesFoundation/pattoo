@@ -7,7 +7,6 @@ SQLAlchemy
 SQLAlchemy-Utils
 Flask
 Flask-GraphQL
-six
 graphene
 graphene-sqlalchemy
 graphql-core
