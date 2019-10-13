@@ -1,5 +1,5 @@
 # Run on ubuntu
-dist: xenial
+dist: bionic
 
 # Don't use
 sudo: false
