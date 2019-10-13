@@ -1,7 +1,8 @@
 ![pattoo](https://user-images.githubusercontent.com/16875803/66711530-9bdbab80-ed42-11e9-913f-7a21ede86d8f.png)
 
-# Introduction
 `pattoo` stores timeseries data in a database and makes it available for users via a GraphQL API.
+
+# Introduction
 
 Data can be collected from a number of sources. The `pattoo-agents` repository provides a number standard data collection agents for:
 
