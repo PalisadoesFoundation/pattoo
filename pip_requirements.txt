@@ -1,0 +1,14 @@
+# These additional PIP3 packages are required
+Flask
+gunicorn
+requests
+PyYAML
+SQLAlchemy
+SQLAlchemy-Utils
+Flask
+Flask-GraphQL
+graphene
+graphene-sqlalchemy
+graphql-core
+graphql-relay
+PyMySQL

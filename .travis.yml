@@ -1,0 +1,30 @@
+# Run on ubuntu
+dist: xenial
+
+# Don't use
+sudo: false
+
+# Define the language and versions that infoset is written in
+language: python
+python:
+  - 3.6
+
+# Run tests only against the master branch
+branches:
+  only:
+    - master
+
+# Setup global environmental variables
+env:
+    - PYTHONPATH=./ PATTOO_CONFIGDIR=$HOME/.pattoo-unittests/config
+
+# Install PIP packages and create a temporary config file before installing
+before_install:
+    - pip install -r pip_requirements.txt
+    - tests/_travis_ci_setup.py
+
+# Install pattoo-agents
+#install: python3 maintenance/setup.py
+
+# Run the unittest scripts
+script: tests/_do_all_tests.py
