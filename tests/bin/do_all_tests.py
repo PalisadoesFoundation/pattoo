@@ -16,21 +16,24 @@ import locale
 import os
 import sys
 import subprocess
+import argparse
 
 # Try to create a working PYTHONPATH
-TEST_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-ROOT_DIRECTORY = os.path.abspath(os.path.join(TEST_DIRECTORY, os.pardir))
-if TEST_DIRECTORY.endswith('/pattoo/tests') is True:
-    sys.path.append(ROOT_DIRECTORY)
+DEV_DIR = os.path.dirname(os.path.realpath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(
+    os.path.abspath(os.path.join(DEV_DIR, os.pardir)), os.pardir))
+if DEV_DIR.endswith('/pattoo/tests/bin') is True:
+    sys.path.insert(0, ROOT_DIR)
 else:
-    print(
-        'This script is not installed in the "pattoo/tests" directory. '
-        'Please fix.')
+    print('''\
+This script is not installed in the "pattoo/tests/bin" directory. \
+Please fix.''')
     sys.exit(2)
 
 # pattoo libraries
-from tests import unittest_setup
-from pattoo import files
+from tests.libraries import error_code
+from tests.libraries.configuration import UnittestConfig
+from pattoo_shared import files
 
 
 def main():
@@ -43,18 +46,23 @@ def main():
         None
 
     """
+    # Set up parser
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--verbose', '-v', help='', action='store_true')
+    args = parser.parse_args()
+
     # Determine unittest directory
-    root_dir = files.root_directory()
+    root_dir = ROOT_DIR
     test_dir = '{}/tests'.format(root_dir)
 
-    # Get list of test files
-    test_files = os.listdir(test_dir)
-    for filename in sorted(test_files):
-        full_path = '{}/{}'.format(test_dir, filename)
+    # Run the test
+    command = 'python3 -m unittest discover --start {}'.format(test_dir)
+    if args.verbose is True:
+        command = '{} --verbose'.format(command)
+    run_script(command)
 
-        # Run the test
-        if filename.startswith('test_'):
-            run_script(full_path)
+    # Check error codes
+    error_code.check(root_dir)
 
     # Print
     message = ('\nHooray - All Done OK!\n')
@@ -129,7 +137,7 @@ def run_script(cli_string):
 
 if __name__ == '__main__':
     # Test the configuration variables
-    unittest_setup.ready()
+    UnittestConfig().create()
 
     # Do the unit test
     main()

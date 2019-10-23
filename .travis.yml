@@ -21,10 +21,7 @@ env:
 # Install PIP packages and create a temporary config file before installing
 before_install:
     - pip install -r pip_requirements.txt
-    - tests/_travis_ci_setup.py
-
-# Install pattoo-agents
-#install: python3 maintenance/setup.py
+    - tests/bin/unittest_setup.py
 
 # Run the unittest scripts
-script: tests/_do_all_tests.py
+script: tests/bin/do_all_tests.py
