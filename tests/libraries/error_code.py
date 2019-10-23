@@ -9,34 +9,28 @@ import sys
 import collections
 
 
-# Try to create a working PYTHONPATH
-TEST_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-ROOT_DIRECTORY = os.path.abspath(os.path.join(TEST_DIRECTORY, os.pardir))
-if TEST_DIRECTORY.endswith('pattoo/tests') is True:
-    sys.path.append(ROOT_DIRECTORY)
-else:
-    print(
-        'This script is not installed in the "pattoo/tests" directory. '
-        'Please fix.')
-    sys.exit(2)
-
 # Import pattoo libraries
-from pattoo import log
+from pattoo_shared import log
 
 
-def main():
+def check(root):
     """Get all the error codes used in pattoo.
 
     Args:
-        None
+        root: Root directory
 
     Returns:
         None
 
     """
+    # Define min and max code values
+    code_min_limit = 1000
+    code_max_limit = 49999
+
     # Define where pattoo lives
-    root = ROOT_DIRECTORY
-    ignore_paths = ['/.git/', '/__pycache__/', '/_archive/', '/_deprecated/']
+    ignore_paths = [
+        '/.git/', '/__pycache__/', '/_archive/', '/_deprecated/',
+        '/pattoo/build/', '/pattoo/dist/', '.egg']
     error_functions = (
         'log2die_safe(', 'log2warning(',
         'log2debug(', 'log2live(', 'log2warn(', 'log2die(', 'log2quiet(',
@@ -73,23 +67,26 @@ def main():
 
     # Get available codes
     code_max = max(error_codes)
-    if int(code_max) >= 10000:
+    if int(code_max) >= code_max_limit:
         log_message = ('''\
-Extremely large error code {} found. Please fix.'''.format(code_max))
+Extremely large error code {} found. Must be less than {}. Please fix.\
+'''.format(code_max, code_max_limit))
         log.log2die(1571, log_message)
 
     # Process error codes
     for next_code in range(min(error_codes), code_max):
         if next_code not in error_codes:
             available_codes.append(next_code)
+
+    # Get available codes
     if bool(available_codes) is False:
         available_codes = list(
             range(max(error_codes), max(error_codes) + entries + 1))
 
     # Print report
-    print('''\
-pattoo Error Code Summary Report
---------------------------------
+    print('''
+Pattoo Logging Error Code Summary Report
+----------------------------------------
 Starting Code              : {}
 Ending Code                : {}
 Duplicate Codes to Resolve : {}
@@ -98,6 +95,25 @@ Available Codes            : {}\
            max(error_codes),
            duplicates,
            available_codes[0:entries]))
+
+    # Exit with error if duplicate codes found
+    if bool(duplicates) is True:
+        print('''
+
+ERROR: Duplicate error codes found. Please resolve.
+
+''')
+        sys.exit(1)
+
+    # Exit with error if code values are out of range
+    if (min(error_codes) < code_min_limit) or (max(error_codes) > code_max_limit):
+        print('''
+
+ERROR: Error codes values out of range {} to {}. Please resolve.
+
+'''.format(code_min_limit, code_max_limit))
+        sys.exit(1)
+
 
 
 def _codes(filename, to_find):
@@ -137,6 +153,16 @@ def _codes(filename, to_find):
                 if bool(found) is True:
                     # print('boo -', line)
                     error_codes.append(int(found.group(1)))
+
+    # Exit with error if error codes are non numeric
+    for _code in error_codes:
+        if isinstance(_code, int) is False:
+            print('''
+
+ERROR: Non integer error code found. Please resolve.
+
+'''.format(_code))
+            sys.exit(1)
 
     # Return
     return error_codes
@@ -191,7 +217,3 @@ def _files(root, ignore_paths):
 
     # Return
     return python_files
-
-
-if __name__ == '__main__':
-    main()

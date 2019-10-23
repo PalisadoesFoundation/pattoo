@@ -1,14 +1,12 @@
+#############################################
 # These additional PIP3 packages are required
+#############################################
+
+# Pattoo packages
+
+PattooShared
+
+# Miscellaneous packages
+
 Flask
 gunicorn
-requests
-PyYAML
-SQLAlchemy
-SQLAlchemy-Utils
-Flask
-Flask-GraphQL
-graphene
-graphene-sqlalchemy
-graphql-core
-graphql-relay
-PyMySQL
