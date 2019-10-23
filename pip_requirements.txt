@@ -10,3 +10,4 @@ PattooShared
 
 Flask
 gunicorn
+PyYAML
