@@ -10,6 +10,11 @@ Pattoo
 
 Visit the `Pattoo GitHub site <https://github.com/PalisadoesFoundation/pattoo>`_ to see the code.
 
+Introduction
+------------
+
+General information about the project, including the the prerequisite steps to get it operational on your system.
+
 .. toctree::
    :maxdepth: 2
    :caption: Introduction:
@@ -22,6 +27,8 @@ Visit the `Pattoo GitHub site <https://github.com/PalisadoesFoundation/pattoo>`_
 Daemon Setup
 ------------
 
+How to get the daemons running to collect data.
+
  .. toctree::
     :maxdepth: 2
     :caption: Daemon Setup:
@@ -31,6 +38,8 @@ Daemon Setup
 Miscellaneous Information
 -------------------------
 
+Technical background information on the project.
+
 .. toctree::
    :maxdepth: 2
    :caption: Miscellaneous Information:
@@ -38,11 +47,3 @@ Miscellaneous Information
    troubleshooting
    data
    glossary
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
