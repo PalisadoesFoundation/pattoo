@@ -1,8 +1,6 @@
 ###############################################################################
-# NOTE:
 #
-# Purposely left blank so that ReadTheDocs doesn't fail.
-#
-# See the .readthedocs.yml file for details.
+# Pip packages needed for sphinx extension features
 #
 ###############################################################################
+sphinxcontrib-fulltoc
