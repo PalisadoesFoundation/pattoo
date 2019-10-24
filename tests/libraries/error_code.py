@@ -23,14 +23,16 @@ def check(root):
         None
 
     """
-    # Define min and max code values
-    code_min_limit = 1000
-    code_max_limit = 49999
+    # Define min and max code values. This range is set to prevent different
+    # pattoo projects from having overlapping numbers
+    code_min_limit = 20000
+    code_max_limit = 39999
 
     # Define where pattoo lives
     ignore_paths = [
         '/.git/', '/__pycache__/', '/_archive/', '/_deprecated/',
-        '/pattoo/build/', '/pattoo/dist/', '.egg']
+        '/pattoo-shared/build/', '/pattoo-shared/dist/', '.egg',
+        '/docs/', '/daemon/', '/log/']
     error_functions = (
         'log2die_safe(', 'log2warning(',
         'log2debug(', 'log2live(', 'log2warn(', 'log2die(', 'log2quiet(',
@@ -71,7 +73,7 @@ def check(root):
         log_message = ('''\
 Extremely large error code {} found. Must be less than {}. Please fix.\
 '''.format(code_max, code_max_limit))
-        log.log2die(1571, log_message)
+        log.log2die(21571, log_message)
 
     # Process error codes
     for next_code in range(min(error_codes), code_max):
