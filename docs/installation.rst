@@ -9,6 +9,10 @@ Installation
 
 Follow these steps.
 
+#. Install `git` on your system.
+#. Select the parent directory in which you want to install `pattoo`
+#. Clone the repository to the parent directory using either the `git clone` command. You can also choose to downloading and unzip the file in the parent directory. The repository can be found at: https://github.com/PalisadoesFoundation/pattoo
+#. Enter the directory with the `pattoo` files.
 #. Install the required packages using the ``pip_requirements`` document in the root directory
 
    .. code-block::
