@@ -8,6 +8,7 @@ Used to add data to backend database
 # Standard libraries
 import sys
 import os
+import collections
 from pprint import pprint
 
 # Try to create a working PYTHONPATH
@@ -41,6 +42,7 @@ def main():
     """
     # Initialize key variables
     result = []
+    filepath = None
 
     # Read data from cache
     config = Config()
@@ -54,10 +56,70 @@ def main():
         if isinstance(agentdata, AgentPolledData) is True:
             if agentdata.active is True:
                 result.append((filepath, agentdata))
+                row = extract(agentdata)
                 break
 
     # Show results prior to writing code to add to database.
-    pprint(result)
+    if bool(filepath) is True:
+        print('\n{}\n'.format(filepath))
+        pprint(row)
+
+
+def extract(agentdata):
+    """Ingest data.
+
+    Args:
+        agentdata: AgentPolledData object
+
+    Returns:
+        rows: List of named tuples containing data
+
+    """
+    # Initialize key variables
+    rows = []
+    datatuple = collections.namedtuple(
+        'Values', '''\
+agent_id agent_program agent_hostname timestamp polling_interval device
+data_label data_index value data_type''')
+
+    # Return if invalid data
+    if bool(agentdata.active) is False:
+        return []
+
+    # Assign agent values
+    agent_id = agentdata.agent_id
+    agent_program = agentdata.agent_program
+    agent_hostname = agentdata.agent_hostname
+    timestamp = agentdata.timestamp
+    polling_interval = agentdata.polling_interval
+    agent_program = agentdata.agent_program
+
+    # Cycle through the data
+    for dvh in agentdata.data:
+        # Ignore bad data
+        if dvh.active is False:
+            continue
+
+        # Get data
+        device = dvh.device
+        for _dv in dvh.data:
+            data_label = _dv.data_label
+            data_index = _dv.data_index
+            value = _dv.value
+            data_type = _dv.data_type
+
+            # Assign values to tuple
+            row = datatuple(
+                agent_id=agent_id, agent_program=agent_program,
+                agent_hostname=agent_hostname, timestamp=timestamp,
+                polling_interval=polling_interval, device=device,
+                data_label=data_label, data_index=data_index,
+                value=value, data_type=data_type)
+            rows.append(row)
+
+    # Return
+    return rows
+
 
 
 if __name__ == '__main__':
