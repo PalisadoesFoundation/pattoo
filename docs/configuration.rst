@@ -85,7 +85,7 @@ This table outlines the purpose of each configuration parameter
      - Use ``https`` when sending data  to remote ``pattoodb`` server
    * -
      - ``api_listen_address``
-     - IP address on which the API server will listen. Setting this to ``0.0.0.0`` will make it listen on all IPv4 addresses. Setting to ``"0::"`` will make it listen on all IPv6 configured interfaces. It will not listen on IPv4 and IPv6 addresses simultaneously. You must **quote** all IPv6 addresses. The default is ``0.0.0.0``
+     - IP address on which the API server will listen. Setting this to ``0.0.0.0`` will make it listen on all IPv4 addresses. Setting to ``"0::"`` will make it listen on all IPv6 configured interfaces. It will not listen on IPv4 and IPv6 addresses simultaneously. You must **quote** all IPv6 addresses. The default is ``0.0.0.0``. This parameter is only used by the ``pattoo`` server.
 
 Notes
 -----

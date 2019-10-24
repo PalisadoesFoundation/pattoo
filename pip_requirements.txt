@@ -11,3 +11,4 @@ PattooShared
 Flask
 gunicorn
 PyYAML
+sphinxcontrib-fulltoc
