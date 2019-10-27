@@ -53,7 +53,7 @@ def main():
     for filepath, json_data in directory_data:
         agentdata = converter.convert(json_data)
         if isinstance(agentdata, AgentPolledData) is True:
-            if agentdata.active is True:
+            if agentdata.valid is True:
                 result.append((filepath, agentdata))
                 row = converter.extract(agentdata)
                 break
