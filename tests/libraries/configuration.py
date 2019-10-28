@@ -162,9 +162,7 @@ so:
 
 $ export PATTOO_CONFIGDIR={}
 
-Then run this command again, followed by.
-
-$ ./_do_all_tests.py
+Then run this command again.
 '''.format(config_directory))
 
     # Make sure the PATTOO_CONFIGDIR environment variable is set
