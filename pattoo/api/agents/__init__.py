@@ -7,8 +7,8 @@ from flask import Flask
 from pattoo_shared.constants import PATTOO_API_AGENT_PREFIX
 
 # Import PATTOO_API_AGENT Blueprints
-from pattoo.api.post import POST
-from pattoo.api.status import STATUS
+from pattoo.api.agents.post import POST
+from pattoo.api.agents.status import STATUS
 
 # Setup flask
 PATTOO_API_AGENT = Flask(__name__)

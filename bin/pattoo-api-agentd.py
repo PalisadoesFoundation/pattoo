@@ -26,7 +26,7 @@ from pattoo_shared.constants import (
 from pattoo_shared.variables import AgentAPIVariable
 from pattoo_shared.agent import Agent, AgentCLI, AgentAPI
 from pattoo_shared.configuration import Config
-from pattoo.api import PATTOO_API_AGENT
+from pattoo.api.agents import PATTOO_API_AGENT
 
 
 def main():
