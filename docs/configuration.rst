@@ -23,6 +23,8 @@ By default the ``etc/`` directory of the repository is used for all configuratio
 Mandatory Configuration Sections
 --------------------------------
 
+**NOTE:** The indentations in the YAML configuration are important. Make sure indentations line up. Dashes '-' indicate one item in a list of items.
+
 .. code-block:: yaml
 
    main:
