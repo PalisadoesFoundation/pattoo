@@ -59,7 +59,7 @@ def main():
                 break
 
     # Show results prior to writing code to add to database.
-    if bool(filepath) is True:
+    if bool(filepath) is True and bool(agentdata) is True:
         print('\n{}\n'.format(filepath))
         pprint(row)
 
