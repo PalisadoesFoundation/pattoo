@@ -48,6 +48,14 @@ class UnittestConfig(object):
                 'daemon_directory': self._daemon_directory,
                 'polling_interval': 20
             },
+            'db': {
+                'sqlalchemy_pool_size': 10,
+                'sqlalchemy_max_overflow': 10,
+                'db_hostname': 'localhost',
+                'db_username': 'pattoo',
+                'db_password': 's34dfaree3ffae',
+                'db_name': 'pattoo'
+            },
             'pattoo-api-agentd': {
                 'api_ip_address': '127.0.0.1',
                 'api_ip_bind_port': 6060,
