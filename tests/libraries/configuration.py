@@ -50,11 +50,11 @@ class UnittestConfig(object):
             },
             'db': {
                 'sqlalchemy_pool_size': 10,
-                'sqlalchemy_max_overflow': 10,
+                'sqlalchemy_max_overflow': 20,
                 'db_hostname': 'localhost',
-                'db_username': 'pattoo',
-                'db_password': 's34dfaree3ffae',
-                'db_name': 'pattoo'
+                'db_username': 'pattoo_username',
+                'db_password': 'pattoo_password',
+                'db_name': 'pattoo_db'
             },
             'pattoo-api-agentd': {
                 'api_ip_address': '127.0.0.1',

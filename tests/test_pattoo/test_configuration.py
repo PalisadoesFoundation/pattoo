@@ -40,7 +40,7 @@ class TestConfiguration(unittest.TestCase):
     def test_sqlalchemy_pool_size(self):
         """Testing method sqlalchemy_pool_size."""
         # Initialize key values
-        expected = '127.0.0.1'
+        expected = 10
 
         # Test
         result = self.config.sqlalchemy_pool_size()
@@ -49,7 +49,7 @@ class TestConfiguration(unittest.TestCase):
     def test_sqlalchemy_max_overflow(self):
         """Testing method sqlalchemy_max_overflow."""
         # Initialize key values
-        expected = '127.0.0.1'
+        expected = 20
 
         # Test
         result = self.config.sqlalchemy_max_overflow()
@@ -58,7 +58,7 @@ class TestConfiguration(unittest.TestCase):
     def test_db_hostname(self):
         """Testing method db_hostname."""
         # Initialize key values
-        expected = '127.0.0.1'
+        expected = 'localhost'
 
         # Test
         result = self.config.db_hostname()
@@ -67,7 +67,7 @@ class TestConfiguration(unittest.TestCase):
     def test_db_username(self):
         """Testing method db_username."""
         # Initialize key values
-        expected = '127.0.0.1'
+        expected = 'pattoo_username'
 
         # Test
         result = self.config.db_username()
@@ -76,7 +76,7 @@ class TestConfiguration(unittest.TestCase):
     def test_db_password(self):
         """Testing method db_password."""
         # Initialize key values
-        expected = '127.0.0.1'
+        expected = 'pattoo_password'
 
         # Test
         result = self.config.db_password()
@@ -85,7 +85,7 @@ class TestConfiguration(unittest.TestCase):
     def test_db_name(self):
         """Testing method db_name."""
         # Initialize key values
-        expected = '127.0.0.1'
+        expected = 'pattoo_db'
 
         # Test
         result = self.config.db_name()

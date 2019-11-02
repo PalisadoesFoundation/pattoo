@@ -39,7 +39,7 @@ class Config(ConfigShared):
 
         """
         # Initialize key variables
-        key = 'main'
+        key = 'db'
         sub_key = 'db_name'
 
         # Process configuration
@@ -59,7 +59,7 @@ class Config(ConfigShared):
 
         """
         # Initialize key variables
-        key = 'main'
+        key = 'db'
         sub_key = 'db_username'
 
         # Process configuration
@@ -79,7 +79,7 @@ class Config(ConfigShared):
 
         """
         # Initialize key variables
-        key = 'main'
+        key = 'db'
         sub_key = 'db_password'
 
         # Process configuration
@@ -99,7 +99,7 @@ class Config(ConfigShared):
 
         """
         # Initialize key variables
-        key = 'main'
+        key = 'db'
         sub_key = 'db_hostname'
 
         # Process configuration
@@ -119,7 +119,7 @@ class Config(ConfigShared):
 
         """
         # Get result
-        key = 'main'
+        key = 'db'
         sub_key = 'sqlalchemy_pool_size'
         intermediate = configuration.search(
             key, sub_key, self._configuration, die=False)
@@ -142,7 +142,7 @@ class Config(ConfigShared):
 
         """
         # Get result
-        key = 'main'
+        key = 'db'
         sub_key = 'sqlalchemy_max_overflow'
         intermediate = configuration.search(
             key, sub_key, self._configuration, die=False)
