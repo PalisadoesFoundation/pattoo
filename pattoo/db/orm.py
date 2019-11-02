@@ -16,60 +16,73 @@ from sqlalchemy import ForeignKey
 BASE = declarative_base()
 
 
-class Device(BASE):
-    """Class defining the iset_device table of the database."""
+class Data(BASE):
+    """Class defining the pt_data table of the database."""
 
-    __tablename__ = 'iset_device'
+    __tablename__ = 'pt_data'
     __table_args__ = (
-
-        UniqueConstraint(
-            'devicename'),
+        PrimaryKeyConstraint(
+            'idx_datavariable', 'timestamp'),
         {
             'mysql_engine': 'InnoDB'
         }
         )
 
-    idx_device = Column(
-        BIGINT(unsigned=True), primary_key=True,
-        autoincrement=True, nullable=False)
+    idx_datavariable = Column(
+        BIGINT(unsigned=True), ForeignKey('pt_datapoint.idx_datavariable'),
+        nullable=False, server_default='1')
 
-    devicename = Column(VARBINARY(512), nullable=True, default=None)
+    timestamp = Column(BIGINT(unsigned=True), nullable=False, default='1')
 
-    description = Column(VARBINARY(512), nullable=True, default=None)
-
-    enabled = Column(INTEGER(unsigned=True), server_default='1')
-
-    ts_modified = Column(
-        DATETIME, server_default=text(
-            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
-
-    ts_created = Column(
-        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+    value = Column(NUMERIC(40, 10), default=None)
 
 
-class DeviceAgent(BASE):
-    """Class defining the iset_deviceagent table of the database."""
+class DataString(BASE):
+    """Class defining the pt_data table of the database."""
 
-    __tablename__ = 'iset_deviceagent'
+    __tablename__ = 'pt_data'
     __table_args__ = (
-        UniqueConstraint(
-            'idx_device', 'idx_agent'),
+        PrimaryKeyConstraint(
+            'idx_datavariable', 'timestamp'),
         {
             'mysql_engine': 'InnoDB'
         }
         )
 
-    idx_deviceagent = Column(
+    idx_datavariable = Column(
+        BIGINT(unsigned=True), ForeignKey('pt_datapoint.idx_datavariable'),
+        nullable=False, server_default='1')
+
+    timestamp = Column(BIGINT(unsigned=True), nullable=False, default='1')
+
+    value = Column(VARBINARY(512), nullable=True, default=None)
+
+
+class DataVariable(BASE):
+    """Class defining the pt_datapoint table of the database."""
+
+    __tablename__ = 'pt_datapoint'
+    __table_args__ = (
+        UniqueConstraint(
+            'idx_datasource', 'data_label', 'data_index', 'data_type'),
+        {
+            'mysql_engine': 'InnoDB'
+        }
+    )
+
+    idx_datavariable = Column(
         BIGINT(unsigned=True), primary_key=True,
         autoincrement=True, nullable=False)
 
-    idx_device = Column(
-        BIGINT(unsigned=True), ForeignKey('iset_device.idx_device'),
+    idx_datasource = Column(
+        BIGINT(unsigned=True), ForeignKey('pt_datasource.idx_datasource'),
         nullable=False, server_default='1')
 
-    idx_agent = Column(
-        BIGINT(unsigned=True), ForeignKey('iset_agent.idx_agent'),
-        nullable=False, server_default='1')
+    data_label = Column(VARBINARY(512), nullable=True, default=None)
+
+    data_index = Column(VARBINARY(128), nullable=True, default=None)
+
+    data_type = Column(INTEGER(unsigned=True), server_default='1')
 
     enabled = Column(INTEGER(unsigned=True), server_default='1')
 
@@ -84,31 +97,43 @@ class DeviceAgent(BASE):
         DATETIME, server_default=text('CURRENT_TIMESTAMP'))
 
 
-class Data(BASE):
-    """Class defining the iset_data table of the database."""
+class DataSource(BASE):
+    """Class defining the pt_datasource table of the database."""
 
-    __tablename__ = 'iset_data'
+    __tablename__ = 'pt_datasource'
     __table_args__ = (
-        PrimaryKeyConstraint(
-            'idx_datapoint', 'timestamp'),
+        UniqueConstraint('idx_agent', 'device', 'gateway'),
         {
             'mysql_engine': 'InnoDB'
         }
-        )
+    )
 
-    idx_datapoint = Column(
-        BIGINT(unsigned=True), ForeignKey('iset_datapoint.idx_datapoint'),
+    idx_datasource = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    idx_agent = Column(
+        BIGINT(unsigned=True), ForeignKey('pt_agent.idx_agent'),
         nullable=False, server_default='1')
 
-    timestamp = Column(BIGINT(unsigned=True), nullable=False, default='1')
+    device = Column(VARBINARY(512), nullable=True, default=None)
 
-    value = Column(NUMERIC(40, 10), default=None)
+    gateway = Column(VARBINARY(512), nullable=True, default=None)
+
+    enabled = Column(INTEGER(unsigned=True), server_default='1')
+
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
 
 
 class Agent(BASE):
-    """Class defining the iset_agent table of the database."""
+    """Class defining the pt_agent table of the database."""
 
-    __tablename__ = 'iset_agent'
+    __tablename__ = 'pt_agent'
     __table_args__ = {
         'mysql_engine': 'InnoDB'
     }
@@ -117,181 +142,13 @@ class Agent(BASE):
         BIGINT(unsigned=True), primary_key=True,
         autoincrement=True, nullable=False)
 
-    idx_agentname = Column(
-        BIGINT(unsigned=True), ForeignKey('iset_agentname.idx_agentname'),
-        nullable=False, server_default='1')
+    agent_id = Column(VARBINARY(512), unique=True, nullable=True, default=None)
 
-    id_agent = Column(VARBINARY(512), unique=True, nullable=True, default=None)
-
-    enabled = Column(INTEGER(unsigned=True), server_default='1')
-
-    ts_modified = Column(
-        DATETIME, server_default=text(
-            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
-
-    ts_created = Column(
-        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
-
-
-class AgentName(BASE):
-    """Class defining the iset_agentname table of the database."""
-
-    __tablename__ = 'iset_agentname'
-    __table_args__ = (
-        UniqueConstraint(
-            'name'),
-        {
-            'mysql_engine': 'InnoDB'
-        }
-        )
-
-    idx_agentname = Column(
-        BIGINT(unsigned=True), primary_key=True,
-        autoincrement=True, nullable=False)
-
-    name = Column(VARBINARY(512), nullable=True, default=None)
-
-    enabled = Column(INTEGER(unsigned=True), server_default='1')
-
-    ts_modified = Column(
-        DATETIME, server_default=text(
-            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
-
-    ts_created = Column(
-        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
-
-
-class Datapoint(BASE):
-    """Class defining the iset_datapoint table of the database."""
-
-    __tablename__ = 'iset_datapoint'
-    __table_args__ = (
-        {
-            'mysql_engine': 'InnoDB'
-        }
-        )
-
-    idx_datapoint = Column(
-        BIGINT(unsigned=True), primary_key=True,
-        autoincrement=True, nullable=False)
-
-    idx_deviceagent = Column(
-        BIGINT(unsigned=True), ForeignKey('iset_deviceagent.idx_deviceagent'),
-        nullable=False, server_default='1')
-
-    idx_department = Column(
-        BIGINT(unsigned=True), ForeignKey('iset_department.idx_department'),
-        nullable=False, server_default='1')
-
-    idx_billcode = Column(
-        BIGINT(unsigned=True), ForeignKey('iset_billcode.idx_billcode'),
-        nullable=False, server_default='1')
-
-    id_datapoint = Column(
+    agent_hostname = Column(
         VARBINARY(512), unique=True, nullable=True, default=None)
 
-    agent_label = Column(VARBINARY(512), nullable=True, default=None)
-
-    agent_source = Column(VARBINARY(512), nullable=True, default=None)
-
-    enabled = Column(INTEGER(unsigned=True), server_default='1')
-
-    billable = Column(INTEGER(unsigned=True), server_default='0')
-
-    timefixed_value = Column(VARBINARY(512), nullable=True, default=None)
-
-    base_type = Column(INTEGER(unsigned=True), server_default='1')
-
-    last_timestamp = Column(
-        BIGINT(unsigned=True), nullable=False, server_default='0')
-
-    ts_modified = Column(
-        DATETIME, server_default=text(
-            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
-
-    ts_created = Column(
-        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
-
-
-class Department(BASE):
-    """Class defining the iset_department table of the database."""
-
-    __tablename__ = 'iset_department'
-    __table_args__ = (
-        UniqueConstraint(
-            'code'),
-        {
-            'mysql_engine': 'InnoDB'
-        }
-        )
-
-    idx_department = Column(
-        BIGINT(unsigned=True), primary_key=True,
-        autoincrement=True, nullable=False)
-
-    code = Column(VARBINARY(512), nullable=True, default=None)
-
-    name = Column(VARBINARY(512), nullable=True, default=None)
-
-    enabled = Column(INTEGER(unsigned=True), server_default='1')
-
-    ts_modified = Column(
-        DATETIME, server_default=text(
-            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
-
-    ts_created = Column(
-        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
-
-
-class Billcode(BASE):
-    """Class defining the iset_billcode table of the database."""
-
-    __tablename__ = 'iset_billcode'
-    __table_args__ = (
-        UniqueConstraint(
-            'code'),
-        {
-            'mysql_engine': 'InnoDB'
-        }
-        )
-
-    idx_billcode = Column(
-        BIGINT(unsigned=True), primary_key=True,
-        autoincrement=True, nullable=False)
-
-    code = Column(VARBINARY(512), nullable=True, default=None)
-
-    name = Column(VARBINARY(512), nullable=True, default=None)
-
-    enabled = Column(INTEGER(unsigned=True), server_default='1')
-
-    ts_modified = Column(
-        DATETIME, server_default=text(
-            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
-
-    ts_created = Column(
-        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
-
-
-class Configuration(BASE):
-    """Class defining the iset_configuration table of the database."""
-
-    __tablename__ = 'iset_configuration'
-    __table_args__ = (
-        UniqueConstraint(
-            'config_key'),
-        {
-            'mysql_engine': 'InnoDB'
-        }
-        )
-
-    idx_configuration = Column(
-        BIGINT(unsigned=True), primary_key=True,
-        autoincrement=True, nullable=False)
-
-    config_key = Column(VARBINARY(512), nullable=True, default=None)
-
-    config_value = Column(VARBINARY(512), nullable=True, default=None)
+    agent_program = Column(
+        VARBINARY(512), unique=True, nullable=True, default=None)
 
     enabled = Column(INTEGER(unsigned=True), server_default='1')
 
