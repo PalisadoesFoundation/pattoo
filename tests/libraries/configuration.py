@@ -49,8 +49,8 @@ class UnittestConfig(object):
                 'polling_interval': 20
             },
             'db': {
-                'sqlalchemy_pool_size': 10,
-                'sqlalchemy_max_overflow': 20,
+                'db_pool_size': 10,
+                'db_max_overflow': 20,
                 'db_hostname': 'localhost',
                 'db_username': 'pattoo_username',
                 'db_password': 'pattoo_password',

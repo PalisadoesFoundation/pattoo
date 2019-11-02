@@ -45,8 +45,8 @@ def main():
     config = configuration.Config()
 
     # Define SQLAlchemy parameters from configuration
-    pool_size = config.sqlalchemy_pool_size()
-    max_overflow = config.sqlalchemy_max_overflow()
+    pool_size = config.db_pool_size()
+    max_overflow = config.db_max_overflow()
 
     # Create DB connection pool
     if use_mysql is True:

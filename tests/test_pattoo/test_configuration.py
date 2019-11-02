@@ -37,22 +37,22 @@ class TestConfiguration(unittest.TestCase):
         # Test
         pass
 
-    def test_sqlalchemy_pool_size(self):
-        """Testing method sqlalchemy_pool_size."""
+    def test_db_pool_size(self):
+        """Testing method db_pool_size."""
         # Initialize key values
         expected = 10
 
         # Test
-        result = self.config.sqlalchemy_pool_size()
+        result = self.config.db_pool_size()
         self.assertEqual(result, expected)
 
-    def test_sqlalchemy_max_overflow(self):
-        """Testing method sqlalchemy_max_overflow."""
+    def test_db_max_overflow(self):
+        """Testing method db_max_overflow."""
         # Initialize key values
         expected = 20
 
         # Test
-        result = self.config.sqlalchemy_max_overflow()
+        result = self.config.db_max_overflow()
         self.assertEqual(result, expected)
 
     def test_db_hostname(self):

@@ -108,8 +108,8 @@ class Config(ConfigShared):
         # Get result
         return result
 
-    def sqlalchemy_pool_size(self):
-        """Get sqlalchemy_pool_size.
+    def db_pool_size(self):
+        """Get db_pool_size.
 
         Args:
             None
@@ -120,7 +120,7 @@ class Config(ConfigShared):
         """
         # Get result
         key = 'db'
-        sub_key = 'sqlalchemy_pool_size'
+        sub_key = 'db_pool_size'
         intermediate = configuration.search(
             key, sub_key, self._configuration, die=False)
 
@@ -131,8 +131,8 @@ class Config(ConfigShared):
             result = int(intermediate)
         return result
 
-    def sqlalchemy_max_overflow(self):
-        """Get sqlalchemy_max_overflow.
+    def db_max_overflow(self):
+        """Get db_max_overflow.
 
         Args:
             None
@@ -143,7 +143,7 @@ class Config(ConfigShared):
         """
         # Get result
         key = 'db'
-        sub_key = 'sqlalchemy_max_overflow'
+        sub_key = 'db_max_overflow'
         intermediate = configuration.search(
             key, sub_key, self._configuration, die=False)
 
