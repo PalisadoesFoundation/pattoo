@@ -9,13 +9,12 @@ Manages connection pooling among other things.
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import scoped_session
 from sqlalchemy import event
 from sqlalchemy import exc
 
 # pattoo libraries
 from pattoo_shared import log
-from pattoo.utils import configuration
+from pattoo import configuration
 
 #############################################################################
 # Setup a global pool for database connections
@@ -50,9 +49,9 @@ def main():
 
     # Create DB connection pool
     if use_mysql is True:
-        URL = ('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4') % (
+        URL = ('mysql+pymysql://{}:{}@{}/{}?charset=utf8mb4'.format(
             config.db_username(), config.db_password(),
-            config.db_hostname(), config.db_name())
+            config.db_hostname(), config.db_name()))
 
         # Add MySQL to the pool
         db_engine = create_engine(
@@ -133,20 +132,16 @@ def _add_engine_pidguard(engine):
         # Detect if this is a sub-process
         if connection_record.info['pid'] != pid:
             # substitute log.debug() or similar here as desired
-            log_message = (
-                'Parent process %s forked (%s) with an open '
-                'database connection, '
-                'which is being discarded and recreated.'
-                '') % (
-                    connection_record.info['pid'], pid)
+            log_message = ('''\
+Parent process {} forked ({}) with an open database connection, \
+which is being discarded and recreated.\
+'''.format(connection_record.info['pid'], pid))
             log.log2debug(1079, log_message)
 
             connection_record.connection = connection_proxy.connection = None
-            raise exc.DisconnectionError(
-                "Connection record belongs to pid %s, "
-                "attempting to check out in pid %s" %
-                (connection_record.info['pid'], pid)
-            )
+            raise exc.DisconnectionError('''\
+Connection record belongs to pid {}, attempting to check out in pid {}\
+'''.format(connection_record.info['pid'], pid))
 
 
 if __name__ == 'pattoo.db':

@@ -7,24 +7,14 @@ from sqlalchemy import and_
 # pattoo libraries
 from pattoo_shared import log
 from pattoo.db import POOL
-from pattoo.db.db_orm import Agent
+from pattoo.db.orm import Agent
 
 
 class Database(object):
-    """Class interacts with the connection.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    Methods:
-
-    """
+    """Class interacts with the connection."""
 
     def __init__(self):
-        """Function for intializing the class.
+        """Initialize the class.
 
         Args:
             config: Config object
@@ -70,9 +60,9 @@ class Database(object):
         except Exception as exception_error:
             success = False
             session.rollback()
-            log_message = (
-                'Unable to modify database connection. '
-                'Error: \"%s\"') % (exception_error)
+            log_message = ('''\
+ADD_ALL: Unable to modify database connection. Error: "{}"\
+'''.format(exception_error))
             if die is True:
                 log.log2die(error_code, log_message)
             else:
@@ -135,9 +125,9 @@ class Database(object):
 
         except Exception as exception_error:
             session.rollback()
-            log_message = (
-                'Unable to modify database connection. '
-                'Error: \"%s\"') % (exception_error)
+            log_message = ('''\
+COMMIT: Unable to modify database connection. Error: \"{}\"\
+'''.format(exception_error))
             log.log2die(error_code, log_message)
         except:
             session.rollback()
@@ -169,9 +159,9 @@ class Database(object):
 
         except Exception as exception_error:
             session.rollback()
-            log_message = (
-                'Unable to modify database connection. '
-                'Error: \"%s\"') % (exception_error)
+            log_message = ('''\
+ADD: Unable to modify database connection. Error: "{}"\
+'''.format(exception_error))
             log.log2die(error_code, log_message)
         except:
             session.rollback()
