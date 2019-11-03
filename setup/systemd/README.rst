@@ -10,13 +10,13 @@ Run the ``bin/install_systemd.py`` script. It will install the correct directori
 
 Run the script with the ``-f configuration_directory`` flag to ensure correct operation.
 
-.. code-block:: 
+.. code-block::
 
- bin/install_systemd.py -f /path/to/configuration/directory
+ $ sudo bin/install_systemd.py -f /path/to/configuration/directory
 
 Use the ``--help`` flag to get a complete list of supported options.
 
-.. code-block:: 
+.. code-block::
 
  usage: install_systemd.py [-h] -f CONFIG_DIR
 
