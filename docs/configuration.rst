@@ -41,6 +41,15 @@ Mandatory Configuration Sections
        api_uses_https: False
        api_listen_address: 0.0.0.0
 
+
+   db:
+       db_pool_size: 10
+       db_max_overflow: 10
+       db_hostname: localhost
+       db_username: pattoo
+       db_password: password
+       db_name: pattoo
+
 Configuration Explanation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -75,7 +84,7 @@ This table outlines the purpose of each configuration parameter
      - Interval of data collection and posting in seconds
    * - ``remote_api``
      -
-     - **Note** The ``remote_api`` section is not required for ``patoo-os-spoked`` configurations
+     -
    * -
      - ``api_ip_address``
      - IP address of remote ``pattoodb`` server
@@ -88,6 +97,28 @@ This table outlines the purpose of each configuration parameter
    * -
      - ``api_listen_address``
      - IP address on which the API server will listen. Setting this to ``0.0.0.0`` will make it listen on all IPv4 addresses. Setting to ``"0::"`` will make it listen on all IPv6 configured interfaces. It will not listen on IPv4 and IPv6 addresses simultaneously. You must **quote** all IPv6 addresses. The default is ``0.0.0.0``. This parameter is only used by the ``pattoo`` server.
+   * - ``db``
+     -
+     -
+   * -
+     - ``db_hostname``
+     - Hostname of the database server
+   * -
+     - ``db_username``
+     - Username required for database access
+   * -
+     - ``db_password``
+     - Password required for database access
+   * -
+     - ``db_name``
+     - Name of database
+   * -
+     - ``db_pool_size``
+     - This is the largest number of connections that will be keep persistently with the database
+   * -
+     - ``db_max_overflow``
+     - Maximum overflow size. When the number of connections reaches the size set in ``db_pool_size``, additional connections will be returned up to this limit. This is the floating number of additional database connections to be made available.
+
 
 Notes
 -----

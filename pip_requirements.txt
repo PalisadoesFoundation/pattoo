@@ -11,4 +11,5 @@ PattooShared>=0.0.8
 Flask
 gunicorn
 PyYAML
-sphinxcontrib-fulltoc
+pymysql
+sqlalchemy
