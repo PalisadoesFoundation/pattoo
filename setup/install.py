@@ -51,14 +51,24 @@ def check_pip3():
                 lines.append(_line)
             line = _fp.readline()
 
-    # Print
+    # Try to import the modules listed in the file
     for line in lines:
-        print('??: Checking package {}'.format(line))
+        # Determine the package
+        package = line.split('=', 1)[0]
+        package = package.split('>', 1)[0]
+        print('??: Checking package {}'.format(package))
+        command = 'pip3 show {}'.format(package)
+        (returncode, _, _) = _run_script(command, die=False)
+        if bool(returncode) is True:
+            log_message = ('''\
+Python3 "{}" package not installed or pip3 command not found. Please fix.\
+'''.format(package))
+            _log(log_message)
         print('OK: package {}'.format(line))
 
 
 def check_config():
-    """Ensure PIP3 packages are installed correctly.
+    """Ensure configuration is correct.
 
     Args:
         None
@@ -94,22 +104,44 @@ Then run this command again.
         _log(log_message)
 
     #  Check parameters in the configuration
-    filepath = '{}{}setup/check_config.py'.format(ROOT_DIR, os.sep)
+    filepath = '{}{}setup/_check_config.py'.format(ROOT_DIR, os.sep)
     _run_script(filepath)
-
-    # Print Status
     print('OK: Configuration check passed')
 
+    #  Check database
+    print('??: Setting up database.')
+    filepath = '{}{}setup/_check_database.py'.format(ROOT_DIR, os.sep)
+    _run_script(filepath)
+    print('OK: Database setup complete.')
 
 
-def _run_script(cli_string):
-    """Run the cli_string UNIX CLI command and record output.
+def check_database():
+    """Ensure database is installed correctly.
 
     Args:
         None
 
     Returns:
         None
+
+    """
+    #  Check database
+    print('??: Setting up database.')
+    filepath = '{}{}setup/_check_database.py'.format(ROOT_DIR, os.sep)
+    _run_script(filepath)
+    print('OK: Database setup complete.')
+
+
+def _run_script(cli_string, die=True):
+    """Run the cli_string UNIX CLI command and record output.
+
+    Args:
+        cli_string: String of command to run
+        die: Exit with error if True
+
+    Returns:
+        (returncode, stdoutdata, stderrdata):
+            Execution code, STDOUT output and STDERR output.
 
     """
     # Initialize key variables
@@ -122,7 +154,7 @@ def _run_script(cli_string):
                          '-----------------------------------------')
 
     # Say what we are doing
-    string2print = 'Running Command: {}'.format(cli_string)
+    string2print = 'Running Command: "{}"'.format(cli_string)
     print(string2print)
 
     # Run update_devices script
@@ -137,7 +169,7 @@ def _run_script(cli_string):
     returncode = process.returncode
 
     # Crash if the return code is not 0
-    if returncode != 0:
+    if die is True and bool(returncode) is True:
         # Print the Return Code header
         string2print = '\n{}'.format(pattoo_returncode)
         print(string2print)
@@ -166,6 +198,36 @@ def _run_script(cli_string):
 
         # All done
         sys.exit(2)
+
+    # Return
+    return (returncode, stdoutdata, stderrdata)
+
+def next_steps():
+    """Print what needs to be done after successful installation.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Print
+    message = ('''
+Hooray successful installation! Panna Cotta Time!
+
+Next Steps:
+    1) Start the 'bin/pattoo-api-agentd.py' script.
+    2) Configure your agents to post data to this server.
+
+Other steps:
+    1) You can make pattoo a system daemon by running the scripts in the
+       'setup/systemd' directory. Visit this link for details:
+
+       https://github.com/PalisadoesFoundation/pattoo/tree/master/setup/systemd
+
+''')
+    print(message)
 
 
 def _log(message):
@@ -198,6 +260,12 @@ def main():
 
     # Check configuration
     check_config()
+
+    # Check database
+    check_database()
+
+    # Print next steps
+    next_steps()
 
 
 if __name__ == '__main__':

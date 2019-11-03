@@ -4,8 +4,6 @@
 # Main python libraries
 import sys
 import os
-import locale
-import subprocess
 
 
 # Try to create a working PYTHONPATH
@@ -49,7 +47,7 @@ def check():
     for key in keys:
         if key not in config:
             log_message = ('''\
-Section {} not found in configuration file in directory {}. Please fix.\
+Section "{}" not found in configuration file in directory {}. Please fix.\
 '''.format(key, config_directory))
             log.log2die_safe(21000, log_message)
 
@@ -88,7 +86,6 @@ def secondary_key_check(config, primary, secondaries):
 Configuration file's "{}" section does not have a "{}" sub-section. \
 Please fix.'''.format(primary, key))
             log.log2die_safe(21001, log_message)
-
 
 
 def main():

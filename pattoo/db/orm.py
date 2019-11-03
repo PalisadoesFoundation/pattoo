@@ -40,7 +40,7 @@ class Data(BASE):
 class DataString(BASE):
     """Class defining the pt_data table of the database."""
 
-    __tablename__ = 'pt_data'
+    __tablename__ = 'pt_datastring'
     __table_args__ = (
         PrimaryKeyConstraint(
             'idx_datavariable', 'timestamp'),
