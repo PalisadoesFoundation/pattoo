@@ -20,4 +20,5 @@ When finished you will need to:
 Daemon Setup
 ------------
 
-You can run the various ``pattoo`` processes as ``systemd`` daemons. Read the :ref:`systemd/README.rst` document in the 'setup/systemd' directory for more details.
+You can run the various ``pattoo`` processes as ``systemd`` daemons. Read the `Daemon Setup Documentation
+<https://systemd/README.rst>`_ systemd/README.rst document in the 'setup/systemd' directory for more details.
