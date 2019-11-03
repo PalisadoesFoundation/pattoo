@@ -217,7 +217,7 @@ def next_steps():
 Hooray successful installation! Panna Cotta Time!
 
 Next Steps:
-    1) Start the 'bin/pattoo-api-agentd.py' script.
+    1) Start the 'bin/pattoo-api-agentd.py' script to accept agent data.
     2) Configure your agents to post data to this server.
 
 Other steps:
