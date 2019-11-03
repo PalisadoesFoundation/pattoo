@@ -4,91 +4,102 @@
 # Main python libraries
 import sys
 import os
-import getpass
 import locale
 import subprocess
 
+
 # Try to create a working PYTHONPATH
-_BIN_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-_ROOT_DIRECTORY = os.path.abspath(os.path.join(_BIN_DIRECTORY, os.pardir))
-if _BIN_DIRECTORY.endswith('/pattoo/bin') is True:
-    sys.path.append(_ROOT_DIRECTORY)
+EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
+if EXEC_DIR.endswith('/pattoo/setup') is True:
+    sys.path.append(ROOT_DIR)
 else:
     print(
         'This script is not installed in the "pattoo/bin" directory. '
         'Please fix.')
     sys.exit(2)
 
-# Pattoo libraries
-from pattoo_shared import log
+
+def check_pip3():
+    """Ensure PIP3 packages are installed correctly.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Initialze key variables
+    lines = []
+
+    # Read pip_requirements file
+    filepath = '{}{}pip_requirements.txt'.format(ROOT_DIR, os.sep)
+    if os.path.isfile(filepath) is False:
+        _log('Cannot find PIP3 requirements file {}'.format(filepath))
+
+    with open(filepath, 'r') as _fp:
+        line = _fp.readline()
+        while line:
+            # Strip line
+            _line = line.strip()
+
+            # Read line
+            if True in [_line.startswith('#'), bool(_line) is False]:
+                pass
+            else:
+                lines.append(_line)
+            line = _fp.readline()
+
+    # Print
+    for line in lines:
+        print('??: Checking package {}'.format(line))
+        print('OK: package {}'.format(line))
 
 
-class _PythonSetupPackages(object):
-    """Class to setup Python."""
+def check_config():
+    """Ensure PIP3 packages are installed correctly.
 
-    def __init__(self):
-        """Initialize the class.
+    Args:
+        None
 
-        Args:
-            None
+    Returns:
+        None
 
-        Returns:
-            None
+    """
+    # Print Status
+    print('??: Checking configuration')
 
-        """
-        # Initialize key variables
-        self._username = getpass.getuser()
-        valid = True
-        major = 3
-        minor = 5
-        major_installed = sys.version_info[0]
-        minor_installed = sys.version_info[1]
+    # Make sure the PATTOO_CONFIGDIR environment variable is set
+    if 'PATTOO_CONFIGDIR' not in os.environ:
+        log_message = ('''\
+Set your PATTOO_CONFIGDIR to point to your configuration directory like this:
 
-        # Exit if python version is too low
-        if major_installed < major:
-            valid = False
-        elif major_installed == major and minor_installed < minor:
-            valid = False
-        if valid is False:
-            log_message = (
-                'Required python version must be >= {}.{}. '
-                'Python version {}.{} installed'
-                ''.format(major, minor, major_installed, minor_installed))
-            log.log2die_safe(21027, log_message)
+$ export PATTOO_CONFIGDIR=/path/to/configuration/directory
 
-    def run(self):
-        """Install PIP3 packages.
+Then run this command again.
+''')
+        _log(log_message)
 
-        Args:
-            None
+    # Make sure the PATTOO_CONFIGDIR environment variable is set
+    if os.path.isdir(os.environ['PATTOO_CONFIGDIR']) is False:
+        log_message = ('''\
+Set your PATTOO_CONFIGDIR cannot be found. Set the variable to point to an \
+existing directory:
 
-        Returns:
-            None
+$ export PATTOO_CONFIGDIR=/path/to/configuration/directory
 
-        """
-        # Initialize key variables
-        username = self._username
+Then run this command again.
+''')
+        _log(log_message)
 
-        # Don't attempt to install packages if running in the Travis CI
-        # environment
-        if 'TRAVIS' in os.environ and 'CI' in os.environ:
-            return
+    #  Check parameters in the configuration
+    filepath = '{}{}setup/check_config.py'.format(ROOT_DIR, os.sep)
+    _run_script(filepath)
 
-        # Determine whether PIP3 exists
-        print('Installing required pip3 packages from requirements.txt file.')
-        requirements_file = (
-            '{}/pip_requirements.txt'.format(_ROOT_DIRECTORY))
+    # Print Status
+    print('OK: Configuration check passed')
 
-        if username == 'root':
-            script_name = ('''\
-pip3 install --upgrade --requirement {}'''.format(requirements_file))
-        else:
-            script_name = ('''\
-pip3 install --user --upgrade --requirement {}'''.format(requirements_file))
-        _run_script(script_name)
-
-        # Status message
-        print('pip3 packages installation complete.')
 
 
 def _run_script(cli_string):
@@ -111,7 +122,7 @@ def _run_script(cli_string):
                          '-----------------------------------------')
 
     # Say what we are doing
-    string2print = '\nRunning Command: {}'.format(cli_string)
+    string2print = 'Running Command: {}'.format(cli_string)
     print(string2print)
 
     # Run update_devices script
@@ -157,8 +168,23 @@ def _run_script(cli_string):
         sys.exit(2)
 
 
-def run():
-    """Setup infoset-ng.
+def _log(message):
+    """Log messages and exit abnormally.
+
+    Args:
+        message: Message to print
+
+    Returns:
+        None
+
+    """
+    # exit
+    print('\nPATTOO Error: {}'.format(message))
+    sys.exit(3)
+
+
+def main():
+    """Setup pattoo.
 
     Args:
         None
@@ -167,10 +193,13 @@ def run():
         None
 
     """
-    # Determine whether version of python is valid
-    _PythonSetupPackages().run()
+    # Check PIP3 packages
+    check_pip3()
+
+    # Check configuration
+    check_config()
 
 
 if __name__ == '__main__':
     # Run setup
-    run()
+    main()
