@@ -31,9 +31,9 @@ Please fix.''')
     sys.exit(2)
 
 # pattoo libraries
-from tests.libraries import error_code
-from tests.libraries.configuration import UnittestConfig
+from pattoo_shared import errors
 from pattoo_shared import files
+from tests.libraries.configuration import UnittestConfig
 
 
 def main():
@@ -62,7 +62,8 @@ def main():
     run_script(command)
 
     # Check error codes
-    error_code.check(root_dir)
+    command = '{}/tests/bin/error_code_report.py'.format(root_dir)
+    run_script(command)
 
     # Print
     message = ('\nHooray - All Done OK!\n')
