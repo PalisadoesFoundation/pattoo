@@ -23,7 +23,7 @@ Please fix.''')
 
 
 # Import pattoo libraries
-from tests.libraries import error_code
+from pattoo_shared import errors
 
 
 def main():
@@ -37,7 +37,9 @@ def main():
 
     """
     # Get code report
-    error_code.check(ROOT_DIR)
+    minimum = 20000
+    maximum = 39999    
+    errors.check_source_code(ROOT_DIR, minimum=minimum, maximum=maximum)
 
 
 if __name__ == '__main__':
