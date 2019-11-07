@@ -150,6 +150,8 @@ class Agent(BASE):
     agent_program = Column(
         VARBINARY(512), unique=True, nullable=True, default=None)
 
+    polling_interval = Column(INTEGER(unsigned=True), server_default='1')
+
     enabled = Column(INTEGER(unsigned=True), server_default='1')
 
     ts_modified = Column(
