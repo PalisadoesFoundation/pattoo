@@ -98,7 +98,7 @@ def idx_agent(
     )
     database = db.Database()
     try:
-        database.add(row, 1145)
+        database.add(row, 1146)
         success = True
     except pymysql.IntegrityError:
         # There may be a duplicate agent name if this is a brand
@@ -147,7 +147,7 @@ def idx_datasource(idx_agent=None, gateway=None, device=None):
     )
     database = db.Database()
     try:
-        database.add(row, 1145)
+        database.add(row, 1147)
         success = True
     except pymysql.IntegrityError:
         # There may be a duplicate agent name if this is a brand
@@ -211,7 +211,7 @@ def idx_datavariable(
     )
     database = db.Database()
     try:
-        database.add(row, 1145)
+        database.add(row, 1148)
         success = True
     except pymysql.IntegrityError:
         # There may be a duplicate agent name if this is a brand

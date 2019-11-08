@@ -136,9 +136,13 @@ class Agent(BASE):
     """Class defining the pt_agent table of the database."""
 
     __tablename__ = 'pt_agent'
-    __table_args__ = {
-        'mysql_engine': 'InnoDB'
-    }
+    __table_args__ = (
+        UniqueConstraint(
+            'agent_id', 'agent_hostname', 'agent_program', 'polling_interval'),
+        {
+            'mysql_engine': 'InnoDB'
+        }
+    )
 
     idx_agent = Column(
         BIGINT(unsigned=True), primary_key=True,
@@ -147,10 +151,10 @@ class Agent(BASE):
     agent_id = Column(VARBINARY(512), unique=True, nullable=True, default=None)
 
     agent_hostname = Column(
-        VARBINARY(512), unique=True, nullable=True, default=None)
+        VARBINARY(512), unique=False, nullable=True, default=None)
 
     agent_program = Column(
-        VARBINARY(512), unique=True, nullable=True, default=None)
+        VARBINARY(512), unique=False, nullable=True, default=None)
 
     polling_interval = Column(INTEGER(unsigned=True), server_default='1')
 

@@ -58,7 +58,7 @@ def main():
 
     # Read data into a list of tuples
     # [(filepath, AgentPolledData obj), (filepath, AgentPolledData obj) ...]
-    for filepath, json_data in directory_data:
+    for filepath, json_data in sorted(directory_data):
         # Get data from JSON file
         apd = converter.convert(json_data)
         filepaths.append(filepath)
