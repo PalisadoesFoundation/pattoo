@@ -39,7 +39,6 @@ def process(row):
     # and if we are working with numeric values
     if (last_timestamp < row.timestamp) and (
             row.data_type not in [DATA_NONE, DATA_STRING]):
-        #print(last_timestamp, row.agent_id)
         insert.timeseries(
             idx_datavariable=idx_datavariable,
             value=row.value,
