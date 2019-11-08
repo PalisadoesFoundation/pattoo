@@ -1,15 +1,64 @@
 #!/usr/bin/env python3
 """Pattoo classes that manage various data."""
 
+import sys
+
 # PIP libraries
 import pymysql
-from sqlalchemy import and_
 
 # Import project libraries
-from pattoo_shared.variables import (AgentPolledData, DeviceGateway)
-
 from pattoo.db import db
-from pattoo.db.orm import Agent, DataSource, DataVariable
+from pattoo.db.orm import Agent, DataSource, DataVariable, Data
+
+
+def timeseries(
+        idx_datavariable=None, timestamp=None, value=None,):
+    """Insert timeseries data.
+
+    Args:
+        idx_datavariable: Agent ID
+        timestamp: Agent hostname
+        value: Agent program name
+
+    Returns:
+        result: Agent.idx_agent value
+
+    """
+    # Initialize key variables
+    success = False
+    _idx_datavariable = idx_datavariable
+
+    # Filter invalid data
+    if None in [_idx_datavariable, timestamp, value]:
+        return False
+    if isinstance(_idx_datavariable, int) is False:
+        return False
+    if isinstance(timestamp, int) is False:
+        return False
+    if isinstance(value, (float, int)) is False:
+        return False
+
+    # Insert and get the new idx_agent value
+    row = Data(
+        idx_datavariable=_idx_datavariable,
+        timestamp=timestamp,
+        value=value
+    )
+    database = db.Database()
+    try:
+        database.add(row, 1145)
+        success = True
+    except pymysql.IntegrityError:
+        # There may be a duplicate agent name if this is a brand
+        # new database and there is a flurry of updates from multiple
+        # agents. This is OK, pass.
+        #
+        # We are expecting a 'pymysql.err.IntegrityError' but for some
+        # reason it could not be caught.
+        pass
+
+    # Return
+    return success
 
 
 def idx_agent(
