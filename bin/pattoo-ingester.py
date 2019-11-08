@@ -42,6 +42,8 @@ def main():
     """
     # Initialize key variables
     result = []
+    agent_id_rows = {}
+    muliprocessing_data = []
     filepath = None
     count = 0
 
@@ -56,14 +58,21 @@ def main():
         apd = converter.convert(json_data)
         if isinstance(apd, AgentPolledData) is True:
             if apd.valid is True:
-                result.append((filepath, apd))
-                rows = converter.extract(apd)
+                # Create an entry to store time sorted data from each agent
+                if apd.agent_id not in agent_id_rows:
+                    agent_id_rows[apd.agent_id] = []
 
-                # Process
-                for row in rows:
-                    # print(row)
-                    data.process(row)
-                    count += 1
+                # Get data from agent and append it
+                rows = converter.extract(apd)
+                # print(rows)
+                agent_id_rows[apd.agent_id].extend(rows)
+                result.append((filepath, apd))
+                count += len(rows)
+
+    # Multiprocess the data
+    for _, item in sorted(agent_id_rows.items()):
+        muliprocessing_data.append(item)
+    data.mulitiprocess(muliprocessing_data)
 
     # Print result
     print('\n{} records processed.\n'.format(count))

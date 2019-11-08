@@ -3,7 +3,7 @@
 
 # Standard imports
 import collections
-import sys
+import multiprocessing
 
 # PIP libraries
 from sqlalchemy import and_
@@ -15,9 +15,58 @@ from pattoo.db.orm import DataVariable
 from pattoo.ingest import exists
 from pattoo.ingest import insert
 
+Values = collections.namedtuple(
+    'Values', '''\
+agent_id agent_program agent_hostname timestamp polling_interval gateway \
+device data_label data_index value data_type checksum''')
+
+
+def mulitiprocess(allrows):
+    """Get the database Agent.idx_agent value for an AgentPolledData object.
+
+    Args:
+        allrows: List of lists. Each row is a list of
+            PattooShared.converter.extract NamedTuple objects from a single
+            agent.
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    sub_processes_in_pool = max(1, multiprocessing.cpu_count())
+
+    print('->-> ', type(allrows))
+    print('->-> ', type(allrows[0]))
+
+    # Create a pool of sub process resources
+    with multiprocessing.Pool(processes=sub_processes_in_pool) as pool:
+
+        # Create sub processes from the pool
+        pool.starmap(process_agent_rows, allrows)
+
+    # Wait for all the processes to end and get results
+    pool.join()
+
+
+def process_agent_rows(rows):
+    """Insert all data values for an agent into database.
+
+    Args:
+        rows: List of PattooShared.converter.extract NamedTuple objects from
+            the same agent sorted by timestamp
+
+    Returns:
+        None
+
+    """
+    # Process data
+    for row in rows:
+        process(row)
+
 
 def process(row):
-    """Get the database Agent.idx_agent value for an AgentPolledData object.
+    """Insert agent data value into database.
 
     Args:
         row: PattooShared.converter.extract NamedTuple
