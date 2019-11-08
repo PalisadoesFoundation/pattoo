@@ -7,7 +7,7 @@ from sqlalchemy import and_
 
 # pattoo libraries
 from pattoo_shared import log
-from pattoo.db import POOL 
+from pattoo.db import POOL
 from pattoo.db.orm import Agent
 
 
@@ -27,7 +27,7 @@ class Database(object):
         # Intialize key variables
         self._session = POOL()
 
-    def add_all(self, data_list, error_code, die=True):
+    def db_add_all(self, data_list, error_code, die=True):
         """Do a database modification.
 
         Args:
@@ -43,7 +43,7 @@ class Database(object):
         success = False
 
         # Open database connection. Prepare cursor
-        session = self.session()
+        session = self.db_session()
 
         try:
             # Update the database cache
@@ -53,7 +53,7 @@ class Database(object):
             session.commit()
 
             # disconnect from server
-            self.close()
+            self.db_close()
 
             # Update success
             success = True
@@ -79,9 +79,10 @@ ADD_ALL: Unable to modify database connection. Error: "{}"\
                 log.log2warning(error_code, log_message)
 
         # Return
+        self.db_close()
         return success
 
-    def session(self):
+    def db_session(self):
         """Create a session from the database pool.
 
         Args:
@@ -95,7 +96,7 @@ ADD_ALL: Unable to modify database connection. Error: "{}"\
         db_session = self._session
         return db_session
 
-    def close(self):
+    def db_close(self):
         """Return a session to the database pool.
 
         Args:
@@ -106,9 +107,9 @@ ADD_ALL: Unable to modify database connection. Error: "{}"\
 
         """
         # Return session
-        self.session().close()
+        self.db_session().close()
 
-    def commit(self, session, error_code):
+    def db_commit(self, session, error_code):
         """Do a database modification.
 
         Args:
@@ -136,9 +137,9 @@ COMMIT: Unable to modify database connection. Error: \"{}\"\
             log.log2die(error_code, log_message)
 
         # disconnect from server
-        self.close()
+        self.db_close()
 
-    def add(self, record, error_code):
+    def db_add(self, record, error_code):
         """Add a record to the database.
 
         Args:
@@ -150,7 +151,7 @@ COMMIT: Unable to modify database connection. Error: \"{}\"\
 
         """
         # Initialize key variables
-        session = self.session()
+        session = self.db_session()
 
         # Do add
         try:
@@ -170,7 +171,7 @@ ADD: Unable to modify database connection. Error: "{}"\
             log.log2die(error_code, log_message)
 
         # disconnect from server
-        self.close()
+        self.db_close()
 
 
 def connectivity():

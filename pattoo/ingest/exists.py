@@ -33,9 +33,10 @@ def idx_datavariable_checksum(checksum):
 
     # Get the result
     database = db.Database()
-    session = database.session()
+    session = database.db_session()
     rows = session.query(DataVariable).filter(
         DataVariable.checksum == checksum.encode())
+    session.close()
 
     # Return
     if bool(rows.count()) is True:
@@ -77,12 +78,13 @@ def idx_agent(
 
     # Get the result
     database = db.Database()
-    session = database.session()
+    session = database.db_session()
     rows = session.query(Agent).filter(and_(
         Agent.agent_id == agent_id.encode(),
         Agent.agent_hostname == agent_hostname.encode(),
         Agent.agent_program == agent_program.encode(),
         Agent.polling_interval == polling_interval))
+    session.close()
 
     # Return
     if bool(rows.count()) is True:
@@ -118,11 +120,12 @@ def idx_datasource(idx_agent, gateway, device):
 
     # Get the result
     database = db.Database()
-    session = database.session()
+    session = database.db_session()
     rows = session.query(DataSource).filter(and_(
         DataSource.idx_agent == _idx_agent,
         DataSource.gateway == gateway.encode(),
         DataSource.device == device.encode()))
+    session.close()
 
     # Return
     if bool(rows.count()) is True:
@@ -170,7 +173,7 @@ def idx_datavariable(
 
     # Get the result
     database = db.Database()
-    session = database.session()
+    session = database.db_session()
     rows = session.query(DataVariable).filter(and_(
         DataVariable.idx_datasource == idx_datasource,
         DataVariable.last_timestamp == timestamp,
@@ -178,6 +181,7 @@ def idx_datavariable(
         DataVariable.data_label == data_label.encode(),
         DataVariable.data_index == data_index.encode(),
         DataVariable.data_type == data_type))
+    session.close()
 
     # Return
     if bool(rows.count()) is True:

@@ -90,14 +90,14 @@ def process(row):
 
         # Update the DataVariable table
         database = db.Database()
-        session = database.session()
+        session = database.db_session()
 
         # Update
         session.query(DataVariable).filter(
             and_(DataVariable.idx_datavariable == idx_datavariable,
                  DataVariable.enabled == 1)).update(
                      {'last_timestamp': row.timestamp})
-        database.commit(session, 1057)
+        database.db_commit(session, 1057)
 
 
 def process_metadata(row):

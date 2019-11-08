@@ -44,7 +44,7 @@ def timeseries(
     )
     database = db.Database()
     try:
-        database.add(row, 1145)
+        database.db_add(row, 20000)
         success = True
     except pymysql.IntegrityError:
         # There may be a duplicate agent name if this is a brand
@@ -98,7 +98,7 @@ def idx_agent(
     )
     database = db.Database()
     try:
-        database.add(row, 1146)
+        database.db_add(row, 20001)
         success = True
     except pymysql.IntegrityError:
         # There may be a duplicate agent name if this is a brand
@@ -147,7 +147,7 @@ def idx_datasource(idx_agent=None, gateway=None, device=None):
     )
     database = db.Database()
     try:
-        database.add(row, 1147)
+        database.db_add(row, 20002)
         success = True
     except pymysql.IntegrityError:
         # There may be a duplicate agent name if this is a brand
@@ -211,7 +211,7 @@ def idx_datavariable(
     )
     database = db.Database()
     try:
-        database.add(row, 1148)
+        database.db_add(row, 20003)
         success = True
     except pymysql.IntegrityError:
         # There may be a duplicate agent name if this is a brand
