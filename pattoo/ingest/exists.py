@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 """Verifies the existence of various database table primary key values."""
 
-import sys
+# Standard imports
+import collections
 
 # PIP libraries
 from sqlalchemy import and_
 
 # Import project libraries
-from pattoo_shared.variables import (AgentPolledData, DeviceGateway)
-from pattoo_shared import data as lib_data
-
 from pattoo.db import db
 from pattoo.db.orm import Agent, DataSource, DataVariable
 
@@ -26,6 +24,8 @@ def idx_datavariable_checksum(checksum):
     """
     # Initialize key variables
     result = None
+    datatuple = collections.namedtuple(
+        'Values', 'idx_datavariable last_timestamp')
 
     # Filter invalid data
     if isinstance(checksum, str) is False:
@@ -39,7 +39,9 @@ def idx_datavariable_checksum(checksum):
 
     # Return
     if bool(rows.count()) is True:
-        result = rows[0].idx_datavariable
+        result = datatuple(
+            idx_datavariable=rows[0].idx_datavariable,
+            last_timestamp=rows[0].last_timestamp)
     return result
 
 

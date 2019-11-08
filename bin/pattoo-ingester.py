@@ -43,6 +43,7 @@ def main():
     # Initialize key variables
     result = []
     filepath = None
+    count = 0
 
     # Read data from cache
     config = Config()
@@ -60,14 +61,12 @@ def main():
 
                 # Process
                 for row in rows:
-                    print(row)
+                    # print(row)
                     data.process(row)
-                break
+                    count += 1
 
-    # Show results prior to writing code to add to database.
-    if bool(filepath) is True and bool(apd) is True:
-        print('\n{}\n'.format(filepath))
-        pprint(rows)
+    # Print result
+    print('\n{} records processed.\n'.format(count))
 
 
 if __name__ == '__main__':

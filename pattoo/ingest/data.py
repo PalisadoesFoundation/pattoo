@@ -3,18 +3,15 @@
 
 # Standard imports
 import collections
+import sys
 
 # PIP libraries
-import pymysql
 from sqlalchemy import and_
 
 # Import project libraries
-from pattoo_shared.variables import (
-    AgentPolledData, DeviceGateway, DeviceDataVariables, DataVariable)
-from pattoo_shared import data as lib_data
-
+from pattoo_shared.constants import DATA_NONE, DATA_STRING
 from pattoo.db import db
-from pattoo.db.orm import Agent
+from pattoo.db.orm import DataVariable
 from pattoo.ingest import exists
 from pattoo.ingest import insert
 
@@ -30,10 +27,54 @@ def process(row):
 
     """
     # Do nothing if OK.
-    idx_datavariable = exists.idx_datavariable_checksum(row.checksum)
-    if bool(idx_datavariable) is True:
-        print('found')
+    result = process_metadata(row)
+    if bool(result) is False:
         return
+
+    # Update the Data table
+    idx_datavariable = result.idx_datavariable
+    last_timestamp = result.last_timestamp
+
+    # Only update data and last_timestamp if data is more current
+    # and if we are working with numeric values
+    if (last_timestamp < row.timestamp) and (
+            row.data_type not in [DATA_NONE, DATA_STRING]):
+        #print(last_timestamp, row.agent_id)
+        insert.timeseries(
+            idx_datavariable=idx_datavariable,
+            value=row.value,
+            timestamp=row.timestamp)
+
+        # Update the DataVariable table
+        database = db.Database()
+        session = database.session()
+
+        # Update
+        session.query(DataVariable).filter(
+            and_(DataVariable.idx_datavariable == idx_datavariable,
+                 DataVariable.enabled == 1)).update(
+                     {'last_timestamp': row.timestamp})
+        database.commit(session, 1057)
+
+
+def process_metadata(row):
+    """Populate tables with foreign keys pointing to the Data table.
+
+    Args:
+        row: PattooShared.converter.extract NamedTuple
+
+    Returns:
+        result: NamedTuple keyed by idx_datavariable and last_timestamp
+
+    """
+    # Initialize key variables
+    datatuple = collections.namedtuple(
+        'Values', 'idx_datavariable last_timestamp')
+
+    # Do nothing if OK.
+    result = exists.idx_datavariable_checksum(row.checksum)
+    if bool(result) is True:
+        return result
 
     # Create an entry in the database Agent table if necessary
     idx_agent = process_agent_table(
@@ -61,6 +102,10 @@ def process(row):
     # Stop if row cannot be processed
     if bool(idx_datavariable) is False:
         return
+
+    # Return
+    result = datatuple(idx_datavariable=idx_datavariable, last_timestamp=1)
+    return result
 
 
 def process_agent_table(
