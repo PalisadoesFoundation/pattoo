@@ -10,6 +10,7 @@ from sqlalchemy import and_
 # Import project libraries
 from pattoo.db import db
 from pattoo.db.orm import Agent, DataSource, DataVariable
+from pattoo_shared.constants import LastTimestamp
 
 
 def idx_datavariable_checksum(checksum):
@@ -24,8 +25,6 @@ def idx_datavariable_checksum(checksum):
     """
     # Initialize key variables
     result = None
-    datatuple = collections.namedtuple(
-        'Values', 'idx_datavariable last_timestamp')
 
     # Filter invalid data
     if isinstance(checksum, str) is False:
@@ -40,7 +39,7 @@ def idx_datavariable_checksum(checksum):
 
     # Return
     if bool(rows.count()) is True:
-        result = datatuple(
+        result = LastTimestamp(
             idx_datavariable=rows[0].idx_datavariable,
             last_timestamp=rows[0].last_timestamp)
     return result

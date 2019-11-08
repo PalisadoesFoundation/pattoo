@@ -10,8 +10,9 @@ from operator import attrgetter
 from sqlalchemy import and_
 
 # Import project libraries
-from pattoo_shared.constants import DATA_NONE, DATA_STRING
+from pattoo_shared.constants import DATA_NONE, DATA_STRING, LastTimestamp
 from pattoo.db import db
+from pattoo.db.orm import Data
 from pattoo.db.orm import DataVariable
 from pattoo.ingest import exists
 from pattoo.ingest import insert
@@ -54,10 +55,31 @@ def process_agent_rows(rows):
         None
 
     """
+    last_timestamp_tuples = []
+
+    IngestDataRecord = collections.namedtuple(
+        'IngestDataRecord', '''\
+agent_id agent_program agent_hostname timestamp polling_interval gateway \
+device data_label data_index value data_type checksum''')
+
+
     # Process data
     _rows = sorted(rows, key=attrgetter('timestamp'))
     for row in _rows:
-        process(row)
+        result = process(row)
+        if bool(result) is True:
+            last_timestamp_tuples.append(result)
+
+    # Update the last_timestamp
+    database = db.Database()
+    session = database.db_session()
+    for item in last_timestamp_tuples:
+        session.query(DataVariable).filter(
+            and_(DataVariable.idx_datavariable == item.idx_datavariable,
+                 DataVariable.enabled == 1)).update(
+                     {'last_timestamp': item.last_timestamp})
+    database.db_commit(session, 1057)
+
 
 
 def process(row):
@@ -70,34 +92,26 @@ def process(row):
         None
 
     """
+    Values = collections.namedtuple(
+        'Values', 'idx_datavariable last_timestamp value')
+
     # Do nothing if OK.
     result = process_metadata(row)
     if bool(result) is False:
-        return
-
-    # Update the Data table
-    idx_datavariable = result.idx_datavariable
-    last_timestamp = result.last_timestamp
+        return None
 
     # Only update data and last_timestamp if data is more current
     # and if we are working with numeric values
-    if (last_timestamp < row.timestamp) and (
+    if (result.last_timestamp < row.timestamp) and (
             row.data_type not in [DATA_NONE, DATA_STRING]):
-        insert.timeseries(
-            idx_datavariable=idx_datavariable,
-            value=row.value,
-            timestamp=row.timestamp)
+        _result = Values(
+            idx_datavariable=result.idx_datavariable,
+            last_timestamp=row.timestamp,
+            value=row.value)
+        return _result
 
-        # Update the DataVariable table
-        database = db.Database()
-        session = database.db_session()
-
-        # Update
-        session.query(DataVariable).filter(
-            and_(DataVariable.idx_datavariable == idx_datavariable,
-                 DataVariable.enabled == 1)).update(
-                     {'last_timestamp': row.timestamp})
-        database.db_commit(session, 1057)
+    # Return
+    return None
 
 
 def process_metadata(row):
@@ -110,10 +124,6 @@ def process_metadata(row):
         result: NamedTuple keyed by idx_datavariable and last_timestamp
 
     """
-    # Initialize key variables
-    datatuple = collections.namedtuple(
-        'Values', 'idx_datavariable last_timestamp')
-
     # Do nothing if OK.
     result = exists.idx_datavariable_checksum(row.checksum)
     if bool(result) is True:
@@ -147,7 +157,7 @@ def process_metadata(row):
         return
 
     # Return
-    result = datatuple(idx_datavariable=idx_datavariable, last_timestamp=1)
+    result = LastTimestamp(idx_datavariable=idx_datavariable, last_timestamp=1)
     return result
 
 
