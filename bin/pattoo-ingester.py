@@ -28,6 +28,7 @@ from pattoo_shared import files
 from pattoo_shared import converter
 from pattoo_shared.variables import AgentPolledData
 
+from pattoo.ingest import data
 
 def main():
     """Ingest data.
@@ -51,17 +52,22 @@ def main():
     # Read data into a list of tuples
     # [(filepath, AgentPolledData obj), (filepath, AgentPolledData obj) ...]
     for filepath, json_data in directory_data:
-        agentdata = converter.convert(json_data)
-        if isinstance(agentdata, AgentPolledData) is True:
-            if agentdata.valid is True:
-                result.append((filepath, agentdata))
-                row = converter.extract(agentdata)
+        apd = converter.convert(json_data)
+        if isinstance(apd, AgentPolledData) is True:
+            if apd.valid is True:
+                result.append((filepath, apd))
+                rows = converter.extract(apd)
+
+                # Process
+                for row in rows:
+                    print(row)
+                    data.process(row)
                 break
 
     # Show results prior to writing code to add to database.
-    if bool(filepath) is True and bool(agentdata) is True:
+    if bool(filepath) is True and bool(apd) is True:
         print('\n{}\n'.format(filepath))
-        pprint(row)
+        pprint(rows)
 
 
 if __name__ == '__main__':
