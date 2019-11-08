@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Pattoo classes that manage various data."""
 
-import sys
-
 # PIP libraries
 import pymysql
 

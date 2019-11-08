@@ -4,6 +4,7 @@
 # Standard imports
 import collections
 import multiprocessing
+from operator import attrgetter
 
 # PIP libraries
 from sqlalchemy import and_
@@ -14,11 +15,6 @@ from pattoo.db import db
 from pattoo.db.orm import DataVariable
 from pattoo.ingest import exists
 from pattoo.ingest import insert
-
-Values = collections.namedtuple(
-    'Values', '''\
-agent_id agent_program agent_hostname timestamp polling_interval gateway \
-device data_label data_index value data_type checksum''')
 
 
 def mulitiprocess(allrows):
@@ -35,15 +31,13 @@ def mulitiprocess(allrows):
     """
     # Initialize key variables
     sub_processes_in_pool = max(1, multiprocessing.cpu_count())
-
-    print('->-> ', type(allrows))
-    print('->-> ', type(allrows[0]))
+    arguments = [(_, ) for _ in allrows]
 
     # Create a pool of sub process resources
     with multiprocessing.Pool(processes=sub_processes_in_pool) as pool:
 
         # Create sub processes from the pool
-        pool.starmap(process_agent_rows, allrows)
+        pool.starmap(process_agent_rows, arguments)
 
     # Wait for all the processes to end and get results
     pool.join()
@@ -54,14 +48,15 @@ def process_agent_rows(rows):
 
     Args:
         rows: List of PattooShared.converter.extract NamedTuple objects from
-            the same agent sorted by timestamp
+            the same agent SORTED by timestamp
 
     Returns:
         None
 
     """
     # Process data
-    for row in rows:
+    _rows = sorted(rows, key=attrgetter('timestamp'))
+    for row in _rows:
         process(row)
 
 

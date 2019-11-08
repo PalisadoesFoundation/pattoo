@@ -8,7 +8,6 @@ Used to add data to backend database
 # Standard libraries
 import sys
 import os
-from pprint import pprint
 
 # Try to create a working PYTHONPATH
 _BIN_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -25,6 +24,7 @@ else:
 from pattoo_shared.constants import PATTOO_API_AGENT_EXECUTABLE
 from pattoo_shared.configuration import Config
 from pattoo_shared import files
+from pattoo_shared import log
 from pattoo_shared import converter
 from pattoo_shared.variables import AgentPolledData
 
@@ -41,11 +41,15 @@ def main():
 
     """
     # Initialize key variables
-    result = []
     agent_id_rows = {}
     muliprocessing_data = []
-    filepath = None
+    filepaths = []
+    script = os.path.realpath(__file__)
     count = 0
+
+    # Log what we are doing
+    log_message = 'Running script {}.'.format(script)
+    log.log2info(21003, log_message)
 
     # Read data from cache
     config = Config()
@@ -55,7 +59,12 @@ def main():
     # Read data into a list of tuples
     # [(filepath, AgentPolledData obj), (filepath, AgentPolledData obj) ...]
     for filepath, json_data in directory_data:
+        # Get data from JSON file
         apd = converter.convert(json_data)
+        filepaths.append(filepath)
+
+        # Convert data in JSON file to rows of
+        # PattooShared.constants.PattooDBrecord objects
         if isinstance(apd, AgentPolledData) is True:
             if apd.valid is True:
                 # Create an entry to store time sorted data from each agent
@@ -64,9 +73,7 @@ def main():
 
                 # Get data from agent and append it
                 rows = converter.extract(apd)
-                # print(rows)
                 agent_id_rows[apd.agent_id].extend(rows)
-                result.append((filepath, apd))
                 count += len(rows)
 
     # Multiprocess the data
@@ -74,8 +81,14 @@ def main():
         muliprocessing_data.append(item)
     data.mulitiprocess(muliprocessing_data)
 
+    # Delete source files after processing
+    for filepath in filepaths:
+        os.remove(filepath)
+
     # Print result
-    print('\n{} records processed.\n'.format(count))
+    log_message = (
+        'Script {} completed. {} records processed.'.format(script, count))
+    log.log2info(21004, log_message)
 
 
 if __name__ == '__main__':
