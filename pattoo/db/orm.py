@@ -78,6 +78,8 @@ class DataVariable(BASE):
         BIGINT(unsigned=True), ForeignKey('pt_datasource.idx_datasource'),
         nullable=False, server_default='1')
 
+    checksum = Column(VARBINARY(512), nullable=True, default=None)
+
     data_label = Column(VARBINARY(512), nullable=True, default=None)
 
     data_index = Column(VARBINARY(128), nullable=True, default=None)
