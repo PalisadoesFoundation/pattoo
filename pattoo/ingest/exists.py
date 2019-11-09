@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
 """Verifies the existence of various database table primary key values."""
 
-# Standard imports
-import collections
-
 # PIP libraries
 from sqlalchemy import and_
 
 # Import project libraries
 from pattoo.db import db
 from pattoo.db.orm import Agent, DataSource, DataVariable
-from pattoo_shared.constants import LastTimestamp
+from pattoo import LastTimestamp
 
 
 def idx_datavariable_checksum(checksum):

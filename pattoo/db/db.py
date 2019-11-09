@@ -189,7 +189,7 @@ def connectivity():
 
     # Do test
     database = Database()
-    session = database.session()
+    session = database.db_session()
 
     try:
         result = session.query(Agent.id_agent).filter(
@@ -200,7 +200,7 @@ def connectivity():
     except:
         pass
 
-    database.close()
+    database.db_close()
 
     # Return
     return valid

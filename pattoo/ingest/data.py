@@ -2,7 +2,6 @@
 """Pattoo classes that manage various data."""
 
 # Standard imports
-import collections
 import multiprocessing
 from operator import attrgetter
 
@@ -10,9 +9,10 @@ from operator import attrgetter
 from sqlalchemy import and_
 
 # Import project libraries
-from pattoo_shared.constants import DATA_NONE, DATA_STRING, LastTimestamp
+from pattoo_shared.constants import DATA_NONE, DATA_STRING
+from pattoo import LastTimestamp, LastTimestampValue
 from pattoo.db import db
-from pattoo.db.orm import Data
+from pattoo.db.orm import Data, Agent, DataSource
 from pattoo.db.orm import DataVariable
 from pattoo.ingest import exists
 from pattoo.ingest import insert
@@ -55,31 +55,104 @@ def process_agent_rows(rows):
         None
 
     """
-    last_timestamp_tuples = []
+    # Initialize key variables
+    items = []
 
-    IngestDataRecord = collections.namedtuple(
-        'IngestDataRecord', '''\
-agent_id agent_program agent_hostname timestamp polling_interval gateway \
-device data_label data_index value data_type checksum''')
+    # Return if there is nothint to process
+    if bool(rows) is False:
+        return
 
+    # Get checksum values for this agent_id from the DataVariable table
+    checksums = _agent_checksums(rows[0])
 
     # Process data
     _rows = sorted(rows, key=attrgetter('timestamp'))
     for row in _rows:
-        result = process(row)
-        if bool(result) is True:
-            last_timestamp_tuples.append(result)
+        # Do memory lookup for data if it's already in the database
+        if row.checksum in checksums:
+            items.append(LastTimestampValue(
+                idx_datavariable=checksums[row.checksum],
+                last_timestamp=row.timestamp,
+                value=row.value))
+        else:
+            # Update the database with supporting metadata and
+            # get the required idx_datavariable
+            result = process(row)
+            if bool(result) is True:
+                items.append(result)
+
+    # Update the data table
+    _update_data_table(items)
+
+
+def _update_data_table(items):
+    """Insert all data values for an agent into database.
+
+    Args:
+        items: List of LastTimestampValue objects
+
+    Returns:
+        None
+
+    """
+    # Initialize key varialbes
+    db_data_rows = []
 
     # Update the last_timestamp
     database = db.Database()
     session = database.db_session()
-    for item in last_timestamp_tuples:
+    for item in items:
+        # Update the last_timestamp
         session.query(DataVariable).filter(
             and_(DataVariable.idx_datavariable == item.idx_datavariable,
                  DataVariable.enabled == 1)).update(
                      {'last_timestamp': item.last_timestamp})
-    database.db_commit(session, 1057)
 
+        # Cache data for database update
+        row = Data(
+            idx_datavariable=item.idx_datavariable,
+            timestamp=item.last_timestamp,
+            value=item.value
+        )
+        db_data_rows.append(row)
+
+    # Commit last_timestamp changes
+    database.db_commit(session, 20007)
+
+    # Update the data table
+    if bool(db_data_rows) is True:
+        database.db_add_all(db_data_rows, 20008)
+
+
+def _agent_checksums(row):
+    """Get all the checksum values for a specific agent.
+
+    Args:
+        row: PattooShared.converter.extract NamedTuple
+
+    Returns:
+        result: Dict of idx_datavariable values keyed by DataVariable.checksum
+
+    """
+    # Result
+    result = {}
+
+    # Get the data from the database
+    database = db.Database()
+    session = database.db_session()
+    items = session.query(DataVariable).filter(and_(
+        Agent.agent_id == row.agent_id.encode(),
+        DataSource.gateway == row.gateway.encode(),
+        DataSource.device == row.device.encode(),
+    ))
+    session.close()
+
+    # Return
+    if bool(items.count()) is True:
+        for item in items:
+            checksum = item.checksum.decode()
+            result[checksum] = item.idx_datavariable
+    return result
 
 
 def process(row):
@@ -92,9 +165,6 @@ def process(row):
         None
 
     """
-    Values = collections.namedtuple(
-        'Values', 'idx_datavariable last_timestamp value')
-
     # Do nothing if OK.
     result = process_metadata(row)
     if bool(result) is False:
@@ -104,7 +174,7 @@ def process(row):
     # and if we are working with numeric values
     if (result.last_timestamp < row.timestamp) and (
             row.data_type not in [DATA_NONE, DATA_STRING]):
-        _result = Values(
+        _result = LastTimestampValue(
             idx_datavariable=result.idx_datavariable,
             last_timestamp=row.timestamp,
             value=row.value)

@@ -13,7 +13,7 @@ from sqlalchemy import event
 from sqlalchemy import exc
 
 # pattoo libraries
-from pattoo_shared import log 
+from pattoo_shared import log
 from pattoo import configuration
 
 #############################################################################
@@ -71,10 +71,6 @@ def main():
 
     else:
         POOL = None
-
-    # Populate the test engine if this is a test database
-    if config.db_name().startswith('test_') is True:
-        TEST_ENGINE = db_engine
 
 
 def _add_engine_pidguard(engine):
