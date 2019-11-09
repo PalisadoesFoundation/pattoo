@@ -43,11 +43,10 @@ def main():
     # Initialize key variables
     agent_id_rows = {}
     muliprocessing_data = []
-    filepaths = []
     script = os.path.realpath(__file__)
     count = 0
     fileage = 10
-    files_per_batch = 1
+    files_per_batch = 5
 
     # Log what we are doing
     log_message = 'Running script {}.'.format(script)
@@ -56,11 +55,13 @@ def main():
     # Get cache directory
     config = Config()
     directory = config.agent_cache_directory(PATTOO_API_AGENT_EXECUTABLE)
-    filecount = len(os.listdir(directory))
 
     # Process the files in batches to reduce the database connection count
     # This can cause errors
     while True:
+        # Initialize list of files that have been processed
+        filepaths = []
+
         # Read data from cache
         directory_data = files.read_json_files(
             directory, die=False, age=fileage, count=files_per_batch)
@@ -69,7 +70,7 @@ def main():
 
         # Log what we are doing
         log_message = 'Processing {} of {} cache files.'.format(
-            files_per_batch, filecount)
+            files_per_batch, len(os.listdir(directory)))
         log.log2info(21009, log_message)
 
         # Read data into a list of tuples
