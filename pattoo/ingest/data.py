@@ -126,17 +126,8 @@ def _update_data_table(items):
             database.db_add_all(db_data_rows, 20009)
         except:
             log_message = ('''\
-Failed to update timeseries data for DataVariable.checksum. Retrying.''')
+Failed to update timeseries data for DataVariable.checksum.''')
             log.log2info(20011, log_message)
-            for item in db_data_rows:
-                try:
-                    database.db_add(item, 20010)
-                except:
-                    sleep(0.1)
-                    log_message = ('''\
-Failed to update timeseries data for DataVariable.idx_datavariable {} \
-and timestamp {}.'''.format(item.idx_datavariable, item.timestamp))
-                    log.log2info(20012, log_message)
 
 
 def _agent_checksums(row):
