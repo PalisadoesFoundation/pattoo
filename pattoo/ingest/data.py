@@ -76,8 +76,8 @@ def process_agent_rows(rows):
                 last_timestamp=row.timestamp,
                 value=row.value))
         else:
-            # Update the database with supporting metadata and
-            # get the required idx_datavariable
+            # Update the database with supporting metadata and get the
+            # required idx_datavariable if not already in the database
             result = process(row)
             if bool(result) is True:
                 items.append(result)
@@ -151,13 +151,15 @@ def _agent_checksums(row):
 
     # Get the data from the database
     with db.db_query(20013) as session:
-        items = session.query(DataVariable).filter(and_(
-            Agent.agent_id == row.agent_id.encode(),
-            Agent.idx_agent == DataSource.idx_agent,
-            DataSource.idx_datasource == DataVariable.idx_datasource,
-            DataSource.gateway == row.gateway.encode(),
-            DataSource.device == row.device.encode(),
-        ))
+        items = session.query(
+            DataVariable.checksum,
+            DataVariable.idx_datavariable).filter(and_(
+                Agent.agent_id == row.agent_id.encode(),
+                Agent.idx_agent == DataSource.idx_agent,
+                DataSource.idx_datasource == DataVariable.idx_datasource,
+                DataSource.gateway == row.gateway.encode(),
+                DataSource.device == row.device.encode(),
+            ))
 
     # Return
     if bool(items.count()) is True:

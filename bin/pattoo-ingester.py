@@ -8,7 +8,6 @@ Used to add data to backend database
 # Standard libraries
 import sys
 import os
-import time
 
 # Try to create a working PYTHONPATH
 _BIN_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -48,45 +47,60 @@ def main():
     script = os.path.realpath(__file__)
     count = 0
     fileage = 10
-    columns = 10
+    files_per_batch = 1
 
     # Log what we are doing
     log_message = 'Running script {}.'.format(script)
     log.log2info(21003, log_message)
 
-    # Read data from cache
+    # Get cache directory
     config = Config()
     directory = config.agent_cache_directory(PATTOO_API_AGENT_EXECUTABLE)
-    directory_data = files.read_json_files(directory, die=False, age=fileage)
+    filecount = len(os.listdir(directory))
 
-    # Read data into a list of tuples
-    # [(filepath, AgentPolledData obj), (filepath, AgentPolledData obj) ...]
-    for filepath, json_data in sorted(directory_data):
-        # Get data from JSON file
-        apd = converter.convert(json_data)
-        filepaths.append(filepath)
+    # Process the files in batches to reduce the database connection count
+    # This can cause errors
+    while True:
+        # Read data from cache
+        directory_data = files.read_json_files(
+            directory, die=False, age=fileage, count=files_per_batch)
+        if bool(directory_data) is False:
+            break
 
-        # Convert data in JSON file to rows of
-        # PattooShared.constants.PattooDBrecord objects
-        if isinstance(apd, AgentPolledData) is True:
-            if apd.valid is True:
-                # Create an entry to store time sorted data from each agent
-                if apd.agent_id not in agent_id_rows:
-                    agent_id_rows[apd.agent_id] = []
+        # Log what we are doing
+        log_message = 'Processing {} of {} cache files.'.format(
+            files_per_batch, filecount)
+        log.log2info(21009, log_message)
 
-                # Get data from agent and append it
-                rows = converter.extract(apd)
-                agent_id_rows[apd.agent_id].extend(rows)
-                count += len(rows)
+        # Read data into a list of tuples
+        # [(filepath, AgentPolledData obj),
+        #    (filepath, AgentPolledData obj) ...]
+        for filepath, json_data in sorted(directory_data):
+            # Get data from JSON file
+            apd = converter.convert(json_data)
+            filepaths.append(filepath)
 
-    # Multiprocess the data
-    for _, item in sorted(agent_id_rows.items()):
-        muliprocessing_data.append(item)
-    data.mulitiprocess(muliprocessing_data)
+            # Convert data in JSON file to rows of
+            # PattooShared.constants.PattooDBrecord objects
+            if isinstance(apd, AgentPolledData) is True:
+                if apd.valid is True:
+                    # Create an entry to store time sorted data from each agent
+                    if apd.agent_id not in agent_id_rows:
+                        agent_id_rows[apd.agent_id] = []
 
-    # Delete source files after processing
-    for filepath in filepaths:
-        os.remove(filepath)
+                    # Get data from agent and append it
+                    rows = converter.extract(apd)
+                    agent_id_rows[apd.agent_id].extend(rows)
+                    count += len(rows)
+
+        # Multiprocess the data
+        for _, item in sorted(agent_id_rows.items()):
+            muliprocessing_data.append(item)
+        data.mulitiprocess(muliprocessing_data)
+
+        # Delete source files after processing
+        for filepath in filepaths:
+            os.remove(filepath)
 
     # Print result
     log_message = (

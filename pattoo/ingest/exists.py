@@ -29,14 +29,17 @@ def idx_datavariable_checksum(checksum):
 
     # Get the result
     with db.db_query(20005) as session:
-        rows = session.query(DataVariable).filter(
-            DataVariable.checksum == checksum.encode())
+        rows = session.query(
+            DataVariable.idx_datavariable,
+            DataVariable.last_timestamp).filter(
+                DataVariable.checksum == checksum.encode())
 
     # Return
-    if bool(rows.count()) is True:
+    for row in rows:
         result = LastTimestamp(
-            idx_datavariable=rows[0].idx_datavariable,
-            last_timestamp=rows[0].last_timestamp)
+            idx_datavariable=row.idx_datavariable,
+            last_timestamp=row.last_timestamp)
+        break
     return result
 
 
@@ -72,15 +75,16 @@ def idx_agent(
 
     # Get the result
     with db.db_query(20008) as session:
-        rows = session.query(Agent).filter(and_(
+        rows = session.query(Agent.idx_agent).filter(and_(
             Agent.agent_id == agent_id.encode(),
             Agent.agent_hostname == agent_hostname.encode(),
             Agent.agent_program == agent_program.encode(),
             Agent.polling_interval == polling_interval))
 
     # Return
-    if bool(rows.count()) is True:
-        result = rows[0].idx_agent
+    for row in rows:
+        result = row.idx_agent
+        break
     return result
 
 
@@ -112,14 +116,15 @@ def idx_datasource(idx_agent, gateway, device):
 
     # Get the result
     with db.db_query(20006) as session:
-        rows = session.query(DataSource).filter(and_(
+        rows = session.query(DataSource.idx_datasource).filter(and_(
             DataSource.idx_agent == _idx_agent,
             DataSource.gateway == gateway.encode(),
             DataSource.device == device.encode()))
 
     # Return
-    if bool(rows.count()) is True:
-        result = rows[0].idx_datasource
+    for row in rows:
+        result = row.idx_datasource
+        break
     return result
 
 
@@ -163,7 +168,7 @@ def idx_datavariable(
 
     # Get the result
     with db.db_query(20004) as session:
-        rows = session.query(DataVariable).filter(and_(
+        rows = session.query(DataVariable.idx_datavariable).filter(and_(
             DataVariable.idx_datasource == idx_datasource,
             DataVariable.last_timestamp == timestamp,
             DataVariable.checksum == checksum.encode(),
@@ -172,6 +177,7 @@ def idx_datavariable(
             DataVariable.data_type == data_type))
 
     # Return
-    if bool(rows.count()) is True:
-        result = rows[0].idx_datavariable
+    for row in rows:
+        result = row.idx_datavariable
+        break
     return result
