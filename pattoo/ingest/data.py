@@ -4,7 +4,7 @@
 # Standard imports
 import multiprocessing
 from operator import attrgetter
-from time import sleep
+import time
 
 # PIP libraries
 from sqlalchemy import and_
@@ -100,30 +100,36 @@ def _update_data_table(items):
     db_data_rows = []
 
     # Update the last_timestamp
-    database = db.Database()
-    session = database.db_session()
     for item in items:
-        # Update the last_timestamp
-        session.query(DataVariable).filter(
-            and_(DataVariable.idx_datavariable == item.idx_datavariable,
-                 DataVariable.enabled == 1)).update(
-                     {'last_timestamp': item.last_timestamp})
+        # Assume we are going to fail until the transaction succeeds
+        success = False
+
+        with db.db_modify(20010, die=False) as session:
+            # Update the last_timestamp
+            success = session.query(DataVariable).filter(
+                and_(DataVariable.idx_datavariable == item.idx_datavariable,
+                     DataVariable.enabled == 1)).update(
+                         {'last_timestamp': item.last_timestamp})
 
         # Cache data for database update
-        row = Data(
-            idx_datavariable=item.idx_datavariable,
-            timestamp=item.last_timestamp,
-            value=item.value
-        )
-        db_data_rows.append(row)
-
-    # Commit last_timestamp changes
-    database.db_commit(session, 20007)
+        if bool(success) is True:
+            row = Data(
+                idx_datavariable=item.idx_datavariable,
+                timestamp=item.last_timestamp,
+                value=item.value
+            )
+            db_data_rows.append(row)
+        else:
+            log_message = ('''\
+Failed to update Data table for idx_datavariable {} at timestamp {}.\
+'''.format(item.idx_datavariable, item.last_timestamp))
+            log.log2info(21008, log_message)
 
     # Update the data table
     if bool(db_data_rows) is True:
         try:
-            database.db_add_all(db_data_rows, 20009)
+            with db.db_modify(20007) as session:
+                session.add_all(db_data_rows)
         except:
             log_message = ('''\
 Failed to update timeseries data for DataVariable.checksum.''')
@@ -144,16 +150,14 @@ def _agent_checksums(row):
     result = {}
 
     # Get the data from the database
-    database = db.Database()
-    session = database.db_session()
-    items = session.query(DataVariable).filter(and_(
-        Agent.agent_id == row.agent_id.encode(),
-        Agent.idx_agent == DataSource.idx_agent,
-        DataSource.idx_datasource == DataVariable.idx_datasource,
-        DataSource.gateway == row.gateway.encode(),
-        DataSource.device == row.device.encode(),
-    ))
-    session.close()
+    with db.db_query(20013) as session:
+        items = session.query(DataVariable).filter(and_(
+            Agent.agent_id == row.agent_id.encode(),
+            Agent.idx_agent == DataSource.idx_agent,
+            DataSource.idx_datasource == DataVariable.idx_datasource,
+            DataSource.gateway == row.gateway.encode(),
+            DataSource.device == row.device.encode(),
+        ))
 
     # Return
     if bool(items.count()) is True:

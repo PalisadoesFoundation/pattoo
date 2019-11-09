@@ -8,6 +8,7 @@ Used to add data to backend database
 # Standard libraries
 import sys
 import os
+import time
 
 # Try to create a working PYTHONPATH
 _BIN_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -47,6 +48,7 @@ def main():
     script = os.path.realpath(__file__)
     count = 0
     fileage = 10
+    columns = 10
 
     # Log what we are doing
     log_message = 'Running script {}.'.format(script)

@@ -11,7 +11,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import event
 from sqlalchemy import exc
-from sqlalchemy.pool import QueuePool
+from sqlalchemy.pool import QueuePool, Pool
 
 # pattoo libraries
 from pattoo_shared import log
@@ -59,7 +59,9 @@ def main():
             poolclass=QueuePool,
             max_overflow=max_overflow,
             pool_size=pool_size,
-            pool_recycle=300)
+            pool_pre_ping=True,
+            pool_recycle=3600,
+            pool_timeout=30)
 
         # Fix for multiprocessing
         _add_engine_pidguard(db_engine)
