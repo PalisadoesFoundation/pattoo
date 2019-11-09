@@ -4,16 +4,17 @@
 # Standard imports
 import multiprocessing
 from operator import attrgetter
+from time import sleep
 
 # PIP libraries
 from sqlalchemy import and_
 
 # Import project libraries
 from pattoo_shared.constants import DATA_NONE, DATA_STRING
+from pattoo_shared import log
 from pattoo import LastTimestamp, LastTimestampValue
 from pattoo.db import db
-from pattoo.db.orm import Data, Agent, DataSource
-from pattoo.db.orm import DataVariable
+from pattoo.db.orm import Data, Agent, DataSource, DataVariable
 from pattoo.ingest import exists
 from pattoo.ingest import insert
 
@@ -121,11 +122,25 @@ def _update_data_table(items):
 
     # Update the data table
     if bool(db_data_rows) is True:
-        database.db_add_all(db_data_rows, 20008)
+        try:
+            database.db_add_all(db_data_rows, 20009)
+        except:
+            log_message = ('''\
+Failed to update timeseries data for DataVariable.checksum. Retrying.''')
+            log.log2info(20011, log_message)
+            for item in db_data_rows:
+                try:
+                    database.db_add(item, 20010)
+                except:
+                    sleep(0.1)
+                    log_message = ('''\
+Failed to update timeseries data for DataVariable.idx_datavariable {} \
+and timestamp {}.'''.format(item.idx_datavariable, item.timestamp))
+                    log.log2info(20012, log_message)
 
 
 def _agent_checksums(row):
-    """Get all the checksum values for a specific agent.
+    """Get all the checksum values for a specific agent_id.
 
     Args:
         row: PattooShared.converter.extract NamedTuple
@@ -142,6 +157,8 @@ def _agent_checksums(row):
     session = database.db_session()
     items = session.query(DataVariable).filter(and_(
         Agent.agent_id == row.agent_id.encode(),
+        Agent.idx_agent == DataSource.idx_agent,
+        DataSource.idx_datasource == DataVariable.idx_datasource,
         DataSource.gateway == row.gateway.encode(),
         DataSource.device == row.device.encode(),
     ))
