@@ -4,7 +4,7 @@
 
 # Pattoo packages
 
-PattooShared>=0.0.20
+PattooShared>=0.0.21
 
 # Miscellaneous packages
 
