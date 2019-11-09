@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 """Pattoo classes that manage various data."""
 
-import sys
-
-# PIP libraries
-import pymysql
-
 # Import project libraries
 from pattoo.db import db
 from pattoo.db.orm import Agent, DataSource, DataVariable, Data
@@ -38,24 +33,14 @@ def timeseries(
     if isinstance(value, (float, int)) is False:
         return False
 
-    # Insert and get the new idx_agent value
+    # Insert data
     row = Data(
         idx_datavariable=_idx_datavariable,
         timestamp=timestamp,
         value=value
     )
-    database = db.Database()
-    try:
-        database.add(row, 1145)
-        success = True
-    except pymysql.IntegrityError:
-        # There may be a duplicate agent name if this is a brand
-        # new database and there is a flurry of updates from multiple
-        # agents. This is OK, pass.
-        #
-        # We are expecting a 'pymysql.err.IntegrityError' but for some
-        # reason it could not be caught.
-        pass
+    with db.db_modify(20012, die=False) as session:
+        success = session.add(row)
 
     # Return
     return success
@@ -98,18 +83,8 @@ def idx_agent(
         agent_program=agent_program.encode(),
         polling_interval=polling_interval
     )
-    database = db.Database()
-    try:
-        database.add(row, 1145)
-        success = True
-    except pymysql.IntegrityError:
-        # There may be a duplicate agent name if this is a brand
-        # new database and there is a flurry of updates from multiple
-        # agents. This is OK, pass.
-        #
-        # We are expecting a 'pymysql.err.IntegrityError' but for some
-        # reason it could not be caught.
-        pass
+    with db.db_modify(20001, die=False) as session:
+        success = session.add(row)
 
     # Return
     return success
@@ -128,7 +103,6 @@ def idx_datasource(idx_agent=None, gateway=None, device=None):
 
     """
     # Initialize key variables
-    success = False
     _idx_agent = idx_agent
 
     # Filter invalid data
@@ -147,18 +121,8 @@ def idx_datasource(idx_agent=None, gateway=None, device=None):
         gateway=gateway.encode(),
         device=device.encode()
     )
-    database = db.Database()
-    try:
-        database.add(row, 1145)
-        success = True
-    except pymysql.IntegrityError:
-        # There may be a duplicate agent name if this is a brand
-        # new database and there is a flurry of updates from multiple
-        # agents. This is OK, pass.
-        #
-        # We are expecting a 'pymysql.err.IntegrityError' but for some
-        # reason it could not be caught.
-        pass
+    with db.db_modify(20002, die=False) as session:
+        success = session.add(row)
 
     # Return
     return success
@@ -182,7 +146,6 @@ def idx_datavariable(
 
     """
     # Initialize key variables
-    success = False
     _idx_datasource = idx_datasource
 
     # Filter invalid data
@@ -211,18 +174,8 @@ def idx_datavariable(
         data_type=data_type,
         last_timestamp=timestamp
     )
-    database = db.Database()
-    try:
-        database.add(row, 1145)
-        success = True
-    except pymysql.IntegrityError:
-        # There may be a duplicate agent name if this is a brand
-        # new database and there is a flurry of updates from multiple
-        # agents. This is OK, pass.
-        #
-        # We are expecting a 'pymysql.err.IntegrityError' but for some
-        # reason it could not be caught.
-        pass
+    with db.db_modify(20003, die=False) as session:
+        success = session.add(row)
 
     # Return
     return success

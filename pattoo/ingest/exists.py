@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 """Verifies the existence of various database table primary key values."""
 
-# Standard imports
-import collections
-
 # PIP libraries
 from sqlalchemy import and_
 
 # Import project libraries
 from pattoo.db import db
 from pattoo.db.orm import Agent, DataSource, DataVariable
+from pattoo import LastTimestamp
 
 
 def idx_datavariable_checksum(checksum):
@@ -24,22 +22,19 @@ def idx_datavariable_checksum(checksum):
     """
     # Initialize key variables
     result = None
-    datatuple = collections.namedtuple(
-        'Values', 'idx_datavariable last_timestamp')
 
     # Filter invalid data
     if isinstance(checksum, str) is False:
         return None
 
     # Get the result
-    database = db.Database()
-    session = database.session()
-    rows = session.query(DataVariable).filter(
-        DataVariable.checksum == checksum.encode())
+    with db.db_query(20005) as session:
+        rows = session.query(DataVariable).filter(
+            DataVariable.checksum == checksum.encode())
 
     # Return
     if bool(rows.count()) is True:
-        result = datatuple(
+        result = LastTimestamp(
             idx_datavariable=rows[0].idx_datavariable,
             last_timestamp=rows[0].last_timestamp)
     return result
@@ -76,13 +71,12 @@ def idx_agent(
         return None
 
     # Get the result
-    database = db.Database()
-    session = database.session()
-    rows = session.query(Agent).filter(and_(
-        Agent.agent_id == agent_id.encode(),
-        Agent.agent_hostname == agent_hostname.encode(),
-        Agent.agent_program == agent_program.encode(),
-        Agent.polling_interval == polling_interval))
+    with db.db_query(20008) as session:
+        rows = session.query(Agent).filter(and_(
+            Agent.agent_id == agent_id.encode(),
+            Agent.agent_hostname == agent_hostname.encode(),
+            Agent.agent_program == agent_program.encode(),
+            Agent.polling_interval == polling_interval))
 
     # Return
     if bool(rows.count()) is True:
@@ -117,12 +111,11 @@ def idx_datasource(idx_agent, gateway, device):
         return None
 
     # Get the result
-    database = db.Database()
-    session = database.session()
-    rows = session.query(DataSource).filter(and_(
-        DataSource.idx_agent == _idx_agent,
-        DataSource.gateway == gateway.encode(),
-        DataSource.device == device.encode()))
+    with db.db_query(20006) as session:
+        rows = session.query(DataSource).filter(and_(
+            DataSource.idx_agent == _idx_agent,
+            DataSource.gateway == gateway.encode(),
+            DataSource.device == device.encode()))
 
     # Return
     if bool(rows.count()) is True:
@@ -169,15 +162,14 @@ def idx_datavariable(
         return False
 
     # Get the result
-    database = db.Database()
-    session = database.session()
-    rows = session.query(DataVariable).filter(and_(
-        DataVariable.idx_datasource == idx_datasource,
-        DataVariable.last_timestamp == timestamp,
-        DataVariable.checksum == checksum.encode(),
-        DataVariable.data_label == data_label.encode(),
-        DataVariable.data_index == data_index.encode(),
-        DataVariable.data_type == data_type))
+    with db.db_query(20004) as session:
+        rows = session.query(DataVariable).filter(and_(
+            DataVariable.idx_datasource == idx_datasource,
+            DataVariable.last_timestamp == timestamp,
+            DataVariable.checksum == checksum.encode(),
+            DataVariable.data_label == data_label.encode(),
+            DataVariable.data_index == data_index.encode(),
+            DataVariable.data_type == data_type))
 
     # Return
     if bool(rows.count()) is True:

@@ -2,22 +2,173 @@
 """Pattoo classes that manage various data."""
 
 # Standard imports
-import collections
-import sys
+import multiprocessing
+from operator import attrgetter
+import time
 
 # PIP libraries
 from sqlalchemy import and_
 
 # Import project libraries
 from pattoo_shared.constants import DATA_NONE, DATA_STRING
+from pattoo_shared import log
+from pattoo import LastTimestamp, LastTimestampValue
 from pattoo.db import db
-from pattoo.db.orm import DataVariable
+from pattoo.db.orm import Data, Agent, DataSource, DataVariable
 from pattoo.ingest import exists
 from pattoo.ingest import insert
 
 
-def process(row):
+def mulitiprocess(allrows):
     """Get the database Agent.idx_agent value for an AgentPolledData object.
+
+    Args:
+        allrows: List of lists. Each row is a list of
+            PattooShared.converter.extract NamedTuple objects from a single
+            agent.
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    sub_processes_in_pool = max(1, multiprocessing.cpu_count())
+    arguments = [(_, ) for _ in allrows]
+
+    # Create a pool of sub process resources
+    with multiprocessing.Pool(processes=sub_processes_in_pool) as pool:
+
+        # Create sub processes from the pool
+        pool.starmap(process_agent_rows, arguments)
+
+    # Wait for all the processes to end and get results
+    pool.join()
+
+
+def process_agent_rows(rows):
+    """Insert all data values for an agent into database.
+
+    Args:
+        rows: List of PattooShared.converter.extract NamedTuple objects from
+            the same agent SORTED by timestamp
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    items = []
+
+    # Return if there is nothint to process
+    if bool(rows) is False:
+        return
+
+    # Get checksum values for this agent_id from the DataVariable table
+    checksums = _agent_checksums(rows[0])
+
+    # Process data
+    _rows = sorted(rows, key=attrgetter('timestamp'))
+    for row in _rows:
+        # Do memory lookup for data if it's already in the database
+        if row.checksum in checksums:
+            items.append(LastTimestampValue(
+                idx_datavariable=checksums[row.checksum],
+                last_timestamp=row.timestamp,
+                value=row.value))
+        else:
+            # Update the database with supporting metadata and
+            # get the required idx_datavariable
+            result = process(row)
+            if bool(result) is True:
+                items.append(result)
+
+    # Update the data table
+    _update_data_table(items)
+
+
+def _update_data_table(items):
+    """Insert all data values for an agent into database.
+
+    Args:
+        items: List of LastTimestampValue objects
+
+    Returns:
+        None
+
+    """
+    # Initialize key varialbes
+    db_data_rows = []
+
+    # Update the last_timestamp
+    for item in items:
+        # Assume we are going to fail until the transaction succeeds
+        success = False
+
+        with db.db_modify(20010, die=False) as session:
+            # Update the last_timestamp
+            success = session.query(DataVariable).filter(
+                and_(DataVariable.idx_datavariable == item.idx_datavariable,
+                     DataVariable.enabled == 1)).update(
+                         {'last_timestamp': item.last_timestamp})
+
+        # Cache data for database update
+        if bool(success) is True:
+            row = Data(
+                idx_datavariable=item.idx_datavariable,
+                timestamp=item.last_timestamp,
+                value=item.value
+            )
+            db_data_rows.append(row)
+        else:
+            log_message = ('''\
+Failed to update Data table for idx_datavariable {} at timestamp {}.\
+'''.format(item.idx_datavariable, item.last_timestamp))
+            log.log2info(21008, log_message)
+
+    # Update the data table
+    if bool(db_data_rows) is True:
+        try:
+            with db.db_modify(20007) as session:
+                session.add_all(db_data_rows)
+        except:
+            log_message = ('''\
+Failed to update timeseries data for DataVariable.checksum.''')
+            log.log2info(20011, log_message)
+
+
+def _agent_checksums(row):
+    """Get all the checksum values for a specific agent_id.
+
+    Args:
+        row: PattooShared.converter.extract NamedTuple
+
+    Returns:
+        result: Dict of idx_datavariable values keyed by DataVariable.checksum
+
+    """
+    # Result
+    result = {}
+
+    # Get the data from the database
+    with db.db_query(20013) as session:
+        items = session.query(DataVariable).filter(and_(
+            Agent.agent_id == row.agent_id.encode(),
+            Agent.idx_agent == DataSource.idx_agent,
+            DataSource.idx_datasource == DataVariable.idx_datasource,
+            DataSource.gateway == row.gateway.encode(),
+            DataSource.device == row.device.encode(),
+        ))
+
+    # Return
+    if bool(items.count()) is True:
+        for item in items:
+            checksum = item.checksum.decode()
+            result[checksum] = item.idx_datavariable
+    return result
+
+
+def process(row):
+    """Insert agent data value into database.
 
     Args:
         row: PattooShared.converter.extract NamedTuple
@@ -29,32 +180,20 @@ def process(row):
     # Do nothing if OK.
     result = process_metadata(row)
     if bool(result) is False:
-        return
-
-    # Update the Data table
-    idx_datavariable = result.idx_datavariable
-    last_timestamp = result.last_timestamp
+        return None
 
     # Only update data and last_timestamp if data is more current
     # and if we are working with numeric values
-    if (last_timestamp < row.timestamp) and (
+    if (result.last_timestamp < row.timestamp) and (
             row.data_type not in [DATA_NONE, DATA_STRING]):
-        #print(last_timestamp, row.agent_id)
-        insert.timeseries(
-            idx_datavariable=idx_datavariable,
-            value=row.value,
-            timestamp=row.timestamp)
+        _result = LastTimestampValue(
+            idx_datavariable=result.idx_datavariable,
+            last_timestamp=row.timestamp,
+            value=row.value)
+        return _result
 
-        # Update the DataVariable table
-        database = db.Database()
-        session = database.session()
-
-        # Update
-        session.query(DataVariable).filter(
-            and_(DataVariable.idx_datavariable == idx_datavariable,
-                 DataVariable.enabled == 1)).update(
-                     {'last_timestamp': row.timestamp})
-        database.commit(session, 1057)
+    # Return
+    return None
 
 
 def process_metadata(row):
@@ -67,10 +206,6 @@ def process_metadata(row):
         result: NamedTuple keyed by idx_datavariable and last_timestamp
 
     """
-    # Initialize key variables
-    datatuple = collections.namedtuple(
-        'Values', 'idx_datavariable last_timestamp')
-
     # Do nothing if OK.
     result = exists.idx_datavariable_checksum(row.checksum)
     if bool(result) is True:
@@ -104,7 +239,7 @@ def process_metadata(row):
         return
 
     # Return
-    result = datatuple(idx_datavariable=idx_datavariable, last_timestamp=1)
+    result = LastTimestamp(idx_datavariable=idx_datavariable, last_timestamp=1)
     return result
 
 

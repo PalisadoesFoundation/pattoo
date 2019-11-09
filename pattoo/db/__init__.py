@@ -11,9 +11,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import event
 from sqlalchemy import exc
+from sqlalchemy.pool import QueuePool, Pool
 
 # pattoo libraries
-from pattoo_shared import log 
+from pattoo_shared import log
 from pattoo import configuration
 
 #############################################################################
@@ -21,7 +22,6 @@ from pattoo import configuration
 #############################################################################
 POOL = None
 URL = None
-TEST_ENGINE = None
 
 
 def main():
@@ -38,7 +38,6 @@ def main():
     use_mysql = True
     global POOL
     global URL
-    global TEST_ENGINE
 
     # Get configuration
     config = configuration.Config()
@@ -57,8 +56,12 @@ def main():
         db_engine = create_engine(
             URL, echo=False,
             encoding='utf8',
+            poolclass=QueuePool,
             max_overflow=max_overflow,
-            pool_size=pool_size, pool_recycle=600)
+            pool_size=pool_size,
+            pool_pre_ping=True,
+            pool_recycle=3600,
+            pool_timeout=30)
 
         # Fix for multiprocessing
         _add_engine_pidguard(db_engine)
@@ -71,10 +74,6 @@ def main():
 
     else:
         POOL = None
-
-    # Populate the test engine if this is a test database
-    if config.db_name().startswith('test_') is True:
-        TEST_ENGINE = db_engine
 
 
 def _add_engine_pidguard(engine):

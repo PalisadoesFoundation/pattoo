@@ -2,175 +2,95 @@
 
 """Class to process connection."""
 
+from contextlib import contextmanager
+
 # PIP3 imports
 from sqlalchemy import and_
 
 # pattoo libraries
 from pattoo_shared import log
-from pattoo.db import POOL 
+from pattoo.db import POOL
 from pattoo.db.orm import Agent
 
 
-class Database(object):
-    """Class interacts with the connection."""
+@contextmanager
+def db_modify(error_code, die=True):
+    """Provide a transactional scope around Update / Insert operations.
 
-    def __init__(self):
-        """Initialize the class.
+    From https://docs.sqlalchemy.org/en/13/orm/session_basics.html
 
-        Args:
-            config: Config object
+    Args:
+        error_code: Error code to use in messages
+        die: Die if True
 
-        Returns:
-            None
+    Returns:
+        None
 
-        """
-        # Intialize key variables
-        self._session = POOL()
+    """
+    # Initialize key variables
+    prefix = 'Unable to modify database.'
+    success = False
 
-    def add_all(self, data_list, error_code, die=True):
-        """Do a database modification.
+    # Create session from pool
+    session = POOL()
 
-        Args:
-            data_list: List of sqlalchemy table objects
-            error_code: Error number to use if one occurs
-            die: Don't die if False, just return success
-
-        Returns:
-            success: True is successful
-
-        """
-        # Initialize key variables
-        success = False
-
-        # Open database connection. Prepare cursor
-        session = self.session()
-
-        try:
-            # Update the database cache
-            session.add_all(data_list)
-
-            # Commit  change
-            session.commit()
-
-            # disconnect from server
-            self.close()
-
-            # Update success
-            success = True
-
-        except Exception as exception_error:
-            success = False
-            session.rollback()
-            log_message = ('''\
-ADD_ALL: Unable to modify database connection. Error: "{}"\
-'''.format(exception_error))
-            if die is True:
-                log.log2die(error_code, log_message)
-            else:
-                log.log2warning(error_code, log_message)
-
-        except:
-            success = False
-            session.rollback()
-            log_message = ('Unexpected database exception')
-            if die is True:
-                log.log2die(error_code, log_message)
-            else:
-                log.log2warning(error_code, log_message)
-
-        # Return
-        return success
-
-    def session(self):
-        """Create a session from the database pool.
-
-        Args:
-            None
-
-        Returns:
-            db_session: Session
-
-        """
-        # Initialize key variables
-        db_session = self._session
-        return db_session
-
-    def close(self):
-        """Return a session to the database pool.
-
-        Args:
-            None
-
-        Returns:
-            None
-
-        """
-        # Return session
-        self.session().close()
-
-    def commit(self, session, error_code):
-        """Do a database modification.
-
-        Args:
-            session: Session
-            error_code: Error number to use if one occurs
-
-        Returns:
-            None
-
-        """
-        # Do commit
-        try:
-            # Commit  change
-            session.commit()
-
-        except Exception as exception_error:
-            session.rollback()
-            log_message = ('''\
-COMMIT: Unable to modify database connection. Error: \"{}\"\
-'''.format(exception_error))
+    # Setup basic functions
+    try:
+        yield session
+        session.commit()
+        success = True
+    except Exception as exception_error:
+        session.rollback()
+        log_message = '{}. Error: "{}"'.format(prefix, exception_error)
+        if bool(die) is True:
             log.log2die(error_code, log_message)
-        except:
-            session.rollback()
-            log_message = ('Unexpected database exception')
+        else:
+            log.log2info(error_code, log_message)
+    except:
+        session.rollback()
+        log_message = '{}. Unknown error'.format(prefix)
+        if bool(die) is True:
             log.log2die(error_code, log_message)
+        else:
+            log.log2info(error_code, log_message)
+    finally:
+        session.close()
 
-        # disconnect from server
-        self.close()
+    return success
 
-    def add(self, record, error_code):
-        """Add a record to the database.
 
-        Args:
-            record: Record object
-            error_code: Error number to use if one occurs
+@contextmanager
+def db_query(error_code):
+    """Provide a transactional scope around Query operations.
 
-        Returns:
-            None
+    From https://docs.sqlalchemy.org/en/13/orm/session_basics.html
 
-        """
-        # Initialize key variables
-        session = self.session()
+    Args:
+        error_code: Error code to use in messages
 
-        # Do add
-        try:
-            # Commit change
-            session.add(record)
-            session.commit()
+    Returns:
+        None
 
-        except Exception as exception_error:
-            session.rollback()
-            log_message = ('''\
-ADD: Unable to modify database connection. Error: "{}"\
-'''.format(exception_error))
-            log.log2die(error_code, log_message)
-        except:
-            session.rollback()
-            log_message = ('Unexpected database exception')
-            log.log2die(error_code, log_message)
+    """
+    # Initialize key variables
+    prefix = 'Unable to read database.'
 
-        # disconnect from server
-        self.close()
+    # Create session from pool
+    session = POOL()
+
+    # Setup basic functions
+    try:
+        yield session
+    except Exception as exception_error:
+        session.close()
+        log_message = '{}. Error: "{}"'.format(prefix, exception_error)
+        log.log2info(error_code, log_message)
+    except:
+        session.close()
+        log_message = '{}. Unknown error'.format(prefix)
+        log.log2info(error_code, log_message)
+    finally:
+        session.close()
 
 
 def connectivity():
@@ -187,19 +107,12 @@ def connectivity():
     valid = False
 
     # Do test
-    database = Database()
-    session = database.session()
-
-    try:
+    with db_query(20008) as session:
         result = session.query(Agent.id_agent).filter(
             and_(Agent.id_agent == '-1'.encode(), Agent.idx_agent == -1))
         for _ in result:
             break
         valid = True
-    except:
-        pass
-
-    database.close()
 
     # Return
     return valid

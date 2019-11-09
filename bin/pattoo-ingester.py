@@ -8,7 +8,7 @@ Used to add data to backend database
 # Standard libraries
 import sys
 import os
-from pprint import pprint
+import time
 
 # Try to create a working PYTHONPATH
 _BIN_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -25,6 +25,7 @@ else:
 from pattoo_shared.constants import PATTOO_API_AGENT_EXECUTABLE
 from pattoo_shared.configuration import Config
 from pattoo_shared import files
+from pattoo_shared import log
 from pattoo_shared import converter
 from pattoo_shared.variables import AgentPolledData
 
@@ -41,32 +42,56 @@ def main():
 
     """
     # Initialize key variables
-    result = []
-    filepath = None
+    agent_id_rows = {}
+    muliprocessing_data = []
+    filepaths = []
+    script = os.path.realpath(__file__)
     count = 0
+    fileage = 10
+    columns = 10
+
+    # Log what we are doing
+    log_message = 'Running script {}.'.format(script)
+    log.log2info(21003, log_message)
 
     # Read data from cache
     config = Config()
     directory = config.agent_cache_directory(PATTOO_API_AGENT_EXECUTABLE)
-    directory_data = files.read_json_files(directory, die=False)
+    directory_data = files.read_json_files(directory, die=False, age=fileage)
 
     # Read data into a list of tuples
     # [(filepath, AgentPolledData obj), (filepath, AgentPolledData obj) ...]
-    for filepath, json_data in directory_data:
+    for filepath, json_data in sorted(directory_data):
+        # Get data from JSON file
         apd = converter.convert(json_data)
+        filepaths.append(filepath)
+
+        # Convert data in JSON file to rows of
+        # PattooShared.constants.PattooDBrecord objects
         if isinstance(apd, AgentPolledData) is True:
             if apd.valid is True:
-                result.append((filepath, apd))
-                rows = converter.extract(apd)
+                # Create an entry to store time sorted data from each agent
+                if apd.agent_id not in agent_id_rows:
+                    agent_id_rows[apd.agent_id] = []
 
-                # Process
-                for row in rows:
-                    # print(row)
-                    data.process(row)
-                    count += 1
+                # Get data from agent and append it
+                rows = converter.extract(apd)
+                agent_id_rows[apd.agent_id].extend(rows)
+                count += len(rows)
+
+    # Multiprocess the data
+    for _, item in sorted(agent_id_rows.items()):
+        muliprocessing_data.append(item)
+    data.mulitiprocess(muliprocessing_data)
+
+    # Delete source files after processing
+    for filepath in filepaths:
+        os.remove(filepath)
 
     # Print result
-    print('\n{} records processed.\n'.format(count))
+    log_message = (
+        'Script {} completed. {} records processed.'.format(script, count))
+    log.log2info(21004, log_message)
 
 
 if __name__ == '__main__':
