@@ -46,6 +46,7 @@ def main():
     filepaths = []
     script = os.path.realpath(__file__)
     count = 0
+    fileage = 10
 
     # Log what we are doing
     log_message = 'Running script {}.'.format(script)
@@ -54,7 +55,7 @@ def main():
     # Read data from cache
     config = Config()
     directory = config.agent_cache_directory(PATTOO_API_AGENT_EXECUTABLE)
-    directory_data = files.read_json_files(directory, die=False)
+    directory_data = files.read_json_files(directory, die=False, age=fileage)
 
     # Read data into a list of tuples
     # [(filepath, AgentPolledData obj), (filepath, AgentPolledData obj) ...]

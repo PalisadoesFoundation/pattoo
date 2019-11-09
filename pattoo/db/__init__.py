@@ -11,6 +11,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import event
 from sqlalchemy import exc
+from sqlalchemy.pool import QueuePool
 
 # pattoo libraries
 from pattoo_shared import log
@@ -21,7 +22,6 @@ from pattoo import configuration
 #############################################################################
 POOL = None
 URL = None
-TEST_ENGINE = None
 
 
 def main():
@@ -38,7 +38,6 @@ def main():
     use_mysql = True
     global POOL
     global URL
-    global TEST_ENGINE
 
     # Get configuration
     config = configuration.Config()
@@ -57,8 +56,10 @@ def main():
         db_engine = create_engine(
             URL, echo=False,
             encoding='utf8',
+            poolclass=QueuePool,
             max_overflow=max_overflow,
-            pool_size=pool_size, pool_recycle=600)
+            pool_size=pool_size,
+            pool_recycle=300)
 
         # Fix for multiprocessing
         _add_engine_pidguard(db_engine)
