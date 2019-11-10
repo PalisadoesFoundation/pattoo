@@ -9,6 +9,8 @@ Used to add data to backend database
 import sys
 import os
 import time
+import argparse
+
 
 # Try to create a working PYTHONPATH
 _BIN_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -46,15 +48,18 @@ def main():
     script = os.path.realpath(__file__)
     count = 0
     fileage = 10
-    files_per_batch = 50
-
-    # Log what we are doing
-    log_message = 'Running script {}.'.format(script)
-    log.log2info(21003, log_message)
 
     # Get cache directory
     config = Config()
     directory = config.agent_cache_directory(PATTOO_API_AGENT_EXECUTABLE)
+
+    # Get the CLI arguments
+    args = arguments(config)
+    files_per_batch = args.batch_size
+
+    # Log what we are doing
+    log_message = 'Running script {}.'.format(script)
+    log.log2info(21003, log_message)
 
     # Process the files in batches to reduce the database connection count
     # This can cause errors
@@ -115,6 +120,41 @@ def main():
     log_message = (
         'Script {} completed. {} records processed.'.format(script, count))
     log.log2info(21004, log_message)
+
+
+def arguments(config):
+    """Get the CLI arguments.
+
+    Args:
+        config:
+            Config object
+
+    Returns:
+        args: NamedTuple of argument values
+
+
+    """
+    # Get cache directory
+    directory = config.agent_cache_directory(PATTOO_API_AGENT_EXECUTABLE)
+
+    # Get arguments
+    parser = argparse.ArgumentParser(
+        description='''\
+Program to ingest cached agent data from the {} directory into the database.\
+'''.format(directory)
+    )
+
+    parser.add_argument(
+        '-b', '--batch_size',
+        default=10,
+        type=int,
+        help='''\
+The number of files to process at a time. Smaller batch sizes may help when \
+you are memory or database connection constrained. Default=10''')
+
+    # Return
+    args = parser.parse_args()
+    return args
 
 
 if __name__ == '__main__':
