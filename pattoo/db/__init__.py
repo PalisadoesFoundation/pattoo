@@ -38,6 +38,8 @@ def main():
     use_mysql = True
     global POOL
     global URL
+    pool_timeout = 30
+    pool_recycle = pool_timeout + 10
 
     # Get configuration
     config = configuration.Config()
@@ -60,8 +62,8 @@ def main():
             max_overflow=max_overflow,
             pool_size=pool_size,
             pool_pre_ping=True,
-            pool_recycle=3600,
-            pool_timeout=30)
+            pool_recycle=pool_recycle,
+            pool_timeout=pool_timeout)
 
         # Fix for multiprocessing
         _add_engine_pidguard(db_engine)
