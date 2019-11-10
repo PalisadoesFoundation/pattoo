@@ -39,7 +39,7 @@ def main():
     global POOL
     global URL
     pool_timeout = 30
-    pool_recycle = pool_timeout + 10
+    pool_recycle = min(10, pool_timeout - 10)
 
     # Get configuration
     config = configuration.Config()
