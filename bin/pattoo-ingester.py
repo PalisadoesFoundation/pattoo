@@ -8,6 +8,7 @@ Used to add data to backend database
 # Standard libraries
 import sys
 import os
+import time
 
 # Try to create a working PYTHONPATH
 _BIN_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -42,11 +43,10 @@ def main():
     """
     # Initialize key variables
     agent_id_rows = {}
-    muliprocessing_data = []
     script = os.path.realpath(__file__)
     count = 0
     fileage = 10
-    files_per_batch = 5
+    files_per_batch = 50
 
     # Log what we are doing
     log_message = 'Running script {}.'.format(script)
@@ -61,6 +61,7 @@ def main():
     while True:
         # Initialize list of files that have been processed
         filepaths = []
+        muliprocessing_data = []
 
         # Read data from cache
         directory_data = files.read_json_files(
@@ -77,9 +78,13 @@ def main():
         # [(filepath, AgentPolledData obj),
         #    (filepath, AgentPolledData obj) ...]
         for filepath, json_data in sorted(directory_data):
+            # Log what we are doing
+            log_message = 'Processing cache file {}.'.format(filepath)
+            log.log2info(20004, log_message)
+            filepaths.append(filepath)
+
             # Get data from JSON file
             apd = converter.convert(json_data)
-            filepaths.append(filepath)
 
             # Convert data in JSON file to rows of
             # PattooShared.constants.PattooDBrecord objects
@@ -101,7 +106,10 @@ def main():
 
         # Delete source files after processing
         for filepath in filepaths:
-            os.remove(filepath)
+            log_message = 'Deleting cache file {}'.format(filepath)
+            log.log2debug(20009, log_message)
+            if os.path.exists(filepath):
+                os.remove(filepath)
 
     # Print result
     log_message = (

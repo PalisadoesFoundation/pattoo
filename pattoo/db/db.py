@@ -29,7 +29,6 @@ def db_modify(error_code, die=True):
     """
     # Initialize key variables
     prefix = 'Unable to modify database.'
-    success = False
 
     # Create session from pool
     session = POOL()
@@ -38,7 +37,6 @@ def db_modify(error_code, die=True):
     try:
         yield session
         session.commit()
-        success = True
     except Exception as exception_error:
         session.rollback()
         log_message = '{}. Error: "{}"'.format(prefix, exception_error)
@@ -55,8 +53,6 @@ def db_modify(error_code, die=True):
             log.log2info(error_code, log_message)
     finally:
         session.close()
-
-    return success
 
 
 @contextmanager

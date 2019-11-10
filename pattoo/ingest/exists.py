@@ -4,13 +4,15 @@
 # PIP libraries
 from sqlalchemy import and_
 
+from pattoo_shared import log
+
 # Import project libraries
 from pattoo.db import db
 from pattoo.db.orm import Agent, DataSource, DataVariable
-from pattoo import LastTimestamp
+from pattoo import TimestampValue
 
 
-def idx_datavariable_checksum(checksum):
+def idx_datavariable(checksum):
     """Get the db DataVariable.idx_datavariable value for specific checksum.
 
     Args:
@@ -36,9 +38,9 @@ def idx_datavariable_checksum(checksum):
 
     # Return
     for row in rows:
-        result = LastTimestamp(
+        result = TimestampValue(
             idx_datavariable=row.idx_datavariable,
-            last_timestamp=row.last_timestamp)
+            timestamp=row.last_timestamp)
         break
     return result
 
@@ -88,11 +90,11 @@ def idx_agent(
     return result
 
 
-def idx_datasource(idx_agent, gateway, device):
+def idx_datasource(idx_agent=None, gateway=None, device=None):
     """Get the db DataSource.idx_datasource value.
 
     Args:
-        idx_agent: Agent.idx_agent value
+        _idx_agent: Agent.idx_agent value
         gateway: Agent gateway
         device: Device from which the Agent gateway got the data
 
@@ -124,60 +126,5 @@ def idx_datasource(idx_agent, gateway, device):
     # Return
     for row in rows:
         result = row.idx_datasource
-        break
-    return result
-
-
-def idx_datavariable(
-        idx_datasource=None, checksum=None, data_label=None, data_index=None,
-        data_type=None, timestamp=None):
-    """Get the db DataVariable.idx_datavariable value.
-
-    Args:
-        idx_datasource: DataSource table index for the DataVariable row
-        data_label: data_label value
-        data_index: data_index value
-        data_type: data_type value
-        checksum: Agent checksum
-        timestamp: timestamp value
-
-    Returns:
-        result: DataSource.idx_datasource value
-
-    """
-    # Initialize key variables
-    result = None
-    _idx_datasource = idx_datasource
-
-    # Filter invalid data
-    if None in [_idx_datasource, checksum, data_label, data_index,
-                data_type, timestamp]:
-        return False
-    if isinstance(_idx_datasource, int) is False:
-        return False
-    if isinstance(checksum, str) is False:
-        return False
-    if isinstance(data_label, str) is False:
-        return False
-    if isinstance(data_index, str) is False:
-        return False
-    if isinstance(data_type, int) is False:
-        return False
-    if isinstance(timestamp, int) is False:
-        return False
-
-    # Get the result
-    with db.db_query(20004) as session:
-        rows = session.query(DataVariable.idx_datavariable).filter(and_(
-            DataVariable.idx_datasource == idx_datasource,
-            DataVariable.last_timestamp == timestamp,
-            DataVariable.checksum == checksum.encode(),
-            DataVariable.data_label == data_label.encode(),
-            DataVariable.data_index == data_index.encode(),
-            DataVariable.data_type == data_type))
-
-    # Return
-    for row in rows:
-        result = row.idx_datavariable
         break
     return result

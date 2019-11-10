@@ -1,7 +1,7 @@
 import collections
 
-LastTimestamp = collections.namedtuple(
-    'LastTimestamp', 'idx_datavariable last_timestamp')
+TimestampValue = collections.namedtuple(
+    'TimestampValue', 'idx_datavariable timestamp')
 
-LastTimestampValue = collections.namedtuple(
-    'LastTimestampValue', 'idx_datavariable last_timestamp value')
+IDXTimestampValue = collections.namedtuple(
+    'IDXTimestampValue', 'idx_datavariable timestamp value')
