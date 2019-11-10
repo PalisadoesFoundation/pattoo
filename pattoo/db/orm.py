@@ -63,8 +63,6 @@ class DataVariable(BASE):
 
     __tablename__ = 'pt_datapoint'
     __table_args__ = (
-        UniqueConstraint(
-            'idx_datasource', 'data_label', 'data_index', 'data_type'),
         {
             'mysql_engine': 'InnoDB'
         }
@@ -78,7 +76,7 @@ class DataVariable(BASE):
         BIGINT(unsigned=True), ForeignKey('pt_datasource.idx_datasource'),
         nullable=False, server_default='1')
 
-    checksum = Column(VARBINARY(512), nullable=True, default=None)
+    checksum = Column(VARBINARY(512), unique=True, nullable=True, default=None)
 
     data_label = Column(VARBINARY(512), nullable=True, default=None)
 

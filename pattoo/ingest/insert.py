@@ -20,18 +20,17 @@ def timeseries(
 
     """
     # Initialize key variables
-    success = False
     _idx_datavariable = idx_datavariable
 
     # Filter invalid data
     if None in [_idx_datavariable, timestamp, value]:
-        return False
+        return None
     if isinstance(_idx_datavariable, int) is False:
-        return False
+        return None
     if isinstance(timestamp, int) is False:
-        return False
+        return None
     if isinstance(value, (float, int)) is False:
-        return False
+        return None
 
     # Insert data
     row = Data(
@@ -40,10 +39,7 @@ def timeseries(
         value=value
     )
     with db.db_modify(20012, die=False) as session:
-        success = session.add(row)
-
-    # Return
-    return success
+        session.add(row)
 
 
 def idx_agent(
@@ -61,20 +57,17 @@ def idx_agent(
         result: Agent.idx_agent value
 
     """
-    # Initialize key variables
-    success = False
-
     # Filter invalid data
     if None in [agent_id, agent_hostname, agent_program, polling_interval]:
-        return False
+        return None
     if isinstance(agent_id, str) is False:
-        return False
+        return None
     if isinstance(agent_hostname, str) is False:
-        return False
+        return None
     if isinstance(agent_program, str) is False:
-        return False
+        return None
     if isinstance(polling_interval, int) is False:
-        return False
+        return None
 
     # Insert and get the new idx_agent value
     row = Agent(
@@ -84,10 +77,7 @@ def idx_agent(
         polling_interval=polling_interval
     )
     with db.db_modify(20001, die=False) as session:
-        success = session.add(row)
-
-    # Return
-    return success
+        session.add(row)
 
 
 def idx_datasource(idx_agent=None, gateway=None, device=None):
@@ -107,13 +97,13 @@ def idx_datasource(idx_agent=None, gateway=None, device=None):
 
     # Filter invalid data
     if None in [_idx_agent, gateway, device]:
-        return False
+        return None
     if isinstance(_idx_agent, int) is False:
-        return False
+        return None
     if isinstance(gateway, str) is False:
-        return False
+        return None
     if isinstance(device, str) is False:
-        return False
+        return None
 
     # Insert and get the new idx_datasource value
     row = DataSource(
@@ -122,15 +112,12 @@ def idx_datasource(idx_agent=None, gateway=None, device=None):
         device=device.encode()
     )
     with db.db_modify(20002, die=False) as session:
-        success = session.add(row)
-
-    # Return
-    return success
+        session.add(row)
 
 
 def idx_datavariable(
         idx_datasource=None, checksum=None, data_label=None, data_index=None,
-        data_type=None, timestamp=None):
+        data_type=None, last_timestamp=None):
     """Create the db DataVariable.idx_datavariable value.
 
     Args:
@@ -150,20 +137,20 @@ def idx_datavariable(
 
     # Filter invalid data
     if None in [_idx_datasource, checksum, data_label, data_index,
-                data_type, timestamp]:
-        return False
+                data_type, last_timestamp]:
+        return None
     if isinstance(_idx_datasource, int) is False:
-        return False
+        return None
     if isinstance(checksum, str) is False:
-        return False
+        return None
     if isinstance(data_label, str) is False:
-        return False
+        return None
     if isinstance(data_index, str) is False:
-        return False
+        return None
     if isinstance(data_type, int) is False:
-        return False
-    if isinstance(timestamp, int) is False:
-        return False
+        return None
+    if isinstance(last_timestamp, int) is False:
+        return None
 
     # Insert and get the new idx_datavariable value
     row = DataVariable(
@@ -172,10 +159,7 @@ def idx_datavariable(
         data_label=data_label.encode(),
         data_index=data_index.encode(),
         data_type=data_type,
-        last_timestamp=timestamp
+        last_timestamp=last_timestamp
     )
     with db.db_modify(20003, die=False) as session:
-        success = session.add(row)
-
-    # Return
-    return success
+        session.add(row)
