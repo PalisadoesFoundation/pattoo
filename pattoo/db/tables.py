@@ -14,7 +14,20 @@ from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import backref, relationship
 
+from pattoo.db import POOL
+
+###############################################################################
+# Create Base SQLAlchemy class. This must be in the same file as the database
+# definitions or else the database won't be created on install. Learned via
+# trial and error.
 BASE = declarative_base()
+
+# GraphQL: Bind engine to metadata of the base class
+BASE.metadata.bind = POOL
+
+# GraphQL: Used by graphql to execute queries
+BASE.query = POOL.query_property()
+###############################################################################
 
 
 class Agent(BASE):

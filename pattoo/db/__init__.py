@@ -23,7 +23,6 @@ from pattoo import configuration
 POOL = None
 URL = None
 
-
 def main():
     """Process agent data.
 
@@ -68,6 +67,7 @@ def main():
         # Fix for multiprocessing
         _add_engine_pidguard(db_engine)
 
+        # Create database session object
         POOL = scoped_session(
             sessionmaker(
                 autoflush=True,

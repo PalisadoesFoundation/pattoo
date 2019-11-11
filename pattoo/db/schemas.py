@@ -3,6 +3,11 @@
 
 Used for defining GraphQL interaction
 
+Based on the pages at:
+
+    https://github.com/alexisrolland/flask-graphene-sqlalchemy/wiki/Flask-Graphene-SQLAlchemy-Tutorial
+    https://docs.graphene-python.org/projects/sqlalchemy/en/latest/tutorial/
+
 """
 # PIP3 imports
 import graphene
