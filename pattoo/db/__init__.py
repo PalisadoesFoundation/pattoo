@@ -8,7 +8,7 @@ Manages connection pooling among other things.
 # Main python libraries
 import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import event
 from sqlalchemy import exc
 from sqlalchemy.pool import QueuePool, Pool
@@ -68,10 +68,12 @@ def main():
         # Fix for multiprocessing
         _add_engine_pidguard(db_engine)
 
-        POOL = sessionmaker(
-            autoflush=True,
-            autocommit=False,
-            bind=db_engine
+        POOL = scoped_session(
+            sessionmaker(
+                autoflush=True,
+                autocommit=False,
+                bind=db_engine
+            )
         )
 
     else:

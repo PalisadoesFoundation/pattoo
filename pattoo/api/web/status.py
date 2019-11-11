@@ -19,4 +19,4 @@ def index():
 
     """
     # Return
-    return 'The Pattoo Agent API is Operational.\n'
+    return 'The Pattoo Web API is Operational.\n'

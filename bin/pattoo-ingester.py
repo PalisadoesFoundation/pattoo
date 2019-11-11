@@ -48,6 +48,7 @@ def main():
     script = os.path.realpath(__file__)
     count = 0
     fileage = 10
+    start = int(time.time())
 
     # Get cache directory
     config = Config()
@@ -117,8 +118,12 @@ def main():
                 os.remove(filepath)
 
     # Print result
-    log_message = (
-        'Script {} completed. {} records processed.'.format(script, count))
+    stop = int(time.time())
+    duration = stop - start
+    log_message = ('''\
+Agent cache ingest completed. {1} records processed in {2} seconds, {3:.2f} \
+records / second. Script {0}.\
+'''.format(script, count, duration, count / duration))
     log.log2info(21004, log_message)
 
 
