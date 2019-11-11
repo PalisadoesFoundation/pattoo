@@ -10,7 +10,7 @@ from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 
 # pattoo imports
-from db.tables import (
+from pattoo.db.tables import (
         Data as DataTable,
         DataPoint as DataPointTable,
         DataSource as DataSourceTable,
@@ -95,7 +95,7 @@ class DataPoint(SQLAlchemyObjectType, DataPointAttribute):
         interfaces = (graphene.relay.Node,)
 
 
-class DataPointConnection(relay.Connection):
+class DataPointConnections(relay.Connection):
     """GraphQL / SQlAlchemy Connection to the DataPoint table."""
 
     class Meta:
@@ -138,7 +138,7 @@ class DataSource(SQLAlchemyObjectType, DataSourceAttribute):
         interfaces = (graphene.relay.Node,)
 
 
-class DataSourceConnection(relay.Connection):
+class DataSourceConnections(relay.Connection):
     """GraphQL / SQlAlchemy Connection to the DataSource table."""
 
     class Meta:
@@ -184,7 +184,7 @@ class Agent(SQLAlchemyObjectType, AgentAttribute):
         interfaces = (graphene.relay.Node,)
 
 
-class AgentConnection(relay.Connection):
+class AgentConnections(relay.Connection):
     """GraphQL / SQlAlchemy Connection to the Agent table."""
 
     class Meta:
@@ -199,13 +199,13 @@ class Query(graphene.ObjectType):
     node = relay.Node.Field()
 
     agent = graphene.relay.Node.Field(Agent)
-    all_agents = SQLAlchemyConnectionField(AgentConnection)
+    all_agents = SQLAlchemyConnectionField(AgentConnections)
 
     datasource = graphene.relay.Node.Field(DataSource)
-    all_datasources = SQLAlchemyConnectionField(DataSourceConnection)
+    all_datasources = SQLAlchemyConnectionField(DataSourceConnections)
 
     datapoint = graphene.relay.Node.Field(DataPoint)
-    all_datapoints = SQLAlchemyConnectionField(DataPointConnection)
+    all_datapoints = SQLAlchemyConnectionField(DataPointConnections)
 
 
 # Make the schema global
