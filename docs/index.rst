@@ -33,6 +33,7 @@ How to get the daemons running to collect data.
     :maxdepth: 2
     :caption: Daemon Setup:
 
+    pattoo-apid
     pattoo-api-agentd
 
 Miscellaneous Information
