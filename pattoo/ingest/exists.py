@@ -8,7 +8,7 @@ from pattoo_shared import log
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.orm import Agent, DataSource, DataVariable
+from pattoo.db.tables import Agent, DataSource, DataVariable
 from pattoo import TimestampValue
 
 

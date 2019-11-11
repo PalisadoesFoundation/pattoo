@@ -13,7 +13,7 @@ from pattoo_shared.constants import DATA_NONE, DATA_STRING
 from pattoo_shared import log
 from pattoo import TimestampValue, IDXTimestampValue
 from pattoo.db import db
-from pattoo.db.orm import Data, Agent, DataSource, DataVariable
+from pattoo.db.tables import Data, Agent, DataSource, DataVariable
 from pattoo.ingest import exists
 from pattoo.ingest import insert
 

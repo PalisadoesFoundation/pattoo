@@ -3,7 +3,7 @@
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.orm import Agent, DataSource, DataVariable, Data
+from pattoo.db.tables import Agent, DataSource, DataVariable, Data
 
 
 def timeseries(
