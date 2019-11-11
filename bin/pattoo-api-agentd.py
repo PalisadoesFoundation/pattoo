@@ -22,7 +22,7 @@ else:
 
 # Pattoo libraries
 from pattoo_shared.constants import (
-    PATTOO_API_AGENT_EXECUTABLE, PATTOO_API_AGENT_GUNICORN)
+    PATTOO_API_AGENT_EXECUTABLE, PATTOO_API_AGENT_PROXY)
 from pattoo_shared.variables import AgentAPIVariable
 from pattoo_shared.agent import Agent, AgentCLI, AgentAPI
 from pattoo_shared.configuration import Config
@@ -32,7 +32,7 @@ from pattoo.api.agents import PATTOO_API_AGENT
 def main():
     """Main function to start the Gunicorn WSGI."""
     # Get PID filenename for Gunicorn
-    agent_gunicorn = Agent(PATTOO_API_AGENT_GUNICORN)
+    agent_gunicorn = Agent(PATTOO_API_AGENT_PROXY)
 
     # Get configuration
     config = Config()
@@ -41,7 +41,7 @@ def main():
         listen_address=config.api_listen_address())
     agent_api = AgentAPI(
         PATTOO_API_AGENT_EXECUTABLE,
-        PATTOO_API_AGENT_GUNICORN,
+        PATTOO_API_AGENT_PROXY,
         aav,
         PATTOO_API_AGENT)
 
