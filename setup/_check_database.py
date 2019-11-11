@@ -28,7 +28,7 @@ else:
 from pattoo_shared import log
 from pattoo import configuration
 from pattoo.db import URL
-from pattoo.db.orm import BASE
+from pattoo.db.tables import BASE
 
 
 def main():

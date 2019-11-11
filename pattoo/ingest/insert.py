@@ -3,15 +3,15 @@
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.orm import Agent, DataSource, DataVariable, Data
+from pattoo.db.tables import Agent, DataSource, DataPoint, Data
 
 
 def timeseries(
-        idx_datavariable=None, timestamp=None, value=None,):
+        idx_datapoint=None, timestamp=None, value=None,):
     """Insert timeseries data.
 
     Args:
-        idx_datavariable: Agent ID
+        idx_datapoint: Agent ID
         timestamp: Agent hostname
         value: Agent program name
 
@@ -20,12 +20,12 @@ def timeseries(
 
     """
     # Initialize key variables
-    _idx_datavariable = idx_datavariable
+    _idx_datapoint = idx_datapoint
 
     # Filter invalid data
-    if None in [_idx_datavariable, timestamp, value]:
+    if None in [_idx_datapoint, timestamp, value]:
         return None
-    if isinstance(_idx_datavariable, int) is False:
+    if isinstance(_idx_datapoint, int) is False:
         return None
     if isinstance(timestamp, int) is False:
         return None
@@ -34,7 +34,7 @@ def timeseries(
 
     # Insert data
     row = Data(
-        idx_datavariable=_idx_datavariable,
+        idx_datapoint=_idx_datapoint,
         timestamp=timestamp,
         value=value
     )
@@ -115,13 +115,13 @@ def idx_datasource(idx_agent=None, gateway=None, device=None):
         session.add(row)
 
 
-def idx_datavariable(
+def idx_datapoint(
         idx_datasource=None, checksum=None, data_label=None, data_index=None,
         data_type=None, last_timestamp=None):
-    """Create the db DataVariable.idx_datavariable value.
+    """Create the db DataPoint.idx_datapoint value.
 
     Args:
-        idx_datasource: DataSource table index for the DataVariable row
+        idx_datasource: DataSource table index for the DataPoint row
         data_label: data_label value
         data_index: data_index value
         data_type: data_type value
@@ -129,7 +129,7 @@ def idx_datavariable(
         timestamp: timestamp value
 
     Returns:
-        result: DataSource.idx_datavariable value
+        result: DataSource.idx_datapoint value
 
     """
     # Initialize key variables
@@ -152,8 +152,8 @@ def idx_datavariable(
     if isinstance(last_timestamp, int) is False:
         return None
 
-    # Insert and get the new idx_datavariable value
-    row = DataVariable(
+    # Insert and get the new idx_datapoint value
+    row = DataPoint(
         idx_datasource=idx_datasource,
         checksum=checksum.encode(),
         data_label=data_label.encode(),

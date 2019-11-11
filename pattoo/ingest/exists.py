@@ -8,18 +8,18 @@ from pattoo_shared import log
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.orm import Agent, DataSource, DataVariable
+from pattoo.db.tables import Agent, DataSource, DataPoint
 from pattoo import TimestampValue
 
 
-def idx_datavariable(checksum):
-    """Get the db DataVariable.idx_datavariable value for specific checksum.
+def idx_datapoint(checksum):
+    """Get the db DataPoint.idx_datapoint value for specific checksum.
 
     Args:
         checksum: PattooShared.converter.extract NamedTuple checksum
 
     Returns:
-        result: DataVariable.idx_datavariable value
+        result: DataPoint.idx_datapoint value
 
     """
     # Initialize key variables
@@ -32,14 +32,14 @@ def idx_datavariable(checksum):
     # Get the result
     with db.db_query(20005) as session:
         rows = session.query(
-            DataVariable.idx_datavariable,
-            DataVariable.last_timestamp).filter(
-                DataVariable.checksum == checksum.encode())
+            DataPoint.idx_datapoint,
+            DataPoint.last_timestamp).filter(
+                DataPoint.checksum == checksum.encode())
 
     # Return
     for row in rows:
         result = TimestampValue(
-            idx_datavariable=row.idx_datavariable,
+            idx_datapoint=row.idx_datapoint,
             timestamp=row.last_timestamp)
         break
     return result
