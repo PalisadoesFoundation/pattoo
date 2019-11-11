@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""pattoo ORM classes.
+"""pattoo ORM Table classes.
 
-Manages connection pooling among other things.
+Used to define the tables used in the database.
 
 """
 
@@ -22,14 +22,14 @@ class Data(BASE):
     __tablename__ = 'pt_data'
     __table_args__ = (
         PrimaryKeyConstraint(
-            'idx_datavariable', 'timestamp'),
+            'idx_datapoint', 'timestamp'),
         {
             'mysql_engine': 'InnoDB'
         }
         )
 
-    idx_datavariable = Column(
-        BIGINT(unsigned=True), ForeignKey('pt_datapoint.idx_datavariable'),
+    idx_datapoint = Column(
+        BIGINT(unsigned=True), ForeignKey('pt_datapoint.idx_datapoint'),
         nullable=False, server_default='1')
 
     timestamp = Column(BIGINT(unsigned=True), nullable=False, default='1')
@@ -43,14 +43,14 @@ class DataString(BASE):
     __tablename__ = 'pt_datastring'
     __table_args__ = (
         PrimaryKeyConstraint(
-            'idx_datavariable', 'timestamp'),
+            'idx_datapoint', 'timestamp'),
         {
             'mysql_engine': 'InnoDB'
         }
         )
 
-    idx_datavariable = Column(
-        BIGINT(unsigned=True), ForeignKey('pt_datapoint.idx_datavariable'),
+    idx_datapoint = Column(
+        BIGINT(unsigned=True), ForeignKey('pt_datapoint.idx_datapoint'),
         nullable=False, server_default='1')
 
     timestamp = Column(BIGINT(unsigned=True), nullable=False, default='1')
@@ -58,7 +58,7 @@ class DataString(BASE):
     value = Column(VARBINARY(512), nullable=True, default=None)
 
 
-class DataVariable(BASE):
+class DataPoint(BASE):
     """Class defining the pt_datapoint table of the database."""
 
     __tablename__ = 'pt_datapoint'
@@ -68,7 +68,7 @@ class DataVariable(BASE):
         }
     )
 
-    idx_datavariable = Column(
+    idx_datapoint = Column(
         BIGINT(unsigned=True), primary_key=True,
         autoincrement=True, nullable=False)
 

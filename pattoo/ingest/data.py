@@ -13,7 +13,7 @@ from pattoo_shared.constants import DATA_NONE, DATA_STRING
 from pattoo_shared import log
 from pattoo import TimestampValue, IDXTimestampValue
 from pattoo.db import db
-from pattoo.db.tables import Data, Agent, DataSource, DataVariable
+from pattoo.db.tables import Data, Agent, DataSource, DataPoint
 from pattoo.ingest import exists
 from pattoo.ingest import insert
 
@@ -62,23 +62,23 @@ def process_rows(rows):
     if bool(rows) is False:
         return
 
-    # Get checksum values for this agent_id from the DataVariable table
+    # Get checksum values for this agent_id from the DataPoint table
     firstrow = rows[0]
     checksums = get_checksums(firstrow)
 
     # Process data
     for row in rows:
         if row.checksum in checksums:
-            # Get last_timestamp for existing idx_datavariable entry
+            # Get last_timestamp for existing idx_datapoint entry
             _dv = checksums[row.checksum]
-            idx_datavariable = _dv.idx_datavariable
+            idx_datapoint = _dv.idx_datapoint
             last_timestamp = _dv.timestamp
         else:
             # Entry not in database. Update the database and get the
-            # required idx_datavariable
-            _dv = get_idx_datavariable(row)
+            # required idx_datapoint
+            _dv = get_idx_datapoint(row)
             if bool(_dv) is True:
-                idx_datavariable = _dv.idx_datavariable
+                idx_datapoint = _dv.idx_datapoint
                 last_timestamp = _dv.timestamp
             else:
                 continue
@@ -87,7 +87,7 @@ def process_rows(rows):
         if (row.timestamp > last_timestamp) and (
                 row.data_type not in [DATA_NONE, DATA_STRING]):
             items.append(IDXTimestampValue(
-                idx_datavariable=idx_datavariable,
+                idx_datapoint=idx_datapoint,
                 timestamp=row.timestamp,
                 value=row.value))
 
@@ -112,14 +112,14 @@ def _update_data_table(items):
     for item in sorted(items, key=attrgetter('timestamp')):
         with db.db_modify(20010, die=False) as session:
             # Update the last_timestamp
-            session.query(DataVariable).filter(
-                and_(DataVariable.idx_datavariable == item.idx_datavariable,
-                     DataVariable.enabled == 1)).update(
+            session.query(DataPoint).filter(
+                and_(DataPoint.idx_datapoint == item.idx_datapoint,
+                     DataPoint.enabled == 1)).update(
                          {'last_timestamp': item.timestamp})
 
         # Cache data for database update
         row = Data(
-            idx_datavariable=item.idx_datavariable,
+            idx_datapoint=item.idx_datapoint,
             timestamp=item.timestamp,
             value=item.value
         )
@@ -132,7 +132,7 @@ def _update_data_table(items):
                 session.add_all(db_data_rows)
         except:
             log_message = ('''\
-Failed to update timeseries data for DataVariable.checksum.''')
+Failed to update timeseries data for DataPoint.checksum.''')
             log.log2info(20011, log_message)
 
 
@@ -143,7 +143,7 @@ def get_checksums(row):
         row: PattooShared.converter.extract NamedTuple
 
     Returns:
-        result: Dict of idx_datavariable values keyed by DataVariable.checksum
+        result: Dict of idx_datapoint values keyed by DataPoint.checksum
 
     """
     # Result
@@ -152,36 +152,36 @@ def get_checksums(row):
     # Get the data from the database
     with db.db_query(20013) as session:
         rows = session.query(
-            DataVariable.checksum,
-            DataVariable.last_timestamp,
-            DataVariable.idx_datavariable).filter(and_(
+            DataPoint.checksum,
+            DataPoint.last_timestamp,
+            DataPoint.idx_datapoint).filter(and_(
                 Agent.agent_id == row.agent_id.encode(),
                 Agent.idx_agent == DataSource.idx_agent,
-                DataSource.idx_datasource == DataVariable.idx_datasource
+                DataSource.idx_datasource == DataPoint.idx_datasource
             ))
 
     # Return
     for found_row in rows:
         item = TimestampValue(
-            idx_datavariable=found_row.idx_datavariable,
+            idx_datapoint=found_row.idx_datapoint,
             timestamp=found_row.last_timestamp)
         checksum = found_row.checksum.decode()
         result[checksum] = item
     return result
 
 
-def get_idx_datavariable(row):
+def get_idx_datapoint(row):
     """Populate tables with foreign keys pointing to the Data table.
 
     Args:
         row: PattooShared.converter.extract NamedTuple
 
     Returns:
-        result: TimestampValue of idx_datavariable and timestamp.
+        result: TimestampValue of idx_datapoint and timestamp.
             None if unsuccessful.
     """
     # Do nothing if OK.
-    result = exists.idx_datavariable(row.checksum)
+    result = exists.idx_datapoint(row.checksum)
     if bool(result) is True:
         return result
 
@@ -207,7 +207,7 @@ def get_idx_datavariable(row):
         return None
 
     # Create an entry in the database DataSource table if necessary
-    result = create_idx_datavariable(
+    result = create_idx_datapoint(
         idx_datasource=idx_datasource,
         data_label=row.data_label,
         data_index=row.data_index,
@@ -288,13 +288,13 @@ def create_idx_datasource(idx_agent=None, gateway=None, device=None):
     return idx_datasource
 
 
-def create_idx_datavariable(
+def create_idx_datapoint(
         idx_datasource=None, data_label=None, data_index=None,
         data_type=None, checksum=None, timestamp=None):
-    """Get db DataVariable.idx_datavariable values for an AgentPolledData obj.
+    """Get db DataPoint.idx_datapoint values for an AgentPolledData obj.
 
     Args:
-        idx_datasource: DataSource table index for the DataVariable row
+        idx_datasource: DataSource table index for the DataPoint row
         data_label: data_label value
         data_index: data_index value
         data_type: data_type value
@@ -302,21 +302,21 @@ def create_idx_datavariable(
         timestamp: timestamp value
 
     Returns:
-        _tv: TimestampValue of idx_datavariable and timestamp.
+        _tv: TimestampValue of idx_datapoint and timestamp.
             None if unsuccessful.
 
     """
-    # Create an entry in the database DataVariable table
-    _tv = exists.idx_datavariable(checksum)
+    # Create an entry in the database DataPoint table
+    _tv = exists.idx_datapoint(checksum)
     if bool(_tv) is False:
-        insert.idx_datavariable(
+        insert.idx_datapoint(
             idx_datasource=idx_datasource,
             data_label=data_label,
             data_index=data_index,
             data_type=data_type,
             checksum=checksum,
             last_timestamp=timestamp)
-        _tv = exists.idx_datavariable(checksum)
+        _tv = exists.idx_datapoint(checksum)
 
     # Return
     return _tv
