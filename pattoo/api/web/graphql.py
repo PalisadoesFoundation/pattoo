@@ -6,7 +6,6 @@ from flask import Blueprint
 # pattoo imports
 from flask_graphql import GraphQLView
 from pattoo.db.schemas import SCHEMA
-from pattoo.db import POOL
 
 # Define the GRAPHQL global variable
 GRAPHQL = Blueprint('GRAPHQL', __name__)
@@ -18,3 +17,11 @@ GRAPHQL.add_url_rule(
         'graphql',
         schema=SCHEMA,
         graphiql=True))
+
+# Create the base iGraphQL route
+GRAPHQL.add_url_rule(
+    '/graphql',
+    view_func=GraphQLView.as_view(
+        'igraphql',
+        schema=SCHEMA,
+        graphiql=False))
