@@ -16,12 +16,12 @@ GRAPHQL.add_url_rule(
     view_func=GraphQLView.as_view(
         'graphql',
         schema=SCHEMA,
-        graphiql=True))
+        graphiql=False))
 
 # Create the base iGraphQL route
 GRAPHQL.add_url_rule(
-    '/graphql',
+    '/igraphql',
     view_func=GraphQLView.as_view(
         'igraphql',
         schema=SCHEMA,
-        graphiql=False))
+        graphiql=True))

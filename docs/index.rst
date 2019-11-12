@@ -29,13 +29,26 @@ Daemon and Cron Setup
 
 How to get the daemons running to collect data.
 
- .. toctree::
-    :maxdepth: 2
-    :caption: Daemon Setup:
+.. toctree::
+  :maxdepth: 2
+  :caption: Daemon Setup:
 
-    cron
-    pattoo-apid
-    pattoo-api-agentd
+  cron
+  pattoo-apid
+  pattoo-api-agentd
+
+Testing GraphQL Queries
+-----------------------
+
+Developer testing tools.
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Developer Testing.
+
+   graphql
+
+
 
 Miscellaneous Information
 -------------------------

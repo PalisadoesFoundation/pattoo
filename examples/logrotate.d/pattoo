@@ -5,6 +5,7 @@
   rotate 30
   daily
   compress
+  copytruncate
   missingok
   notifempty
   dateext
