@@ -21,10 +21,10 @@ else:
     sys.exit(2)
 
 # Pattoo libraries
-from pattoo_shared.constants import (
-    PATTOO_API_WEB_EXECUTABLE, PATTOO_API_WEB_PROXY)
 from pattoo_shared.variables import AgentAPIVariable
 from pattoo_shared.agent import Agent, AgentCLI, AgentAPI
+from pattoo.constants import (
+    PATTOO_API_WEB_EXECUTABLE, PATTOO_API_WEB_PROXY)
 from pattoo.configuration import Config
 from pattoo.api.web import PATTOO_API_WEB
 
