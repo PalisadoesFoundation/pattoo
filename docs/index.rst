@@ -24,17 +24,31 @@ General information about the project, including the the prerequisite steps to g
    installation
    configuration
 
-Daemon Setup
-------------
+Daemon and Cron Setup
+---------------------
 
 How to get the daemons running to collect data.
 
- .. toctree::
-    :maxdepth: 2
-    :caption: Daemon Setup:
+.. toctree::
+  :maxdepth: 2
+  :caption: Daemon Setup:
 
-    pattoo-apid
-    pattoo-api-agentd
+  cron
+  pattoo-apid
+  pattoo-api-agentd
+
+Testing GraphQL Queries
+-----------------------
+
+Developer testing tools.
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Developer Testing.
+
+   graphql
+
+
 
 Miscellaneous Information
 -------------------------

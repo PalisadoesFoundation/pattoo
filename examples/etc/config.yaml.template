@@ -1,0 +1,27 @@
+main:
+
+    log_level: debug
+    log_directory: PATTOO_LOG_DIRECTORY
+    cache_directory: PATTOO_CACHE_DIRECTORY
+    daemon_directory: PATTOO_DAEMON_DIRECTORY
+    polling_interval: 300
+
+pattoo-api-agentd:
+
+    api_ip_address: 127.0.0.1
+    api_ip_bind_port: 6000
+    api_uses_https: False
+
+pattoo-apid:
+
+    api_ip_address: 127.0.0.1
+    api_ip_bind_port: 7000
+    api_uses_https: False
+
+db:
+  db_hostname: PATTOO_DB_HOSTNAME
+  db_name: PATTOO_DB_NAME
+  db_password: PATTOO_DB_PASSWORD
+  db_username: PATTOO_DB_USERNAME
+  db_pool_size: 10
+  db_max_overflow: 200

@@ -7,17 +7,17 @@
 PattooShared>=0.0.26
 
 # Miscellaneous packages
-PyYAML
+PyYAML>=5.1.2
 
 # Database packages
-pymysql
-sqlalchemy
+PyMySQL>=0.9.3
+SQLAlchemy>=1.3.11
 
 # Web server packages
-Flask
-flask-graphql
-gunicorn
+Flask>=1.1.1
+Flask-GraphQL>=2.0.0
+gunicorn>=20.0.0
 
 # GraphQL packages
-graphene
-graphene-sqlalchemy
+graphene>=2.1.8
+graphene-sqlalchemy>=2.2.2

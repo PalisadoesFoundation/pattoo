@@ -19,18 +19,17 @@ Follow these steps.
 
       $ sudo pip3 install -r pip_requirements.txt
 
-#. Populate the mandatory sections of the :doc:`configuration`
 #. Create the `MySQL` or `MariaDB` database for `pattoo` with the correct authentication parameters provided in the :doc:`configuration`
+#. Populate the mandatory sections of the :doc:`configuration`
 #. Run the installation script
 
    .. code-block:: bash
 
       $ sudo setup/install.py
 
-#. Start the `bin/pattoo-api-agentd.py` daemon to accept data sent by `pattoo` agents. :doc:`pattoo-api-agentd`
-#. Start the `bin/pattoo-apid.py` daemon to provide `pattoo` agent data to web applications. :doc:`pattoo-apid`
-
-
+#. Configure the required ``cron`` jobs. :doc:`cron`
+#. Start the ``bin/pattoo-api-agentd.py`` daemon to accept data sent by `pattoo` agents. :doc:`pattoo-api-agentd`
+#. Start the ``bin/pattoo-apid.py`` daemon to provide `pattoo` agent data to web applications. :doc:`pattoo-apid`
 
 
 Configuring Agents as systemd Daemons

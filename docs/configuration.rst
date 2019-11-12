@@ -1,59 +1,74 @@
 Configuration
 =============
 
-After installation, you will need to edit a configuration file in the ``etc/`` directory. Pattoo will read any ``.yaml`` files found in this directory for configuration parameters.
+After installation, you will need to create a configuration file in a directory dedicated to ``pattoo``.
 
-For the sake of simplicity we will assume there is one file called ``etc/config.yaml``.
+Set the  Configuration Directory Location
+-----------------------------------------
 
-Make sure you have configured the ``main`` and ``remote_api`` sections of ``etc/config.yaml`` file before adding any sections for any data gathering `Pattoo Agents daemons <https://pattoo-agents.readthedocs.io/>`_  that you may also want to operate on the server.
+You must set the location of the configuration directory by using the ``PATTOO_CONFIGDIR`` environmental variable. Here is how to do this:
 
-Custom Directory Location
--------------------------
+.. code-block:: bash
 
-You can selectively set the location of the configuration directory by using the ``PATTOO_CONFIGDIR`` environmental variable.
+    $ export PATTOO_CONFIGDIR=/path/to/configuration/directory
 
-This can be useful for:
+``pattoo`` will read any ``.yaml`` files found in this directory for configuration parameters.
 
+Beginners should use a single file. For the purposes of this document we will assume this file is called ``etc/config.yaml``.
 
-#. Automated deployments
-#. Software developer code testing
+Make sure that files in this directory are editable by the user that will be running ``pattoo`` daemons.
 
-By default the ``etc/`` directory of the repository is used for all configuration file searches.
+Copy the Template to Your Configuration Directory
+-------------------------------------------------
 
-Mandatory Configuration Sections
---------------------------------
+Copy the template file in the ``examples/etc`` directory to the ``PATTOO_CONFIGDIR`` location.
 
-**NOTE:** The indentations in the YAML configuration are important. Make sure indentations line up. Dashes '-' indicate one item in a list of items.
+.. code-block:: bash
+
+    $ cp examples/etc/config.yaml.template \
+      /path/to/configuration/directory/config.yaml
+
+The next step is to edit the contents of ``config.yaml``
+
+Edit Your Configuration
+-----------------------
+
+Take some time to read up on ``YAML`` formatted files if you are not familiar with them. A background knowledge is always helpful.
+
+The ``config.yaml`` file created from the template will have sections that you will need to edit with custom values. Don't worry, these sections are easily identifiable as they all start with ``PATTOO_``
+
+**NOTE:** The indentations in the YAML configuration are important. Make sure indentations line up. Dashes '-' indicate one item in a list of items (if applicable).
 
 .. code-block:: yaml
 
    main:
        log_level: debug
-       log_directory: ~/GitHub/pattoo-agents/log
-       cache_directory: ~/GitHub/pattoo-agents/cache
-       daemon_directory: ~/GitHub/pattoo-agents/daemon
+       log_directory: PATTOO_LOG_DIRECTORY
+       cache_directory: PATTOO_CACHE_DIRECTORY
+       daemon_directory: PATTOO_DAEMON_DIRECTORY
        language: en
        polling_interval: 300
 
-   remote_api:
-       api_ip_address: 192.168.1.100
-       api_ip_bind_port: 6000
-       api_uses_https: False
-       api_listen_address: 0.0.0.0
+   pattoo-api-agentd:
 
+       api_ip_bind_port: 6000
+
+   pattoo-apid:
+
+       api_ip_bind_port: 7000
 
    db:
        db_pool_size: 10
        db_max_overflow: 10
-       db_hostname: localhost
-       db_username: pattoo
-       db_password: password
-       db_name: pattoo
+       db_hostname: PATTOO_DB_HOSTNAME
+       db_name: PATTOO_DB_NAME
+       db_password: PATTOO_DB_PASSWORD
+       db_username: PATTOO_DB_USERNAME
 
 Configuration Explanation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This table outlines the purpose of each configuration parameter
+This table outlines the purpose of each configuration parameter.
 
 .. list-table::
    :header-rows: 1
@@ -72,7 +87,7 @@ This table outlines the purpose of each configuration parameter
      - Default level of logging. ``debug`` is best for troubleshooting.
    * -
      - ``cache_directory``
-     - Directory of unsuccessful data posts to ``pattoodb``
+     - Directory that will temporarily store data data from agents prior to be added to the ``pattoo`` database.
    * -
      - ``daemon_directory``
      - Directory used to store daemon related data that needs to be maintained between reboots
@@ -81,22 +96,19 @@ This table outlines the purpose of each configuration parameter
      - Language  to be used in reporting statistics in JSON output. Language files can be found in the ``metadata/language/agents/`` directory.
    * -
      - ``polling_interval``
-     - Interval of data collection and posting in seconds
-   * - ``remote_api``
+     - Interval of data collection and posting in seconds. This value should be the same for all ``pattoo`` configurations in your universe.
+   * - ``pattoo-api-agentd``
      -
      -
-   * -
-     - ``api_ip_address``
-     - IP address of remote ``pattoodb`` server
    * -
      - ``api_ip_bind_port``
-     - Port of remote ``pattoodb`` server
+     - TCP port of used by the ``pattoo-api-agentd`` daemon for accepting data from remote ``pattoo`` agents.
+   * - ``pattoo-apid``
+     -
+     -
    * -
-     - ``api_uses_https``
-     - Use ``https`` when sending data  to remote ``pattoodb`` server
-   * -
-     - ``api_listen_address``
-     - IP address on which the API server will listen. Setting this to ``0.0.0.0`` will make it listen on all IPv4 addresses. Setting to ``"0::"`` will make it listen on all IPv6 configured interfaces. It will not listen on IPv4 and IPv6 addresses simultaneously. You must **quote** all IPv6 addresses. The default is ``0.0.0.0``. This parameter is only used by the ``pattoo`` server.
+     - ``pattoo-apid``
+     - TCP port of used by the ``pattoo-apid`` daemon when creating its API used by the ``pattoo`` web UI. This port must be different from the one used by ``pattoo-api-agentd``.
    * - ``db``
      -
      -

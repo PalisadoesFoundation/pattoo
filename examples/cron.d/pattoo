@@ -1,0 +1,5 @@
+# Configure environmental variable for scripts
+PATTOO_CONFIGDIR=/path/to/configuration/directory
+
+# Run the ingester periodically
+*/5 * * * * root /path/to/installation/directory/pattoo/bin/pattoo-ingester.py

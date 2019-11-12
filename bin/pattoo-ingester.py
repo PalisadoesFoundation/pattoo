@@ -33,6 +33,7 @@ from pattoo_shared.variables import AgentPolledData
 
 from pattoo.ingest import data
 
+
 def main():
     """Ingest data.
 
@@ -44,9 +45,8 @@ def main():
 
     """
     # Initialize key variables
-    agent_id_rows = {}
     script = os.path.realpath(__file__)
-    count = 0
+    records = 0
     fileage = 10
     start = int(time.time())
 
@@ -65,10 +65,6 @@ def main():
     # Process the files in batches to reduce the database connection count
     # This can cause errors
     while True:
-        # Initialize list of files that have been processed
-        filepaths = []
-        muliprocessing_data = []
-
         # Read data from cache
         directory_data = files.read_json_files(
             directory, die=False, age=fileage, count=files_per_batch)
@@ -76,46 +72,14 @@ def main():
             break
 
         # Log what we are doing
+        files_to_process = len(os.listdir(directory))
         log_message = 'Processing {} of {} cache files.'.format(
-            files_per_batch, len(os.listdir(directory)))
+            min(files_per_batch, files_to_process), files_to_process)
         log.log2info(21009, log_message)
 
-        # Read data into a list of tuples
-        # [(filepath, AgentPolledData obj),
-        #    (filepath, AgentPolledData obj) ...]
-        for filepath, json_data in sorted(directory_data):
-            # Log what we are doing
-            log_message = 'Processing cache file {}.'.format(filepath)
-            log.log2info(20004, log_message)
-            filepaths.append(filepath)
-
-            # Get data from JSON file
-            apd = converter.convert(json_data)
-
-            # Convert data in JSON file to rows of
-            # PattooShared.constants.PattooDBrecord objects
-            if isinstance(apd, AgentPolledData) is True:
-                if apd.valid is True:
-                    # Create an entry to store time sorted data from each agent
-                    if apd.agent_id not in agent_id_rows:
-                        agent_id_rows[apd.agent_id] = []
-
-                    # Get data from agent and append it
-                    rows = converter.extract(apd)
-                    agent_id_rows[apd.agent_id].extend(rows)
-                    count += len(rows)
-
-        # Multiprocess the data
-        for _, item in sorted(agent_id_rows.items()):
-            muliprocessing_data.append(item)
-        data.mulitiprocess(muliprocessing_data)
-
-        # Delete source files after processing
-        for filepath in filepaths:
-            log_message = 'Deleting cache file {}'.format(filepath)
-            log.log2debug(20009, log_message)
-            if os.path.exists(filepath):
-                os.remove(filepath)
+        # Process the data
+        count = process(directory_data)
+        records += count
 
     # Print result
     stop = int(time.time())
@@ -123,8 +87,63 @@ def main():
     log_message = ('''\
 Agent cache ingest completed. {1} records processed in {2} seconds, {3:.2f} \
 records / second. Script {0}.\
-'''.format(script, count, duration, count / duration))
+'''.format(script, records, duration, records / duration))
     log.log2info(21004, log_message)
+
+
+def process(directory_data):
+    """Ingest data.
+
+    Args:
+        directory_data: List of tuples from pattoo_shared.read_json_files
+
+    Returns:
+        None
+
+    """
+    # Initialize list of files that have been processed
+    filepaths = []
+    muliprocessing_data = []
+    agent_id_rows = {}
+    count = 0
+
+    # Read data from files
+    for filepath, json_data in sorted(directory_data):
+        # Log what we are doing
+        log_message = 'Processing cache file {}.'.format(filepath)
+        log.log2info(20004, log_message)
+        filepaths.append(filepath)
+
+        # Get data from JSON file
+        apd = converter.convert(json_data)
+
+        # Convert data in JSON file to rows of
+        # PattooShared.constants.PattooDBrecord objects
+        if isinstance(apd, AgentPolledData) is True:
+            if apd.valid is True:
+                # Create an entry to store time sorted data from each agent
+                if apd.agent_id not in agent_id_rows:
+                    agent_id_rows[apd.agent_id] = []
+
+                # Get data from agent and append it
+                rows = converter.extract(apd)
+                agent_id_rows[apd.agent_id].extend(rows)
+                count += len(rows)
+
+    # Multiprocess the data
+    for _, item in sorted(agent_id_rows.items()):
+        muliprocessing_data.append(item)
+    data.mulitiprocess(muliprocessing_data)
+
+    # Delete source files after processing
+    for filepath in filepaths:
+        log_message = 'Deleting cache file {}'.format(filepath)
+        log.log2debug(20009, log_message)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+
+    # Return
+    return count
 
 
 def arguments(config):
