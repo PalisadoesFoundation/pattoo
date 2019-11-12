@@ -17,9 +17,6 @@ PATTOO_API_WEB = Flask(__name__)
 PATTOO_API_WEB.register_blueprint(
     GRAPHQL, url_prefix=PATTOO_API_WEB_PREFIX)
 
-# https://github.com/alexisrolland/flask-graphene-sqlalchemy/wiki/Flask-Graphene-SQLAlchemy-Tutorial
-# https://docs.graphene-python.org/projects/sqlalchemy/en/latest/tutorial/
-
 
 @PATTOO_API_WEB.teardown_appcontext
 def shutdown_session(exception=None):
