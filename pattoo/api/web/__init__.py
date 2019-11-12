@@ -9,6 +9,7 @@ from pattoo_shared.constants import PATTOO_API_WEB_PREFIX
 # Import PATTOO_API_WEB Blueprints
 from pattoo.db import POOL
 from pattoo.api.web.graphql import GRAPHQL
+from pattoo.api.web.rest import REST_DATA
 
 # Setup flask
 PATTOO_API_WEB = Flask(__name__)
@@ -16,6 +17,8 @@ PATTOO_API_WEB = Flask(__name__)
 # Register Blueprints
 PATTOO_API_WEB.register_blueprint(
     GRAPHQL, url_prefix=PATTOO_API_WEB_PREFIX)
+PATTOO_API_WEB.register_blueprint(
+    REST_DATA, url_prefix=PATTOO_API_WEB_PREFIX)
 
 
 @PATTOO_API_WEB.teardown_appcontext

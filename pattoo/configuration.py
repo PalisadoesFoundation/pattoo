@@ -4,8 +4,8 @@
 # Import project libraries
 from pattoo_shared import configuration
 from pattoo_shared.configuration import Config as ConfigShared
-from pattoo_shared.constants import PATTOO_API_WEB_EXECUTABLE
 from pattoo_shared.configuration import search
+from pattoo.constants import PATTOO_API_WEB_EXECUTABLE
 
 
 class Config(ConfigShared):
