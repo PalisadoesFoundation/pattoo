@@ -10,13 +10,13 @@ import sys
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(
     os.path.abspath(os.path.join(EXEC_DIR, os.pardir)), os.pardir))
-if EXEC_DIR.endswith('/pattoo-shared/tests/test_pattoo_shared') is True:
+if EXEC_DIR.endswith('/pattoo/tests/test_pattoo') is True:
     # We need to prepend the path in case PattooShared has been installed
     # elsewhere on the system using PIP. This could corrupt expected results
     sys.path.insert(0, ROOT_DIR)
 else:
     print('''\
-This script is not installed in the "pattoo-shared/tests/test_pattoo_shared" \
+This script is not installed in the "pattoo/tests/test_pattoo" \
 directory. Please fix.''')
     sys.exit(2)
 
@@ -41,7 +41,7 @@ class TestConstants(unittest.TestCase):
         """Testing constants."""
         # Test pattoo API constants
         self.assertEqual(
-            PATTOO_API_WEB_PREFIX, '{}/web'.format(PATTOO_API_SITE_PREFIX))
+            PATTOO_API_WEB_PREFIX, '{}/api'.format(PATTOO_API_SITE_PREFIX))
         self.assertEqual(
             PATTOO_API_WEB_EXECUTABLE, 'pattoo-apid')
         self.assertEqual(

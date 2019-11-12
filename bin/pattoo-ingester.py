@@ -29,8 +29,8 @@ from pattoo_shared import files
 from pattoo_shared import log
 from pattoo_shared import converter
 from pattoo_shared.variables import AgentPolledData
+from pattoo_shared.constants import PATTOO_API_AGENT_EXECUTABLE
 
-from pattoo.constants import PATTOO_API_AGENT_EXECUTABLE
 from pattoo.ingest import data
 
 
@@ -111,7 +111,7 @@ def process(directory_data):
     for filepath, json_data in sorted(directory_data):
         # Log what we are doing
         log_message = 'Processing cache file {}.'.format(filepath)
-        log.log2info(20004, log_message)
+        log.log2debug(20004, log_message)
         filepaths.append(filepath)
 
         # Get data from JSON file

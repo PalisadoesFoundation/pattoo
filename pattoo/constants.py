@@ -11,7 +11,7 @@ from pattoo_shared.constants import PATTOO_API_SITE_PREFIX
 # Constants for pattoo Web API
 ###############################################################################
 
-PATTOO_API_WEB_PREFIX = '{}/web'.format(PATTOO_API_SITE_PREFIX)
+PATTOO_API_WEB_PREFIX = '{}/api'.format(PATTOO_API_SITE_PREFIX)
 PATTOO_API_WEB_EXECUTABLE = 'pattoo-apid'
 PATTOO_API_WEB_PROXY = '{}-gunicorn'.format(
     PATTOO_API_WEB_EXECUTABLE)
