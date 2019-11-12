@@ -24,8 +24,8 @@ General information about the project, including the the prerequisite steps to g
    installation
    configuration
 
-Daemon Setup
-------------
+Daemon and Cron Setup
+---------------------
 
 How to get the daemons running to collect data.
 
@@ -33,6 +33,7 @@ How to get the daemons running to collect data.
     :maxdepth: 2
     :caption: Daemon Setup:
 
+    cron
     pattoo-apid
     pattoo-api-agentd
 

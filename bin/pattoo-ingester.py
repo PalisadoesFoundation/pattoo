@@ -45,7 +45,6 @@ def main():
 
     """
     # Initialize key variables
-    agent_id_rows = {}
     script = os.path.realpath(__file__)
     records = 0
     fileage = 10
@@ -75,7 +74,7 @@ def main():
         # Log what we are doing
         files_to_process = len(os.listdir(directory))
         log_message = 'Processing {} of {} cache files.'.format(
-            files_per_batch, min(files_per_batch, files_to_process))
+            min(files_per_batch, files_to_process), files_to_process)
         log.log2info(21009, log_message)
 
         # Process the data
