@@ -51,7 +51,7 @@ class Data(SQLAlchemyObjectType, DataAttribute):
         interfaces = (graphene.relay.Node,)
 
 
-class DataConnection(relay.Connection):
+class DataConnections(relay.Connection):
     """GraphQL / SQlAlchemy Connection to the Data table."""
 
     class Meta:
@@ -211,6 +211,9 @@ class Query(graphene.ObjectType):
 
     datapoint = graphene.relay.Node.Field(DataPoint)
     all_datapoints = SQLAlchemyConnectionField(DataPointConnections)
+
+    data = graphene.relay.Node.Field(Data)
+    all_data = SQLAlchemyConnectionField(DataConnections)
 
 
 # Make the schema global
