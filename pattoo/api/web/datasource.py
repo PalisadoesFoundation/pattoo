@@ -24,6 +24,7 @@ def route_idx_datasource(idx_datasource):
     """
     # Initialize key variables
     _result = {}
+    listing = []
 
     # Get the _result
     with db.db_query(20015) as session:
@@ -42,7 +43,8 @@ def route_idx_datasource(idx_datasource):
         _result['device'] = row.device
         _result['gateway'] = row.gateway
         _result['enabled'] = row.enabled
-    result = jsonify(_result)
+        listing.append(_result)
+    result = jsonify(listing)
     return result
 
 

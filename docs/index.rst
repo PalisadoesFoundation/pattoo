@@ -47,6 +47,7 @@ Developer testing tools.
    :caption: Developer Testing.
 
    graphql
+   rest
 
 
 
