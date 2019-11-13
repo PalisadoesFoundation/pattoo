@@ -84,12 +84,15 @@ def main():
     # Print result
     stop = int(time.time())
     duration = stop - start
-    log_message = ('''\
+    if bool(records) is True:
+        log_message = ('''\
 Agent cache ingest completed. {1} records processed in {2} seconds, {3:.2f} \
 records / second. Script {0}.\
 '''.format(script, records, duration, records / duration))
-    log.log2info(21004, log_message)
-
+        log.log2info(21004, log_message)
+    else:
+        log_message = 'No files found to ingest'
+        log.log2info(20021, log_message)
 
 def process(directory_data):
     """Ingest data.

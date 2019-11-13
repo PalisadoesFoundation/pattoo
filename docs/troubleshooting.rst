@@ -1,5 +1,5 @@
-``pattoo`` Performance and Troubleshooting
-==========================================
+Performance and Troubleshooting
+===============================
 
 Performance tuning and troubleshooting are related. So we created a page for both!
 

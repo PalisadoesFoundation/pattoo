@@ -5,14 +5,10 @@ agents to prevent the risk of duplication.
 
 """
 
-from pattoo_shared.constants import PATTOO_API_SITE_PREFIX
-
 ###############################################################################
 # Constants for pattoo Web API
 ###############################################################################
 
-PATTOO_API_WEB_PREFIX = '{}/api'.format(PATTOO_API_SITE_PREFIX)
 PATTOO_API_WEB_EXECUTABLE = 'pattoo-apid'
 PATTOO_API_WEB_PROXY = '{}-gunicorn'.format(
     PATTOO_API_WEB_EXECUTABLE)
-PATTOO_API_WEB_REST_PREFIX = '{}/rest'.format(PATTOO_API_WEB_PREFIX)

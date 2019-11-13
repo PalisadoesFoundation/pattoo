@@ -1,5 +1,5 @@
-Periodic ``pattoo`` Jobs
-========================
+Periodic Jobs
+=============
 
 The ``pattoo-ingester``
 -----------------------

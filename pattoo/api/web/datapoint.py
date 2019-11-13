@@ -24,6 +24,7 @@ def route_idx_datapoint(idx_datapoint):
     """
     # Initialize key variables
     _result = {}
+    listing = []
 
     # Get the _result
     with db.db_query(20019) as session:
@@ -48,7 +49,8 @@ def route_idx_datapoint(idx_datapoint):
         _result['enabled'] = row.enabled
         _result['last_timestamp'] = row.last_timestamp
         _result['idx_datasource'] = row.idx_datasource
-    result = jsonify(_result)
+        listing.append(_result)
+    result = jsonify(listing)
     return result
 
 

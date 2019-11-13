@@ -24,6 +24,7 @@ def route_idx_agent(idx_agent):
     """
     # Initialize key variables
     _result = {}
+    listing = []
 
     # Get the _result
     with db.db_query(20018) as session:
@@ -44,7 +45,8 @@ def route_idx_agent(idx_agent):
         _result['agent_hostname'] = row.agent_hostname
         _result['polling_interval'] = row.polling_interval
         _result['enabled'] = row.enabled
-    result = jsonify(_result)
+        listing.append(_result)
+    result = jsonify(listing)
     return result
 
 

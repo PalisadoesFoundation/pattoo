@@ -24,10 +24,8 @@ directory. Please fix.''')
 from tests.libraries.configuration import UnittestConfig
 
 from pattoo_shared.constants import PATTOO_API_SITE_PREFIX
-from pattoo.constants import PATTOO_API_WEB_PREFIX
 from pattoo.constants import PATTOO_API_WEB_EXECUTABLE
 from pattoo.constants import PATTOO_API_WEB_PROXY
-from pattoo.constants import PATTOO_API_WEB_REST_PREFIX
 
 
 class TestConstants(unittest.TestCase):
@@ -40,8 +38,6 @@ class TestConstants(unittest.TestCase):
     def test_constants(self):
         """Testing constants."""
         # Test pattoo API constants
-        self.assertEqual(
-            PATTOO_API_WEB_PREFIX, '{}/api'.format(PATTOO_API_SITE_PREFIX))
         self.assertEqual(
             PATTOO_API_WEB_EXECUTABLE, 'pattoo-apid')
         self.assertEqual(
