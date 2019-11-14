@@ -43,12 +43,22 @@ def main():
     Returns:
         None
 
+    Method:
+        1) Read the files in the cache directory older than a threshold
+        2) Process the data in the files
+        3) Repeat, if new files are found that are older than the threshold,
+           or we have been running too long.
+
+        Batches of files are read to reduce the risk of overloading available
+        memory, and ensure we can exit if we are running too long.
+
     """
     # Initialize key variables
     script = os.path.realpath(__file__)
     records = 0
     fileage = 10
     start = int(time.time())
+    looptime = 0
 
     # Get cache directory
     config = Config()
@@ -57,6 +67,7 @@ def main():
     # Get the CLI arguments
     args = arguments(config)
     files_per_batch = args.batch_size
+    max_duration = args.duration
 
     # Log what we are doing
     log_message = 'Running script {}.'.format(script)
@@ -65,9 +76,24 @@ def main():
     # Process the files in batches to reduce the database connection count
     # This can cause errors
     while True:
+        # Agents constantly update files. We don't want an infinite loop
+        # situation where we always have files available that are newer than
+        # the desired fileage.
+        loopstart = time.time()
+        _fileage = max(fileage, (looptime * 2) + fileage)
+
+        # Automatically stop if we are going on too long.
+        duration = loopstart - start
+        if duration > max_duration:
+            log_message = ('''\
+Stopping ingester after exceeding the maximum runtime duration of {}s. \
+This can be adjusted on the CLI.'''.format(max_duration))
+            log.log2info(20022, log_message)
+            break
+
         # Read data from cache
         directory_data = files.read_json_files(
-            directory, die=False, age=fileage, count=files_per_batch)
+            directory, die=False, age=_fileage, count=files_per_batch)
         if bool(directory_data) is False:
             break
 
@@ -80,6 +106,9 @@ def main():
         # Process the data
         count = process(directory_data)
         records += count
+
+        # Get the looptime
+        looptime = max(time.time() - loopstart, looptime)
 
     # Print result
     stop = int(time.time())
@@ -106,9 +135,9 @@ def process(directory_data):
     """
     # Initialize list of files that have been processed
     filepaths = []
-    muliprocessing_data = []
-    agent_id_rows = {}
+    db_records_by_agent_id = {}
     count = 0
+    muliprocessing_data = []
 
     # Read data from files
     for filepath, json_data in sorted(directory_data):
@@ -125,16 +154,16 @@ def process(directory_data):
         if isinstance(apd, AgentPolledData) is True:
             if apd.valid is True:
                 # Create an entry to store time sorted data from each agent
-                if apd.agent_id not in agent_id_rows:
-                    agent_id_rows[apd.agent_id] = []
+                if apd.agent_id not in db_records_by_agent_id:
+                    db_records_by_agent_id[apd.agent_id] = []
 
                 # Get data from agent and append it
-                rows = converter.extract(apd)
-                agent_id_rows[apd.agent_id].extend(rows)
-                count += len(rows)
+                pattoo_db_records = converter.extract(apd)
+                db_records_by_agent_id[apd.agent_id].extend(pattoo_db_records)
+                count += len(pattoo_db_records)
 
     # Multiprocess the data
-    for _, item in sorted(agent_id_rows.items()):
+    for _, item in sorted(db_records_by_agent_id.items()):
         muliprocessing_data.append(item)
     data.mulitiprocess(muliprocessing_data)
 
@@ -178,6 +207,14 @@ Program to ingest cached agent data from the {} directory into the database.\
         help='''\
 The number of files to process at a time. Smaller batch sizes may help when \
 you are memory or database connection constrained. Default=10''')
+
+    parser.add_argument(
+        '-d', '--duration',
+        default=3600,
+        type=int,
+        help='''\
+The maximum time in seconds that the script should run. This reduces the risk \
+of not keeping up with the cache data updates. Default=3600''')
 
     # Return
     args = parser.parse_args()

@@ -9,7 +9,7 @@ from pattoo_shared import log
 # Import project libraries
 from pattoo.db import db
 from pattoo.db.tables import Agent, DataSource, DataPoint
-from pattoo import TimestampValue
+from pattoo import IDXTimestamp
 
 
 def idx_datapoint(checksum):
@@ -38,7 +38,7 @@ def idx_datapoint(checksum):
 
     # Return
     for row in rows:
-        result = TimestampValue(
+        result = IDXTimestamp(
             idx_datapoint=row.idx_datapoint,
             timestamp=row.last_timestamp)
         break
