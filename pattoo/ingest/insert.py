@@ -80,7 +80,8 @@ def idx_agent(
         session.add(row)
 
 
-def idx_datasource(idx_agent=None, gateway=None, device=None):
+def idx_datasource(
+        idx_agent=None, gateway=None, device=None, device_type=None):
     """Create the db DataSource.idx_datasource value.
 
     Args:
@@ -104,12 +105,15 @@ def idx_datasource(idx_agent=None, gateway=None, device=None):
         return None
     if isinstance(device, str) is False:
         return None
+    if isinstance(device_type, int) is False:
+        return None
 
     # Insert and get the new idx_datasource value
     row = DataSource(
         idx_agent=_idx_agent,
         gateway=gateway.encode(),
-        device=device.encode()
+        device=device.encode(),
+        device_type=device_type
     )
     with db.db_modify(20002, die=False) as session:
         session.add(row)

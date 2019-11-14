@@ -219,7 +219,8 @@ def _get_idx_datapoint(row):
     idx_datasource = _create_idx_datasource(
         idx_agent=idx_agent,
         gateway=row.gateway,
-        device=row.device)
+        device=row.device,
+        device_type=row.device_type)
 
     # Stop if row cannot be processed
     if bool(idx_datasource) is False:
@@ -276,13 +277,15 @@ def _create_idx_agent(
     return idx_agent
 
 
-def _create_idx_datasource(idx_agent=None, gateway=None, device=None):
+def _create_idx_datasource(
+        idx_agent=None, gateway=None, device=None, device_type=None):
     """Get the db DataSource.idx_datasource values for an AgentPolledData obj.
 
     Args:
         idx_agent: Agent.idx_agent value
         gateway: Agent gateway
         device: Device from which the Agent gateway got the data
+        device_type: Device type integer value
 
     Returns:
         idx_datasource: DataSource.idx_datasource value. None if unsuccessful.
@@ -297,7 +300,8 @@ def _create_idx_datasource(idx_agent=None, gateway=None, device=None):
         insert.idx_datasource(
             idx_agent=idx_agent,
             gateway=gateway,
-            device=device)
+            device=device,
+            device_type=device_type)
         idx_datasource = exists.idx_datasource(
             idx_agent=idx_agent,
             gateway=gateway,

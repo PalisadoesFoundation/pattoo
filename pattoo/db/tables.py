@@ -87,6 +87,8 @@ class DataSource(BASE):
 
     device = Column(VARBINARY(512), nullable=True, default=None)
 
+    device_type = Column(BIGINT(unsigned=True), nullable=True, default=None)
+
     gateway = Column(VARBINARY(512), nullable=True, default=None)
 
     enabled = Column(INTEGER(unsigned=True), server_default='1')
