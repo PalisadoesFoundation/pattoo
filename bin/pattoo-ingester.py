@@ -59,6 +59,7 @@ def main():
     fileage = 10
     start = int(time.time())
     looptime = 0
+    files_read = 0
 
     # Get cache directory
     config = Config()
@@ -73,6 +74,10 @@ def main():
     log_message = 'Running script {}.'.format(script)
     log.log2info(21003, log_message)
 
+    # Get the number of files in the directory
+    files_found = len(
+        [_ for _ in os.listdir(directory) if _.endswith('.json')])
+
     # Process the files in batches to reduce the database connection count
     # This can cause errors
     while True:
@@ -82,13 +87,18 @@ def main():
         loopstart = time.time()
         _fileage = max(fileage, (looptime * 2) + fileage)
 
-        # Automatically stop if we are going on too long.
+        # Automatically stop if we are going on too long.(1 of 2)
         duration = loopstart - start
         if duration > max_duration:
             log_message = ('''\
 Stopping ingester after exceeding the maximum runtime duration of {}s. \
 This can be adjusted on the CLI.'''.format(max_duration))
             log.log2info(20022, log_message)
+            break
+
+        # Automatically stop if we are going on too long.(2 of 2)
+        if files_read >= files_found:
+            # No need to log. This is an expected outcome.
             break
 
         # Read data from cache
@@ -109,6 +119,7 @@ This can be adjusted on the CLI.'''.format(max_duration))
 
         # Get the looptime
         looptime = max(time.time() - loopstart, looptime)
+        files_read += files_to_process
 
     # Print result
     stop = int(time.time())
