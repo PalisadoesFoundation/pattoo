@@ -217,7 +217,7 @@ def lock(delete=False):
             log_message = ('''\
 Lockfile {} exists. Will not start script {}. Is another instance running?\
 '''.format(lockfile, os.path.realpath(__file__)))
-            log.log2die(20020, log_message)
+            log.log2die(20023, log_message)
         else:
             open(lockfile, 'a').close()
     else:
