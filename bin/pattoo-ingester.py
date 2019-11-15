@@ -26,7 +26,6 @@ else:
 # Pattoo libraries
 from pattoo_shared.configuration import Config
 from pattoo_shared import files
-from pattoo_shared import daemon
 from pattoo_shared import log
 from pattoo_shared import converter
 from pattoo_shared.variables import AgentPolledData
@@ -79,9 +78,6 @@ def main():
     files_found = len(
         [_ for _ in os.listdir(directory) if _.endswith('.json')])
 
-    # Create lockfile
-    lock()
-
     # Process the files in batches to reduce the database connection count
     # This can cause errors
     while True:
@@ -119,11 +115,11 @@ This can be adjusted on the CLI.'''.format(max_duration))
 
         # Process the data
         count = process(directory_data)
-
-        # Get the records processed, looptime and files read
         records += count
+
+        # Get the looptime
         looptime = max(time.time() - loopstart, looptime)
-        files_read += len(directory_data)
+        files_read += files_to_process
 
     # Print result
     stop = int(time.time())
@@ -131,16 +127,12 @@ This can be adjusted on the CLI.'''.format(max_duration))
     if bool(records) is True:
         log_message = ('''\
 Agent cache ingest completed. {1} records processed in {2} seconds, {3:.2f} \
-records / second. {4} files read. Script {0}.\
-'''.format(script, records, duration, records / duration, files_read))
+records / second. Script {0}.\
+'''.format(script, records, duration, records / duration))
         log.log2info(21004, log_message)
     else:
         log_message = 'No files found to ingest'
         log.log2info(20021, log_message)
-
-    # Delete lockfile
-    lock(delete=True)
-
 
 def process(directory_data):
     """Ingest data.
@@ -195,33 +187,6 @@ def process(directory_data):
 
     # Return
     return count
-
-
-def lock(delete=False):
-    """Create a lock file.
-
-    Args:
-        delete: Delete the file if true
-
-    Returns:
-        None
-
-    """
-    # Initialize key variables
-    agent_name = 'pattoo-ingester'
-    lockfile = daemon.lock_file(agent_name)
-
-    # Lock
-    if bool(delete) is False:
-        if os.path.exists(lockfile) is True:
-            log_message = ('''\
-Lockfile {} exists. Will not start script {}. Is another instance running?\
-'''.format(lockfile, os.path.realpath(__file__)))
-            log.log2die(20023, log_message)
-        else:
-            open(lockfile, 'a').close()
-    else:
-        os.remove(lockfile)
 
 
 def arguments(config):
