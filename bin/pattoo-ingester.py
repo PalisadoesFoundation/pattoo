@@ -119,7 +119,7 @@ This can be adjusted on the CLI.'''.format(max_duration))
 
         # Get the looptime
         looptime = max(time.time() - loopstart, looptime)
-        files_read += files_to_process
+        files_read += len(directory_data)
 
     # Print result
     stop = int(time.time())
