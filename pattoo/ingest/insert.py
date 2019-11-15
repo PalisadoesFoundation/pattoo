@@ -105,7 +105,7 @@ def idx_datasource(
         return None
     if isinstance(device, str) is False:
         return None
-    if isinstance(device_type, int) is False:
+    if isinstance(device_type, int) is False and device_type is not None:
         return None
 
     # Insert and get the new idx_datasource value
