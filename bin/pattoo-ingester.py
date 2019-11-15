@@ -249,11 +249,11 @@ Program to ingest cached agent data from the {} directory into the database.\
 
     parser.add_argument(
         '-b', '--batch_size',
-        default=10,
+        default=500,
         type=int,
         help='''\
 The number of files to process at a time. Smaller batch sizes may help when \
-you are memory or database connection constrained. Default=10''')
+you are memory or database connection constrained. Default=500''')
 
     parser.add_argument(
         '-d', '--duration',
