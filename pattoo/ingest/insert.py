@@ -6,6 +6,8 @@ from pattoo.db import db
 from pattoo.db.tables import Checksum, Pair, Glue, Data
 from pattoo.ingest import exists
 
+from pattoo_shared import log
+
 
 def timeseries(items):
     """Insert timeseries data.
@@ -23,13 +25,14 @@ def timeseries(items):
     # Update the data
     for item in items:
         # Insert data
-        row = Data(
-            idx_checksup=item.idx_checksup,
-            timestamp=item.timestamp,
-            value=item.value
+        rows.append(
+            Data(idx_checksum=item.idx_checksum,
+                 timestamp=item.timestamp,
+                 value=item.value)
         )
-    with db.db_modify(20012, die=True) as session:
-        session.add_all(rows)
+    if bool(rows) is True:
+        with db.db_modify(20012, die=True) as session:
+            session.add_all(rows)
 
 
 def checksum(_checksum):
@@ -50,6 +53,23 @@ def checksum(_checksum):
             session.add(row)
 
 
+def pair(key, value):
+    """Create db Pair table entries.
+
+    Args:
+        key: Key-value pair key
+        value: Key-value pair value
+
+    Returns:
+        None
+
+    """
+    # Insert and get the new idx_datasource value
+    row = Pair(key=key.encode(), value=value.encode())
+    with db.db_modify(20003, die=True) as session:
+        session.add(row)
+
+
 def pairs(pattoo_db_record):
     """Create db Pair table entries.
 
@@ -62,14 +82,12 @@ def pairs(pattoo_db_record):
     """
     # Initialize key variables
     rows = []
+    _kvs = exists.key_values(pattoo_db_record)
 
     # Iterate over NamedTuple
-    for key, value in pattoo_db_record._asdict().iteritems():
-        if key in ['timestamp', 'value', 'checksum']:
-            continue
-
-        # Skip pre-existing pairs
-        if exists.pair(key, value) is False:
+    for key, value in _kvs:
+        # Skip non-metadata pre-existing pairs
+        if exists.pair(key, value) is True:
             continue
 
         # Insert and get the new idx_datasource value
@@ -77,7 +95,7 @@ def pairs(pattoo_db_record):
         rows.append(row)
 
     if bool(rows) is True:
-        with db.db_modify(20002, die=True) as session:
+        with db.db_modify(20007, die=True) as session:
             session.add_all(rows)
 
 

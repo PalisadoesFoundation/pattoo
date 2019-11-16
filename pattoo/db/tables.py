@@ -68,9 +68,9 @@ class Pair(BASE):
         BIGINT(unsigned=True), primary_key=True,
         autoincrement=True, nullable=False)
 
-    key = Column(VARBINARY(512), unique=True, nullable=True, default=None)
+    key = Column(VARBINARY(512), nullable=True, default=None)
 
-    value = Column(VARBINARY(512), unique=True, nullable=True, default=None)
+    value = Column(VARBINARY(512), nullable=True, default=None)
 
     ts_modified = Column(
         DATETIME, server_default=text(
@@ -78,13 +78,6 @@ class Pair(BASE):
 
     ts_created = Column(
         DATETIME, server_default=text('CURRENT_TIMESTAMP'))
-
-    # Use cascade='delete,all' to propagate the deletion of a
-    # Checksum onto its Data
-    checksum = relationship(
-        Checksum,
-        backref=backref(
-            'checksum', uselist=True, cascade='delete,all'))
 
 
 class Glue(BASE):
@@ -98,12 +91,12 @@ class Glue(BASE):
 
     idx_pair = Column(
         BIGINT(unsigned=True), ForeignKey('pt_pair.idx_pair'),
-        nullable=False
+        primary_key=True, nullable=False
     )
 
     idx_checksum = Column(
         BIGINT(unsigned=True), ForeignKey('pt_checksum.idx_checksum'),
-        nullable=False)
+        primary_key=True, nullable=False)
 
     ts_modified = Column(
         DATETIME, server_default=text(
@@ -117,7 +110,14 @@ class Glue(BASE):
     checksum = relationship(
         Checksum,
         backref=backref(
-            'checksum', uselist=True, cascade='delete,all'))
+            'glue_checksum', uselist=True, cascade='delete,all'))
+
+    # Use cascade='delete,all' to propagate the deletion of a
+    # Pair onto its Data
+    pair = relationship(
+        Pair,
+        backref=backref(
+            'glue_pair', uselist=True, cascade='delete,all'))
 
 
 class Data(BASE):
@@ -142,4 +142,4 @@ class Data(BASE):
     checksum = relationship(
         Checksum,
         backref=backref(
-            'checksum', uselist=True, cascade='delete,all'))
+            'data_checksum', uselist=True, cascade='delete,all'))
