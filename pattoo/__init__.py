@@ -1,7 +1,7 @@
 import collections
 
 IDXTimestamp = collections.namedtuple(
-    'IDXTimestamp', 'idx_datapoint timestamp')
+    'IDXTimestamp', 'idx_checksum timestamp')
 
 IDXTimestampValue = collections.namedtuple(
-    'IDXTimestampValue', 'idx_datapoint timestamp value')
+    'IDXTimestampValue', 'idx_checksum timestamp value')

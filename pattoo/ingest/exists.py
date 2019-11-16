@@ -8,40 +8,93 @@ from pattoo_shared import log
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.tables import Agent, DataSource, DataPoint
+from pattoo.db.tables import Agent, Pair, Checksum
 from pattoo import IDXTimestamp
 
 
-def idx_datapoint(checksum):
-    """Get the db DataPoint.idx_datapoint value for specific checksum.
+def idx_checksum(checksum):
+    """Get the db Checksum.idx_checksum value for specific checksum.
 
     Args:
         checksum: PattooShared.converter.extract NamedTuple checksum
 
     Returns:
-        result: DataPoint.idx_datapoint value
+        result: Checksum.idx_checksum value
 
     """
     # Initialize key variables
-    result = None
-
-    # Filter invalid data
-    if isinstance(checksum, str) is False:
-        return None
+    result = False
 
     # Get the result
     with db.db_query(20005) as session:
-        rows = session.query(
-            DataPoint.idx_datapoint,
-            DataPoint.last_timestamp).filter(
-                DataPoint.checksum == checksum.encode())
+        rows = session.query(Checksum.idx_checksum).filter(
+            Checksum.checksum == checksum.encode())
 
     # Return
     for row in rows:
-        result = IDXTimestamp(
-            idx_datapoint=row.idx_datapoint,
-            timestamp=row.last_timestamp)
+        result = row.idx_checksum
         break
+    return result
+
+
+def pair(key, value):
+    """Get the db Pair table for key-value pair.
+
+    Args:
+        key: Key-value pair key
+        value: Key-value pair value
+
+    Returns:
+        result: Pair.idx_pair value
+
+    """
+    # Initialize key variables
+    result = False
+
+    # Get the result
+    with db.db_query(20005) as session:
+        rows = session.query(Pair.idx_pair).filter(and_(
+            Pair.key == key.encode(),
+            Pair.value == value.encode()
+            ))
+
+    # Return
+    for row in rows:
+        result = row.idx_checksum
+        break
+    return result
+
+
+def pairs(pattoo_db_record):
+    """Create db Pair table entries.
+
+    Args:
+        pattoo_db_record: PattooDBrecord object
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    result = []
+
+    # Iterate over NamedTuple
+    for key, value in pattoo_db_record._asdict().iteritems():
+        if key in ['timestamp', 'value', 'checksum']:
+            continue
+
+        # Get the result
+        with db.db_query(20005) as session:
+            rows = session.query(Pair.idx_pair).filter(and_(
+                Pair.key == key.encode(),
+                Pair.value == value.encode()
+                ))
+
+        # Return
+        for row in rows:
+            result.append(row.idx_pair)
+
+    # Return
     return result
 
 

@@ -3,167 +3,104 @@
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.tables import Agent, DataSource, DataPoint, Data
+from pattoo.db.tables import Checksum, Pair, Glue, Data
+from pattoo.ingest import exists
 
 
-def timeseries(
-        idx_datapoint=None, timestamp=None, value=None,):
+def timeseries(items):
     """Insert timeseries data.
 
     Args:
-        idx_datapoint: Agent ID
-        timestamp: Agent hostname
-        value: Agent program name
+        items: List of IDXTimestampValue objects
 
     Returns:
-        result: Agent.idx_agent value
+        result: Checksum.checksum value
 
     """
     # Initialize key variables
-    _idx_datapoint = idx_datapoint
+    rows = []
 
-    # Filter invalid data
-    if None in [_idx_datapoint, timestamp, value]:
-        return None
-    if isinstance(_idx_datapoint, int) is False:
-        return None
-    if isinstance(timestamp, int) is False:
-        return None
-    if isinstance(value, (float, int)) is False:
-        return None
-
-    # Insert data
-    row = Data(
-        idx_datapoint=_idx_datapoint,
-        timestamp=timestamp,
-        value=value
-    )
-    with db.db_modify(20012, die=False) as session:
-        session.add(row)
+    # Update the data
+    for item in items:
+        # Insert data
+        row = Data(
+            idx_checksup=item.idx_checksup,
+            timestamp=item.timestamp,
+            value=item.value
+        )
+    with db.db_modify(20012, die=True) as session:
+        session.add_all(rows)
 
 
-def idx_agent(
-        agent_id=None, agent_hostname=None, agent_program=None,
-        polling_interval=None):
-    """Create the database Agent.idx_agent value.
+def checksum(_checksum):
+    """Create the database Checksum.checksum value.
 
     Args:
-        agent_id: Agent ID
-        agent_hostname: Agent hostname
-        agent_program: Agent program name
-        polling_interval: Agent polling interval
+        _checksum: Checksum value
 
     Returns:
-        result: Agent.idx_agent value
+        None
 
     """
     # Filter invalid data
-    if None in [agent_id, agent_hostname, agent_program, polling_interval]:
-        return None
-    if isinstance(agent_id, str) is False:
-        return None
-    if isinstance(agent_hostname, str) is False:
-        return None
-    if isinstance(agent_program, str) is False:
-        return None
-    if isinstance(polling_interval, int) is False:
-        return None
-
-    # Insert and get the new idx_agent value
-    row = Agent(
-        agent_id=agent_id.encode(),
-        agent_hostname=agent_hostname.encode(),
-        agent_program=agent_program.encode(),
-        polling_interval=polling_interval
-    )
-    with db.db_modify(20001, die=False) as session:
-        session.add(row)
+    if isinstance(_checksum, str) is True:
+        # Insert and get the new checksum value
+        row = Checksum(checksum=_checksum.encode())
+        with db.db_modify(20001, die=True) as session:
+            session.add(row)
 
 
-def idx_datasource(
-        idx_agent=None, gateway=None, device=None, device_type=None):
-    """Create the db DataSource.idx_datasource value.
+def pairs(pattoo_db_record):
+    """Create db Pair table entries.
 
     Args:
-        idx_agent: Agent.idx_agent value
-        gateway: Agent gateway
-        device: Device from which the Agent gateway got the data
+        pattoo_db_record: PattooDBrecord object
 
     Returns:
-        result: DataSource.idx_datasource value
+        None
 
     """
     # Initialize key variables
-    _idx_agent = idx_agent
+    rows = []
 
-    # Filter invalid data
-    if None in [_idx_agent, gateway, device]:
-        return None
-    if isinstance(_idx_agent, int) is False:
-        return None
-    if isinstance(gateway, str) is False:
-        return None
-    if isinstance(device, str) is False:
-        return None
-    if isinstance(device_type, int) is False and device_type is not None:
-        return None
+    # Iterate over NamedTuple
+    for key, value in pattoo_db_record._asdict().iteritems():
+        if key in ['timestamp', 'value', 'checksum']:
+            continue
 
-    # Insert and get the new idx_datasource value
-    row = DataSource(
-        idx_agent=_idx_agent,
-        gateway=gateway.encode(),
-        device=device.encode(),
-        device_type=device_type
-    )
-    with db.db_modify(20002, die=False) as session:
-        session.add(row)
+        # Skip pre-existing pairs
+        if exists.pair(key, value) is False:
+            continue
+
+        # Insert and get the new idx_datasource value
+        row = Pair(key=key.encode(), value=value.encode())
+        rows.append(row)
+
+    if bool(rows) is True:
+        with db.db_modify(20002, die=True) as session:
+            session.add_all(rows)
 
 
-def idx_datapoint(
-        idx_datasource=None, checksum=None, data_label=None, data_index=None,
-        data_type=None, last_timestamp=None):
-    """Create the db DataPoint.idx_datapoint value.
+def glue(idx_checksum, idx_pairs):
+    """Create db Pair table entries.
 
     Args:
-        idx_datasource: DataSource table index for the DataPoint row
-        data_label: data_label value
-        data_index: data_index value
-        data_type: data_type value
-        checksum: Agent checksum
-        timestamp: timestamp value
+        idx_checksum: Checksum.idx_checksum
+        idx_pairs: List of Pair.idx_pair values
 
     Returns:
-        result: DataSource.idx_datapoint value
+        None
 
     """
     # Initialize key variables
-    _idx_datasource = idx_datasource
+    rows = []
 
-    # Filter invalid data
-    if None in [_idx_datasource, checksum, data_label, data_index,
-                data_type, last_timestamp]:
-        return None
-    if isinstance(_idx_datasource, int) is False:
-        return None
-    if isinstance(checksum, str) is False:
-        return None
-    if isinstance(data_label, str) is False:
-        return None
-    if isinstance(data_index, str) is False:
-        return None
-    if isinstance(data_type, int) is False:
-        return None
-    if isinstance(last_timestamp, int) is False:
-        return None
+    # Iterate over NamedTuple
+    for idx_pair in idx_pairs:
+        # Insert and get the new idx_datasource value
+        row = Glue(idx_pair=idx_pair, idx_checksum=idx_checksum)
+        rows.append(row)
 
-    # Insert and get the new idx_datapoint value
-    row = DataPoint(
-        idx_datasource=idx_datasource,
-        checksum=checksum.encode(),
-        data_label=data_label.encode(),
-        data_index=data_index.encode(),
-        data_type=data_type,
-        last_timestamp=last_timestamp
-    )
-    with db.db_modify(20003, die=False) as session:
-        session.add(row)
+    if bool(rows) is True:
+        with db.db_modify(20002, die=True) as session:
+            session.add_all(rows)
