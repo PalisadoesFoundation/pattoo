@@ -21,3 +21,4 @@ PATTOO_API_WEB_PROXY = '{}-gunicorn'.format(
 
 IDXTimestampValue = collections.namedtuple(
     'IDXTimestampValue', 'idx_checksum timestamp value')
+MAX_KEYPAIR_LENGTH = 512

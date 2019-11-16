@@ -25,10 +25,11 @@ def timeseries(items):
     # Update the data
     for item in items:
         # Insert data
+        value = round(item.value, 10)
         rows.append(
             Data(idx_checksum=item.idx_checksum,
                  timestamp=item.timestamp,
-                 value=item.value)
+                 value=value)
         )
     if bool(rows) is True:
         with db.db_modify(20012, die=True) as session:
@@ -57,8 +58,8 @@ def pair(key, value):
     """Create db Pair table entries.
 
     Args:
-        key: Key-value pair key
-        value: Key-value pair value
+        _key: Key-value pair key
+        _value: Key-value pair value
 
     Returns:
         None
@@ -115,9 +116,11 @@ def glue(idx_checksum, idx_pairs):
 
     # Iterate over NamedTuple
     for idx_pair in idx_pairs:
-        # Insert and get the new idx_datasource value
-        row = Glue(idx_pair=idx_pair, idx_checksum=idx_checksum)
-        rows.append(row)
+        pair_exists = exists.glue(idx_checksum, idx_pair)
+        if bool(pair_exists) is False:
+            # Insert and get the new idx_datasource value
+            row = Glue(idx_pair=idx_pair, idx_checksum=idx_checksum)
+            rows.append(row)
 
     if bool(rows) is True:
         with db.db_modify(20002, die=True) as session:

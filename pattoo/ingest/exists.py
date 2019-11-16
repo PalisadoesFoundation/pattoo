@@ -8,7 +8,8 @@ from pattoo_shared import log
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.tables import Pair, Checksum
+from pattoo.db.tables import Pair, Checksum, Glue
+from pattoo.constants import MAX_KEYPAIR_LENGTH
 
 
 def idx_checksum(checksum):
@@ -40,7 +41,7 @@ def pair(key, value):
     """Get the db Pair table for key-value pair.
 
     Args:
-        _key: Key-value pair key
+        key: Key-value pair key
         value: Key-value pair value
 
     Returns:
@@ -54,8 +55,8 @@ def pair(key, value):
     # Ignore certain restricted keys
     with db.db_query(20006) as session:
         rows = session.query(Pair.idx_pair).filter(and_(
-            Pair.key == str(key).encode(),
-            Pair.value == str(value).encode()
+            Pair.key == key.encode(),
+            Pair.value == value.encode()
             ))
 
     # Return
@@ -91,6 +92,37 @@ def pairs(pattoo_db_record):
     return result
 
 
+def glue(_idx_checksum, idx_pair):
+    """Determine existence of idx_checksum, idx_pair in the Glue db table.
+
+    Args:
+        _idx_checksum: Checksum.idx_checksum table index
+        idx_pair: Pair.idx_pair table index
+
+    Returns:
+        result: True if it exists
+
+    """
+    # Initialize idx_checksum variables
+    result = False
+    rows = []
+
+    # Ignore certain restricted idx_checksums
+    with db.db_query(20008) as session:
+        rows = session.query(Glue.idx_pair).filter(and_(
+            Glue.idx_checksum == _idx_checksum,
+            Glue.idx_pair == idx_pair,
+            Pair.idx_pair == Glue.idx_pair,
+            Checksum.idx_checksum == Glue.idx_checksum
+            ))
+
+    # Return
+    for _ in rows:
+        result = True
+        break
+    return result
+
+
 def key_values(pattoo_db_record):
     """Create db Pair table entries.
 
@@ -107,7 +139,8 @@ def key_values(pattoo_db_record):
     # Iterate over NamedTuple
     for _key, _value in pattoo_db_record._asdict().items():
         # Convert to string values
-        key = str(_key)
+        key = str(_key)[:MAX_KEYPAIR_LENGTH]
+        value = str(_value)[:MAX_KEYPAIR_LENGTH]
 
         # Ignore keys that don't belong in the Pair table
         if key in ['timestamp', 'value', 'checksum']:
@@ -116,9 +149,12 @@ def key_values(pattoo_db_record):
         if key == 'metadata':
             # Process the metadata key-values
             for _mkey, _mvalue in _value:
-                rows.append((str(_mkey), str(_mvalue)))
+                rows.append((
+                    str(_mkey)[:MAX_KEYPAIR_LENGTH],
+                    str(_mvalue)[:MAX_KEYPAIR_LENGTH]
+                ))
         else:
             # Process other key-values
-            rows.append((key, str(_value)))
+            rows.append((key, value))
 
     return rows

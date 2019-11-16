@@ -15,6 +15,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import backref, relationship
 
 from pattoo.db import POOL
+from pattoo.constants import MAX_KEYPAIR_LENGTH
 
 ###############################################################################
 # Create Base SQLAlchemy class. This must be in the same file as the database
@@ -68,9 +69,9 @@ class Pair(BASE):
         BIGINT(unsigned=True), primary_key=True,
         autoincrement=True, nullable=False)
 
-    key = Column(VARBINARY(512), nullable=True, default=None)
+    key = Column(VARBINARY(MAX_KEYPAIR_LENGTH), nullable=True, default=None)
 
-    value = Column(VARBINARY(512), nullable=True, default=None)
+    value = Column(VARBINARY(MAX_KEYPAIR_LENGTH), nullable=True, default=None)
 
     ts_modified = Column(
         DATETIME, server_default=text(
@@ -135,7 +136,7 @@ class Data(BASE):
 
     timestamp = Column(BIGINT(unsigned=True), nullable=False, default='1')
 
-    value = Column(NUMERIC(40, 10), default=None)
+    value = Column(NUMERIC(40, 10), nullable=False, default='1')
 
     # Use cascade='delete,all' to propagate the deletion of a
     # Checksum onto its Data

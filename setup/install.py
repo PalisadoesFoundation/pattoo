@@ -108,12 +108,6 @@ Then run this command again.
     _run_script(filepath)
     print('OK: Configuration check passed')
 
-    #  Check database
-    print('??: Setting up database.')
-    filepath = '{}{}setup/_check_database.py'.format(ROOT_DIR, os.sep)
-    _run_script(filepath)
-    print('OK: Database setup complete.')
-
 
 def check_database():
     """Ensure database is installed correctly.
@@ -201,6 +195,7 @@ def _run_script(cli_string, die=True):
 
     # Return
     return (returncode, stdoutdata, stderrdata)
+
 
 def next_steps():
     """Print what needs to be done after successful installation.

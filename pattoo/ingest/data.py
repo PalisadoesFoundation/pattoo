@@ -27,6 +27,12 @@ def mulitiprocess(grouping_pattoo_db_records):
     Returns:
         None
 
+    Method:
+        1) Extract all the key-value pairs from the data
+        2) Update the database with pairs not previously seen
+        3) Add the remaining data to the database using the pair
+           indices created in (2)
+
     """
     # Initialize key variables
     arguments = []
@@ -112,16 +118,29 @@ def _process_rows(pattoo_db_records):
     Returns:
         None
 
+    Method:
+        1) Get all the idx_checksum and idx_pair values that exist in the
+           PattooDBrecord data from the database. All the records MUST be
+           from the same agent_id.
+        2) Add these idx values to tracking memory variables for speedy lookup
+        3) Ignore non numeric data values sent
+        4) Add data to the database. If new checksum values are found in the
+           PattooDBrecord data, then create the new index values to the
+           database, update the tracking memory variables before hand.
+
     """
     # Initialize key variables
     items = []
+    idx_pairs_2_insert = []
 
     # Return if there is nothint to process
     if bool(pattoo_db_records) is False:
         return
 
-    # Get Checksum ID
+    # Get Checksum.idx_checksum and idx_pair values from db. This is used to
+    # speed up the process by reducing the need for future database access.
     checksum_table = _get_checksums(pattoo_db_records[0])
+    glue_idx_pairs = _get_glue(checksum_table.values())
 
     # Process data
     for pattoo_db_record in pattoo_db_records:
@@ -145,7 +164,11 @@ def _process_rows(pattoo_db_records):
 
                 # Update the Glue table
                 idx_pairs = exists.pairs(pattoo_db_record)
-                insert.glue(idx_checksum, idx_pairs)
+                for idx_pair in idx_pairs:
+                    if idx_pair not in glue_idx_pairs:
+                        idx_pairs_2_insert.append(idx_pair)
+                        glue_idx_pairs.append(idx_pair)
+                insert.glue(idx_checksum, idx_pairs_2_insert)
             else:
                 continue
 
@@ -158,7 +181,6 @@ def _process_rows(pattoo_db_records):
     # Update the data table
     if bool(items):
         insert.timeseries(items)
-
 
 def _get_checksums(pattoo_db_record):
     """Get all the checksum values for a specific agent_id.
@@ -188,6 +210,30 @@ def _get_checksums(pattoo_db_record):
     # Return
     for row in rows:
         result[row.checksum] = row.idx_checksum
+    return result
+
+
+def _get_glue(idx_checksums):
+    """Get all the checksum values for a specific agent_id.
+
+    Args:
+        checksums: Dict of idx_checksum values keyed by checksum
+
+    Returns:
+        result: Dict of idx_checksum values keyed by Checksum.checksum
+
+    """
+    # Initialize key variables
+    result = []
+
+    # Get the data from the database
+    with db.db_query(20013) as session:
+        rows = session.query(
+            Glue.idx_pair).filter(Glue.idx_checksum.in_(idx_checksums))
+
+    # Return
+    for row in rows:
+        result.append(row.idx_pair)
     return result
 
 
