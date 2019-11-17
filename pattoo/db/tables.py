@@ -15,7 +15,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import backref, relationship
 
 from pattoo.db import POOL
-from pattoo.constants import MAX_KEYPAIR_LENGTH
+from pattoo_shared.constants import MAX_KEYPAIR_LENGTH
 
 ###############################################################################
 # Create Base SQLAlchemy class. This must be in the same file as the database

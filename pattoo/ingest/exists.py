@@ -9,7 +9,6 @@ from pattoo_shared import log
 # Import project libraries
 from pattoo.db import db
 from pattoo.db.tables import Pair, Checksum, Glue
-from pattoo.constants import MAX_KEYPAIR_LENGTH
 
 
 def idx_checksum(checksum):
@@ -80,7 +79,7 @@ def pairs(pattoo_db_record):
     result = []
 
     # Get key-values
-    _kvs = key_values(pattoo_db_record)
+    _kvs = key_value_pairs(pattoo_db_record)
 
     # Get list of pairs in the database
     for key, value in _kvs:
@@ -123,7 +122,7 @@ def glue(_idx_checksum, idx_pair):
     return result
 
 
-def key_values(pattoo_db_record):
+def key_value_pairs(pattoo_db_record):
     """Create db Pair table entries.
 
     Args:
@@ -137,24 +136,18 @@ def key_values(pattoo_db_record):
     rows = []
 
     # Iterate over NamedTuple
-    for _key, _value in pattoo_db_record._asdict().items():
-        # Convert to string values
-        key = str(_key)[:MAX_KEYPAIR_LENGTH]
-        value = str(_value)[:MAX_KEYPAIR_LENGTH]
+    for key, value in pattoo_db_record._asdict().items():
 
         # Ignore keys that don't belong in the Pair table
-        if key in ['timestamp', 'value', 'checksum']:
+        if key in ['data_timestamp', 'data_value', 'checksum']:
             continue
 
         if key == 'metadata':
             # Process the metadata key-values
-            for _mkey, _mvalue in _value:
-                rows.append((
-                    str(_mkey)[:MAX_KEYPAIR_LENGTH],
-                    str(_mvalue)[:MAX_KEYPAIR_LENGTH]
-                ))
+            for _mkey, _mvalue in value.items():
+                rows.append((str(_mkey), str(_mvalue)))
         else:
             # Process other key-values
-            rows.append((key, value))
+            rows.append((str(key), str(value)))
 
     return rows

@@ -21,7 +21,7 @@ def mulitiprocess(grouping_pattoo_db_records):
 
     Args:
         grouping_pattoo_db_records: List of PattooDBrecord oject lists grouped
-            by agent_id and sorted by timestamp. This data is obtained from
+            by data_source and sorted by timestamp. This data is obtained from
             PattooShared.converter.extract
 
     Returns:
@@ -45,13 +45,14 @@ def mulitiprocess(grouping_pattoo_db_records):
     with multiprocessing.Pool(processes=sub_processes_in_pool) as pool:
 
         # Create sub processes from the pool
-        kvs_4_agents = pool.starmap(_get_key_values, arguments)
+        per_process_key_value_pairs = pool.starmap(
+            _get_key_value_pairs, arguments)
 
     # Wait for all the processes to end and get results
     pool.join()
 
     # Update the database with key value pairs
-    _insert_key_values(kvs_4_agents)
+    _insert_key_value_pairs(per_process_key_value_pairs)
 
     # Create a pool of sub process resources
     with multiprocessing.Pool(processes=sub_processes_in_pool) as pool:
@@ -63,12 +64,11 @@ def mulitiprocess(grouping_pattoo_db_records):
     pool.join()
 
 
-def _get_key_values(pattoo_db_records):
+def _get_key_value_pairs(pattoo_db_records):
     """Insert all data values for an agent into database.
 
     Args:
-        pattoo_db_records: PattooDBrecord oject list sorted by
-            timestamp for a single agent_id.
+        pattoo_db_records: List of dicts read from cache files.
 
     Returns:
         result: List of key value pair tuples
@@ -77,16 +77,16 @@ def _get_key_values(pattoo_db_records):
     # Initialize key variables
     result = []
     for pattoo_db_record in pattoo_db_records:
-        result.extend(exists.key_values(pattoo_db_record))
+        result.extend(exists.key_value_pairs(pattoo_db_record))
     return result
 
 
-def _insert_key_values(kvs_4_agents):
+def _insert_key_value_pairs(items):
     """Insert key value pairs from cache PattooDBrecord objects into the db.
 
     Args:
-        kvs_4_agents: List of lists of key-value pairs. Each list was extracted
-            from a different agent's list of PattooDBrecord objects.
+        items: List of lists of key-value pairs. Each list was extracted from
+            a different data_source's list of PattooDBrecord objects.
 
     Returns:
         result: List of key value pair tuples
@@ -97,13 +97,13 @@ def _insert_key_values(kvs_4_agents):
 
     # Create a single list of key-value pairs.
     # Add them to a dict to make the pairs unique.
-    for kvs_4_agent in kvs_4_agents:
-        all_kvs.extend(kvs_4_agent)
+    for item in items:
+        all_kvs.extend(item)
     for _kv in all_kvs:
         uniques[_kv] = None
 
     # Insert the key-value pairs into the database
-    for (key, value) in uniques.keys():
+    for (key, value), _ in uniques.items():
         if bool(exists.pair(key, value)) is False:
             insert.pair(key, value)
 
@@ -112,8 +112,7 @@ def _process_rows(pattoo_db_records):
     """Insert all data values for an agent into database.
 
     Args:
-        pattoo_db_records: PattooDBrecord oject list sorted by
-            timestamp for a single agent_id.
+        pattoo_db_records: List of dicts read from cache files.
 
     Returns:
         None
@@ -121,7 +120,7 @@ def _process_rows(pattoo_db_records):
     Method:
         1) Get all the idx_checksum and idx_pair values that exist in the
            PattooDBrecord data from the database. All the records MUST be
-           from the same agent_id.
+           from the same data_source.
         2) Add these idx values to tracking memory variables for speedy lookup
         3) Ignore non numeric data values sent
         4) Add data to the database. If new checksum values are found in the
@@ -175,15 +174,16 @@ def _process_rows(pattoo_db_records):
         # Append item to items
         items.append(IDXTimestampValue(
             idx_checksum=idx_checksum,
-            timestamp=pattoo_db_record.timestamp,
-            value=pattoo_db_record.value))
+            timestamp=pattoo_db_record.data_timestamp,
+            value=pattoo_db_record.data_value))
 
     # Update the data table
     if bool(items):
         insert.timeseries(items)
 
+
 def _get_checksums(pattoo_db_record):
-    """Get all the checksum values for a specific agent_id.
+    """Get all the checksum values for a specific data_source.
 
     Args:
         pattoo_db_record: PattooDBrecord object
@@ -195,7 +195,7 @@ def _get_checksums(pattoo_db_record):
     # Result
     result = {}
     rows = []
-    agent_id = pattoo_db_record.agent_id
+    data_source = pattoo_db_record.data_source
 
     # Get the data from the database
     with db.db_query(20013) as session:
@@ -204,7 +204,7 @@ def _get_checksums(pattoo_db_record):
             Checksum.idx_checksum).filter(and_(
                 Glue.idx_checksum == Checksum.idx_checksum,
                 Glue.idx_pair == Pair.idx_pair,
-                Pair.key == agent_id.encode()
+                Pair.key == data_source.encode()
             ))
 
     # Return
@@ -214,7 +214,7 @@ def _get_checksums(pattoo_db_record):
 
 
 def _get_glue(idx_checksums):
-    """Get all the checksum values for a specific agent_id.
+    """Get all the checksum values for a specific data_source.
 
     Args:
         checksums: Dict of idx_checksum values keyed by checksum
