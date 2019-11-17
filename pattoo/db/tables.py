@@ -46,6 +46,8 @@ class Checksum(BASE):
 
     checksum = Column(VARBINARY(512), unique=True, nullable=True, default=None)
 
+    data_type = Column(INTEGER(unsigned=True), nullable=False)
+
     enabled = Column(INTEGER(unsigned=True), server_default='1')
 
     ts_modified = Column(

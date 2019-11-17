@@ -36,11 +36,12 @@ def timeseries(items):
             session.add_all(rows)
 
 
-def checksum(_checksum):
+def checksum(_checksum, data_type):
     """Create the database Checksum.checksum value.
 
     Args:
         _checksum: Checksum value
+        data_type: Type of data
 
     Returns:
         None
@@ -49,7 +50,7 @@ def checksum(_checksum):
     # Filter invalid data
     if isinstance(_checksum, str) is True:
         # Insert and get the new checksum value
-        row = Checksum(checksum=_checksum.encode())
+        row = Checksum(checksum=_checksum.encode(), data_type=data_type)
         with db.db_modify(20001, die=True) as session:
             session.add(row)
 

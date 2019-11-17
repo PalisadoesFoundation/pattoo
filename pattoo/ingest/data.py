@@ -154,7 +154,8 @@ def _process_rows(pattoo_db_records):
         else:
             # Entry not in database. Update the database and get the
             # required idx_checksum
-            result = _create_idx_checksum(pattoo_db_record.checksum)
+            result = _create_idx_checksum(
+                pattoo_db_record.checksum, pattoo_db_record.data_type)
             if bool(result) is True:
                 idx_checksum = result
 
@@ -237,11 +238,12 @@ def _get_glue(idx_checksums):
     return result
 
 
-def _create_idx_checksum(checksum):
+def _create_idx_checksum(checksum, data_type):
     """Get the db Checksum.idx_checksum value for an PattooDBrecord object.
 
     Args:
-        apd: ChecksumPolledData object
+        checksum: Checksum value
+        data_type: Data type
 
     Returns:
         idx_checksum: Checksum.idx_checksum value. None if unsuccessful
@@ -250,7 +252,7 @@ def _create_idx_checksum(checksum):
     # Create an entry in the database Checksum table
     idx_checksum = exists.idx_checksum(checksum)
     if bool(idx_checksum) is False:
-        insert.checksum(checksum)
+        insert.checksum(checksum, data_type)
         idx_checksum = exists.idx_checksum(checksum)
 
     # Return

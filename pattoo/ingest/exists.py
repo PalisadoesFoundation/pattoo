@@ -144,8 +144,7 @@ def key_value_pairs(pattoo_db_record):
 
         if key == 'metadata':
             # Process the metadata key-values
-            for _mkey, _mvalue in value.items():
-                rows.append((str(_mkey), str(_mvalue)))
+            rows.extend(value)
         else:
             # Process other key-values
             rows.append((str(key), str(value)))
