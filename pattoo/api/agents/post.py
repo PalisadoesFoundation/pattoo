@@ -8,7 +8,7 @@ import json
 from flask import Blueprint, request, abort
 
 # pattoo imports
-from pattoo_shared import data
+from pattoo_shared import log
 from pattoo_shared.constants import PATTOO_API_AGENT_EXECUTABLE
 from pattoo_shared import configuration
 
@@ -28,9 +28,6 @@ def receive(agent_id):
         Text response of Received
 
     """
-    # Initialize key variables
-    found_count = 0
-
     # Read configuration
     config = configuration.Config()
     cache_dir = config.agent_cache_directory(PATTOO_API_AGENT_EXECUTABLE)
@@ -42,38 +39,24 @@ def receive(agent_id):
         # Don't crash if we cannot convert JSON
         abort(404)
 
-    # Abort if posted_data isn't a dict
-    if isinstance(posted_data, dict) is False:
+    # Abort if posted_data isn't a list
+    if isinstance(posted_data, list) is False:
         abort(404)
 
-    # Make sure all the important keys are available
-    keys = ['timestamp', 'agent_id', 'agent_hostname']
-    for key in keys:
-        if key in posted_data:
-            found_count += 1
-
-    # Do processing
-    if found_count == 3:
-        # Extract key values from posting
-        try:
-            timestamp = int(posted_data['timestamp'])
-        except:
-            abort(404)
-        agent_id = posted_data['agent_id']
-        agent_hostname = posted_data['agent_hostname']
-
-        # Create a hash of the agent_hostname
-        device_hash = data.hashstring(agent_hostname, sha=1)
-        json_path = (
-            '{0}{4}{1}_{2}_{3}.json'.format(
-                cache_dir, timestamp, agent_id, device_hash, os.sep))
-
-        # Create cache file
-        with open(json_path, "w+") as temp_file:
-            json.dump(posted_data, temp_file)
-
-        # Return
-        return 'OK'
-
-    else:
+    # Extract key values from posting
+    try:
+        timestamp = int(posted_data[0]['timestamp'])
+    except:
         abort(404)
+
+    # Create a hash of the agent_hostname
+    json_path = (
+        '{}{}{}_{}.json'.format(
+            cache_dir, os.sep, timestamp, agent_id))
+
+    # Create cache file
+    with open(json_path, "w+") as temp_file:
+        json.dump(posted_data, temp_file)
+
+    # Return
+    return 'OK'
