@@ -77,23 +77,6 @@ def checksum(_checksum, data_type):
             session.add(row)
 
 
-def pair(key, value):
-    """Create db Pair table entries.
-
-    Args:
-        _key: Key-value pair key
-        _value: Key-value pair value
-
-    Returns:
-        None
-
-    """
-    # Insert and get the new idx_datasource value
-    row = Pair(key=key.encode(), value=value.encode())
-    with db.db_modify(20003, die=True) as session:
-        session.add(row)
-
-
 def pairs(items):
     """Create db Pair table entries.
 

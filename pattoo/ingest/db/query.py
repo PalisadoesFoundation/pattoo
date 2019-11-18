@@ -10,6 +10,31 @@ from pattoo.db import db
 from pattoo.db.tables import Checksum, Glue, Pair
 
 
+def idx_checksums(_checksums):
+    """Get all the checksum values for a specific data_source.
+
+    Args:
+        _checksums: List of checksum values
+
+    Returns:
+        result: List of Checksum.idx_checksum values
+
+    """
+    # Initialize key variables
+    result = []
+
+    # Get the data from the database
+    with db.db_query(20011) as session:
+        rows = session.query(
+            Checksum.idx_checksum).filter(
+                Checksum.idx_checksum.in_(_checksums))
+
+    # Return
+    for row in rows:
+        result.append(row.idx_checksum)
+    return result
+
+
 def checksums(data_source):
     """Get all the checksum values for a specific data_source.
 
