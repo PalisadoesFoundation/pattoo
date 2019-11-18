@@ -21,3 +21,6 @@ PATTOO_API_WEB_PROXY = '{}-gunicorn'.format(
 
 IDXTimestampValue = collections.namedtuple(
     'IDXTimestampValue', 'idx_checksum timestamp value')
+
+ChecksumLookup = collections.namedtuple(
+    'ChecksumLookup', 'idx_checksum last_timestamp')

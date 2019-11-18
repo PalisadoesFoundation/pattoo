@@ -48,6 +48,8 @@ class Checksum(BASE):
 
     data_type = Column(INTEGER(unsigned=True), nullable=False)
 
+    last_timestamp = Column(BIGINT(unsigned=True), nullable=False, default='1')
+
     enabled = Column(INTEGER(unsigned=True), server_default='1')
 
     ts_modified = Column(

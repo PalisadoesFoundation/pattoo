@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-"""Verifies the existence of various database table primary key values."""
+"""Verifies the existence of various database data required for ingest."""
 
 # PIP libraries
 from sqlalchemy import and_
-
-from pattoo_shared import log
 
 # Import project libraries
 from pattoo.db import db
@@ -65,32 +63,6 @@ def pair(key, value):
     return result
 
 
-def pairs(pattoo_db_record):
-    """Create db Pair table entries.
-
-    Args:
-        pattoo_db_record: PattooDBrecord object
-
-    Returns:
-        None
-
-    """
-    # Initialize key variables
-    result = []
-
-    # Get key-values
-    _kvs = key_value_pairs(pattoo_db_record)
-
-    # Get list of pairs in the database
-    for key, value in _kvs:
-        idx_pair = pair(key, value)
-        if bool(idx_pair) is True:
-            result.append(idx_pair)
-
-    # Return
-    return result
-
-
 def glue(_idx_checksum, idx_pair):
     """Determine existence of idx_checksum, idx_pair in the Glue db table.
 
@@ -120,33 +92,3 @@ def glue(_idx_checksum, idx_pair):
         result = True
         break
     return result
-
-
-def key_value_pairs(pattoo_db_record):
-    """Create db Pair table entries.
-
-    Args:
-        pattoo_db_record: PattooDBrecord object
-
-    Returns:
-        None
-
-    """
-    # Initialize key variables
-    rows = []
-
-    # Iterate over NamedTuple
-    for key, value in pattoo_db_record._asdict().items():
-
-        # Ignore keys that don't belong in the Pair table
-        if key in ['data_timestamp', 'data_value', 'checksum']:
-            continue
-
-        if key == 'metadata':
-            # Process the metadata key-values
-            rows.extend(value)
-        else:
-            # Process other key-values
-            rows.append((str(key), str(value)))
-
-    return rows

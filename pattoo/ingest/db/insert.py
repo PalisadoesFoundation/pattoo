@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
-"""Pattoo classes that manage various data."""
+"""Inserts various database values required during ingest."""
+
+# Standard libraries
+from operator import attrgetter
+
+# PIP libraries
+from sqlalchemy import and_
 
 # Import project libraries
 from pattoo.db import db
 from pattoo.db.tables import Checksum, Pair, Glue, Data
-from pattoo.ingest import exists
-
-from pattoo_shared import log
+from pattoo.ingest.db import exists
 
 
 def timeseries(items):
@@ -21,9 +25,10 @@ def timeseries(items):
     """
     # Initialize key variables
     rows = []
+    last_timestamps = {}
 
     # Update the data
-    for item in items:
+    for item in sorted(items, key=attrgetter('timestamp')):
         # Insert data
         value = round(item.value, 10)
         rows.append(
@@ -31,6 +36,23 @@ def timeseries(items):
                  timestamp=item.timestamp,
                  value=value)
         )
+
+        # Get the most recent timestamp for each idx_checksum
+        if item.idx_checksum not in last_timestamps:
+            last_timestamps[item.idx_checksum] = item.timestamp
+        else:
+            last_timestamps[item.idx_checksum] = max(
+                item.timestamp, last_timestamps[item.idx_checksum])
+
+    # Update the last_timestamp
+    for idx_checksum, timestamp in last_timestamps.items():
+        with db.db_modify(20010, die=False) as session:
+            # Update the last_timestamp
+            session.query(Checksum).filter(
+                and_(Checksum.idx_checksum == idx_checksum,
+                     Checksum.enabled == 1)).update(
+                         {'last_timestamp': timestamp})
+
     if bool(rows) is True:
         with db.db_modify(20012, die=True) as session:
             session.add_all(rows)
@@ -72,11 +94,11 @@ def pair(key, value):
         session.add(row)
 
 
-def pairs(pattoo_db_record):
+def pairs(items):
     """Create db Pair table entries.
 
     Args:
-        pattoo_db_record: PattooDBrecord object
+        items: List of lists, or list of key-value pairs
 
     Returns:
         None
@@ -84,10 +106,21 @@ def pairs(pattoo_db_record):
     """
     # Initialize key variables
     rows = []
-    _kvs = exists.key_values(pattoo_db_record)
+    uniques = {}
+    all_kvs = []
 
-    # Iterate over NamedTuple
-    for key, value in _kvs:
+    # Create a single list of key-value pairs.
+    # Add them to a dict to make the pairs unique.
+    for item in items:
+        if isinstance(item, list):
+            all_kvs.extend(item)
+        else:
+            all_kvs.append(item)
+    for _kv in all_kvs:
+        uniques[_kv] = None
+
+    # Insert the key-value pairs into the database
+    for (key, value), _ in uniques.items():
         # Skip non-metadata pre-existing pairs
         if exists.pair(key, value) is True:
             continue
