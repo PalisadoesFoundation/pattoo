@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Pattoo classes that manage various configurations."""
 
+import os
+
 # Import project libraries
 from pattoo_shared import configuration
 from pattoo_shared.configuration import Config as ConfigShared
@@ -85,7 +87,10 @@ class Config(ConfigShared):
         sub_key = 'db_password'
 
         # Process configuration
-        result = configuration.search(key, sub_key, self._configuration)
+        if 'PATTOO_TRAVIS' in os.environ:
+            result = ''
+        else:
+            result = configuration.search(key, sub_key, self._configuration)
 
         # Get result
         return result

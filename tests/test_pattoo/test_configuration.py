@@ -76,7 +76,10 @@ class TestConfiguration(unittest.TestCase):
     def test_db_password(self):
         """Testing method db_password."""
         # Initialize key values
-        expected = ''
+        if 'PATTOO_TRAVIS' in os.environ:
+            expected = ''
+        else:
+            expected = 'K2nJ8kFdthEbuwXE'
 
         # Test
         result = self.config.db_password()

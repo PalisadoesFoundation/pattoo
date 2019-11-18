@@ -53,7 +53,7 @@ class UnittestConfig(object):
                 'db_max_overflow': 20,
                 'db_hostname': 'localhost',
                 'db_username': 'travis',
-                'db_password': '',
+                'db_password': 'K2nJ8kFdthEbuwXE',
                 'db_name': 'pattoo_unittest'
             },
             'pattoo-api-agentd': {

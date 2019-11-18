@@ -21,13 +21,14 @@ services:
 # Setup global environmental variables
 env:
     - PYTHONPATH=./ PATTOO_CONFIGDIR=$HOME/.pattoo-unittests/config
+    - PATTOO_TRAVIS=""
 
 # Install PIP packages and create a temporary config file before installing
 before_install:
     - pip install -r pip_requirements.txt
     - tests/bin/unittest_setup.py
     - mysql -e 'CREATE DATABASE pattoo_unittest;'
-    - cat ~/.my.cnf 
+    - cat ~/.my.cnf
     - setup/install.py
 
 # Run the unittest scripts
