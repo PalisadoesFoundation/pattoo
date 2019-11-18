@@ -24,7 +24,7 @@ def idx_checksums(_checksums):
     result = []
 
     # Get the data from the database
-    with db.db_query(20011) as session:
+    with db.db_query(20003) as session:
         rows = session.query(
             Checksum.idx_checksum).filter(
                 Checksum.idx_checksum.in_(_checksums))
@@ -82,7 +82,7 @@ def glue(idx_checksums):
     result = []
 
     # Get the data from the database
-    with db.db_query(20011) as session:
+    with db.db_query(20014) as session:
         rows = session.query(
             Glue.idx_pair).filter(Glue.idx_checksum.in_(idx_checksums))
 
