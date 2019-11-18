@@ -12,8 +12,6 @@ from pattoo.db import db
 from pattoo.db.tables import Checksum, Pair, Glue, Data
 from pattoo.ingest.db import exists
 
-from pattoo_shared import log
-
 
 def timeseries(items):
     """Insert timeseries data.
@@ -28,8 +26,6 @@ def timeseries(items):
     # Initialize key variables
     rows = []
     last_timestamps = {}
-
-    log.log2info(3333333333333333333333333333333, 'boo')
 
     # Update the data
     for item in sorted(items, key=attrgetter('timestamp')):

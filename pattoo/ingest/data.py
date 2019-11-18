@@ -10,8 +10,6 @@ from pattoo.constants import IDXTimestampValue, ChecksumLookup
 from pattoo.ingest.db import insert, query
 from pattoo.ingest import get
 
-from pattoo_shared import log
-
 
 def mulitiprocess(grouping_pattoo_db_records):
     """Insert PattooDBrecord objects into the database.
@@ -82,11 +80,8 @@ def _process_rows(pattoo_db_records):
 
     """
     # Initialize key variables
-    items = []
     idx_pairs_2_insert = []
     data = {}
-
-    log.log2info(44444444444444444444444444444444, 'boo')
 
     # Return if there is nothint to process
     if bool(pattoo_db_records) is False:
