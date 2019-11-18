@@ -21,6 +21,7 @@ def idx_checksum(checksum):
     """
     # Initialize key variables
     result = False
+    rows = []
 
     # Get the result
     with db.db_query(20005) as session:
