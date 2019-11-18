@@ -164,13 +164,16 @@ def process(directory_data):
         filepaths.append(filepath)
 
         # Get data from JSON file. Convert to rows of key-pairs
-        (data_source, polled_data) = json_data
-        keypairs = converter.cache_to_keypairs(data_source, polled_data)
-        count += len(keypairs)
-        if data_source in _cache:
-            _cache[data_source].extend(keypairs)
-        else:
-            _cache[data_source] = keypairs
+        if bool(json_data) is True:
+            (data_source, polled_data) = json_data
+            if bool(json_data) is True:
+                keypairs = converter.cache_to_keypairs(
+                    data_source, polled_data)
+                count += len(keypairs)
+                if data_source in _cache:
+                    _cache[data_source].extend(keypairs)
+                else:
+                    _cache[data_source] = keypairs
 
     # Multiprocess the data
     for _, item in sorted(_cache.items()):
