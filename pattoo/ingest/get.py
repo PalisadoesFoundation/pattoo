@@ -2,7 +2,7 @@
 """Verifies the existence of various database table primary key values."""
 
 # Import project libraries
-from pattoo.ingest.db import exists, insert
+from pattoo.ingest.db import exists, insert, query
 
 
 def pairs(pattoo_db_record):
@@ -19,13 +19,11 @@ def pairs(pattoo_db_record):
     result = []
 
     # Get key-values
-    _kvs = key_value_pairs(pattoo_db_record)
+    _pairs = key_value_pairs(pattoo_db_record)
 
     # Get list of pairs in the database
-    for key, value in _kvs:
-        idx_pair = exists.pair(key, value)
-        if bool(idx_pair) is True:
-            result.append(idx_pair)
+    if bool(pairs) is True:
+        result = query.pairs(_pairs)
 
     # Return
     return result
