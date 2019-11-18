@@ -10,6 +10,8 @@ from pattoo.constants import IDXTimestampValue, ChecksumLookup
 from pattoo.ingest.db import insert, query
 from pattoo.ingest import get
 
+from pattoo_shared import log
+
 
 def mulitiprocess(grouping_pattoo_db_records):
     """Insert PattooDBrecord objects into the database.
@@ -82,6 +84,9 @@ def _process_rows(pattoo_db_records):
     # Initialize key variables
     items = []
     idx_pairs_2_insert = []
+    data = {}
+
+    log.log2info(44444444444444444444444444444444, 'boo')
 
     # Return if there is nothint to process
     if bool(pattoo_db_records) is False:
@@ -130,11 +135,11 @@ def _process_rows(pattoo_db_records):
         # Append item to items
         if pattoo_db_record.data_timestamp > checksum_table[
                 pattoo_db_record.checksum].last_timestamp:
-            items.append(IDXTimestampValue(
+            data[pattoo_db_record.data_timestamp] = IDXTimestampValue(
                 idx_checksum=idx_checksum,
                 timestamp=pattoo_db_record.data_timestamp,
-                value=pattoo_db_record.data_value))
+                value=pattoo_db_record.data_value)
 
     # Update the data table
-    if bool(items):
-        insert.timeseries(items)
+    if bool(data):
+        insert.timeseries(list(data.values()))

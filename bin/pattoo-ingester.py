@@ -164,9 +164,9 @@ def process(directory_data):
         filepaths.append(filepath)
 
         # Get data from JSON file. Convert to rows of key-pairs
-        if bool(json_data) is True:
-            (data_source, polled_data) = json_data
-            if bool(json_data) is True:
+        if bool(json_data) is True and isinstance(json_data, list) is True:
+            if len(json_data) == 2:
+                (data_source, polled_data) = json_data
                 keypairs = converter.cache_to_keypairs(
                     data_source, polled_data)
                 count += len(keypairs)
