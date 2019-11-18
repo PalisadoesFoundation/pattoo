@@ -11,7 +11,6 @@ import os
 import time
 import argparse
 
-
 # Try to create a working PYTHONPATH
 _BIN_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _ROOT_DIRECTORY = os.path.abspath(os.path.join(_BIN_DIRECTORY, os.pardir))
@@ -29,7 +28,6 @@ from pattoo_shared import files
 from pattoo_shared import daemon
 from pattoo_shared import log
 from pattoo_shared import converter
-from pattoo_shared.variables import AgentPolledData
 from pattoo_shared.constants import PATTOO_API_AGENT_EXECUTABLE
 
 from pattoo.ingest import data
@@ -154,7 +152,7 @@ def process(directory_data):
     """
     # Initialize list of files that have been processed
     filepaths = []
-    db_records_by_agent_id = {}
+    _cache = {}
     count = 0
     muliprocessing_data = []
 
@@ -165,24 +163,17 @@ def process(directory_data):
         log.log2debug(20004, log_message)
         filepaths.append(filepath)
 
-        # Get data from JSON file
-        apd = converter.convert(json_data)
-
-        # Convert data in JSON file to rows of
-        # PattooShared.constants.PattooDBrecord objects
-        if isinstance(apd, AgentPolledData) is True:
-            if apd.valid is True:
-                # Create an entry to store time sorted data from each agent
-                if apd.agent_id not in db_records_by_agent_id:
-                    db_records_by_agent_id[apd.agent_id] = []
-
-                # Get data from agent and append it
-                pattoo_db_records = converter.extract(apd)
-                db_records_by_agent_id[apd.agent_id].extend(pattoo_db_records)
-                count += len(pattoo_db_records)
+        # Get data from JSON file. Convert to rows of key-pairs
+        (data_source, polled_data) = json_data
+        keypairs = converter.cache_to_keypairs(data_source, polled_data)
+        count += len(keypairs)
+        if data_source in _cache:
+            _cache[data_source].extend(keypairs)
+        else:
+            _cache[data_source] = keypairs
 
     # Multiprocess the data
-    for _, item in sorted(db_records_by_agent_id.items()):
+    for _, item in sorted(_cache.items()):
         muliprocessing_data.append(item)
     data.mulitiprocess(muliprocessing_data)
 

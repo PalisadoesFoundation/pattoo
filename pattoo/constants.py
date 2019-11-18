@@ -4,6 +4,8 @@ The aim is to have a single location for constants that may be used across
 agents to prevent the risk of duplication.
 
 """
+# Standard imports
+import collections
 
 ###############################################################################
 # Constants for pattoo Web API
@@ -12,3 +14,13 @@ agents to prevent the risk of duplication.
 PATTOO_API_WEB_EXECUTABLE = 'pattoo-apid'
 PATTOO_API_WEB_PROXY = '{}-gunicorn'.format(
     PATTOO_API_WEB_EXECUTABLE)
+
+###############################################################################
+# Constants for data ingestion
+###############################################################################
+
+IDXTimestampValue = collections.namedtuple(
+    'IDXTimestampValue', 'idx_checksum timestamp value')
+
+ChecksumLookup = collections.namedtuple(
+    'ChecksumLookup', 'idx_checksum last_timestamp')

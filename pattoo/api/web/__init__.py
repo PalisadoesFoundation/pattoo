@@ -10,9 +10,6 @@ from pattoo_shared.constants import PATTOO_API_SITE_PREFIX
 from pattoo.db import POOL
 from pattoo.api.web.graphql import GRAPHQL
 from pattoo.api.web.data import REST_API_DATA
-from pattoo.api.web.datapoint import REST_API_DATAPOINT
-from pattoo.api.web.datasource import REST_API_DATASOURCE
-from pattoo.api.web.agent import REST_API_AGENT
 
 # Setup REST URI prefix
 PATTOO_API_WEB_REST_PREFIX = '{}/rest'.format(PATTOO_API_SITE_PREFIX)
@@ -25,15 +22,6 @@ PATTOO_API_WEB.register_blueprint(
     GRAPHQL, url_prefix=PATTOO_API_SITE_PREFIX)
 PATTOO_API_WEB.register_blueprint(
     REST_API_DATA, url_prefix='{}/data'.format(PATTOO_API_WEB_REST_PREFIX))
-PATTOO_API_WEB.register_blueprint(
-    REST_API_DATAPOINT, url_prefix='{}/datapoint'.format(
-        PATTOO_API_WEB_REST_PREFIX))
-PATTOO_API_WEB.register_blueprint(
-    REST_API_DATASOURCE, url_prefix='{}/datasource'.format(
-        PATTOO_API_WEB_REST_PREFIX))
-PATTOO_API_WEB.register_blueprint(
-    REST_API_AGENT, url_prefix='{}/agent'.format(
-        PATTOO_API_WEB_REST_PREFIX))
 
 
 @PATTOO_API_WEB.teardown_appcontext
