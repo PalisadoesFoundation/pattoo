@@ -75,10 +75,10 @@ def idx_checksum(checksum, data_type):
 
     """
     # Create an entry in the database Checksum table
-    _idx_checksum = exists.idx_checksum(checksum)
+    _idx_checksum = exists.checksum(checksum)
     if bool(_idx_checksum) is False:
         insert.checksum(checksum, data_type)
-        _idx_checksum = exists.idx_checksum(checksum)
+        _idx_checksum = exists.checksum(checksum)
 
     # Return
     return _idx_checksum

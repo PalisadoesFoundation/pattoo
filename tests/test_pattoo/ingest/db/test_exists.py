@@ -4,6 +4,7 @@
 import os
 import unittest
 import sys
+import time
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -25,6 +26,8 @@ This script is not installed in the "pattoo/tests/test_pattoo/ingest/db" \
 directory. Please fix.''')
     sys.exit(2)
 
+from pattoo_shared import data
+from pattoo_shared.constants import DATA_FLOAT
 from tests.libraries.configuration import UnittestConfig
 from pattoo.ingest.db import query, insert, exists
 
@@ -36,11 +39,19 @@ class TestBasicFunctioins(unittest.TestCase):
     # General object setup
     #########################################################################
 
-    def test_idx_checksum(self):
-        """Testing method / function idx_checksum."""
+    def test_checksum(self):
+        """Testing method / function checksum."""
         # Initialize key variables
-        result = exists.idx_checksum(-1)
+        result = exists.checksum(-1)
         self.assertFalse(result)
+
+        # Create entry and check
+        checksum = data.hashstring(str(int(time.time())))
+        result = exists.checksum(checksum)
+        self.assertFalse(result)
+        insert.checksum(checksum, DATA_FLOAT)
+        result = exists.checksum(checksum)
+        self.assertTrue(result)
 
     def test_pair(self):
         """Testing method / function pair."""

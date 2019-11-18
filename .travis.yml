@@ -27,6 +27,7 @@ before_install:
     - pip install -r pip_requirements.txt
     - tests/bin/unittest_setup.py
     - mysql -e 'CREATE DATABASE pattoo_unittest;'
+    - cat ~/.my.cnf 
     - setup/install.py
 
 # Run the unittest scripts
