@@ -38,11 +38,16 @@ def timeseries(items):
         )
 
         # Get the most recent timestamp for each idx_checksum
-        if item.idx_checksum not in last_timestamps:
-            last_timestamps[item.idx_checksum] = item.timestamp
-        else:
+        if item.idx_checksum in last_timestamps:
             last_timestamps[item.idx_checksum] = max(
                 item.timestamp, last_timestamps[item.idx_checksum])
+        else:
+            last_timestamps[item.idx_checksum] = item.timestamp
+
+    # Update
+    if bool(rows) is True:
+        with db.db_modify(20012, die=True) as session:
+            session.add_all(rows)
 
     # Update the last_timestamp
     for idx_checksum, timestamp in last_timestamps.items():
@@ -52,10 +57,6 @@ def timeseries(items):
                 and_(Checksum.idx_checksum == idx_checksum,
                      Checksum.enabled == 1)).update(
                          {'last_timestamp': timestamp})
-
-    if bool(rows) is True:
-        with db.db_modify(20012, die=True) as session:
-            session.add_all(rows)
 
 
 def checksum(_checksum, data_type):

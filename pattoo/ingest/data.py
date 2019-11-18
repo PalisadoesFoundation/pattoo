@@ -80,8 +80,8 @@ def _process_rows(pattoo_db_records):
 
     """
     # Initialize key variables
-    items = []
     idx_pairs_2_insert = []
+    data = {}
 
     # Return if there is nothint to process
     if bool(pattoo_db_records) is False:
@@ -130,11 +130,11 @@ def _process_rows(pattoo_db_records):
         # Append item to items
         if pattoo_db_record.data_timestamp > checksum_table[
                 pattoo_db_record.checksum].last_timestamp:
-            items.append(IDXTimestampValue(
+            data[pattoo_db_record.data_timestamp] = IDXTimestampValue(
                 idx_checksum=idx_checksum,
                 timestamp=pattoo_db_record.data_timestamp,
-                value=pattoo_db_record.data_value))
+                value=pattoo_db_record.data_value)
 
     # Update the data table
-    if bool(items):
-        insert.timeseries(items)
+    if bool(data):
+        insert.timeseries(list(data.values()))
