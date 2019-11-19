@@ -15,7 +15,7 @@ class Config(ConfigShared):
 
     Only processes the following YAML keys in the configuration file:
 
-        The value of the PATTOO_AGENT_OS_SPOKED constant
+        The value of the PATTOO_API_WEB_EXECUTABLE constant
 
     """
 

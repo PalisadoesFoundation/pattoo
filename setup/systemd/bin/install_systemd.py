@@ -20,7 +20,6 @@ import argparse
 from subprocess import check_output, call
 from shutil import copyfile
 from pathlib import Path
-from pprint import pprint
 
 # Try to create a working PYTHONPATH
 _EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -153,7 +152,7 @@ def _symlink_dir(directory):
     for key in sorted(data_dictionary.keys()):
         if '/lib/' not in str(key):
             continue
-        result = os.path.dirname(key)
+        result = os.path.dirname(str(key))
         break
     return result
 
