@@ -9,7 +9,7 @@ from pattoo.db import db
 from pattoo.db.tables import Pair, Checksum, Glue
 
 
-def idx_checksum(checksum):
+def checksum(_checksum):
     """Get the db Checksum.idx_checksum value for specific checksum.
 
     Args:
@@ -21,11 +21,12 @@ def idx_checksum(checksum):
     """
     # Initialize key variables
     result = False
+    rows = []
 
     # Get the result
     with db.db_query(20005) as session:
         rows = session.query(Checksum.idx_checksum).filter(
-            Checksum.checksum == checksum.encode())
+            Checksum.checksum == _checksum.encode())
 
     # Return
     for row in rows:
@@ -57,8 +58,8 @@ def pair(key, value):
             ))
 
     # Return
-    for _ in rows:
-        result = True
+    for row in rows:
+        result = row.idx_pair
         break
     return result
 

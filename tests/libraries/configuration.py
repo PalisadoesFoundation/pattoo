@@ -52,9 +52,9 @@ class UnittestConfig(object):
                 'db_pool_size': 10,
                 'db_max_overflow': 20,
                 'db_hostname': 'localhost',
-                'db_username': 'pattoo_username',
-                'db_password': 'pattoo_password',
-                'db_name': 'pattoo_db'
+                'db_username': 'travis',
+                'db_password': 'K2nJ8kFdthEbuwXE',
+                'db_name': 'pattoo_unittest'
             },
             'pattoo-api-agentd': {
                 'api_ip_address': '127.0.0.1',

@@ -67,7 +67,7 @@ class TestConfiguration(unittest.TestCase):
     def test_db_username(self):
         """Testing method db_username."""
         # Initialize key values
-        expected = 'pattoo_username'
+        expected = 'travis'
 
         # Test
         result = self.config.db_username()
@@ -76,7 +76,10 @@ class TestConfiguration(unittest.TestCase):
     def test_db_password(self):
         """Testing method db_password."""
         # Initialize key values
-        expected = 'pattoo_password'
+        if 'PATTOO_TRAVIS' in os.environ:
+            expected = ''
+        else:
+            expected = 'K2nJ8kFdthEbuwXE'
 
         # Test
         result = self.config.db_password()
@@ -85,7 +88,7 @@ class TestConfiguration(unittest.TestCase):
     def test_db_name(self):
         """Testing method db_name."""
         # Initialize key values
-        expected = 'pattoo_db'
+        expected = 'pattoo_unittest'
 
         # Test
         result = self.config.db_name()

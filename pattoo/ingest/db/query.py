@@ -23,16 +23,21 @@ def idx_checksums(_checksums):
     # Initialize key variables
     result = []
 
+    # Encode the checksums for database lookups
+    if isinstance(_checksums, list) is False:
+        _checksums = [_checksums]
+    _checksums = [item.encode() for item in _checksums]
+
     # Get the data from the database
     with db.db_query(20003) as session:
         rows = session.query(
             Checksum.idx_checksum).filter(
-                Checksum.idx_checksum.in_(_checksums))
+                Checksum.checksum.in_(_checksums))
 
     # Return
     for row in rows:
         result.append(row.idx_checksum)
-    return result
+    return sorted(result)
 
 
 def checksums(data_source):
@@ -57,7 +62,8 @@ def checksums(data_source):
             Checksum.idx_checksum).filter(and_(
                 Glue.idx_checksum == Checksum.idx_checksum,
                 Glue.idx_pair == Pair.idx_pair,
-                Pair.key == data_source.encode()
+                Pair.key == 'data_source'.encode(),
+                Pair.value == data_source.encode()
             ))
 
     # Return
@@ -68,11 +74,11 @@ def checksums(data_source):
     return result
 
 
-def glue(idx_checksums):
+def glue(_idx_checksums):
     """Get all the checksum values for a specific data_source.
 
     Args:
-        checksums: List idx_checksum values
+        _idx_checksums: List idx_checksum values
 
     Returns:
         result: Dict of idx_checksum values keyed by Checksum.checksum
@@ -80,16 +86,21 @@ def glue(idx_checksums):
     """
     # Initialize key variables
     result = []
+    rows = []
+
+    # Create a list if it doesn't exist
+    if isinstance(_idx_checksums, list) is False:
+        _idx_checksums = [_idx_checksums]
 
     # Get the data from the database
     with db.db_query(20014) as session:
         rows = session.query(
-            Glue.idx_pair).filter(Glue.idx_checksum.in_(idx_checksums))
+            Glue.idx_pair).filter(Glue.idx_checksum.in_(_idx_checksums))
 
     # Return
     for row in rows:
         result.append(row.idx_pair)
-    return result
+    return sorted(result)
 
 
 def pairs(_items):
@@ -116,4 +127,4 @@ def pairs(_items):
     # Return
     for row in rows:
         result.append(row.idx_pair)
-    return result
+    return sorted(result)
