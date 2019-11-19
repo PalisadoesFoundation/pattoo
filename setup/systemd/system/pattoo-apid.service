@@ -1,0 +1,19 @@
+[Unit]
+Description=pattoo-apid daemon
+Wants=network.target
+After=network.target
+
+[Service]
+Environment="PATTOO_CONFIGDIR=x"
+User=pattoo
+Group=pattoo
+ExecStart=
+ExecStart=INSTALLATION_DIRECTORY/bin/pattoo-apid.py --start
+ExecStop=INSTALLATION_DIRECTORY/bin/pattoo-apid.py --stop
+ExecReload=INSTALLATION_DIRECTORY/bin/pattoo-apid.py --restart
+RemainAfterExit=yes
+GuessMainPID=yes
+Type=forking
+
+[Install]
+WantedBy=multi-user.target

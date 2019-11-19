@@ -5,7 +5,7 @@ Logic:
 
     - Verify whether the script is being run by root or sudo user
     - Check to see whether this is a systemd system
-    - Check existence of /etc/systemd/system/multi-user.target directory
+    - Check existence of /etc/systemd/system/multi-user.target.wants directory
     - Check symlink location of files in that directory
     - Copy files to that symlink location
     - Reload the systemd daemon
@@ -19,6 +19,8 @@ import re
 import argparse
 from subprocess import check_output, call
 from shutil import copyfile
+from pathlib import Path
+from pprint import pprint
 
 # Try to create a working PYTHONPATH
 _EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -33,9 +35,6 @@ else:
 This script is not installed in the "pattoo/setup/systemd/bin" \
 directory. Please fix.''')
     sys.exit(2)
-
-# State where the daemon executables are
-BIN_DIR = '{}{}bin'.format(ROOT_DIR, os.sep)
 
 
 def log(msg):
@@ -144,32 +143,40 @@ def _symlink_dir(directory):
 
     # Get the name of the directory to which the files are symlinked
     for filename in filenames:
-        symlink_target = os.readlink(filename)
-        data_dictionary[
-            os.path.dirname(os.path.abspath(symlink_target))] = True
+        if os.path.islink(filename) is False:
+            continue
+        if '/etc/systemd/system/multi-user.target.wants' not in filename:
+            continue
+        data_dictionary[Path(filename).resolve().absolute()] = True
 
     # Get the first directory in the dictionary
     for key in sorted(data_dictionary.keys()):
-        result = key
+        if '/lib/' not in str(key):
+            continue
+        result = os.path.dirname(key)
         break
     return result
 
 
-def _update_environment_strings(filepaths, config_dir):
+def _update_environment_strings(
+        filepaths, config_dir, install_dir, username, group):
     """Update the environment variables in the filepaths files.
 
     Args:
         filepaths: List of filepaths
         config_dir: Directory where configurations will be stored
+        install_dir: Installation directory
+        username: Username to run daemon
+        group: Group of user to run daemon
 
     Returns:
         None
 
     """
     # Initialize key variables
-    global BINDIR
     env_path = '^Environment="PATTOO_CONFIGDIR=(.*?)"$'
-    env_bin = '^Environment="BIN_DIR=(.*?)"$'
+    env_user = '^User=(.*?)$'
+    env_group = '^Group=(.*?)$'
 
     # Do the needful
     for filepath in filepaths:
@@ -182,14 +189,21 @@ def _update_environment_strings(filepaths, config_dir):
                 # Strip line
                 _line = line.strip()
 
-                # Test BIN_DIR
-                if bool(re.search(env_bin, _line)) is True:
-                    _line = 'Environment="BIN_DIR={}"'.format(BIN_DIR)
+                # Fix the binary directory
+                _line = _line.replace('INSTALLATION_DIRECTORY', install_dir)
 
                 # Test PATTOO_CONFIGDIR
                 if bool(re.search(env_path, line)) is True:
                     _line = 'Environment="PATTOO_CONFIGDIR={}"'.format(
                         config_dir)
+
+                # Add user
+                if bool(re.search(env_user, line)) is True:
+                    _line = 'User={}'.format(username)
+
+                # Add group
+                if bool(re.search(env_group, line)) is True:
+                    _line = 'Group={}'.format(group)
 
                 lines.append(_line)
                 line = _fp.readline()
@@ -197,6 +211,81 @@ def _update_environment_strings(filepaths, config_dir):
         # Write new output
         with open(filepath, 'w') as _fp:
             _fp.writelines('{}\n'.format(line) for line in lines)
+
+
+def preflight(config_dir, etc_dir, install_dir):
+    """Make sure the environment is OK.
+
+    Args:
+        config_dir: Location of the configuratiion directory
+        etc_dir: Location of the systemd files
+        install_dir: Location of the pattoo files
+
+    Returns:
+        None
+
+
+    """
+    # Make sure config_dir exists
+    if os.path.isdir(config_dir) is False:
+        log('''\
+Expected configuration directory "{}" does not exist.'''.format(config_dir))
+
+    # Make sure install_dir exists
+    if os.path.isdir(install_dir) is False:
+        log('''\
+Expected pattoo directory "{}" does not exist.'''.format(install_dir))
+
+    # Verify whether the script is being run by root or sudo user
+    if bool(os.getuid()) is True:
+        log('This script must be run as the "root" user '
+            'or with "sudo" privileges')
+
+    # Check to see whether this is a systemd system
+    try:
+        check_output(['pidof', 'systemd'])
+    except:
+        log('This is not a "systemd" system. This script should not be run.')
+
+    # Check existence of /etc/systemd/system/multi-user.target.wants directory
+    if os.path.isdir(etc_dir) is False:
+        log('Expected systemd directory "{}" does not exist.'.format(etc_dir))
+
+
+def arguments():
+    """Get the CLI arguments.
+
+    Args:
+        config:
+            Config object
+
+    Returns:
+        args: NamedTuple of argument values
+
+
+    """
+    # Get config_dir value
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-f', '--config_dir',
+        help=('''\
+Directory where the pattoo configuration files will be located'''),
+        required=True)
+    parser.add_argument(
+        '-i', '--installation_dir',
+        help=('''\
+Directory where the pattoo is installed. (Must end with '/pattoo')'''),
+        required=True)
+    parser.add_argument(
+        '-u', '--username',
+        help=('Username that will run the daemon'),
+        required=True)
+    parser.add_argument(
+        '-g', '--group',
+        help=('User group to which username belongs'),
+        required=True)
+    args = parser.parse_args()
+    return args
 
 
 def main():
@@ -211,36 +300,13 @@ def main():
     """
     # Initialize key variables
     etc_dir = '/etc/systemd/system/multi-user.target.wants'
-
-    # Get config_dir value
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-f', '--config_dir',
-        help=('''\
-Directory where the pattoo configuration files will be located'''),
-        required=True)
-    args = parser.parse_args()
+    args = arguments()
     config_dir = os.path.expanduser(args.config_dir)
+    install_dir = os.path.expanduser(args.installation_dir)
 
-    # Make sure config_dir exists
-    if os.path.isdir(config_dir) is False:
-        log('''\
-Expected configuration directory "{}" does not exist.'''.format(config_dir))
-
-    # Verify whether the script is being run by root or sudo user
-    if bool(os.getuid()) is True:
-        log('This script must be run as the "root" user '
-            'or with "sudo" privileges')
-
-    # Check to see whether this is a systemd system
-    try:
-        check_output(['pidof', 'systemd'])
-    except:
-        log('This is not a "systemd" system. This script should not be run.')
-
-    # Check existence of /etc/systemd/system/multi-user.target directory
-    if os.path.isdir(etc_dir) is False:
-        log('Expected systemd directory "{}" does not exist.'.format(etc_dir))
+    # Make sure this system supports systemd and that
+    # the required directories exist
+    preflight(config_dir, etc_dir, install_dir)
 
     # Check symlink location of files in that directory
     target_directory = _symlink_dir(etc_dir)
@@ -249,7 +315,12 @@ Expected configuration directory "{}" does not exist.'''.format(config_dir))
     destination_filepaths = _copy_service_files(target_directory)
 
     # Update the environment strings
-    _update_environment_strings(destination_filepaths, config_dir)
+    _update_environment_strings(
+        destination_filepaths,
+        config_dir,
+        install_dir,
+        args.username,
+        args.group)
 
 
 if __name__ == '__main__':
