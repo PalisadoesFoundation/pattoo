@@ -5,10 +5,15 @@ After=network.target
 
 [Service]
 Environment="PATTOO_CONFIGDIR=x"
-Environment="BIN_DIR=x"
-ExecStart=$BIN_DIR/pattoo-api-agentd --start
-ExecStop=$BIN_DIR/pattoo-api-agentd --stop
-ExecReload=$BIN_DIR/pattoo-api-agentd --restart
+User=pattoo
+Group=pattoo
+ExecStart=
+ExecStart=INSTALLATION_DIRECTORY/bin/pattoo-api-agentd.py --start
+ExecStop=INSTALLATION_DIRECTORY/bin/pattoo-api-agentd.py --stop
+ExecReload=INSTALLATION_DIRECTORY/bin/pattoo-api-agentd.py --restart
+RemainAfterExit=yes
+GuessMainPID=yes
+Type=forking
 
 [Install]
 WantedBy=multi-user.target
