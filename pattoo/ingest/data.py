@@ -80,7 +80,6 @@ def _process_rows(pattoo_db_records):
 
     """
     # Initialize key variables
-    idx_pairs_2_insert = []
     data = {}
 
     # Return if there is nothint to process
@@ -91,8 +90,6 @@ def _process_rows(pattoo_db_records):
     # speed up the process by reducing the need for future database access.
     data_source = pattoo_db_records[0].data_source
     checksum_table = query.checksums(data_source)
-    glue_idx_pairs = query.glue(
-        [_.idx_checksum for _ in checksum_table.values()])
 
     # Process data
     for pattoo_db_record in pattoo_db_records:
@@ -108,28 +105,25 @@ def _process_rows(pattoo_db_records):
         else:
             # Entry not in database. Update the database and get the
             # required idx_checksum
-            result = get.idx_checksum(
+            idx_checksum = get.idx_checksum(
                 pattoo_db_record.checksum, pattoo_db_record.data_type)
-            if bool(result) is True:
-                idx_checksum = result
-
+            if bool(idx_checksum) is True:
                 # Update the lookup table
                 checksum_table[pattoo_db_record.checksum] = ChecksumLookup(
                     idx_checksum=idx_checksum, last_timestamp=1)
 
                 # Update the Glue table
                 idx_pairs = get.pairs(pattoo_db_record)
-                for idx_pair in idx_pairs:
-                    if idx_pair not in glue_idx_pairs:
-                        idx_pairs_2_insert.append(idx_pair)
-                        glue_idx_pairs.append(idx_pair)
-                insert.glue(idx_checksum, idx_pairs_2_insert)
+                insert.glue(idx_checksum, idx_pairs)
             else:
                 continue
 
         # Append item to items
         if pattoo_db_record.data_timestamp > checksum_table[
                 pattoo_db_record.checksum].last_timestamp:
+
+            # Add the Data table results to a dict in case we have duplicate 
+            # posting over the API
             data[pattoo_db_record.data_timestamp] = IDXTimestampValue(
                 idx_checksum=idx_checksum,
                 timestamp=pattoo_db_record.data_timestamp,

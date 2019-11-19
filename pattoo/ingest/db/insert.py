@@ -78,6 +78,49 @@ def checksum(_checksum, data_type):
             session.add(row)
 
 
+def checksums(items):
+    """Create db Checksum table entries.
+
+    Args:
+        items: List of lists, or list of (checksum, data_type) tuples
+
+    Returns:
+        None
+
+    """
+    # Initialize checksum variables
+    rows = []
+    uniques = {}
+    all_tuples = []
+
+    # Make list if not so
+    if isinstance(items, list) is False:
+        items = [items]
+
+    # Create a single list of tuples. Add them to a dict to make them unique.
+    for item in items:
+        if isinstance(item, list):
+            all_tuples.extend(item)
+        else:
+            all_tuples.append(item)
+    for _kv in all_tuples:
+        uniques[_kv] = None
+
+    # Insert the (checksum, data_type) tuples into the database
+    for (_checksum, data_type), _ in uniques.items():
+        # Skip pre-existing checksums
+        if bool(checksum(_checksum, data_type)) is True:
+            continue
+
+        # Add data_types to list for future insertion
+        row = Checksum(checksum=_checksum.encode(), data_type=data_type)
+        rows.append(row)
+
+    if bool(rows) is True:
+        with db.db_modify(20015, die=True) as session:
+            session.add_all(rows)
+
+
 def pairs(items):
     """Create db Pair table entries.
 
@@ -93,6 +136,10 @@ def pairs(items):
     uniques = {}
     all_kvs = []
 
+    # Make list if not so
+    if isinstance(items, list) is False:
+        items = [items]
+
     # Create a single list of key-value pairs.
     # Add them to a dict to make the pairs unique.
     for item in items:
@@ -105,11 +152,11 @@ def pairs(items):
 
     # Insert the key-value pairs into the database
     for (key, value), _ in uniques.items():
-        # Skip non-metadata pre-existing pairs
-        if exists.pair(key, value) is True:
+        # Skip pre-existing pairs
+        if bool(exists.pair(key, value)) is True:
             continue
 
-        # Insert and get the new idx_datasource value
+        # Add values to list for future insertion
         row = Pair(key=key.encode(), value=value.encode())
         rows.append(row)
 
@@ -132,7 +179,11 @@ def glue(idx_checksum, idx_pairs):
     # Initialize key variables
     rows = []
 
-    # Iterate over NamedTuple
+    # Create a list for processing if not available
+    if isinstance(idx_pairs, list) is False:
+        idx_pairs = [idx_pairs]
+
+    # Iterate over idx_pairs
     for idx_pair in idx_pairs:
         pair_exists = exists.glue(idx_checksum, idx_pair)
         if bool(pair_exists) is False:

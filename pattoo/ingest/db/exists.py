@@ -58,8 +58,8 @@ def pair(key, value):
             ))
 
     # Return
-    for _ in rows:
-        result = True
+    for row in rows:
+        result = row.idx_pair
         break
     return result
 

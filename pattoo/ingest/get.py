@@ -12,7 +12,7 @@ def pairs(pattoo_db_record):
         pattoo_db_record: PattooDBrecord object
 
     Returns:
-        None
+        result: List of Pair.idx_pair database index values
 
     """
     # Initialize key variables
@@ -22,21 +22,21 @@ def pairs(pattoo_db_record):
     _pairs = key_value_pairs(pattoo_db_record)
 
     # Get list of pairs in the database
-    if bool(pairs) is True:
-        result = query.pairs(_pairs)
+    insert.pairs(_pairs)
+    result = query.pairs(_pairs)
 
     # Return
     return result
 
 
 def key_value_pairs(pattoo_db_records):
-    """Create db Pair table entries.
+    """Create a list of key-value pairs.
 
     Args:
-        pattoo_db_records: List of PattooDBrecord object
+        pattoo_db_records: List of PattooDBrecord objects
 
     Returns:
-        None
+        rows: List of (key, value) tuples
 
     """
     # Initialize key variables
@@ -47,7 +47,7 @@ def key_value_pairs(pattoo_db_records):
 
     for pattoo_db_record in pattoo_db_records:
         # Iterate over NamedTuple
-        for key, value in pattoo_db_record._asdict().items():
+        for key, value in sorted(pattoo_db_record._asdict().items()):
 
             # Ignore keys that don't belong in the Pair table
             if key in ['data_timestamp', 'data_value', 'checksum']:
