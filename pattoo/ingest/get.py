@@ -50,7 +50,7 @@ def key_value_pairs(pattoo_db_records):
         for key, value in sorted(pattoo_db_record._asdict().items()):
 
             # Ignore keys that don't belong in the Pair table
-            if key in ['data_timestamp', 'data_value', 'checksum']:
+            if key in ['timestamp', 'value', 'checksum', 'data_type']:
                 continue
 
             if key == 'metadata':
