@@ -122,12 +122,12 @@ def _process_rows(pattoo_db_records):
         if pattoo_db_record.timestamp > checksum_table[
                 pattoo_db_record.checksum].last_timestamp:
 
-            # Add the Data table results to a dict in case we have duplicate 
+            # Add the Data table results to a dict in case we have duplicate
             # posting over the API
             data[pattoo_db_record.timestamp] = IDXTimestampValue(
                 idx_checksum=idx_checksum,
                 timestamp=pattoo_db_record.timestamp,
-                value=pattoo_db_record.data_value)
+                value=pattoo_db_record.value)
 
     # Update the data table
     if bool(data):
