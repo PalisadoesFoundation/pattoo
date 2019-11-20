@@ -70,7 +70,7 @@ class TestBasicFunctioins(unittest.TestCase):
         expected = {}
 
         # Populate database with key-value pairs
-        data_source = data.hashstring(str(random()))
+        source = data.hashstring(str(random()))
         for data_index in range(0, 10):
             time.sleep(0.05)
 
@@ -87,12 +87,11 @@ class TestBasicFunctioins(unittest.TestCase):
             # Add key-pairs to the database
             record = PattooDBrecord(
                 checksum=checksum,
-                data_index=data_index,
-                data_label='data_label',
-                data_source=data_source,
-                data_timestamp=int(time.time() * 1000),
+                key='key',
+                source=source,
+                timestamp=int(time.time() * 1000),
                 data_type=DATA_FLOAT,
-                data_value=(data_index * 10),
+                value=(data_index * 10),
                 metadata=[])
             pairs = get.key_value_pairs(record)
             insert.pairs(pairs)
@@ -105,7 +104,7 @@ class TestBasicFunctioins(unittest.TestCase):
         # This is added to verify that we only get a subset of results
         #######################################################################
 
-        fake_data_source = data.hashstring(str(random()))
+        fake_source = data.hashstring(str(random()))
         for data_index in range(0, 17):
             time.sleep(0.05)
 
@@ -117,12 +116,11 @@ class TestBasicFunctioins(unittest.TestCase):
             # Add key-pairs to the database
             record = PattooDBrecord(
                 checksum=checksum,
-                data_index=data_index,
-                data_label='data_label',
-                data_source=fake_data_source,
-                data_timestamp=int(time.time() * 1000),
+                key='key',
+                source=fake_source,
+                timestamp=int(time.time() * 1000),
                 data_type=DATA_FLOAT,
-                data_value=(data_index * 10),
+                value=(data_index * 10),
                 metadata=[])
             pairs = get.key_value_pairs(record)
             insert.pairs(pairs)
@@ -132,7 +130,7 @@ class TestBasicFunctioins(unittest.TestCase):
             insert.glue(idx_checksum, idx_pairs)
 
         # Test
-        result = query.checksums(data_source)
+        result = query.checksums(source)
         self.assertTrue(bool(result))
         self.assertTrue(isinstance(result, dict))
         self.assertEqual(len(result), len(expected))

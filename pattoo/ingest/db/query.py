@@ -11,7 +11,7 @@ from pattoo.db.tables import Checksum, Glue, Pair
 
 
 def idx_checksums(_checksums):
-    """Get all the checksum values for a specific data_source.
+    """Get all the checksum values for a specific source.
 
     Args:
         _checksums: List of checksum values
@@ -40,11 +40,11 @@ def idx_checksums(_checksums):
     return sorted(result)
 
 
-def checksums(data_source):
-    """Get all the checksum values for a specific data_source.
+def checksums(source):
+    """Get all the checksum values for a specific source.
 
     Args:
-        data_source: PattooDBrecord object data_source
+        source: PattooDBrecord object source
 
     Returns:
         result: Dict of idx_checksum values keyed by Checksum.checksum
@@ -62,8 +62,8 @@ def checksums(data_source):
             Checksum.idx_checksum).filter(and_(
                 Glue.idx_checksum == Checksum.idx_checksum,
                 Glue.idx_pair == Pair.idx_pair,
-                Pair.key == 'data_source'.encode(),
-                Pair.value == data_source.encode()
+                Pair.key == 'source'.encode(),
+                Pair.value == source.encode()
             ))
 
     # Return
@@ -75,7 +75,7 @@ def checksums(data_source):
 
 
 def glue(_idx_checksums):
-    """Get all the checksum values for a specific data_source.
+    """Get all the checksum values for a specific source.
 
     Args:
         _idx_checksums: List idx_checksum values

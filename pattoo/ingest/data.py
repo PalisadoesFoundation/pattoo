@@ -16,7 +16,7 @@ def mulitiprocess(grouping_pattoo_db_records):
 
     Args:
         grouping_pattoo_db_records: List of PattooDBrecord oject lists grouped
-            by data_source and sorted by timestamp. This data is obtained from
+            by source and sorted by timestamp. This data is obtained from
             PattooShared.converter.extract
 
     Returns:
@@ -71,7 +71,7 @@ def _process_rows(pattoo_db_records):
     Method:
         1) Get all the idx_checksum and idx_pair values that exist in the
            PattooDBrecord data from the database. All the records MUST be
-           from the same data_source.
+           from the same source.
         2) Add these idx values to tracking memory variables for speedy lookup
         3) Ignore non numeric data values sent
         4) Add data to the database. If new checksum values are found in the
@@ -88,8 +88,8 @@ def _process_rows(pattoo_db_records):
 
     # Get Checksum.idx_checksum and idx_pair values from db. This is used to
     # speed up the process by reducing the need for future database access.
-    data_source = pattoo_db_records[0].data_source
-    checksum_table = query.checksums(data_source)
+    source = pattoo_db_records[0].source
+    checksum_table = query.checksums(source)
 
     # Process data
     for pattoo_db_record in pattoo_db_records:
@@ -119,14 +119,14 @@ def _process_rows(pattoo_db_records):
                 continue
 
         # Append item to items
-        if pattoo_db_record.data_timestamp > checksum_table[
+        if pattoo_db_record.timestamp > checksum_table[
                 pattoo_db_record.checksum].last_timestamp:
 
             # Add the Data table results to a dict in case we have duplicate 
             # posting over the API
-            data[pattoo_db_record.data_timestamp] = IDXTimestampValue(
+            data[pattoo_db_record.timestamp] = IDXTimestampValue(
                 idx_checksum=idx_checksum,
-                timestamp=pattoo_db_record.data_timestamp,
+                timestamp=pattoo_db_record.timestamp,
                 value=pattoo_db_record.data_value)
 
     # Update the data table

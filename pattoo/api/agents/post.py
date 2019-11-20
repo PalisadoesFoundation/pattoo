@@ -17,12 +17,12 @@ from pattoo_shared import configuration
 POST = Blueprint('POST', __name__)
 
 
-@POST.route('/receive/<data_source>', methods=['POST'])
-def receive(data_source):
+@POST.route('/receive/<source>', methods=['POST'])
+def receive(source):
     """Handle the agent posting route.
 
     Args:
-        data_source: Unique Identifier of an pattoo agent
+        source: Unique Identifier of an pattoo agent
 
     Returns:
         Text response of Received
@@ -45,18 +45,18 @@ def receive(data_source):
 
     # Extract key values from posting
     try:
-        timestamp = int(posted_data[0]['data_timestamp'])
+        timestamp = int(posted_data[0]['timestamp'])
     except:
         abort(404)
 
     # Create a hash of the agent_hostname
     json_path = (
         '{}{}{}_{}.json'.format(
-            cache_dir, os.sep, timestamp, data_source))
+            cache_dir, os.sep, timestamp, source))
 
     # Create cache file
     with open(json_path, 'w+') as temp_file:
-        json.dump((data_source, posted_data), temp_file)
+        json.dump((source, posted_data), temp_file)
 
     # Return
     return 'OK'
