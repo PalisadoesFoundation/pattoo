@@ -3,6 +3,7 @@
 # Standard imports
 import os
 import json
+import sys
 
 # Flask imports
 from flask import Blueprint, request, abort
@@ -55,8 +56,18 @@ def receive(source):
             cache_dir, os.sep, timestamp, source))
 
     # Create cache file
-    with open(json_path, 'w+') as temp_file:
-        json.dump((source, posted_data), temp_file)
+    try:
+        with open(json_path, 'w+') as temp_file:
+            json.dump((source, posted_data), temp_file)
+    except Exception as err:
+        log_message = '{}'.format(err)
+        log.log2warning(20016, log_message)
+        abort(404)
+    except:
+        log_message = ("""API Failure: [{}, {}, {}]\
+""".format(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]))
+        log.log2warning(20017, log_message)
+        abort(404)
 
     # Return
     return 'OK'
