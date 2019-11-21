@@ -129,14 +129,10 @@ def _process_rows(pattoo_db_records):
 
             # Add the Data table results to a dict in case we have duplicate
             # posting over the API
-            (_timestamp, _) = times.normalized_timestamp(
-                checksum_table[pattoo_db_record.checksum].polling_interval,
-                timestamp=pattoo_db_record.timestamp)
-
             data[pattoo_db_record.timestamp] = IDXTimestampValue(
                 idx_checksum=idx_checksum,
                 polling_interval=pattoo_db_record.polling_interval,
-                timestamp=_timestamp,
+                timestamp=pattoo_db_record.timestamp,
                 value=pattoo_db_record.value)
 
     # Update the data table

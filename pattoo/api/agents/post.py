@@ -46,7 +46,7 @@ def receive(source):
     # Abort if posted_data isn't a list
     if isinstance(posted_data, dict) is False:
         log_message = '{} Not a dictionary'.format(prefix)
-        log.log2warning(20020, log_message)
+        log.log2warning(20024, log_message)
         abort(404)
     if len(posted_data) != len(CACHE_KEYS):
         log_message = '{} Incorrect length'.format(prefix)

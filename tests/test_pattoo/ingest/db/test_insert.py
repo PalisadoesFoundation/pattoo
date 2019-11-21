@@ -5,6 +5,10 @@ import os
 import unittest
 import sys
 from random import random
+import time
+
+# PIP imports
+from sqlalchemy import and_
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -28,8 +32,13 @@ directory. Please fix.''')
 
 from pattoo_shared import data
 from pattoo_shared.constants import DATA_FLOAT
+
 from tests.libraries.configuration import UnittestConfig
-from pattoo.ingest.db import query, insert, exists
+from pattoo.constants import IDXTimestampValue
+from pattoo.ingest.db import insert, exists
+from pattoo.ingest import get
+from pattoo.db.tables import Data
+from pattoo.db import db
 
 
 class TestBasicFunctioins(unittest.TestCase):
@@ -41,7 +50,31 @@ class TestBasicFunctioins(unittest.TestCase):
 
     def test_timeseries(self):
         """Testing method / function timeseries."""
-        pass
+        # Initialize key variables
+        checksum = data.hashstring(str(random()))
+        data_type = DATA_FLOAT
+        polling_interval = 10
+        value = 27
+        timestamp = int(time.time() * 1000)
+
+        # Create checksum entry in the DB, then update the data table
+        idx_checksum = get.idx_checksum(
+            checksum, data_type, polling_interval)
+        _data = [IDXTimestampValue(
+            idx_checksum=idx_checksum,
+            polling_interval=polling_interval,
+            timestamp=timestamp,
+            value=value)]
+        insert.timeseries(_data)
+
+        # Verify that the data is there
+        with db.db_query(20015) as session:
+            rows = session.query(
+                Data.value).filter(and_(
+                    Data.idx_checksum == idx_checksum,
+                    Data.timestamp == timestamp))
+        for row in rows:
+            self.assertEqual(row.value, value)
 
     def test_checksum(self):
         """Testing method / function checksum."""
