@@ -68,6 +68,7 @@ class TestBasicFunctioins(unittest.TestCase):
         """Testing method / function checksums."""
         # Initialize key variables
         expected = {}
+        polling_interval = 10
 
         # Populate database with key-value pairs
         source = data.hashstring(str(random()))
@@ -82,12 +83,14 @@ class TestBasicFunctioins(unittest.TestCase):
             # Define what we expect from the test function
             expected[checksum.encode()] = ChecksumLookup(
                 idx_checksum=idx_checksum,
+                polling_interval=polling_interval,
                 last_timestamp=1)
 
             # Add key-pairs to the database
             record = PattooDBrecord(
                 checksum=checksum,
                 key='key',
+                polling_interval=polling_interval,
                 source=source,
                 timestamp=int(time.time() * 1000),
                 data_type=DATA_FLOAT,
@@ -117,6 +120,7 @@ class TestBasicFunctioins(unittest.TestCase):
             record = PattooDBrecord(
                 checksum=checksum,
                 key='key',
+                polling_interval=polling_interval,
                 source=fake_source,
                 timestamp=int(time.time() * 1000),
                 data_type=DATA_FLOAT,
@@ -138,6 +142,9 @@ class TestBasicFunctioins(unittest.TestCase):
             self.assertEqual(
                 value.idx_checksum,
                 expected[key].idx_checksum)
+            self.assertEqual(
+                value.polling_interval,
+                expected[key].polling_interval)
             self.assertEqual(
                 value.last_timestamp,
                 expected[key].last_timestamp)

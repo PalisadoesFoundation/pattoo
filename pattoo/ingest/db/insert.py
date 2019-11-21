@@ -26,6 +26,7 @@ def timeseries(items):
     # Initialize key variables
     rows = []
     last_timestamps = {}
+    polling_intervals = {}
 
     # Update the data
     for item in sorted(items, key=attrgetter('timestamp')):
@@ -43,6 +44,7 @@ def timeseries(items):
                 item.timestamp, last_timestamps[item.idx_checksum])
         else:
             last_timestamps[item.idx_checksum] = item.timestamp
+        polling_intervals[item.idx_checksum] = item.polling_interval
 
     # Update
     if bool(rows) is True:
@@ -56,7 +58,9 @@ def timeseries(items):
             session.query(Checksum).filter(
                 and_(Checksum.idx_checksum == idx_checksum,
                      Checksum.enabled == 1)).update(
-                         {'last_timestamp': timestamp})
+                         {'last_timestamp': timestamp,
+                          'polling_interval': polling_intervals[idx_checksum]}
+                     )
 
 
 def checksum(_checksum, data_type):

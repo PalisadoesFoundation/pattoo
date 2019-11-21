@@ -50,6 +50,10 @@ class Checksum(BASE):
 
     last_timestamp = Column(BIGINT(unsigned=True), nullable=False, default='1')
 
+    # Defaults to 5 minutes or 300000 milliseconds
+    polling_interval = Column(
+        INTEGER(unsigned=True), nullable=False, default='300000')
+
     enabled = Column(INTEGER(unsigned=True), server_default='1')
 
     ts_modified = Column(
