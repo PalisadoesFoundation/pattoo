@@ -47,6 +47,7 @@ class TestBasicFunctioins(unittest.TestCase):
         # Initialize key variables
         idx_checksums = []
         checksums = []
+        polling_interval = 1
 
         # Populate database
         for _ in range(0, 10):
@@ -55,7 +56,7 @@ class TestBasicFunctioins(unittest.TestCase):
             # Add the checksum to the database
             checksum = data.hashstring(str(random()))
             checksums.append(checksum)
-            insert.checksum(checksum, DATA_FLOAT)
+            insert.checksum(checksum, DATA_FLOAT, polling_interval)
             idx_checksums.append(exists.checksum(checksum))
 
         # Test
@@ -68,7 +69,7 @@ class TestBasicFunctioins(unittest.TestCase):
         """Testing method / function checksums."""
         # Initialize key variables
         expected = {}
-        polling_interval = 10
+        polling_interval = 1
 
         # Populate database with key-value pairs
         source = data.hashstring(str(random()))
@@ -77,7 +78,7 @@ class TestBasicFunctioins(unittest.TestCase):
 
             # Add the checksum to the database
             checksum = data.hashstring(str(random()))
-            insert.checksum(checksum, DATA_FLOAT)
+            insert.checksum(checksum, DATA_FLOAT, polling_interval)
             idx_checksum = exists.checksum(checksum)
 
             # Define what we expect from the test function
@@ -113,7 +114,7 @@ class TestBasicFunctioins(unittest.TestCase):
 
             # Add the checksum to the database
             checksum = data.hashstring(str(random()))
-            insert.checksum(checksum, DATA_FLOAT)
+            insert.checksum(checksum, DATA_FLOAT, polling_interval)
             idx_checksum = exists.checksum(checksum)
 
             # Add key-pairs to the database
@@ -153,6 +154,7 @@ class TestBasicFunctioins(unittest.TestCase):
         """Testing method / function glue."""
         # Initialize key variables
         checksum = data.hashstring(str(random()))
+        polling_interval = 1
         keypairs = []
         idx_pairs = []
         for _ in range(0, 10):
@@ -163,7 +165,7 @@ class TestBasicFunctioins(unittest.TestCase):
 
         # Insert values in tables
         insert.pairs(keypairs)
-        insert.checksum(checksum, DATA_FLOAT)
+        insert.checksum(checksum, DATA_FLOAT, polling_interval)
         idx_checksum = exists.checksum(checksum)
 
         # Test

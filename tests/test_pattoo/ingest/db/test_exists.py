@@ -43,13 +43,14 @@ class TestBasicFunctioins(unittest.TestCase):
         """Testing method / function checksum."""
         # Initialize key variables
         result = exists.checksum(-1)
+        polling_interval = 1
         self.assertFalse(result)
 
         # Create entry and check
         checksum = data.hashstring(str(random()))
         result = exists.checksum(checksum)
         self.assertFalse(result)
-        insert.checksum(checksum, DATA_FLOAT)
+        insert.checksum(checksum, DATA_FLOAT, polling_interval)
         result = exists.checksum(checksum)
         self.assertTrue(bool(result))
         self.assertTrue(isinstance(result, int))
@@ -71,6 +72,7 @@ class TestBasicFunctioins(unittest.TestCase):
     def test_glue(self):
         """Testing method / function glue."""
         # Initialize key variables
+        polling_interval = 1
         checksum = data.hashstring(str(random()))
         key = data.hashstring(str(random()))
         value = data.hashstring(str(random()))
@@ -78,7 +80,7 @@ class TestBasicFunctioins(unittest.TestCase):
         # Insert values in tables
         insert.pairs((key, value))
         idx_pair = exists.pair(key, value)
-        insert.checksum(checksum, DATA_FLOAT)
+        insert.checksum(checksum, DATA_FLOAT, polling_interval)
         idx_checksum = exists.checksum(checksum)
 
         # Create entry and check

@@ -48,6 +48,7 @@ class TestBasicFunctioins(unittest.TestCase):
             checksum='1',
             key='3',
             source=4,
+            polling_interval=1,
             timestamp=5,
             data_type=DATA_FLOAT,
             value=6,
@@ -71,6 +72,7 @@ class TestBasicFunctioins(unittest.TestCase):
         record = PattooDBrecord(
             checksum='1',
             key='3',
+            polling_interval=1,
             source=4,
             timestamp=5,
             data_type=DATA_FLOAT,
@@ -92,15 +94,16 @@ class TestBasicFunctioins(unittest.TestCase):
         """Testing method / function idx_checksum."""
         # Initialize key variables
         checksum = data.hashstring(str(random()))
+        polling_interval = 1
         self.assertFalse(exists.checksum(checksum))
 
         # Test creation
-        result = get.idx_checksum(checksum, DATA_FLOAT)
+        result = get.idx_checksum(checksum, DATA_FLOAT, polling_interval)
         expected = exists.checksum(checksum)
         self.assertEqual(result, expected)
 
         # Test after creation
-        result = get.idx_checksum(checksum, DATA_FLOAT)
+        result = get.idx_checksum(checksum, DATA_FLOAT, polling_interval)
         expected = exists.checksum(checksum)
         self.assertEqual(result, expected)
 

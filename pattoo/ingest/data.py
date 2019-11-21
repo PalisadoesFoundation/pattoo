@@ -107,7 +107,9 @@ def _process_rows(pattoo_db_records):
             # Entry not in database. Update the database and get the
             # required idx_checksum
             idx_checksum = get.idx_checksum(
-                pattoo_db_record.checksum, pattoo_db_record.data_type)
+                pattoo_db_record.checksum,
+                pattoo_db_record.data_type,
+                pattoo_db_record.polling_interval)
             if bool(idx_checksum) is True:
                 # Update the lookup table
                 checksum_table[pattoo_db_record.checksum] = ChecksumLookup(
