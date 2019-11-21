@@ -59,6 +59,7 @@ def checksums(source):
         rows = session.query(
             Checksum.checksum,
             Checksum.last_timestamp,
+            Checksum.polling_interval,
             Checksum.idx_checksum).filter(and_(
                 Glue.idx_checksum == Checksum.idx_checksum,
                 Glue.idx_pair == Pair.idx_pair,
@@ -70,6 +71,7 @@ def checksums(source):
     for row in rows:
         result[row.checksum] = ChecksumLookup(
             idx_checksum=row.idx_checksum,
+            polling_interval=row.polling_interval,
             last_timestamp=row.last_timestamp)
     return result
 

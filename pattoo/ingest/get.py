@@ -50,7 +50,9 @@ def key_value_pairs(pattoo_db_records):
         for key, value in sorted(pattoo_db_record._asdict().items()):
 
             # Ignore keys that don't belong in the Pair table
-            if key in ['timestamp', 'value', 'checksum', 'data_type']:
+            if key in [
+                    'timestamp', 'value', 'checksum', 'data_type',
+                    'polling_interval']:
                 continue
 
             if key == 'metadata':
@@ -63,12 +65,13 @@ def key_value_pairs(pattoo_db_records):
     return rows
 
 
-def idx_checksum(checksum, data_type):
+def idx_checksum(checksum, data_type, polling_interval):
     """Get the db Checksum.idx_checksum value for an PattooDBrecord object.
 
     Args:
         checksum: Checksum value
         data_type: Data type
+        polling_interval: Polling interval
 
     Returns:
         _idx_checksum: Checksum._idx_checksum value. None if unsuccessful
@@ -77,7 +80,7 @@ def idx_checksum(checksum, data_type):
     # Create an entry in the database Checksum table
     _idx_checksum = exists.checksum(checksum)
     if bool(_idx_checksum) is False:
-        insert.checksum(checksum, data_type)
+        insert.checksum(checksum, data_type, polling_interval)
         _idx_checksum = exists.checksum(checksum)
 
     # Return

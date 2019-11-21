@@ -47,6 +47,7 @@ class TestBasicFunctioins(unittest.TestCase):
         # Initialize key variables
         idx_checksums = []
         checksums = []
+        polling_interval = 1
 
         # Populate database
         for _ in range(0, 10):
@@ -55,7 +56,7 @@ class TestBasicFunctioins(unittest.TestCase):
             # Add the checksum to the database
             checksum = data.hashstring(str(random()))
             checksums.append(checksum)
-            insert.checksum(checksum, DATA_FLOAT)
+            insert.checksum(checksum, DATA_FLOAT, polling_interval)
             idx_checksums.append(exists.checksum(checksum))
 
         # Test
@@ -68,6 +69,7 @@ class TestBasicFunctioins(unittest.TestCase):
         """Testing method / function checksums."""
         # Initialize key variables
         expected = {}
+        polling_interval = 1
 
         # Populate database with key-value pairs
         source = data.hashstring(str(random()))
@@ -76,18 +78,20 @@ class TestBasicFunctioins(unittest.TestCase):
 
             # Add the checksum to the database
             checksum = data.hashstring(str(random()))
-            insert.checksum(checksum, DATA_FLOAT)
+            insert.checksum(checksum, DATA_FLOAT, polling_interval)
             idx_checksum = exists.checksum(checksum)
 
             # Define what we expect from the test function
             expected[checksum.encode()] = ChecksumLookup(
                 idx_checksum=idx_checksum,
+                polling_interval=polling_interval,
                 last_timestamp=1)
 
             # Add key-pairs to the database
             record = PattooDBrecord(
                 checksum=checksum,
                 key='key',
+                polling_interval=polling_interval,
                 source=source,
                 timestamp=int(time.time() * 1000),
                 data_type=DATA_FLOAT,
@@ -110,13 +114,14 @@ class TestBasicFunctioins(unittest.TestCase):
 
             # Add the checksum to the database
             checksum = data.hashstring(str(random()))
-            insert.checksum(checksum, DATA_FLOAT)
+            insert.checksum(checksum, DATA_FLOAT, polling_interval)
             idx_checksum = exists.checksum(checksum)
 
             # Add key-pairs to the database
             record = PattooDBrecord(
                 checksum=checksum,
                 key='key',
+                polling_interval=polling_interval,
                 source=fake_source,
                 timestamp=int(time.time() * 1000),
                 data_type=DATA_FLOAT,
@@ -139,6 +144,9 @@ class TestBasicFunctioins(unittest.TestCase):
                 value.idx_checksum,
                 expected[key].idx_checksum)
             self.assertEqual(
+                value.polling_interval,
+                expected[key].polling_interval)
+            self.assertEqual(
                 value.last_timestamp,
                 expected[key].last_timestamp)
 
@@ -146,6 +154,7 @@ class TestBasicFunctioins(unittest.TestCase):
         """Testing method / function glue."""
         # Initialize key variables
         checksum = data.hashstring(str(random()))
+        polling_interval = 1
         keypairs = []
         idx_pairs = []
         for _ in range(0, 10):
@@ -156,7 +165,7 @@ class TestBasicFunctioins(unittest.TestCase):
 
         # Insert values in tables
         insert.pairs(keypairs)
-        insert.checksum(checksum, DATA_FLOAT)
+        insert.checksum(checksum, DATA_FLOAT, polling_interval)
         idx_checksum = exists.checksum(checksum)
 
         # Test

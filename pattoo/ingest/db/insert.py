@@ -26,6 +26,7 @@ def timeseries(items):
     # Initialize key variables
     rows = []
     last_timestamps = {}
+    polling_intervals = {}
 
     # Update the data
     for item in sorted(items, key=attrgetter('timestamp')):
@@ -43,6 +44,7 @@ def timeseries(items):
                 item.timestamp, last_timestamps[item.idx_checksum])
         else:
             last_timestamps[item.idx_checksum] = item.timestamp
+        polling_intervals[item.idx_checksum] = item.polling_interval
 
     # Update
     if bool(rows) is True:
@@ -56,15 +58,18 @@ def timeseries(items):
             session.query(Checksum).filter(
                 and_(Checksum.idx_checksum == idx_checksum,
                      Checksum.enabled == 1)).update(
-                         {'last_timestamp': timestamp})
+                         {'last_timestamp': timestamp,
+                          'polling_interval': polling_intervals[idx_checksum]}
+                     )
 
 
-def checksum(_checksum, data_type):
+def checksum(_checksum, data_type, polling_interval):
     """Create the database Checksum.checksum value.
 
     Args:
         _checksum: Checksum value
         data_type: Type of data
+        polling_interval: Polling interval
 
     Returns:
         None
@@ -73,52 +78,12 @@ def checksum(_checksum, data_type):
     # Filter invalid data
     if isinstance(_checksum, str) is True:
         # Insert and get the new checksum value
-        row = Checksum(checksum=_checksum.encode(), data_type=data_type)
+        row = Checksum(
+            checksum=_checksum.encode(),
+            polling_interval=polling_interval,
+            data_type=data_type)
         with db.db_modify(20001, die=True) as session:
             session.add(row)
-
-
-def checksums(items):
-    """Create db Checksum table entries.
-
-    Args:
-        items: List of lists, or list of (checksum, data_type) tuples
-
-    Returns:
-        None
-
-    """
-    # Initialize checksum variables
-    rows = []
-    uniques = {}
-    all_tuples = []
-
-    # Make list if not so
-    if isinstance(items, list) is False:
-        items = [items]
-
-    # Create a single list of tuples. Add them to a dict to make them unique.
-    for item in items:
-        if isinstance(item, list):
-            all_tuples.extend(item)
-        else:
-            all_tuples.append(item)
-    for _kv in all_tuples:
-        uniques[_kv] = None
-
-    # Insert the (checksum, data_type) tuples into the database
-    for (_checksum, data_type), _ in uniques.items():
-        # Skip pre-existing checksums
-        if bool(checksum(_checksum, data_type)) is True:
-            continue
-
-        # Add data_types to list for future insertion
-        row = Checksum(checksum=_checksum.encode(), data_type=data_type)
-        rows.append(row)
-
-    if bool(rows) is True:
-        with db.db_modify(20015, die=True) as session:
-            session.add_all(rows)
 
 
 def pairs(items):

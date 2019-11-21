@@ -6,6 +6,7 @@ import multiprocessing
 
 # Import project libraries
 from pattoo_shared.constants import DATA_NONE, DATA_STRING
+from pattoo_shared import times
 from pattoo.constants import IDXTimestampValue, ChecksumLookup
 from pattoo.ingest.db import insert, query
 from pattoo.ingest import get
@@ -106,11 +107,15 @@ def _process_rows(pattoo_db_records):
             # Entry not in database. Update the database and get the
             # required idx_checksum
             idx_checksum = get.idx_checksum(
-                pattoo_db_record.checksum, pattoo_db_record.data_type)
+                pattoo_db_record.checksum,
+                pattoo_db_record.data_type,
+                pattoo_db_record.polling_interval)
             if bool(idx_checksum) is True:
                 # Update the lookup table
                 checksum_table[pattoo_db_record.checksum] = ChecksumLookup(
-                    idx_checksum=idx_checksum, last_timestamp=1)
+                    idx_checksum=idx_checksum,
+                    polling_interval=pattoo_db_record.polling_interval,
+                    last_timestamp=1)
 
                 # Update the Glue table
                 idx_pairs = get.pairs(pattoo_db_record)
@@ -126,6 +131,7 @@ def _process_rows(pattoo_db_records):
             # posting over the API
             data[pattoo_db_record.timestamp] = IDXTimestampValue(
                 idx_checksum=idx_checksum,
+                polling_interval=pattoo_db_record.polling_interval,
                 timestamp=pattoo_db_record.timestamp,
                 value=pattoo_db_record.value)
 
