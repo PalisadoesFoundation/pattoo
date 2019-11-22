@@ -46,21 +46,22 @@ def timeseries(items):
             last_timestamps[item.idx_checksum] = item.timestamp
         polling_intervals[item.idx_checksum] = item.polling_interval
 
-    # Update
-    if bool(rows) is True:
-        with db.db_modify(20012, die=True) as session:
-            session.add_all(rows)
-
     # Update the last_timestamp
     for idx_checksum, timestamp in last_timestamps.items():
         with db.db_modify(20010, die=False) as session:
-            # Update the last_timestamp
             session.query(Checksum).filter(
                 and_(Checksum.idx_checksum == idx_checksum,
                      Checksum.enabled == 1)).update(
                          {'last_timestamp': timestamp,
                           'polling_interval': polling_intervals[idx_checksum]}
                      )
+
+    # Update after updating the last timestamp. Helps to prevent
+    # 'Duplicate entry' errors in the event you need to re-run the ingester
+    # after a previous crash.
+    if bool(rows) is True:
+        with db.db_modify(20012, die=True) as session:
+            session.add_all(rows)
 
 
 def checksum(_checksum, data_type, polling_interval):
