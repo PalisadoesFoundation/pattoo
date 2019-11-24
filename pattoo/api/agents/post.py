@@ -60,8 +60,12 @@ def receive(source):
 
     # Extract key values from posting
     try:
-        timestamp = int(posted_data['datapoints'][0]['timestamp'])
+        timestamp = int(
+            posted_data['pattoo_datapoints'][0]['pattoo_timestamp'])
     except:
+        log_message = ('''API Failure: [{}, {}, {}]\
+'''.format(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]))
+        log.log2warning(20025, log_message)
         abort(404)
 
     # Create a hash of the agent_hostname
