@@ -89,14 +89,14 @@ class TestBasicFunctioins(unittest.TestCase):
 
             # Add key-pairs to the database
             record = PattooDBrecord(
-                checksum=checksum,
-                key='key',
-                polling_interval=polling_interval,
-                source=source,
-                timestamp=int(time.time() * 1000),
-                data_type=DATA_FLOAT,
-                value=(data_index * 10),
-                metadata=[])
+                pattoo_checksum=checksum,
+                pattoo_key='key',
+                pattoo_polling_interval=polling_interval,
+                pattoo_source=source,
+                pattoo_timestamp=int(time.time() * 1000),
+                pattoo_data_type=DATA_FLOAT,
+                pattoo_value=(data_index * 10),
+                pattoo_metadata=[])
             pairs = get.key_value_pairs(record)
             insert.pairs(pairs)
             idx_pairs = query.pairs(pairs)
@@ -119,14 +119,14 @@ class TestBasicFunctioins(unittest.TestCase):
 
             # Add key-pairs to the database
             record = PattooDBrecord(
-                checksum=checksum,
-                key='key',
-                polling_interval=polling_interval,
-                source=fake_source,
-                timestamp=int(time.time() * 1000),
-                data_type=DATA_FLOAT,
-                value=(data_index * 10),
-                metadata=[])
+                pattoo_checksum=checksum,
+                pattoo_key='key',
+                pattoo_polling_interval=polling_interval,
+                pattoo_source=fake_source,
+                pattoo_timestamp=int(time.time() * 1000),
+                pattoo_data_type=DATA_FLOAT,
+                pattoo_value=(data_index * 10),
+                pattoo_metadata=[])
             pairs = get.key_value_pairs(record)
             insert.pairs(pairs)
             idx_pairs = query.pairs(pairs)

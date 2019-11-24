@@ -45,14 +45,14 @@ class TestBasicFunctioins(unittest.TestCase):
 
         # Create a PattooDBrecord
         record = PattooDBrecord(
-            checksum='1',
-            key='3',
-            source=4,
-            polling_interval=1,
-            timestamp=5,
-            data_type=DATA_FLOAT,
-            value=6,
-            metadata=[pair1, pair2]
+            pattoo_checksum='1',
+            pattoo_key='3',
+            pattoo_source=4,
+            pattoo_polling_interval=1,
+            pattoo_timestamp=5,
+            pattoo_data_type=DATA_FLOAT,
+            pattoo_value=6,
+            pattoo_metadata=[pair1, pair2]
         )
 
         # Pairs shouldn't exist
@@ -70,18 +70,20 @@ class TestBasicFunctioins(unittest.TestCase):
         """Testing method / function key_value_pairs."""
         # Create a PattooDBrecord
         record = PattooDBrecord(
-            checksum='1',
-            key='3',
-            polling_interval=1,
-            source=4,
-            timestamp=5,
-            data_type=DATA_FLOAT,
-            value=6,
-            metadata=[('key1', 'value'), ('key2', 'value')])
+            pattoo_checksum='1',
+            pattoo_key='3',
+            pattoo_polling_interval=1,
+            pattoo_source=4,
+            pattoo_timestamp=5,
+            pattoo_data_type=DATA_FLOAT,
+            pattoo_value=6,
+            pattoo_metadata=[('key1', 'value'), ('key2', 'value')]
+        )
 
         # Test
         expected = [
-            ('key', '3'), ('key1', 'value'), ('key2', 'value'), ('source', '4')
+            ('key1', 'value'), ('key2', 'value'),
+            ('pattoo_key', '3'), ('pattoo_source', '4')
         ]
         result = get.key_value_pairs(record)
         self.assertEqual(sorted(result), expected)
