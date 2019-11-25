@@ -50,7 +50,8 @@ def receive(source):
         log.log2warning(20024, log_message)
         abort(404)
     if len(posted_data) != len(CACHE_KEYS):
-        log_message = '{} Incorrect length'.format(prefix)
+        log_message = ('''\
+{} Incorrect length. Expected length of {}'''.format(prefix, len(CACHE_KEYS)))
         log.log2warning(20019, log_message)
         abort(404)
     for key in posted_data.keys():
