@@ -170,7 +170,7 @@ def process(directory_data):
                 continue
 
             count += len(keypairs)
-            source = keypairs[0].source
+            source = keypairs[0].pattoo_source
             if source in _cache:
                 _cache[source].extend(keypairs)
             else:
@@ -205,7 +205,8 @@ def lock(delete=False):
     """
     # Initialize key variables
     agent_name = 'pattoo-ingester'
-    lockfile = daemon.lock_file(agent_name)
+    config = Config()
+    lockfile = files.lock_file(agent_name, config)
 
     # Lock
     if bool(delete) is False:

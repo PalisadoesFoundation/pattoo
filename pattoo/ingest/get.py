@@ -50,19 +50,19 @@ def key_value_pairs(pattoo_db_records):
         for key, value in sorted(pattoo_db_record._asdict().items()):
 
             # Ignore keys that don't belong in the Pair table
-            if key in [
-                    'timestamp', 'value', 'checksum', 'data_type',
-                    'polling_interval']:
-                continue
+            if key.startswith('pattoo') is True:
+                if key not in [
+                        'pattoo_metadata', 'pattoo_key', 'pattoo_source']:
+                    continue
 
-            if key == 'metadata':
+            if key == 'pattoo_metadata':
                 # Process the metadata key-values
                 rows.extend(value)
             else:
                 # Process other key-values
                 rows.append((str(key), str(value)))
 
-    return rows
+    return sorted(rows)
 
 
 def idx_checksum(checksum, data_type, polling_interval):

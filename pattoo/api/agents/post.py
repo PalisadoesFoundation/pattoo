@@ -4,6 +4,7 @@
 import os
 import json
 import sys
+from random import randrange
 
 # Flask imports
 from flask import Blueprint, request, abort
@@ -49,7 +50,8 @@ def receive(source):
         log.log2warning(20024, log_message)
         abort(404)
     if len(posted_data) != len(CACHE_KEYS):
-        log_message = '{} Incorrect length'.format(prefix)
+        log_message = ('''\
+{} Incorrect length. Expected length of {}'''.format(prefix, len(CACHE_KEYS)))
         log.log2warning(20019, log_message)
         abort(404)
     for key in posted_data.keys():
@@ -60,14 +62,19 @@ def receive(source):
 
     # Extract key values from posting
     try:
-        timestamp = int(posted_data['datapoints'][0]['timestamp'])
+        timestamp = posted_data['pattoo_source_timestamp']
     except:
+        log_message = ('''API Failure: [{}, {}, {}]\
+'''.format(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]))
+        log.log2warning(20025, log_message)
         abort(404)
 
-    # Create a hash of the agent_hostname
+    # Create filename. Add a suffix in the event the source is posting
+    # frequently.
+    suffix = str(randrange(100000)).zfill(6)
     json_path = (
-        '{}{}{}_{}.json'.format(
-            cache_dir, os.sep, timestamp, source))
+        '{}{}{}_{}_{}.json'.format(
+            cache_dir, os.sep, timestamp, source, suffix))
 
     # Create cache file
     try:

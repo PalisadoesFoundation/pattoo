@@ -63,7 +63,7 @@ def checksums(source):
             Checksum.idx_checksum).filter(and_(
                 Glue.idx_checksum == Checksum.idx_checksum,
                 Glue.idx_pair == Pair.idx_pair,
-                Pair.key == 'source'.encode(),
+                Pair.key == 'pattoo_source'.encode(),
                 Pair.value == source.encode()
             ))
 

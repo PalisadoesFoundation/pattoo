@@ -89,32 +89,32 @@ def _process_rows(pattoo_db_records):
 
     # Get Checksum.idx_checksum and idx_pair values from db. This is used to
     # speed up the process by reducing the need for future database access.
-    source = pattoo_db_records[0].source
+    source = pattoo_db_records[0].pattoo_source
     checksum_table = query.checksums(source)
 
     # Process data
     for pattoo_db_record in pattoo_db_records:
         # We only want to insert non-string, non-None values
-        if pattoo_db_record.data_type in [DATA_NONE, DATA_STRING]:
+        if pattoo_db_record.pattoo_data_type in [DATA_NONE, DATA_STRING]:
             continue
 
         # Get the idx_checksum value for the PattooDBrecord
-        if pattoo_db_record.checksum in checksum_table:
+        if pattoo_db_record.pattoo_checksum in checksum_table:
             # Get last_timestamp for existing idx_checksum entry
             idx_checksum = checksum_table[
-                pattoo_db_record.checksum].idx_checksum
+                pattoo_db_record.pattoo_checksum].idx_checksum
         else:
             # Entry not in database. Update the database and get the
             # required idx_checksum
             idx_checksum = get.idx_checksum(
-                pattoo_db_record.checksum,
-                pattoo_db_record.data_type,
-                pattoo_db_record.polling_interval)
+                pattoo_db_record.pattoo_checksum,
+                pattoo_db_record.pattoo_data_type,
+                pattoo_db_record.pattoo_polling_interval)
             if bool(idx_checksum) is True:
                 # Update the lookup table
-                checksum_table[pattoo_db_record.checksum] = ChecksumLookup(
+                checksum_table[pattoo_db_record.pattoo_checksum] = ChecksumLookup(
                     idx_checksum=idx_checksum,
-                    polling_interval=pattoo_db_record.polling_interval,
+                    polling_interval=pattoo_db_record.pattoo_polling_interval,
                     last_timestamp=1)
 
                 # Update the Glue table
@@ -124,16 +124,16 @@ def _process_rows(pattoo_db_records):
                 continue
 
         # Append item to items
-        if pattoo_db_record.timestamp > checksum_table[
-                pattoo_db_record.checksum].last_timestamp:
+        if pattoo_db_record.pattoo_timestamp > checksum_table[
+                pattoo_db_record.pattoo_checksum].last_timestamp:
 
             # Add the Data table results to a dict in case we have duplicate
             # posting over the API
-            data[pattoo_db_record.timestamp] = IDXTimestampValue(
+            data[pattoo_db_record.pattoo_timestamp] = IDXTimestampValue(
                 idx_checksum=idx_checksum,
-                polling_interval=pattoo_db_record.polling_interval,
-                timestamp=pattoo_db_record.timestamp,
-                value=pattoo_db_record.value)
+                polling_interval=pattoo_db_record.pattoo_polling_interval,
+                timestamp=pattoo_db_record.pattoo_timestamp,
+                value=pattoo_db_record.pattoo_value)
 
     # Update the data table
     if bool(data):
