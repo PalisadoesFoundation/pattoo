@@ -167,6 +167,9 @@ def process(directory_data):
         if bool(json_data) is True and isinstance(json_data, dict) is True:
             keypairs = converter.cache_to_keypairs(json_data)
             if bool(keypairs) is False:
+                log_message = ('''\
+File {} has invalid data. It will not be processed'''.format(filepath))
+                log.log2info(20026, log_message)
                 continue
 
             count += len(keypairs)
