@@ -27,6 +27,7 @@ def timeseries(items):
     rows = []
     last_timestamps = {}
     polling_intervals = {}
+    count = 1
 
     # Update the data
     for item in sorted(items, key=attrgetter('timestamp')):

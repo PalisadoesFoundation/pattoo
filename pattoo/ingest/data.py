@@ -6,7 +6,6 @@ import multiprocessing
 
 # Import project libraries
 from pattoo_shared.constants import DATA_NONE, DATA_STRING
-from pattoo_shared import times
 from pattoo.constants import IDXTimestampValue, ChecksumLookup
 from pattoo.ingest.db import insert, query
 from pattoo.ingest import get
@@ -82,6 +81,7 @@ def _process_rows(pattoo_db_records):
     """
     # Initialize key variables
     data = {}
+    count = 1
 
     # Return if there is nothint to process
     if bool(pattoo_db_records) is False:
@@ -112,10 +112,11 @@ def _process_rows(pattoo_db_records):
                 pattoo_db_record.pattoo_polling_interval)
             if bool(idx_checksum) is True:
                 # Update the lookup table
-                checksum_table[pattoo_db_record.pattoo_checksum] = ChecksumLookup(
-                    idx_checksum=idx_checksum,
-                    polling_interval=pattoo_db_record.pattoo_polling_interval,
-                    last_timestamp=1)
+                checksum_table[
+                    pattoo_db_record.pattoo_checksum] = ChecksumLookup(
+                        idx_checksum=idx_checksum,
+                        polling_interval=pattoo_db_record.pattoo_polling_interval,
+                        last_timestamp=1)
 
                 # Update the Glue table
                 idx_pairs = get.pairs(pattoo_db_record)
@@ -126,14 +127,23 @@ def _process_rows(pattoo_db_records):
         # Append item to items
         if pattoo_db_record.pattoo_timestamp > checksum_table[
                 pattoo_db_record.pattoo_checksum].last_timestamp:
-
-            # Add the Data table results to a dict in case we have duplicate
-            # posting over the API
-            data[pattoo_db_record.pattoo_timestamp] = IDXTimestampValue(
-                idx_checksum=idx_checksum,
-                polling_interval=pattoo_db_record.pattoo_polling_interval,
-                timestamp=pattoo_db_record.pattoo_timestamp,
-                value=pattoo_db_record.pattoo_value)
+            '''
+            Add the Data table results to a dict in case we have duplicate
+            posting over the API. We need to key off a unique time dependent
+            value per datapoint to prevent different datapoints at the same
+            point in time overwriting the value. This is specifically for
+            removing duplicates for the _SAME_ datapoint at the same point in
+            time as could possibly occur with the restart of an agent causing a
+            double posting or network issues. We therefore use a tuple of
+            idx_checksum and timestamp.
+            '''
+            data[(
+                pattoo_db_record.pattoo_timestamp,
+                idx_checksum)] = IDXTimestampValue(
+                    idx_checksum=idx_checksum,
+                    polling_interval=pattoo_db_record.pattoo_polling_interval,
+                    timestamp=pattoo_db_record.pattoo_timestamp,
+                    value=pattoo_db_record.pattoo_value)
 
     # Update the data table
     if bool(data):
