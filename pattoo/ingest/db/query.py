@@ -69,7 +69,7 @@ def checksums(source):
 
     # Return
     for row in rows:
-        result[row.checksum] = ChecksumLookup(
+        result[row.checksum.decode()] = ChecksumLookup(
             idx_checksum=row.idx_checksum,
             polling_interval=row.polling_interval,
             last_timestamp=row.last_timestamp)

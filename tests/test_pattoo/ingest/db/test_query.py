@@ -82,7 +82,7 @@ class TestBasicFunctioins(unittest.TestCase):
             idx_checksum = exists.checksum(checksum)
 
             # Define what we expect from the test function
-            expected[checksum.encode()] = ChecksumLookup(
+            expected[checksum] = ChecksumLookup(
                 idx_checksum=idx_checksum,
                 polling_interval=polling_interval,
                 last_timestamp=1)
