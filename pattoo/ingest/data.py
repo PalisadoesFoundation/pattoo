@@ -81,7 +81,6 @@ def _process_rows(pattoo_db_records):
     """
     # Initialize key variables
     data = {}
-    count = 1
 
     # Return if there is nothint to process
     if bool(pattoo_db_records) is False:
