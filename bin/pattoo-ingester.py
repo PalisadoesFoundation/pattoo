@@ -269,4 +269,5 @@ of not keeping up with the cache data updates. Default=3600''')
 
 
 if __name__ == '__main__':
+    log.env()
     main()
