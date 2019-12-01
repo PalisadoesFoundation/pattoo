@@ -10,7 +10,7 @@ from sqlalchemy import and_
 # pattoo libraries
 from pattoo_shared import log
 from pattoo.db import POOL
-from pattoo.db.tables import Checksum
+from pattoo.db.tables import DataPoint
 
 
 @contextmanager
@@ -104,9 +104,9 @@ def connectivity():
 
     # Do test
     with db_query(20008) as session:
-        result = session.query(Checksum.idx_checksum).filter(
-            and_(Checksum.idx_checksum == 1,
-                 Checksum.checksum == '-1'.encode()))
+        result = session.query(DataPoint.idx_datapoint).filter(
+            and_(DataPoint.idx_datapoint == 1,
+                 DataPoint.checksum == '-1'.encode()))
         for _ in result:
             break
         valid = True

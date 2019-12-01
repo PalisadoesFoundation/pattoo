@@ -14,12 +14,12 @@ from pattoo.db.tables import Data
 REST_API_DATA = Blueprint('REST_API_DATA', __name__)
 
 
-@REST_API_DATA.route('/data/<int:idx_checksum>')
-def route_data(idx_checksum):
+@REST_API_DATA.route('/data/<int:idx_datapoint>')
+def route_data(idx_datapoint):
     """Provide data from the Data table.
 
     Args:
-        idx_checksum: Checksum.idx_checksum key
+        idx_datapoint: DataPoint.idx_datapoint key
 
     Returns:
         _result: JSONify list of dicts {timestamp: value} from the Data table.
@@ -34,7 +34,7 @@ def route_data(idx_checksum):
     with db.db_query(20020) as session:
         rows = session.query(Data.value, Data.timestamp).filter(and_(
             Data.timestamp < ts_stop, Data.timestamp > ts_start,
-            Data.idx_checksum == idx_checksum))
+            Data.idx_datapoint == idx_datapoint))
 
     # Return
     for row in rows:

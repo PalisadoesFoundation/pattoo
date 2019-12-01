@@ -18,7 +18,7 @@ from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 from pattoo.db.tables import (
         Data as DataTable,
         Pair as PairTable,
-        Checksum as ChecksumTable,
+        DataPoint as DataPointTable,
         Glue as GlueTable
     )
 
@@ -31,8 +31,8 @@ class DataAttribute(object):
 
     """
 
-    idx_checksum = graphene.String(
-        description='Checksum index.')
+    idx_datapoint = graphene.String(
+        description='DataPoint index.')
 
     timestamp = graphene.String(
         description='Data collection timestamp.')
@@ -97,41 +97,41 @@ class PairConnections(relay.Connection):
         node = Pair
 
 
-class ChecksumAttribute(object):
-    """Descriptive attributes of the Checksum table.
+class DataPointAttribute(object):
+    """Descriptive attributes of the DataPoint table.
 
     A generic class to mutualize description of attributes for both queries
     and mutations.
 
     """
 
-    idx_checksum = graphene.String(
-        description='Checksum index.')
+    idx_datapoint = graphene.String(
+        description='DataPoint index.')
 
     checksum = graphene.String(
-        description='Checksum value.')
+        description='DataPoint value.')
 
     enabled = graphene.String(
-        description='True if the Checksum is enabled.')
+        description='True if the DataPoint is enabled.')
 
 
-class Checksum(SQLAlchemyObjectType, ChecksumAttribute):
-    """Checksum node."""
+class DataPoint(SQLAlchemyObjectType, DataPointAttribute):
+    """DataPoint node."""
 
     class Meta:
         """Define the metadata."""
 
-        model = ChecksumTable
+        model = DataPointTable
         interfaces = (graphene.relay.Node,)
 
 
-class ChecksumConnections(relay.Connection):
-    """GraphQL / SQlAlchemy Connection to the Checksum table."""
+class DataPointConnections(relay.Connection):
+    """GraphQL / SQlAlchemy Connection to the DataPoint table."""
 
     class Meta:
         """Define the metadata."""
 
-        node = Checksum
+        node = DataPoint
 
 
 class GlueAttribute(object):
@@ -145,8 +145,8 @@ class GlueAttribute(object):
     idx_pair = graphene.String(
         description='Pair table index.')
 
-    idx_checksum = graphene.String(
-        description='Checksum table index.')
+    idx_datapoint = graphene.String(
+        description='DataPoint table index.')
 
 
 class Glue(SQLAlchemyObjectType, GlueAttribute):
@@ -176,8 +176,8 @@ class Query(graphene.ObjectType):
     glue = graphene.relay.Node.Field(Glue)
     all_glues = SQLAlchemyConnectionField(GlueConnections)
 
-    checksum = graphene.relay.Node.Field(Checksum)
-    all_checksums = SQLAlchemyConnectionField(ChecksumConnections)
+    datapoint = graphene.relay.Node.Field(DataPoint)
+    all_datapoints = SQLAlchemyConnectionField(DataPointConnections)
 
     pair = graphene.relay.Node.Field(Pair)
     all_pairs = SQLAlchemyConnectionField(PairConnections)

@@ -31,16 +31,16 @@ BASE.query = POOL.query_property()
 ###############################################################################
 
 
-class Checksum(BASE):
-    """Class defining the pt_checksum table of the database."""
+class DataPoint(BASE):
+    """Class defining the pt_datapoint table of the database."""
 
-    __tablename__ = 'pt_checksum'
+    __tablename__ = 'pt_datapoint'
     __table_args__ = (
         UniqueConstraint('checksum'),
         {'mysql_engine': 'InnoDB'}
     )
 
-    idx_checksum = Column(
+    idx_datapoint = Column(
         BIGINT(unsigned=True), primary_key=True,
         autoincrement=True, nullable=False)
 
@@ -94,7 +94,7 @@ class Glue(BASE):
 
     __tablename__ = 'pt_glue'
     __table_args__ = (
-        UniqueConstraint('idx_pair', 'idx_checksum'),
+        UniqueConstraint('idx_pair', 'idx_datapoint'),
         {'mysql_engine': 'InnoDB'}
     )
 
@@ -103,8 +103,8 @@ class Glue(BASE):
         primary_key=True, nullable=False
     )
 
-    idx_checksum = Column(
-        BIGINT(unsigned=True), ForeignKey('pt_checksum.idx_checksum'),
+    idx_datapoint = Column(
+        BIGINT(unsigned=True), ForeignKey('pt_datapoint.idx_datapoint'),
         primary_key=True, nullable=False)
 
     ts_modified = Column(
@@ -115,11 +115,11 @@ class Glue(BASE):
         DATETIME, server_default=text('CURRENT_TIMESTAMP'))
 
     # Use cascade='delete,all' to propagate the deletion of a
-    # Checksum onto its Data
-    checksum = relationship(
-        Checksum,
+    # DataPoint onto its Data
+    datapoint = relationship(
+        DataPoint,
         backref=backref(
-            'glue_checksum', uselist=True, cascade='delete,all'))
+            'glue_datapoint', uselist=True, cascade='delete,all'))
 
     # Use cascade='delete,all' to propagate the deletion of a
     # Pair onto its Data
@@ -134,12 +134,12 @@ class Data(BASE):
 
     __tablename__ = 'pt_data'
     __table_args__ = (
-        PrimaryKeyConstraint('idx_checksum', 'timestamp'),
+        PrimaryKeyConstraint('idx_datapoint', 'timestamp'),
         {'mysql_engine': 'InnoDB'}
     )
 
-    idx_checksum = Column(
-        BIGINT(unsigned=True), ForeignKey('pt_checksum.idx_checksum'),
+    idx_datapoint = Column(
+        BIGINT(unsigned=True), ForeignKey('pt_datapoint.idx_datapoint'),
         nullable=False, server_default='1')
 
     timestamp = Column(BIGINT(unsigned=True), nullable=False, default='1')
@@ -147,8 +147,8 @@ class Data(BASE):
     value = Column(NUMERIC(40, 10), nullable=False, default='1')
 
     # Use cascade='delete,all' to propagate the deletion of a
-    # Checksum onto its Data
-    checksum = relationship(
-        Checksum,
+    # DataPoint onto its Data
+    datapoint = relationship(
+        DataPoint,
         backref=backref(
             'data_checksum', uselist=True, cascade='delete,all'))

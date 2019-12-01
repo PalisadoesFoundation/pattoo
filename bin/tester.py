@@ -33,13 +33,13 @@ from pattoo_shared.constants import (
 from pattoo import data
 from pattoo import uri
 from pattoo.db import db
-from pattoo.db.tables import Data, Checksum
+from pattoo.db.tables import Data, DataPoint
 
 
 def main():
     """Ingest data."""
     # Initialize key variables
-    idx_checksum = 14
+    idx_datapoint = 14
     found = False
     (ts_start, ts_stop) = uri.chart_timestamp_args()
 
@@ -47,8 +47,8 @@ def main():
         # Deal with that as well
         with db.db_query(20028) as session:
             metadata = session.query(
-                Checksum.data_type, Checksum.polling_interval).filter(
-                    Checksum.idx_checksum == idx_checksum).one()
+                DataPoint.data_type, DataPoint.polling_interval).filter(
+                    DataPoint.idx_datapoint == idx_datapoint).one()
             found = True
     except MultipleResultsFound as _:
         pass
@@ -57,10 +57,10 @@ def main():
 
     # Get the _result
     if found is True:
-        query(idx_checksum, ts_start, ts_stop, metadata)
+        query(idx_datapoint, ts_start, ts_stop, metadata)
 
 
-def query(idx_checksum, ts_start, ts_stop, metadata):
+def query(idx_datapoint, ts_start, ts_stop, metadata):
     """Ingest data."""
     # Initialize key variables
     data_type = metadata.data_type
@@ -76,7 +76,7 @@ def query(idx_checksum, ts_start, ts_stop, metadata):
     with db.db_query(20027) as session:
         rows = session.query(Data.timestamp, Data.value).filter(and_(
             Data.timestamp < ts_stop, Data.timestamp > ts_start,
-            Data.idx_checksum == idx_checksum)).all()
+            Data.idx_datapoint == idx_datapoint)).all()
 
     if data_type in [DATA_INT, DATA_FLOAT]:
         # Process non-counter values

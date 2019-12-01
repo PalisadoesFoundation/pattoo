@@ -81,13 +81,13 @@ class TestBasicFunctioins(unittest.TestCase):
         insert.pairs((key, value))
         idx_pair = exists.pair(key, value)
         insert.checksum(checksum, DATA_FLOAT, polling_interval)
-        idx_checksum = exists.checksum(checksum)
+        idx_datapoint = exists.checksum(checksum)
 
         # Create entry and check
-        result = exists.glue(idx_checksum, idx_pair)
+        result = exists.glue(idx_datapoint, idx_pair)
         self.assertFalse(result)
-        insert.glue(idx_checksum, idx_pair)
-        result = exists.glue(idx_checksum, idx_pair)
+        insert.glue(idx_datapoint, idx_pair)
+        result = exists.glue(idx_datapoint, idx_pair)
         self.assertTrue(bool(result))
         self.assertTrue(isinstance(result, int))
 

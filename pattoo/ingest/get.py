@@ -65,8 +65,8 @@ def key_value_pairs(pattoo_db_records):
     return sorted(rows)
 
 
-def idx_checksum(checksum, data_type, polling_interval):
-    """Get the db Checksum.idx_checksum value for an PattooDBrecord object.
+def idx_datapoint(checksum, data_type, polling_interval):
+    """Get the db DataPoint.idx_datapoint value for an PattooDBrecord object.
 
     Args:
         checksum: Checksum value
@@ -74,14 +74,14 @@ def idx_checksum(checksum, data_type, polling_interval):
         polling_interval: Polling interval
 
     Returns:
-        _idx_checksum: Checksum._idx_checksum value. None if unsuccessful
+        _idx_datapoint: DataPoint._idx_datapoint value. None if unsuccessful
 
     """
     # Create an entry in the database Checksum table
-    _idx_checksum = exists.checksum(checksum)
-    if bool(_idx_checksum) is False:
+    _idx_datapoint = exists.checksum(checksum)
+    if bool(_idx_datapoint) is False:
         insert.checksum(checksum, data_type, polling_interval)
-        _idx_checksum = exists.checksum(checksum)
+        _idx_datapoint = exists.checksum(checksum)
 
     # Return
-    return _idx_checksum
+    return _idx_datapoint
