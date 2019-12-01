@@ -3,19 +3,19 @@ Queries with GraphQL
 
 It's best to become familiar with GraphQL before trying these tests.
 
-By default the ``pattoo`` server will run on port TCP 7000.
+By default the ``pattoo`` server will run on port TCP 20202.
 
 Non Interactive GraphQL
 -----------------------
 
 After completing this very brief tutorial you'll be able to do programmatic GraphQL queries.
 
-If you are running it on your local machine go to the http://localhost:7000/pattoo/api/v1/graphql URL to get your results.
+If you are running it on your local machine go to the http://localhost:20202/pattoo/api/v1/graphql URL to get your results.
 
 Interactive GraphQL
 -------------------
 
-If you are running it on your local machine go to the http://localhost:7000/pattoo/api/v1/igraphql to see the interactive query tool.
+If you are running it on your local machine go to the http://localhost:20202/pattoo/api/v1/igraphql to see the interactive query tool.
 
 View All Agents
 ---------------

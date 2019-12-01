@@ -51,11 +51,11 @@ The ``config.yaml`` file created from the template will have sections that you w
 
    pattoo-api-agentd:
 
-       api_ip_bind_port: 6000
+       api_ip_bind_port: 20201
 
    pattoo-apid:
 
-       api_ip_bind_port: 7000
+       api_ip_bind_port: 20202
 
    db:
        db_pool_size: 10
@@ -102,13 +102,13 @@ This table outlines the purpose of each configuration parameter.
      -
    * -
      - ``api_ip_bind_port``
-     - TCP port of used by the ``pattoo-api-agentd`` daemon for accepting data from remote ``pattoo`` agents.
+     - TCP port of used by the ``pattoo-api-agentd`` daemon for accepting data from remote ``pattoo`` agents. Default of 20201.
    * - ``pattoo-apid``
      -
      -
    * -
      - ``pattoo-apid``
-     - TCP port of used by the ``pattoo-apid`` daemon when creating its API used by the ``pattoo`` web UI. This port must be different from the one used by ``pattoo-api-agentd``.
+     - TCP port of used by the ``pattoo-apid`` daemon when creating its API used by the ``pattoo`` web UI. Default of 20202. This port must be different from the one used by ``pattoo-api-agentd``.
    * - ``db``
      -
      -

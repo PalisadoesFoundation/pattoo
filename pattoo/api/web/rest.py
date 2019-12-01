@@ -41,18 +41,3 @@ def route_data(idx_checksum):
         _result.append({row.timestamp: row.value})
     result = jsonify(_result)
     return result
-
-
-@REST_API_DATA.route('/status')
-def index():
-    """Provide the status page.
-
-    Args:
-        None
-
-    Returns:
-        Home Page
-
-    """
-    # Return
-    return 'The Pattoo Web API is Operational.\n'
