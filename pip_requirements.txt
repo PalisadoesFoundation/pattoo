@@ -21,3 +21,6 @@ gunicorn
 # GraphQL packages
 graphene
 graphene-sqlalchemy
+
+# Mathematical libraries
+numpy

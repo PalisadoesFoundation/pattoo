@@ -23,6 +23,21 @@ from pattoo.db.tables import (
     )
 
 
+def resolve_checksum(obj, _):
+    """Convert DataPoint.checksum from bytes to string."""
+    return obj.checksum.decode()
+
+
+def resolve_key(obj, _):
+    """Convert Pair.key from bytes to string."""
+    return obj.key.decode()
+
+
+def resolve_value(obj, _):
+    """Convert Pair.key from bytes to string."""
+    return obj.value.decode()
+
+
 class DataAttribute(object):
     """Descriptive attributes of the Data table.
 
@@ -72,10 +87,10 @@ class PairAttribute(object):
         description='Pair index.')
 
     key = graphene.String(
-        description='Key-value pair key.')
+        resolver=resolve_key, description='Key-value pair key.')
 
     value = graphene.String(
-        description='Key-value pair value.')
+        resolver=resolve_value, description='Key-value pair value.')
 
 
 class Pair(SQLAlchemyObjectType, PairAttribute):
@@ -109,7 +124,18 @@ class DataPointAttribute(object):
         description='DataPoint index.')
 
     checksum = graphene.String(
-        description='DataPoint value.')
+        description='Unique DataPoint checksum.')
+
+    data_type = graphene.String(
+        description=(
+            'Type of data, (String, Integer, Float, Counter, Counter64)'))
+
+    last_timestamp = graphene.String(
+        description=('''\
+Timestamp when the Data table was last updated for this datapoint.'''))
+
+    polling_interval = graphene.String(
+        description='Updating interval in milliseconds for the datapoint.')
 
     enabled = graphene.String(
         description='True if the DataPoint is enabled.')
