@@ -92,3 +92,18 @@ def receive(source):
 
     # Return
     return 'OK'
+
+
+@POST.route('/status')
+def index():
+    """Provide the status page.
+
+    Args:
+        None
+
+    Returns:
+        Home Page
+
+    """
+    # Return
+    return 'The Pattoo Agent API is Operational.\n'

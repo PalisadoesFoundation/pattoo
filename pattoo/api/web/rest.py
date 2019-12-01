@@ -14,7 +14,7 @@ from pattoo.db.tables import Data
 REST_API_DATA = Blueprint('REST_API_DATA', __name__)
 
 
-@REST_API_DATA.route('/<int:idx_checksum>')
+@REST_API_DATA.route('/data/<int:idx_checksum>')
 def route_data(idx_checksum):
     """Provide data from the Data table.
 
@@ -41,3 +41,18 @@ def route_data(idx_checksum):
         _result.append({row.timestamp: row.value})
     result = jsonify(_result)
     return result
+
+
+@REST_API_DATA.route('/status')
+def index():
+    """Provide the status page.
+
+    Args:
+        None
+
+    Returns:
+        Home Page
+
+    """
+    # Return
+    return 'The Pattoo Web API is Operational.\n'
