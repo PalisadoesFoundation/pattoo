@@ -7,17 +7,17 @@ from sqlalchemy import and_, tuple_
 # Import project libraries
 from pattoo.constants import ChecksumLookup
 from pattoo.db import db
-from pattoo.db.tables import Checksum, Glue, Pair
+from pattoo.db.tables import DataPoint, Glue, Pair
 
 
-def idx_checksums(_checksums):
+def idx_datapoints(_checksums):
     """Get all the checksum values for a specific source.
 
     Args:
         _checksums: List of checksum values
 
     Returns:
-        result: List of Checksum.idx_checksum values
+        result: List of DataPoint.idx_datapoint values
 
     """
     # Initialize key variables
@@ -31,12 +31,12 @@ def idx_checksums(_checksums):
     # Get the data from the database
     with db.db_query(20003) as session:
         rows = session.query(
-            Checksum.idx_checksum).filter(
-                Checksum.checksum.in_(_checksums))
+            DataPoint.idx_datapoint).filter(
+                DataPoint.checksum.in_(_checksums))
 
     # Return
     for row in rows:
-        result.append(row.idx_checksum)
+        result.append(row.idx_datapoint)
     return sorted(result)
 
 
@@ -47,7 +47,7 @@ def checksums(source):
         source: PattooDBrecord object source
 
     Returns:
-        result: Dict of idx_checksum values keyed by Checksum.checksum
+        result: Dict of idx_datapoint values keyed by DataPoint.checksum
 
     """
     # Result
@@ -57,11 +57,11 @@ def checksums(source):
     # Get the data from the database
     with db.db_query(20013) as session:
         rows = session.query(
-            Checksum.checksum,
-            Checksum.last_timestamp,
-            Checksum.polling_interval,
-            Checksum.idx_checksum).filter(and_(
-                Glue.idx_checksum == Checksum.idx_checksum,
+            DataPoint.checksum,
+            DataPoint.last_timestamp,
+            DataPoint.polling_interval,
+            DataPoint.idx_datapoint).filter(and_(
+                Glue.idx_datapoint == DataPoint.idx_datapoint,
                 Glue.idx_pair == Pair.idx_pair,
                 Pair.key == 'pattoo_source'.encode(),
                 Pair.value == source.encode()
@@ -70,20 +70,20 @@ def checksums(source):
     # Return
     for row in rows:
         result[row.checksum.decode()] = ChecksumLookup(
-            idx_checksum=row.idx_checksum,
+            idx_datapoint=row.idx_datapoint,
             polling_interval=row.polling_interval,
             last_timestamp=row.last_timestamp)
     return result
 
 
-def glue(_idx_checksums):
+def glue(_idx_datapoints):
     """Get all the checksum values for a specific source.
 
     Args:
-        _idx_checksums: List idx_checksum values
+        _idx_datapoints: List idx_datapoint values
 
     Returns:
-        result: Dict of idx_checksum values keyed by Checksum.checksum
+        result: Dict of idx_datapoint values keyed by DataPoint.checksum
 
     """
     # Initialize key variables
@@ -91,13 +91,13 @@ def glue(_idx_checksums):
     rows = []
 
     # Create a list if it doesn't exist
-    if isinstance(_idx_checksums, list) is False:
-        _idx_checksums = [_idx_checksums]
+    if isinstance(_idx_datapoints, list) is False:
+        _idx_datapoints = [_idx_datapoints]
 
     # Get the data from the database
     with db.db_query(20014) as session:
         rows = session.query(
-            Glue.idx_pair).filter(Glue.idx_checksum.in_(_idx_checksums))
+            Glue.idx_pair).filter(Glue.idx_datapoint.in_(_idx_datapoints))
 
     # Return
     for row in rows:

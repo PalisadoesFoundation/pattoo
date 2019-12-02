@@ -69,7 +69,7 @@ def _process_rows(pattoo_db_records):
         None
 
     Method:
-        1) Get all the idx_checksum and idx_pair values that exist in the
+        1) Get all the idx_datapoint and idx_pair values that exist in the
            PattooDBrecord data from the database. All the records MUST be
            from the same source.
         2) Add these idx values to tracking memory variables for speedy lookup
@@ -86,7 +86,7 @@ def _process_rows(pattoo_db_records):
     if bool(pattoo_db_records) is False:
         return
 
-    # Get Checksum.idx_checksum and idx_pair values from db. This is used to
+    # Get DataPoint.idx_datapoint and idx_pair values from db. This is used to
     # speed up the process by reducing the need for future database access.
     source = pattoo_db_records[0].pattoo_source
     checksum_table = query.checksums(source)
@@ -97,29 +97,29 @@ def _process_rows(pattoo_db_records):
         if pattoo_db_record.pattoo_data_type in [DATA_NONE, DATA_STRING]:
             continue
 
-        # Get the idx_checksum value for the PattooDBrecord
+        # Get the idx_datapoint value for the PattooDBrecord
         if pattoo_db_record.pattoo_checksum in checksum_table:
-            # Get last_timestamp for existing idx_checksum entry
-            idx_checksum = checksum_table[
-                pattoo_db_record.pattoo_checksum].idx_checksum
+            # Get last_timestamp for existing idx_datapoint entry
+            idx_datapoint = checksum_table[
+                pattoo_db_record.pattoo_checksum].idx_datapoint
         else:
             # Entry not in database. Update the database and get the
-            # required idx_checksum
-            idx_checksum = get.idx_checksum(
+            # required idx_datapoint
+            idx_datapoint = get.idx_datapoint(
                 pattoo_db_record.pattoo_checksum,
                 pattoo_db_record.pattoo_data_type,
                 pattoo_db_record.pattoo_polling_interval)
-            if bool(idx_checksum) is True:
+            if bool(idx_datapoint) is True:
                 # Update the lookup table
                 checksum_table[
                     pattoo_db_record.pattoo_checksum] = ChecksumLookup(
-                        idx_checksum=idx_checksum,
+                        idx_datapoint=idx_datapoint,
                         polling_interval=pattoo_db_record.pattoo_polling_interval,
                         last_timestamp=1)
 
                 # Update the Glue table
                 idx_pairs = get.pairs(pattoo_db_record)
-                insert.glue(idx_checksum, idx_pairs)
+                insert.glue(idx_datapoint, idx_pairs)
             else:
                 continue
 
@@ -134,12 +134,12 @@ def _process_rows(pattoo_db_records):
             removing duplicates for the _SAME_ datapoint at the same point in
             time as could possibly occur with the restart of an agent causing a
             double posting or network issues. We therefore use a tuple of
-            idx_checksum and timestamp.
+            idx_datapoint and timestamp.
             '''
             data[(
                 pattoo_db_record.pattoo_timestamp,
-                idx_checksum)] = IDXTimestampValue(
-                    idx_checksum=idx_checksum,
+                idx_datapoint)] = IDXTimestampValue(
+                    idx_datapoint=idx_datapoint,
                     polling_interval=pattoo_db_record.pattoo_polling_interval,
                     timestamp=pattoo_db_record.pattoo_timestamp,
                     value=pattoo_db_record.pattoo_value)

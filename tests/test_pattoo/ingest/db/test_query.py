@@ -42,10 +42,10 @@ class TestBasicFunctioins(unittest.TestCase):
     # General object setup
     #########################################################################
 
-    def test_idx_checksums(self):
-        """Testing method / function idx_checksums."""
+    def test_idx_datapoints(self):
+        """Testing method / function idx_datapoints."""
         # Initialize key variables
-        idx_checksums = []
+        idx_datapoints = []
         checksums = []
         polling_interval = 1
 
@@ -57,13 +57,13 @@ class TestBasicFunctioins(unittest.TestCase):
             checksum = data.hashstring(str(random()))
             checksums.append(checksum)
             insert.checksum(checksum, DATA_FLOAT, polling_interval)
-            idx_checksums.append(exists.checksum(checksum))
+            idx_datapoints.append(exists.checksum(checksum))
 
         # Test
-        result = query.idx_checksums(checksums)
+        result = query.idx_datapoints(checksums)
         self.assertEqual(len(result), len(checksums))
-        for idx_checksum in result:
-            self.assertTrue(idx_checksum in idx_checksums)
+        for idx_datapoint in result:
+            self.assertTrue(idx_datapoint in idx_datapoints)
 
     def test_checksums(self):
         """Testing method / function checksums."""
@@ -79,11 +79,11 @@ class TestBasicFunctioins(unittest.TestCase):
             # Add the checksum to the database
             checksum = data.hashstring(str(random()))
             insert.checksum(checksum, DATA_FLOAT, polling_interval)
-            idx_checksum = exists.checksum(checksum)
+            idx_datapoint = exists.checksum(checksum)
 
             # Define what we expect from the test function
             expected[checksum] = ChecksumLookup(
-                idx_checksum=idx_checksum,
+                idx_datapoint=idx_datapoint,
                 polling_interval=polling_interval,
                 last_timestamp=1)
 
@@ -102,7 +102,7 @@ class TestBasicFunctioins(unittest.TestCase):
             idx_pairs = query.pairs(pairs)
 
             # Create glue entry
-            insert.glue(idx_checksum, idx_pairs)
+            insert.glue(idx_datapoint, idx_pairs)
 
         #######################################################################
         # This is added to verify that we only get a subset of results
@@ -115,7 +115,7 @@ class TestBasicFunctioins(unittest.TestCase):
             # Add the checksum to the database
             checksum = data.hashstring(str(random()))
             insert.checksum(checksum, DATA_FLOAT, polling_interval)
-            idx_checksum = exists.checksum(checksum)
+            idx_datapoint = exists.checksum(checksum)
 
             # Add key-pairs to the database
             record = PattooDBrecord(
@@ -132,7 +132,7 @@ class TestBasicFunctioins(unittest.TestCase):
             idx_pairs = query.pairs(pairs)
 
             # Create glue entry
-            insert.glue(idx_checksum, idx_pairs)
+            insert.glue(idx_datapoint, idx_pairs)
 
         # Test
         result = query.checksums(source)
@@ -141,8 +141,8 @@ class TestBasicFunctioins(unittest.TestCase):
         self.assertEqual(len(result), len(expected))
         for key, value in result.items():
             self.assertEqual(
-                value.idx_checksum,
-                expected[key].idx_checksum)
+                value.idx_datapoint,
+                expected[key].idx_datapoint)
             self.assertEqual(
                 value.polling_interval,
                 expected[key].polling_interval)
@@ -166,14 +166,14 @@ class TestBasicFunctioins(unittest.TestCase):
         # Insert values in tables
         insert.pairs(keypairs)
         insert.checksum(checksum, DATA_FLOAT, polling_interval)
-        idx_checksum = exists.checksum(checksum)
+        idx_datapoint = exists.checksum(checksum)
 
         # Test
         for key, value in keypairs:
             idx_pairs.append(exists.pair(key, value))
-        insert.glue(idx_checksum, idx_pairs)
+        insert.glue(idx_datapoint, idx_pairs)
 
-        result = query.glue(idx_checksum)
+        result = query.glue(idx_datapoint)
         self.assertEqual(len(result), len(idx_pairs))
         for idx_pair in idx_pairs:
             self.assertTrue(idx_pair in result)

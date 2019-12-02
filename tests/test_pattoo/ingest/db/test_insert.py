@@ -58,10 +58,10 @@ class TestBasicFunctioins(unittest.TestCase):
         timestamp = int(time.time() * 1000)
 
         # Create checksum entry in the DB, then update the data table
-        idx_checksum = get.idx_checksum(
+        idx_datapoint = get.idx_datapoint(
             checksum, data_type, polling_interval)
         _data = [IDXTimestampValue(
-            idx_checksum=idx_checksum,
+            idx_datapoint=idx_datapoint,
             polling_interval=polling_interval,
             timestamp=timestamp,
             value=value)]
@@ -71,7 +71,7 @@ class TestBasicFunctioins(unittest.TestCase):
         with db.db_query(20015) as session:
             rows = session.query(
                 Data.value).filter(and_(
-                    Data.idx_checksum == idx_checksum,
+                    Data.idx_datapoint == idx_datapoint,
                     Data.timestamp == timestamp))
         for row in rows:
             self.assertEqual(row.value, value)
@@ -118,13 +118,13 @@ class TestBasicFunctioins(unittest.TestCase):
         insert.pairs((key, value))
         idx_pair = exists.pair(key, value)
         insert.checksum(checksum, DATA_FLOAT, polling_interval)
-        idx_checksum = exists.checksum(checksum)
+        idx_datapoint = exists.checksum(checksum)
 
         # Create entry and check
-        result = exists.glue(idx_checksum, idx_pair)
+        result = exists.glue(idx_datapoint, idx_pair)
         self.assertFalse(result)
-        insert.glue(idx_checksum, idx_pair)
-        result = exists.glue(idx_checksum, idx_pair)
+        insert.glue(idx_datapoint, idx_pair)
+        result = exists.glue(idx_datapoint, idx_pair)
         self.assertTrue(bool(result))
         self.assertTrue(isinstance(result, int))
 

@@ -4,7 +4,7 @@
 
 # Pattoo packages
 
-PattooShared>=0.0.48
+PattooShared>=0.0.50
 
 # Miscellaneous packages
 PyYAML
@@ -21,3 +21,6 @@ gunicorn
 # GraphQL packages
 graphene
 graphene-sqlalchemy
+
+# Mathematical libraries
+numpy

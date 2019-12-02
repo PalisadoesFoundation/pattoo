@@ -9,7 +9,7 @@ from sqlalchemy import and_
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.tables import Checksum, Pair, Glue, Data
+from pattoo.db.tables import DataPoint, Pair, Glue, Data
 from pattoo.ingest.db import exists
 
 
@@ -20,41 +20,40 @@ def timeseries(items):
         items: List of IDXTimestampValue objects
 
     Returns:
-        result: Checksum.checksum value
+        result: DataPoint.checksum value
 
     """
     # Initialize key variables
     rows = []
     last_timestamps = {}
     polling_intervals = {}
-    count = 1
 
     # Update the data
     for item in sorted(items, key=attrgetter('timestamp')):
         # Insert data
         value = round(item.value, 10)
         rows.append(
-            Data(idx_checksum=item.idx_checksum,
+            Data(idx_datapoint=item.idx_datapoint,
                  timestamp=item.timestamp,
                  value=value)
         )
 
-        # Get the most recent timestamp for each idx_checksum
-        if item.idx_checksum in last_timestamps:
-            last_timestamps[item.idx_checksum] = max(
-                item.timestamp, last_timestamps[item.idx_checksum])
+        # Get the most recent timestamp for each idx_datapoint
+        if item.idx_datapoint in last_timestamps:
+            last_timestamps[item.idx_datapoint] = max(
+                item.timestamp, last_timestamps[item.idx_datapoint])
         else:
-            last_timestamps[item.idx_checksum] = item.timestamp
-        polling_intervals[item.idx_checksum] = item.polling_interval
+            last_timestamps[item.idx_datapoint] = item.timestamp
+        polling_intervals[item.idx_datapoint] = item.polling_interval
 
     # Update the last_timestamp
-    for idx_checksum, timestamp in last_timestamps.items():
+    for idx_datapoint, timestamp in last_timestamps.items():
         with db.db_modify(20010, die=False) as session:
-            session.query(Checksum).filter(
-                and_(Checksum.idx_checksum == idx_checksum,
-                     Checksum.enabled == 1)).update(
+            session.query(DataPoint).filter(
+                and_(DataPoint.idx_datapoint == idx_datapoint,
+                     DataPoint.enabled == 1)).update(
                          {'last_timestamp': timestamp,
-                          'polling_interval': polling_intervals[idx_checksum]}
+                          'polling_interval': polling_intervals[idx_datapoint]}
                      )
 
     # Update after updating the last timestamp. Helps to prevent
@@ -66,10 +65,10 @@ def timeseries(items):
 
 
 def checksum(_checksum, data_type, polling_interval):
-    """Create the database Checksum.checksum value.
+    """Create the database DataPoint.checksum value.
 
     Args:
-        _checksum: Checksum value
+        _checksum: DataPoint value
         data_type: Type of data
         polling_interval: Polling interval
 
@@ -80,7 +79,7 @@ def checksum(_checksum, data_type, polling_interval):
     # Filter invalid data
     if isinstance(_checksum, str) is True:
         # Insert and get the new checksum value
-        row = Checksum(
+        row = DataPoint(
             checksum=_checksum.encode(),
             polling_interval=polling_interval,
             data_type=data_type)
@@ -132,11 +131,11 @@ def pairs(items):
             session.add_all(rows)
 
 
-def glue(idx_checksum, idx_pairs):
+def glue(idx_datapoint, idx_pairs):
     """Create db Pair table entries.
 
     Args:
-        idx_checksum: Checksum.idx_checksum
+        idx_datapoint: DataPoint.idx_datapoint
         idx_pairs: List of Pair.idx_pair values
 
     Returns:
@@ -152,10 +151,10 @@ def glue(idx_checksum, idx_pairs):
 
     # Iterate over idx_pairs
     for idx_pair in idx_pairs:
-        pair_exists = exists.glue(idx_checksum, idx_pair)
+        pair_exists = exists.glue(idx_datapoint, idx_pair)
         if bool(pair_exists) is False:
             # Insert and get the new idx_datasource value
-            row = Glue(idx_pair=idx_pair, idx_checksum=idx_checksum)
+            row = Glue(idx_pair=idx_pair, idx_datapoint=idx_datapoint)
             rows.append(row)
 
     if bool(rows) is True:

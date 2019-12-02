@@ -92,20 +92,20 @@ class TestBasicFunctioins(unittest.TestCase):
         result = get.key_value_pairs([record])
         self.assertEqual(result, expected)
 
-    def test_idx_checksum(self):
-        """Testing method / function idx_checksum."""
+    def test_idx_datapoint(self):
+        """Testing method / function idx_datapoint."""
         # Initialize key variables
         checksum = data.hashstring(str(random()))
         polling_interval = 1
         self.assertFalse(exists.checksum(checksum))
 
         # Test creation
-        result = get.idx_checksum(checksum, DATA_FLOAT, polling_interval)
+        result = get.idx_datapoint(checksum, DATA_FLOAT, polling_interval)
         expected = exists.checksum(checksum)
         self.assertEqual(result, expected)
 
         # Test after creation
-        result = get.idx_checksum(checksum, DATA_FLOAT, polling_interval)
+        result = get.idx_datapoint(checksum, DATA_FLOAT, polling_interval)
         expected = exists.checksum(checksum)
         self.assertEqual(result, expected)
 

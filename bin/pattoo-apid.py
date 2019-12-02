@@ -21,6 +21,7 @@ else:
     sys.exit(2)
 
 # Pattoo libraries
+from pattoo_shared import log
 from pattoo_shared.variables import AgentAPIVariable
 from pattoo_shared.agent import Agent, AgentCLI, AgentAPI
 from pattoo.constants import (
@@ -52,4 +53,5 @@ def main():
 
 
 if __name__ == '__main__':
+    log.env()
     main()

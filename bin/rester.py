@@ -10,6 +10,7 @@ import sys
 import os
 import numpy as np
 from pprint import pprint
+import time
 
 # Try to create a working PYTHONPATH
 _BIN_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -33,22 +34,23 @@ from pattoo_shared.constants import (
 from pattoo import data
 from pattoo import uri
 from pattoo.db import db
-from pattoo.db.tables import Data, Checksum
+from pattoo.db.tables import Data, DataPoint
+from pattoo_shared import times
 
 
 def main():
     """Ingest data."""
     # Initialize key variables
-    idx_checksum = 14
+    idx_datapoint = 3
     found = False
     (ts_start, ts_stop) = uri.chart_timestamp_args()
 
     try:
         # Deal with that as well
-        with db.db_query(20028) as session:
+        with db.db_query(20128) as session:
             metadata = session.query(
-                Checksum.data_type, Checksum.polling_interval).filter(
-                    Checksum.idx_checksum == idx_checksum).one()
+                DataPoint.data_type, DataPoint.polling_interval).filter(
+                    DataPoint.idx_datapoint == idx_datapoint).one()
             found = True
     except MultipleResultsFound as _:
         pass
@@ -57,34 +59,38 @@ def main():
 
     # Get the _result
     if found is True:
-        query(idx_checksum, ts_start, ts_stop, metadata)
+        query(idx_datapoint, ts_start, ts_stop, metadata)
 
 
-def query(idx_checksum, ts_start, ts_stop, metadata):
+def query(idx_datapoint, ts_start, ts_stop, metadata):
     """Ingest data."""
     # Initialize key variables
     data_type = metadata.data_type
     polling_interval = metadata.polling_interval
     places = 10
+    values = []
 
     # Make sure we have entries for entire time range
+    (norm_ts_stop, _) = times.normalized_timestamp(
+        polling_interval, timestamp=ts_stop)
+    (norm_ts_start, _) = times.normalized_timestamp(
+        polling_interval, timestamp=ts_start)
     result = {_key: None for _key in range(
-        (ts_start // polling_interval) * polling_interval,
-        ((ts_stop // polling_interval) * polling_interval),
-        polling_interval)}
+        norm_ts_start, norm_ts_stop, polling_interval)}
 
-    with db.db_query(20027) as session:
+    with db.db_query(20127) as session:
         rows = session.query(Data.timestamp, Data.value).filter(and_(
             Data.timestamp < ts_stop, Data.timestamp > ts_start,
-            Data.idx_checksum == idx_checksum)).all()
+            Data.idx_datapoint == idx_datapoint)).all()
 
     if data_type in [DATA_INT, DATA_FLOAT]:
         # Process non-counter values
         for row in rows:
             # Get timestamp to the nearest polling_interval bounary
-            timestamp = int(
-                row.timestamp // polling_interval) * polling_interval
-            result[timestamp] = round(float(row.value), places)
+            (timestamp, _) = times.normalized_timestamp(
+                polling_interval, timestamp=row.timestamp)
+            rounded_value = round(float(row.value), places)
+            values.append({'timestamp': timestamp, 'value': rounded_value})
 
     elif data_type in [DATA_COUNT64, DATA_COUNT] and len(rows) > 1:
         # Process counter values by calculating the difference between
@@ -106,14 +112,16 @@ def query(idx_checksum, ts_start, ts_stop, metadata):
             deltas = np.diff(array[:, 1].astype(np.int64))
         for key, delta in enumerate(deltas):
             # Get timestamp to the nearest polling_interval bounary
-            timestamp = int(
-                timestamps[key] // polling_interval) * polling_interval
-            # Calculate the value as a transaction per second value
-            result[timestamp] = round(
-                (delta / polling_interval) * 1000, places)
+            (timestamp, _) = times.normalized_timestamp(
+                polling_interval, timestamp=timestamps[key])
 
-    pprint(result)
-    print('\nRecords:', len(result), '\n')
+            # Calculate the value as a transaction per second value
+            rounded_delta = round((delta / polling_interval) * 1000, places)
+            values.append({'timestamp': timestamp, 'value': rounded_delta})
+            # print(timestamp, result[timestamp])
+
+    pprint(values)
+    print('\nRecords:', len(values), '\n')
 
 
 if __name__ == '__main__':

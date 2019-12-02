@@ -198,7 +198,7 @@ class Config(ConfigShared):
         # Get result
         intermediate = search(key, sub_key, self._configuration, die=False)
         if intermediate is None:
-            result = 7000
+            result = 20202
         else:
             result = int(intermediate)
         return result

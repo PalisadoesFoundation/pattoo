@@ -6,17 +6,17 @@ from sqlalchemy import and_
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.tables import Pair, Checksum, Glue
+from pattoo.db.tables import Pair, DataPoint, Glue
 
 
 def checksum(_checksum):
-    """Get the db Checksum.idx_checksum value for specific checksum.
+    """Get the db DataPoint.idx_datapoint value for specific checksum.
 
     Args:
         checksum: PattooShared.converter.extract NamedTuple checksum
 
     Returns:
-        result: Checksum.idx_checksum value
+        result: DataPoint.idx_datapoint value
 
     """
     # Initialize key variables
@@ -25,12 +25,12 @@ def checksum(_checksum):
 
     # Get the result
     with db.db_query(20005) as session:
-        rows = session.query(Checksum.idx_checksum).filter(
-            Checksum.checksum == _checksum.encode())
+        rows = session.query(DataPoint.idx_datapoint).filter(
+            DataPoint.checksum == _checksum.encode())
 
     # Return
     for row in rows:
-        result = row.idx_checksum
+        result = row.idx_datapoint
         break
     return result
 
@@ -64,28 +64,28 @@ def pair(key, value):
     return result
 
 
-def glue(_idx_checksum, idx_pair):
-    """Determine existence of idx_checksum, idx_pair in the Glue db table.
+def glue(_idx_datapoint, idx_pair):
+    """Determine existence of idx_datapoint, idx_pair in the Glue db table.
 
     Args:
-        _idx_checksum: Checksum.idx_checksum table index
+        _idx_datapoint: DataPoint.idx_datapoint table index
         idx_pair: Pair.idx_pair table index
 
     Returns:
         result: True if it exists
 
     """
-    # Initialize idx_checksum variables
+    # Initialize idx_datapoint variables
     result = False
     rows = []
 
-    # Ignore certain restricted idx_checksums
+    # Ignore certain restricted idx_datapoints
     with db.db_query(20008) as session:
         rows = session.query(Glue.idx_pair).filter(and_(
-            Glue.idx_checksum == _idx_checksum,
+            Glue.idx_datapoint == _idx_datapoint,
             Glue.idx_pair == idx_pair,
             Pair.idx_pair == Glue.idx_pair,
-            Checksum.idx_checksum == Glue.idx_checksum
+            DataPoint.idx_datapoint == Glue.idx_datapoint
             ))
 
     # Return
