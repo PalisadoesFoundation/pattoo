@@ -47,7 +47,7 @@ def main():
 
     try:
         # Deal with that as well
-        with db.db_query(20028) as session:
+        with db.db_query(20128) as session:
             metadata = session.query(
                 DataPoint.data_type, DataPoint.polling_interval).filter(
                     DataPoint.idx_datapoint == idx_datapoint).one()
@@ -78,7 +78,7 @@ def query(idx_datapoint, ts_start, ts_stop, metadata):
     result = {_key: None for _key in range(
         norm_ts_start, norm_ts_stop, polling_interval)}
 
-    with db.db_query(20027) as session:
+    with db.db_query(20127) as session:
         rows = session.query(Data.timestamp, Data.value).filter(and_(
             Data.timestamp < ts_stop, Data.timestamp > ts_start,
             Data.idx_datapoint == idx_datapoint)).all()
