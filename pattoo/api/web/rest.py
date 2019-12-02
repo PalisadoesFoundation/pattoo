@@ -9,6 +9,7 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 # pattoo imports
 from pattoo_shared.constants import (
     DATA_INT, DATA_FLOAT, DATA_COUNT64, DATA_COUNT)
+from pattoo_shared import times
 from pattoo import data
 from pattoo import uri
 from pattoo.db import db
@@ -61,12 +62,15 @@ def _query(idx_datapoint, ts_start, ts_stop, metadata):
     data_type = metadata.data_type
     polling_interval = metadata.polling_interval
     places = 10
+    values = []
 
     # Make sure we have entries for entire time range
+    (norm_ts_stop, _) = times.normalized_timestamp(
+        polling_interval, timestamp=ts_stop)
+    (norm_ts_start, _) = times.normalized_timestamp(
+        polling_interval, timestamp=ts_start)
     result = {_key: None for _key in range(
-        (ts_start // polling_interval) * polling_interval,
-        ((ts_stop // polling_interval) * polling_interval),
-        polling_interval)}
+        norm_ts_start, norm_ts_stop, polling_interval)}
 
     with db.db_query(20027) as session:
         rows = session.query(Data.timestamp, Data.value).filter(and_(
@@ -77,9 +81,10 @@ def _query(idx_datapoint, ts_start, ts_stop, metadata):
         # Process non-counter values
         for row in rows:
             # Get timestamp to the nearest polling_interval bounary
-            timestamp = int(
-                row.timestamp // polling_interval) * polling_interval
-            result[timestamp] = round(float(row.value), places)
+            (timestamp, _) = times.normalized_timestamp(
+                polling_interval, timestamp=row.timestamp)
+            rounded_value = round(float(row.value), places)
+            values.append({'timestamp': timestamp, 'value': rounded_value})
 
     elif data_type in [DATA_COUNT64, DATA_COUNT] and len(rows) > 1:
         # Process counter values by calculating the difference between
@@ -101,11 +106,12 @@ def _query(idx_datapoint, ts_start, ts_stop, metadata):
             deltas = np.diff(array[:, 1].astype(np.int64))
         for key, delta in enumerate(deltas):
             # Get timestamp to the nearest polling_interval bounary
-            timestamp = int(
-                timestamps[key] // polling_interval) * polling_interval
+            (timestamp, _) = times.normalized_timestamp(
+                polling_interval, timestamp=timestamps[key])
+
             # Calculate the value as a transaction per second value
-            result[timestamp] = round(
-                (delta / polling_interval) * 1000, places)
+            rounded_delta = round((delta / polling_interval) * 1000, places)
+            values.append({'timestamp': timestamp, 'value': rounded_delta})
 
     # Return
-    return result
+    return values
