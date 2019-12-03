@@ -16,6 +16,7 @@ SQLAlchemy
 # Web server packages
 Flask
 Flask-GraphQL
+Flask-Cache
 gunicorn
 
 # GraphQL packages
