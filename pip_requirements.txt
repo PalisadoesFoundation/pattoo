@@ -13,15 +13,15 @@ PyYAML
 PyMySQL
 SQLAlchemy
 
+# GraphQL packages
+graphene
+graphene-sqlalchemy
+
 # Web server packages
 Flask
 Flask-GraphQL
 Flask-Cache
 gunicorn
-
-# GraphQL packages
-graphene
-graphene-sqlalchemy
 
 # Mathematical libraries
 numpy
