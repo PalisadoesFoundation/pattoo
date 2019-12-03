@@ -10,6 +10,7 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from pattoo_shared.constants import (
     DATA_INT, DATA_FLOAT, DATA_COUNT64, DATA_COUNT)
 from pattoo_shared import times
+# from pattoo.api import CACHE
 from pattoo import data
 from pattoo import uri
 from pattoo.db import db
@@ -57,61 +58,125 @@ def route_data(idx_datapoint):
 
 
 def _query(idx_datapoint, ts_start, ts_stop, metadata):
-    """Ingest data."""
+    """Create list of dicts of counter values retrieved from database.
+
+    Args:
+        nones: Dict of values keyed by timestamp
+        polling_interval: Polling interval
+        places: Number of places to round values
+
+    Returns:
+        result: List of key-value pair dicts
+
+    """
     # Initialize key variables
     data_type = metadata.data_type
     polling_interval = metadata.polling_interval
     places = 10
-    values = []
+    result = []
 
     # Make sure we have entries for entire time range
     (norm_ts_stop, _) = times.normalized_timestamp(
         polling_interval, timestamp=ts_stop)
     (norm_ts_start, _) = times.normalized_timestamp(
         polling_interval, timestamp=ts_start)
-    result = {_key: None for _key in range(
+    nones = {_key: None for _key in range(
         norm_ts_start, norm_ts_stop, polling_interval)}
 
-    with db.db_query(20027) as session:
+    # Get data from database
+    with db.db_query(20127) as session:
         rows = session.query(Data.timestamp, Data.value).filter(and_(
             Data.timestamp < ts_stop, Data.timestamp > ts_start,
-            Data.idx_datapoint == idx_datapoint)).all()
+            Data.idx_datapoint == idx_datapoint)).order_by(
+                Data.timestamp).all()
+
+    # Put values into a dict for ease of processing
+    for row in rows:
+        # Get timestamp to the nearest polling_interval bounary
+        (timestamp, _) = times.normalized_timestamp(
+            polling_interval, timestamp=row.timestamp)
+        rounded_value = round(float(row.value), places)
+        nones[timestamp] = rounded_value
 
     if data_type in [DATA_INT, DATA_FLOAT]:
         # Process non-counter values
-        for row in rows:
-            # Get timestamp to the nearest polling_interval bounary
-            (timestamp, _) = times.normalized_timestamp(
-                polling_interval, timestamp=row.timestamp)
-            rounded_value = round(float(row.value), places)
-            values.append({'timestamp': timestamp, 'value': rounded_value})
+        result = _response(nones)
 
     elif data_type in [DATA_COUNT64, DATA_COUNT] and len(rows) > 1:
         # Process counter values by calculating the difference between
         # successive values
-        array = np.asarray(rows)
-        timestamps = array[:, 0].tolist()[1:]
+        result = _counters(nones, polling_interval, places)
 
-        '''
-        Sometimes we'll get unsigned counter values that roll over to zero.
-        This will result in the delta being negative. We need a way to detect
-        this and make the delta value be:
+    return result
 
-        value.current + integer.type.max - value.previous
 
-        '''
-        if data_type == DATA_COUNT:
-            deltas = np.diff(array[:, 1].astype(np.int32))
+def _counters(nones, polling_interval, places):
+    """Create list of dicts of counter values retrieved from database.
+
+    Args:
+        nones: Dict of values keyed by timestamp
+        polling_interval: Polling interval
+        places: Number of places to round values
+
+    Returns:
+        result: List of key-value pair dicts
+
+    """
+    # Initialize key variables
+    final = {}
+
+    # Create list of timestamps and values
+    timestamps = []
+    values = []
+    for timestamp, value in sorted(nones.items()):
+        timestamps.append(timestamp)
+        values.append(value)
+
+    # Remove first timestamp value as it isn't necessary
+    # after deltas are created
+    timestamps = timestamps[1:]
+
+    # Create an array for ease of readability.
+    # Convert to None values to nans to make deltas without errors
+    values_array = np.array(values).astype(np.float)
+
+    '''
+    Sometimes we'll get unsigned counter values in the database that roll over
+    to zero. This result in a negative delta.
+
+    We convert the result to abs(result). Python3 integers have no size limit
+    so you can't use logic like this to fix it:
+
+    (value.current + integer.type.max - value.previous)
+
+    '''
+    deltas = np.abs(np.diff(values_array))
+    for key, delta in enumerate(deltas):
+        # Null values means absent data and therefore no change
+        if np.isnan(delta):
+            tps = None
         else:
-            deltas = np.diff(array[:, 1].astype(np.int64))
-        for key, delta in enumerate(deltas):
-            # Get timestamp to the nearest polling_interval bounary
-            (timestamp, _) = times.normalized_timestamp(
-                polling_interval, timestamp=timestamps[key])
-
             # Calculate the value as a transaction per second value
-            rounded_delta = round((delta / polling_interval) * 1000, places)
-            values.append({'timestamp': timestamp, 'value': rounded_delta})
+            tps = round((delta / polling_interval) * 1000, places)
+        final[timestamps[key]] = tps
 
-    # Return
-    return values
+    # Return the result
+    result = _response(final)
+    return result
+
+
+def _response(nones):
+    """Create list of dicts.
+
+    Args:
+        nones: Dict of values keyed by timestamp
+
+    Returns:
+        result: List of key-value pair dicts
+
+    """
+    # Return a list of dicts
+    result = []
+    for timestamp, value in nones.items():
+        result.append({'timestamp': timestamp, 'value': value})
+    return result

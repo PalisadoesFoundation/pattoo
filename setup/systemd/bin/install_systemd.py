@@ -27,11 +27,11 @@ ROOT_DIR = os.path.abspath(os.path.join(os.path.abspath(
     os.path.join(os.path.abspath(os.path.join(os.path.abspath(
         os.path.join(
             _EXEC_DIR, os.pardir)), os.pardir)), os.pardir)), os.pardir))
-if _EXEC_DIR.endswith('/pattoo/setup/systemd/bin') is True:
+if _EXEC_DIR.endswith('/setup/systemd/bin') is True:
     sys.path.append(ROOT_DIR)
 else:
     print('''\
-This script is not installed in the "pattoo/setup/systemd/bin" \
+This script is not installed in the "setup/systemd/bin" \
 directory. Please fix.''')
     sys.exit(2)
 
