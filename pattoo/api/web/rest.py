@@ -154,10 +154,10 @@ def _counters(nones, polling_interval, places):
     for key, delta in enumerate(deltas):
         # Null values means absent data and therefore no change
         if np.isnan(delta):
-            delta = 0
-
-        # Calculate the value as a transaction per second value
-        tps = round((delta / polling_interval) * 1000, places)
+            tps = None
+        else:
+            # Calculate the value as a transaction per second value
+            tps = round((delta / polling_interval) * 1000, places)
         final[timestamps[key]] = tps
 
     # Return the result
