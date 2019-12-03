@@ -8,8 +8,6 @@ Used to add data to backend database
 # Standard libraries
 import sys
 import os
-from pprint import pprint
-from copy import deepcopy
 
 # PIP imports
 import numpy as np
@@ -43,7 +41,7 @@ from pattoo_shared import times
 def main():
     """Ingest data."""
     # Initialize key variables
-    idx_datapoint = 3
+    idx_datapoint = 9
     found = False
     (ts_start, ts_stop) = uri.chart_timestamp_args()
 
@@ -138,6 +136,7 @@ def _counters(nones, polling_interval, places):
     for timestamp, value in sorted(nones.items()):
         timestamps.append(timestamp)
         values.append(value)
+        print(timestamp, value)
 
     # Remove first timestamp value as it isn't necessary
     # after deltas are created
@@ -158,13 +157,24 @@ def _counters(nones, polling_interval, places):
 
     '''
     deltas = np.abs(np.diff(values_array))
+
+    print('---------------------')
+    print(deltas[-10:])
+    print('---------------------')
+
     for key, delta in enumerate(deltas):
+        if np.isnan(delta):
+            continue
         # Calculate the value as a transaction per second value
         tps = round((delta / polling_interval) * 1000, places)
         final[timestamps[key]] = tps
+        print(timestamps[key], delta, type(delta))
 
-    for i in deltas:
-        print(i)
+    '''for i in deltas:
+        print(i)'''
+
+    '''for key, value in sorted(final.items()):
+        print(key, value)'''
 
     # Return the result
     result = _response(final)

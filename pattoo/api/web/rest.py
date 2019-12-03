@@ -10,7 +10,7 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from pattoo_shared.constants import (
     DATA_INT, DATA_FLOAT, DATA_COUNT64, DATA_COUNT)
 from pattoo_shared import times
-from pattoo.api.web import CACHE
+# from pattoo.api import CACHE
 from pattoo import data
 from pattoo import uri
 from pattoo.db import db
@@ -21,7 +21,6 @@ REST_API_DATA = Blueprint('REST_API_DATA', __name__)
 
 
 @REST_API_DATA.route('/data/<int:idx_datapoint>')
-@CACHE.cached(query_string=True, timeout=60)
 def route_data(idx_datapoint):
     """Provide data from the Data table.
 
@@ -153,6 +152,10 @@ def _counters(nones, polling_interval, places):
     '''
     deltas = np.abs(np.diff(values_array))
     for key, delta in enumerate(deltas):
+        # Null values means absent data and therefore no change
+        if np.isnan(delta):
+            delta = 0
+
         # Calculate the value as a transaction per second value
         tps = round((delta / polling_interval) * 1000, places)
         final[timestamps[key]] = tps
