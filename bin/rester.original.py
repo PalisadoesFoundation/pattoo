@@ -68,29 +68,20 @@ def query(idx_datapoint, ts_start, ts_stop, metadata):
     data_type = metadata.data_type
     polling_interval = metadata.polling_interval
     places = 10
-    result = []
+    values = []
 
     # Make sure we have entries for entire time range
     (norm_ts_stop, _) = times.normalized_timestamp(
         polling_interval, timestamp=ts_stop)
     (norm_ts_start, _) = times.normalized_timestamp(
         polling_interval, timestamp=ts_start)
-    nones = {_key: None for _key in range(
+    result = {_key: None for _key in range(
         norm_ts_start, norm_ts_stop, polling_interval)}
 
-    # Create list of timestamps and values
-    timestamps = []
-    values = []
-    for timestamp, value in sorted(nones.items()):
-        timestamps.append(timestamp)
-        values.append(value)
-
-    # Get data from database
     with db.db_query(20127) as session:
         rows = session.query(Data.timestamp, Data.value).filter(and_(
             Data.timestamp < ts_stop, Data.timestamp > ts_start,
-            Data.idx_datapoint == idx_datapoint)).order_by(
-                Data.timestamp).all()
+            Data.idx_datapoint == idx_datapoint)).all()
 
     if data_type in [DATA_INT, DATA_FLOAT]:
         # Process non-counter values
@@ -105,21 +96,7 @@ def query(idx_datapoint, ts_start, ts_stop, metadata):
         # Process counter values by calculating the difference between
         # successive values
         array = np.asarray(rows)
-        db_timestamps = array[:, 0].tolist()
-        db_values = array[:, 1].tolist()
-
-        # Populate seed value list with values from DB
-        for db_index, timestamp in db_timestamps:
-            index = timestamps.index(timestamp)
-            values[index] = db_values[db_index]
-
-        # Remove first timestamp value as it isn't necessary
-        # after deltas are created
-        timestamps = timestamps[1:]
-
-        # Create an array for ease of readability.
-        # Convert to None values to nans to make deltas without errors
-        values_array = np.array(values).astype(np.float)
+        timestamps = array[:, 0].tolist()[1:]
 
         '''
         Sometimes we'll get unsigned counter values that roll over to zero.
@@ -130,9 +107,9 @@ def query(idx_datapoint, ts_start, ts_stop, metadata):
 
         '''
         if data_type == DATA_COUNT:
-            deltas = np.diff(values_array.astype(np.int32))
+            deltas = np.diff(array[:, 1].astype(np.int32))
         else:
-            deltas = np.diff(values_array.astype(np.int64))
+            deltas = np.diff(array[:, 1].astype(np.int64))
         for key, delta in enumerate(deltas):
             # Get timestamp to the nearest polling_interval bounary
             (timestamp, _) = times.normalized_timestamp(
@@ -140,10 +117,10 @@ def query(idx_datapoint, ts_start, ts_stop, metadata):
 
             # Calculate the value as a transaction per second value
             rounded_delta = round((delta / polling_interval) * 1000, places)
-            result.append({'timestamp': timestamp, 'value': rounded_delta})
+            values.append({'timestamp': timestamp, 'value': rounded_delta})
             # print(timestamp, result[timestamp])
 
-    pprint(result)
+    pprint(values)
     print('\nRecords:', len(values), '\n')
 
 

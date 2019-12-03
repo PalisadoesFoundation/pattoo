@@ -75,7 +75,8 @@ def _query(idx_datapoint, ts_start, ts_stop, metadata):
     with db.db_query(20027) as session:
         rows = session.query(Data.timestamp, Data.value).filter(and_(
             Data.timestamp < ts_stop, Data.timestamp > ts_start,
-            Data.idx_datapoint == idx_datapoint)).all()
+            Data.idx_datapoint == idx_datapoint)).order_by(
+                Data.timestamp).all()
 
     if data_type in [DATA_INT, DATA_FLOAT]:
         # Process non-counter values
