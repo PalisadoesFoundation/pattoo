@@ -136,7 +136,7 @@ def _counters(nones, polling_interval, places):
     for timestamp, value in sorted(nones.items()):
         timestamps.append(timestamp)
         values.append(value)
-        print(timestamp, value)
+        print('A', timestamp, value)
 
     # Remove first timestamp value as it isn't necessary
     # after deltas are created
@@ -163,12 +163,14 @@ def _counters(nones, polling_interval, places):
     print('---------------------')
 
     for key, delta in enumerate(deltas):
+        # Null values means absent data and therefore no change
         if np.isnan(delta):
-            continue
-        # Calculate the value as a transaction per second value
-        tps = round((delta / polling_interval) * 1000, places)
+            tps = None
+        else:
+            # Calculate the value as a transaction per second value
+            tps = round((delta / polling_interval) * 1000, places)
         final[timestamps[key]] = tps
-        print(timestamps[key], delta, type(delta))
+        print('B', timestamps[key], delta, type(delta))
 
     '''for i in deltas:
         print(i)'''
