@@ -4,7 +4,7 @@
 
 # Pattoo packages
 
-PattooShared>=0.0.51
+PattooShared>=0.0.52
 
 # Miscellaneous packages
 PyYAML
@@ -20,7 +20,7 @@ graphene-sqlalchemy
 # Web server packages
 Flask
 Flask-GraphQL
-Flask-Cache
+Flask-Caching
 gunicorn
 
 # Mathematical libraries

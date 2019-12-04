@@ -2,7 +2,7 @@
 
 # Import PIP3 libraries
 from flask import Flask
-# from flask_cache import Cache
+from flask_caching import Cache
 
 # Define the global URL prefix
 from pattoo_shared.constants import PATTOO_API_WEB_PREFIX
@@ -17,7 +17,7 @@ PATTOO_API_WEB_REST_PREFIX = '{}/rest'.format(PATTOO_API_WEB_PREFIX)
 PATTOO_API_WEB = Flask(__name__)
 
 # Setup memcache. Required for all API imports
-# CACHE = Cache(PATTOO_API_WEB, config={'CACHE_TYPE': 'simple'})
+CACHE = Cache(PATTOO_API_WEB, config={'CACHE_TYPE': 'simple'})
 
 # Import PATTOO_API_WEB Blueprints (MUST be done after CACHE)
 from pattoo.api.web.graphql import GRAPHQL
