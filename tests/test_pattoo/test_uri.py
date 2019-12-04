@@ -34,8 +34,16 @@ class TestBasicFunctiions(unittest.TestCase):
     #########################################################################
 
     def test_chart_timestamp_args(self):
-        """Testing method / function chart_timestamp_args."""
-        pass
+        """Testing function chart_timestamp_args."""
+        # Test nuisance cases
+        (ts_start, ts_stop) = uri.chart_timestamp_args('foo')
+        self.assertEqual(ts_start + 604800000, ts_stop)
+
+        # Other cases
+        values = [None, -1, -6011, 1, 6011]
+        for value in values:
+            (ts_start, ts_stop) = uri.chart_timestamp_args(value)
+            self.assertEqual(ts_stop > ts_start, True)
 
 
 if __name__ == '__main__':
