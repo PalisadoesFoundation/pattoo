@@ -8,15 +8,13 @@ main:
 
 pattoo-api-agentd:
 
-    api_ip_address: 127.0.0.1
-    api_ip_bind_port: 6000
-    api_uses_https: False
+    api_listen_address: 127.0.0.1
+    api_ip_bind_port: 20201
 
 pattoo-apid:
 
-    api_ip_address: 127.0.0.1
-    api_ip_bind_port: 7000
-    api_uses_https: False
+    api_listen_address: 127.0.0.1
+    api_ip_bind_port: 20202
 
 db:
   db_hostname: PATTOO_DB_HOSTNAME

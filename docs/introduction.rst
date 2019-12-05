@@ -37,6 +37,13 @@ The ``pattoo`` agents collect data from a variety of sources and send them to th
 * The `Pattoo Agents documentation <https://pattoo-agents.readthedocs.io/>`_ can be found here.
 * Visit the `Pattoo Agents GitHub site <https://github.com/PalisadoesFoundation/pattoo-agents>`_ to see the code.
 
+Pattoo-Web
+~~~~~~~~~~
+The web front end for viewing ``pattoo`` agent data.
+
+* The `Pattoo Web documentation <https://pattoo-web.readthedocs.io/>`_ can be found here.
+* Visit the `Pattoo Web GitHub site <https://github.com/PalisadoesFoundation/pattoo-web>`_ to see the code.
+
 Pattoo-Shared
 ~~~~~~~~~~~~~
 Both the ``pattoo`` agents and server use a shared python library which must be pre-installed using ``pip3`` for them to work.

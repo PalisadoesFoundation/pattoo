@@ -60,7 +60,7 @@ Section "{}" not found in configuration file in directory {}. Please fix.\
         'db_pool_size', 'db_max_overflow', 'db_hostname', 'db_username',
         'db_password', 'db_name']
     secondary_key_check(config, 'db', secondaries)
-    secondaries = ['api_ip_address', 'api_ip_bind_port', 'api_uses_https']
+    secondaries = ['api_listen_address', 'api_ip_bind_port']
     secondary_key_check(config, 'pattoo-api-agentd', secondaries)
 
     # Print Status
