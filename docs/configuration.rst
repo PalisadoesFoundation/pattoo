@@ -52,10 +52,12 @@ The ``config.yaml`` file created from the template will have sections that you w
    pattoo-api-agentd:
 
        api_ip_bind_port: 20201
+       api_listen_address: 127.0.0.1
 
    pattoo-apid:
 
        api_ip_bind_port: 20202
+       api_listen_address: 127.0.0.1
 
    db:
        db_pool_size: 10
