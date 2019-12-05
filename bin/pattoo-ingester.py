@@ -28,7 +28,7 @@ from pattoo_shared import files
 from pattoo_shared import daemon
 from pattoo_shared import log
 from pattoo_shared import converter
-from pattoo_shared.constants import PATTOO_API_AGENT_EXECUTABLE
+from pattoo.constants import PATTOO_API_AGENT_EXECUTABLE
 
 from pattoo.ingest import data
 
