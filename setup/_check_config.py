@@ -65,7 +65,7 @@ Section "{}" not found in configuration file in directory {}. Please fix.\
     secondary_key_check(config, 'pattoo-apid', secondaries)
 
     # Print Status
-    print('OK: Configuration paramter check passed.')
+    print('OK: Configuration parameter check passed.')
 
 
 def secondary_key_check(config, primary, secondaries):
