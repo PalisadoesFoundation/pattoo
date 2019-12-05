@@ -67,5 +67,6 @@ The script requires you to specify the following parameters. Make sure you have 
    SUCCESS! You are now able to start/stop and enable/disable the following systemd services:
 
    pattoo-api-agentd.service
+   pattoo-apid.service
 
    $

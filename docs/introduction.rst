@@ -1,22 +1,33 @@
 Introduction
 ============
 
-``pattoo`` stores timeseries data in a database and makes it available for users via a GraphQL API.
+``pattoo`` is a timeseries data store. It was inspired by the need to collect and visualize data from various DevOps, network, industrial PLC controllers, electro-mechanical and enterprise systems.
 
-Data can be collected from a number of sources. The ``pattoo-agents`` repository provides a number standard data collection agents for:
+Its modular design facilitates the creation of custom data collection agents and web interfaces by software developers.
+
+The ``pattoo-agents`` repository provides a number standard data collection agents for:
 
 * Linux
 * SNMP
 * Modbus
+* Bacnet
 
-Data posted to the ``pattoo`` server's API automatically updates a specially designed database. Web applications can be created to access the database’s separate API for users to easily visualize and correlate the results.
+Operational Overview
+--------------------
 
-Pattoo Server Objective
------------------------
+``patoo`` handles data in three steps.
 
-The ``pattoo`` server was created due to a real need where data from various DevOps, network, industrial PLC controllers, electro-mechanical and enterprise systems needed to be aggregated to help visualize how they affected each other.
+#. ``pattoo-agents`` collect data and send it to a central ``pattoo`` server in a standardized format.
+#. The ``pattoo`` server stores the agent data.
+#. The ``pattoo`` web application can be used to visualize the data in a chart format.
 
-It was designed to be modular so that custom data collection agents and web interfaces could be easily created by software developers.
+Pattoo Objective
+----------------
+
+``pattoo`` provides APIs for processing the data created by agents.
+
+#. The ``pattoo-api-agentd`` API accepts data sent from ``pattoo-agents`` and stores it in a database.
+#. The ``pattoo-apid`` API provides data from the database for use by applications. ``pattoo-web`` is a web application that can be used to view the data in various chart formats.
 
 Related Documentation
 ---------------------
