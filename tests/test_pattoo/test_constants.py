@@ -26,6 +26,8 @@ from tests.libraries.configuration import UnittestConfig
 from pattoo_shared.constants import PATTOO_API_SITE_PREFIX
 from pattoo.constants import PATTOO_API_WEB_EXECUTABLE
 from pattoo.constants import PATTOO_API_WEB_PROXY
+from pattoo.constants import PATTOO_API_AGENT_EXECUTABLE
+from pattoo.constants import PATTOO_API_AGENT_PROXY
 
 
 class TestConstants(unittest.TestCase):
@@ -43,6 +45,11 @@ class TestConstants(unittest.TestCase):
         self.assertEqual(
             PATTOO_API_WEB_PROXY,
             '{}-gunicorn'.format(PATTOO_API_WEB_EXECUTABLE))
+        self.assertEqual(
+            PATTOO_API_AGENT_EXECUTABLE, 'pattoo-api-agentd')
+        self.assertEqual(
+            PATTOO_API_AGENT_PROXY,
+            '{}-gunicorn'.format(PATTOO_API_AGENT_EXECUTABLE))
 
 
 if __name__ == '__main__':

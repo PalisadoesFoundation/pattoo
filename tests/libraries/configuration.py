@@ -57,12 +57,12 @@ class UnittestConfig(object):
                 'db_name': 'pattoo_unittest'
             },
             'pattoo-api-agentd': {
-                'api_listen_address': '127.0.0.2',
-                'api_ip_bind_port': 40201,
+                'ip_listen_address': '127.0.0.2',
+                'ip_bind_port': 40201,
             },
             'pattoo-apid': {
-                'api_listen_address': '127.0.0.3',
-                'api_ip_bind_port': 40202,
+                'ip_listen_address': '127.0.0.3',
+                'ip_bind_port': 40202,
             },
         }
 

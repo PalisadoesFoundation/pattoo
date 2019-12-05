@@ -14,7 +14,10 @@ import collections
 PATTOO_API_WEB_EXECUTABLE = 'pattoo-apid'
 PATTOO_API_WEB_PROXY = '{}-gunicorn'.format(
     PATTOO_API_WEB_EXECUTABLE)
-
+PATTOO_API_AGENT_EXECUTABLE = 'pattoo-api-agentd'
+PATTOO_API_AGENT_PROXY = '{}-gunicorn'.format(
+    PATTOO_API_AGENT_EXECUTABLE)
+    
 ###############################################################################
 # Constants for data ingestion
 ###############################################################################

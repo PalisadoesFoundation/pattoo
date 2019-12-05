@@ -50,13 +50,13 @@ The ``config.yaml`` file created from the template will have sections that you w
 
    pattoo-api-agentd:
 
-       api_ip_bind_port: 20201
-       api_listen_address: 127.0.0.1
+       ip_bind_port: 20201
+       ip_listen_address: 127.0.0.1
 
    pattoo-apid:
 
-       api_ip_bind_port: 20202
-       api_listen_address: 127.0.0.1
+       ip_bind_port: 20202
+       ip_listen_address: 127.0.0.1
 
    db:
        db_pool_size: 10
@@ -99,19 +99,19 @@ This table outlines the purpose of each configuration parameter.
      -
      -
    * -
-     - ``api_listen_address``
+     - ``ip_listen_address``
      - IP address used by the ``pattoo-api-agentd`` daemon for accepting data from remote ``pattoo`` agents. Default of '0.0.0.0' which indicates listening on all available network interfaces.
    * -
-     - ``api_ip_bind_port``
+     - ``ip_bind_port``
      - TCP port of used by the ``pattoo-api-agentd`` daemon for accepting data from remote ``pattoo`` agents. Default of 20201.
    * - ``pattoo-apid``
      -
      -
    * -
-     - ``api_listen_address``
+     - ``ip_listen_address``
      - IP address used by the ``pattoo-apid`` daemon for providing data to remote clients.
    * -
-     - ``api_ip_bind_port``
+     - ``ip_bind_port``
      - TCP port of used by the ``pattoo-apid`` daemon for providing data to remote clients. Default of 20202.
    * - ``db``
      -
