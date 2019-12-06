@@ -1,7 +1,7 @@
 Pattoo Agent API
 ================
 
-The ``pattoo-api-agentd`` API daemon accepts data from remote ``patoo`` agents for storage in a database.
+The ``pattoo_api_agentd`` API daemon accepts data from remote ``patoo`` agents for storage in a database.
 
 Installation
 ------------
@@ -16,14 +16,14 @@ Follow these steps.
 Usage
 -----
 
-``pattoo-api-agentd`` has a simple command structure.
+``pattoo_api_agentd`` has a simple command structure.
 
 The daemon will require a configuration file in the ``etc/``\ directory. See the configuration section for details.
 
 .. code-block:: bash
 
-   $ bin/pattoo-api-agentd.py --help
-   usage: pattoo-api-agentd.py [-h] [--start] [--stop] [--status] [--restart]
+   $ bin/pattoo_api_agentd.py --help
+   usage: pattoo_api_agentd.py [-h] [--start] [--stop] [--status] [--restart]
                             [--force]
 
    optional arguments:
@@ -47,6 +47,6 @@ There are a number of steps you can take to make sure everything is OK.
 
 #. If you have setup the daemon for ``systemd`` then you can use the ``systemctl`` command to get the status of the daemon.
 #. The daemon should be running on the port configured with the ``ip_bind_port`` parameter. Use the ``netstat`` command to verify this.
-#. The ``pattoo-api-agentd`` temporarily stores all the data it receives from ``pattoo`` agents in the ``cache/`` directory. Check there for recent ``.json`` files.
+#. The ``pattoo_api_agentd`` temporarily stores all the data it receives from ``pattoo`` agents in the ``cache/`` directory. Check there for recent ``.json`` files.
 #. Visit the URL ``http://localhost:20201/pattoo/api/v1/agent/status`` to get the status page.
 #. Use the :doc:`troubleshooting` for further steps to take

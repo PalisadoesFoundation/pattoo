@@ -11,12 +11,12 @@ import collections
 # Constants for pattoo Web API
 ###############################################################################
 
-PATTOO_INGESTER_SCRIPT = 'pattoo-ingester.py'
-PATTOO_INGESTERD_NAME = 'pattoo-ingesterd'
-PATTOO_API_WEB_NAME = 'pattoo-apid'
+PATTOO_INGESTER_SCRIPT = 'pattoo_ingester.py'
+PATTOO_INGESTERD_NAME = 'pattoo_ingesterd'
+PATTOO_API_WEB_NAME = 'pattoo_apid'
 PATTOO_API_WEB_PROXY = '{}-gunicorn'.format(
     PATTOO_API_WEB_NAME)
-PATTOO_API_AGENT_NAME = 'pattoo-api-agentd'
+PATTOO_API_AGENT_NAME = 'pattoo_api_agentd'
 PATTOO_API_AGENT_PROXY = '{}-gunicorn'.format(
     PATTOO_API_AGENT_NAME)
 

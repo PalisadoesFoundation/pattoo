@@ -56,15 +56,15 @@ class UnittestConfig(object):
                 'db_password': 'K2nJ8kFdthEbuwXE',
                 'db_name': 'pattoo_unittest'
             },
-            'pattoo-api-agentd': {
+            'pattoo_api_agentd': {
                 'ip_listen_address': '127.0.0.2',
                 'ip_bind_port': 40201,
             },
-            'pattoo-apid': {
+            'pattoo_apid': {
                 'ip_listen_address': '127.0.0.3',
                 'ip_bind_port': 40202,
             },
-            'pattoo-ingesterd': {
+            'pattoo_ingesterd': {
                 'ingester_interval': 45
             },
         }

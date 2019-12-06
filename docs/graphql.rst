@@ -139,7 +139,7 @@ Here is the result of all Key-Pair-Values.
                 "id": "UGFpcjo0",
                 "idxPair": "4",
                 "key":  "pattoo_agent_program",
-                "value":  "pattoo-agent-modbustcpd"
+                "value":  "pattoo_agent_modbustcpd"
               }
             }
           ]

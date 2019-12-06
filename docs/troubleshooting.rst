@@ -15,17 +15,17 @@ There are a number of ways to improve ``pattoo`` performance.
 Use RAM disks for Caching
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-We have seen a 10X improvement in the ``pattoo-ingester`` records / second performance when using a RAM disk versus SSDs. We recommend using RAM disks and SSDs for your cache directory over regular hard drives in production environments.
+We have seen a 10X improvement in the ``pattoo_ingester`` records / second performance when using a RAM disk versus SSDs. We recommend using RAM disks and SSDs for your cache directory over regular hard drives in production environments.
 
-Run the ``pattoo-ingester`` More Frequently
+Run the ``pattoo_ingester`` More Frequently
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``pattoo-ingester`` needs to run periodically to import agent data files into the database. You want to ensure that it can keep up with this task. Check your logs to make sure that the completion time of each ``pattoo-ingester`` run is less than the configured ``polling_interval``. Increase the ``crontab`` frequency if it isn't.
+The ``pattoo_ingester`` needs to run periodically to import agent data files into the database. You want to ensure that it can keep up with this task. Check your logs to make sure that the completion time of each ``pattoo_ingester`` run is less than the configured ``polling_interval``. Increase the ``crontab`` frequency if it isn't.
 
 Database Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``pattoo-ingester`` makes many connections to the database. You have a number of options if it crashes. Check your logs for the cause of errors to help you choose the best corrective action.
+The ``pattoo_ingester`` makes many connections to the database. You have a number of options if it crashes. Check your logs for the cause of errors to help you choose the best corrective action.
 
 #. If the errors state that you have too many connections, then increase ``max_connections`` value in the server configuration file. The default is 200. Try 300 and increase as needed.
 

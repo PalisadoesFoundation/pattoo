@@ -26,8 +26,8 @@ Pattoo Objective
 
 ``pattoo`` provides APIs for processing the data created by agents.
 
-#. The ``pattoo-api-agentd`` API accepts data sent from ``pattoo-agents`` and stores it in a database.
-#. The ``pattoo-apid`` API provides data from the database for use by applications. ``pattoo-web`` is a web application that can be used to view the data in various chart formats.
+#. The ``pattoo_api_agentd`` API accepts data sent from ``pattoo-agents`` and stores it in a database.
+#. The ``pattoo_apid`` API provides data from the database for use by applications. ``pattoo-web`` is a web application that can be used to view the data in various chart formats.
 
 Related Documentation
 ---------------------

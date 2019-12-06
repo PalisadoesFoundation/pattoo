@@ -207,7 +207,7 @@ def lock(delete=False):
 
     """
     # Initialize key variables
-    agent_name = 'pattoo-ingester'
+    agent_name = 'pattoo_ingester'
     config = Config()
     lockfile = files.lock_file(agent_name, config)
 

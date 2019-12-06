@@ -28,8 +28,8 @@ Follow these steps.
       $ sudo setup/install.py
 
 #. Configure the required ``cron`` jobs. :doc:`cron`
-#. Start the ``bin/pattoo-api-agentd.py`` daemon to accept data sent by `pattoo` agents. :doc:`pattoo-api-agentd`
-#. Start the ``bin/pattoo-apid.py`` daemon to provide `pattoo` agent data to web applications. :doc:`pattoo-apid`
+#. Start the ``bin/pattoo_api_agentd.py`` daemon to accept data sent by `pattoo` agents. :doc:`pattoo_api_agentd`
+#. Start the ``bin/pattoo_apid.py`` daemon to provide `pattoo` agent data to web applications. :doc:`pattoo_apid`
 
 
 Configuring Agents as systemd Daemons
@@ -66,7 +66,7 @@ The script requires you to specify the following parameters. Make sure you have 
 
    SUCCESS! You are now able to start/stop and enable/disable the following systemd services:
 
-   pattoo-api-agentd.service
-   pattoo-apid.service
+   pattoo_api_agentd.service
+   pattoo_apid.service
 
    $

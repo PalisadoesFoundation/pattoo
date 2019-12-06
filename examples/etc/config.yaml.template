@@ -6,12 +6,12 @@ main:
     daemon_directory: PATTOO_DAEMON_DIRECTORY
     polling_interval: 300
 
-pattoo-api-agentd:
+pattoo_api_agentd:
 
     ip_listen_address: 127.0.0.1
     ip_bind_port: 20201
 
-pattoo-apid:
+pattoo_apid:
 
     ip_listen_address: 127.0.0.1
     ip_bind_port: 20202

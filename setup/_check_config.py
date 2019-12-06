@@ -43,7 +43,7 @@ def check():
     config = files.read_yaml_files(config_directory)
 
     # Check main keys
-    keys = ['main', 'db', 'pattoo-api-agentd']
+    keys = ['main', 'db', 'pattoo_api_agentd']
     for key in keys:
         if key not in config:
             log_message = ('''\
@@ -60,9 +60,9 @@ Section "{}" not found in configuration file in directory {}. Please fix.\
         'db_password', 'db_name']
     secondary_key_check(config, 'db', secondaries)
     secondaries = ['ip_listen_address', 'ip_bind_port']
-    secondary_key_check(config, 'pattoo-api-agentd', secondaries)
+    secondary_key_check(config, 'pattoo_api_agentd', secondaries)
     secondaries = ['ip_listen_address', 'ip_bind_port']
-    secondary_key_check(config, 'pattoo-apid', secondaries)
+    secondary_key_check(config, 'pattoo_apid', secondaries)
 
     # Print Status
     print('OK: Configuration parameter check passed.')
