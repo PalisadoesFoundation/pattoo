@@ -13,7 +13,7 @@ from flask import Blueprint, request, abort
 from pattoo_shared import log
 from pattoo_shared.constants import CACHE_KEYS
 from pattoo_shared import configuration
-from pattoo.constants import PATTOO_API_AGENT_EXECUTABLE
+from pattoo.constants import PATTOO_API_AGENT_NAME
 
 
 # Define the POST global variable
@@ -36,7 +36,7 @@ def receive(source):
 
     # Read configuration
     config = configuration.Config()
-    cache_dir = config.agent_cache_directory(PATTOO_API_AGENT_EXECUTABLE)
+    cache_dir = config.agent_cache_directory(PATTOO_API_AGENT_NAME)
 
     # Get JSON from incoming agent POST
     try:

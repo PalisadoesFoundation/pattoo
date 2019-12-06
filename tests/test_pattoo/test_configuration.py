@@ -20,7 +20,7 @@ This script is not installed in the "pattoo/tests/test_pattoo" directory. Please
     sys.exit(2)
 
 from tests.libraries.configuration import UnittestConfig
-from pattoo import configuration
+from pattoo.configuration import ConfigPattoo, ConfigAgent, ConfigIngester
 
 
 class TestConfiguration(unittest.TestCase):
@@ -30,7 +30,7 @@ class TestConfiguration(unittest.TestCase):
     # General object setup
     #########################################################################
 
-    config = configuration.ConfigPattoo()
+    config = ConfigPattoo()
 
     def test___init__(self):
         """Testing method init."""
@@ -92,6 +92,59 @@ class TestConfiguration(unittest.TestCase):
 
         # Test
         result = self.config.db_name()
+        self.assertEqual(result, expected)
+
+
+class TestConfigAgent(unittest.TestCase):
+    """Checks all ConfigAgent methods."""
+
+    ##########################################################################
+    # Initialize variable class
+    ##########################################################################
+    config = ConfigAgent()
+
+    def test___init__(self):
+        """Testing function __init__."""
+        pass
+
+    def test_ip_listen_address(self):
+        """Testing function ip_listen_address."""
+        # Initialize key values
+        expected = '127.0.0.2'
+
+        # Test
+        result = self.config.ip_listen_address()
+        self.assertEqual(result, expected)
+
+    def test_ip_bind_port(self):
+        """Testing function ip_bind_port."""
+        # Initialize key values
+        expected = 40201
+
+        # Test
+        result = self.config.ip_bind_port()
+        self.assertEqual(result, expected)
+
+
+class TestConfigAgent(unittest.TestCase):
+    """Checks all ConfigIngester methods."""
+
+    ##########################################################################
+    # Initialize variable class
+    ##########################################################################
+    config = ConfigIngester()
+
+    def test___init__(self):
+        """Testing function __init__."""
+        pass
+
+    def test_ingester_interval(self):
+        """Testing function ingester_interval."""
+        # Initialize key values
+        expected = 45
+
+        # Test
+        result = self.config.ingester_interval()
         self.assertEqual(result, expected)
 
 
