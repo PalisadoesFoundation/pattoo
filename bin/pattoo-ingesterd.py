@@ -67,10 +67,14 @@ class PollingAgent(Agent):
                 _BIN_DIRECTORY, os.sep, PATTOO_INGESTER_SCRIPT)
             log_message = ('''\
 Starting ingester script {}. Interval of {}s.'''.format(script, interval))
-            log.log2info(20020, log_message)
+            log.log2debug(20020, log_message)
 
             # Now shut up and do it!
-            call(script.split())
+            result = call(script.split())
+            if bool(result) is True:
+                log_message = ('''\
+Ingester failed to run. Please check log files for possible causes.''')
+            log.log2warning(20029, log_message)
 
             # Sleep
             sleep(interval)
