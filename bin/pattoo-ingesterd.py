@@ -25,7 +25,7 @@ else:
 # Pattoo libraries
 from pattoo_shared import log
 from pattoo_shared.agent import Agent, AgentCLI
-from pattoo.constants import PATTOO_INGESTERD_NAME
+from pattoo.constants import PATTOO_INGESTERD_NAME, PATTOO_INGESTER_SCRIPT
 from pattoo.configuration import ConfigIngester as Config
 
 
@@ -62,9 +62,11 @@ class PollingAgent(Agent):
         # Post data to the remote server
         while True:
             # Say what we are doing
-            log_message = (
-                'Starting ingester. Interval of {}s.'.format(interval))
-            log.log2info(21003, log_message)
+            script = '{}{}{}'.format(
+                _BIN_DIRECTORY, os.sep, PATTOO_INGESTER_SCRIPT)
+            log_message = ('''\
+Starting ingester script {}. Interval of {}s.'''.format(script, interval))
+            log.log2info(20020, log_message)
 
             # Sleep
             sleep(interval)

@@ -306,7 +306,13 @@ class ConfigIngester(ConfigShared):
         # Get result
         key = PATTOO_INGESTERD_NAME
         sub_key = 'ingester_interval'
-        result = search(key, sub_key, self._configuration, die=True)
+        result = search(key, sub_key, self._configuration, die=False)
+
+        # Make sure we have an integer
+        try:
+            result = max(15, abs(int(result)))
+        except:
+            result = None
 
         # Default to 1 hour
         if result is None:

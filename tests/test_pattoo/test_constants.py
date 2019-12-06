@@ -55,7 +55,7 @@ class TestConstants(unittest.TestCase):
         self.assertEqual(
             PATTOO_INGESTERD_NAME, 'pattoo-ingesterd')
         self.assertEqual(
-            PATTOO_INGESTER_SCRIPT, 'pattoo-ingesterd.py')
+            PATTOO_INGESTER_SCRIPT, 'pattoo-ingester.py')
 
 
 if __name__ == '__main__':

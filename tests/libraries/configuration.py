@@ -64,6 +64,9 @@ class UnittestConfig(object):
                 'ip_listen_address': '127.0.0.3',
                 'ip_bind_port': 40202,
             },
+            'pattoo-ingesterd': {
+                'ingester_interval': 45
+            },
         }
 
     def create(self):
