@@ -45,6 +45,6 @@ Testing
 There are a number of steps you can take to make sure everything is OK.
 
 #. If you have setup the daemon for ``systemd`` then you can use the ``systemctl`` command to get the status of the daemon.
-#. The daemon should be running on the port configured with the ``api_ip_bind_port`` parameter. Use the ``netstat`` command to verify this.
+#. The daemon should be running on the port configured with the ``ip_bind_port`` parameter. Use the ``netstat`` command to verify this.
 #. Visit the URL ``http://localhost:20202/pattoo/api/v1/web/status`` to get the status page.
 #. Use the :doc:`troubleshooting` for further steps to take

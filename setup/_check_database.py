@@ -26,7 +26,7 @@ else:
 
 # Pattoo libraries
 from pattoo_shared import log
-from pattoo import configuration
+from pattoo.configuration import ConfigPattoo as Config
 from pattoo.db import URL
 from pattoo.db.tables import BASE
 
@@ -43,7 +43,7 @@ def main():
     """
     # Initialize key variables
     use_mysql = True
-    config = configuration.Config()
+    config = Config()
     pool_size = config.db_pool_size()
     max_overflow = config.db_max_overflow()
 

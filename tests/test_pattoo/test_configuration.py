@@ -30,7 +30,7 @@ class TestConfiguration(unittest.TestCase):
     # General object setup
     #########################################################################
 
-    config = configuration.Config()
+    config = configuration.ConfigPattoo()
 
     def test___init__(self):
         """Testing method init."""

@@ -46,16 +46,17 @@ The ``config.yaml`` file created from the template will have sections that you w
        log_directory: PATTOO_LOG_DIRECTORY
        cache_directory: PATTOO_CACHE_DIRECTORY
        daemon_directory: PATTOO_DAEMON_DIRECTORY
-       language: en
        polling_interval: 300
 
    pattoo-api-agentd:
 
-       api_ip_bind_port: 20201
+       ip_bind_port: 20201
+       ip_listen_address: 127.0.0.1
 
    pattoo-apid:
 
-       api_ip_bind_port: 20202
+       ip_bind_port: 20202
+       ip_listen_address: 127.0.0.1
 
    db:
        db_pool_size: 10
@@ -92,23 +93,26 @@ This table outlines the purpose of each configuration parameter.
      - ``daemon_directory``
      - Directory used to store daemon related data that needs to be maintained between reboots
    * -
-     - ``language``
-     - Language  to be used in reporting statistics in JSON output. Language files can be found in the ``metadata/language/agents/`` directory.
-   * -
      - ``polling_interval``
      - Interval of data collection and posting in seconds. This value should be the same for all ``pattoo`` configurations in your universe.
    * - ``pattoo-api-agentd``
      -
      -
    * -
-     - ``api_ip_bind_port``
+     - ``ip_listen_address``
+     - IP address used by the ``pattoo-api-agentd`` daemon for accepting data from remote ``pattoo`` agents. Default of '0.0.0.0' which indicates listening on all available network interfaces.
+   * -
+     - ``ip_bind_port``
      - TCP port of used by the ``pattoo-api-agentd`` daemon for accepting data from remote ``pattoo`` agents. Default of 20201.
    * - ``pattoo-apid``
      -
      -
    * -
-     - ``pattoo-apid``
-     - TCP port of used by the ``pattoo-apid`` daemon when creating its API used by the ``pattoo`` web UI. Default of 20202. This port must be different from the one used by ``pattoo-api-agentd``.
+     - ``ip_listen_address``
+     - IP address used by the ``pattoo-apid`` daemon for providing data to remote clients.
+   * -
+     - ``ip_bind_port``
+     - TCP port of used by the ``pattoo-apid`` daemon for providing data to remote clients. Default of 20202.
    * - ``db``
      -
      -

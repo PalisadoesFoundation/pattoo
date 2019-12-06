@@ -7,10 +7,11 @@ import os
 from pattoo_shared import configuration
 from pattoo_shared.configuration import Config as ConfigShared
 from pattoo_shared.configuration import search
-from pattoo.constants import PATTOO_API_WEB_EXECUTABLE
+from pattoo.constants import (
+    PATTOO_API_WEB_EXECUTABLE, PATTOO_API_AGENT_EXECUTABLE)
 
 
-class Config(ConfigShared):
+class ConfigPattoo(ConfigShared):
     """Class gathers all configuration information.
 
     Only processes the following YAML keys in the configuration file:
@@ -161,8 +162,8 @@ class Config(ConfigShared):
             result = int(intermediate)
         return result
 
-    def api_listen_address(self):
-        """Get api_listen_address.
+    def ip_listen_address(self):
+        """Get ip_listen_address.
 
         Args:
             None
@@ -173,7 +174,7 @@ class Config(ConfigShared):
         """
         # Get result
         key = PATTOO_API_WEB_EXECUTABLE
-        sub_key = 'api_listen_address'
+        sub_key = 'ip_listen_address'
         result = search(key, sub_key, self._configuration, die=False)
 
         # Default to 0.0.0.0
@@ -181,8 +182,8 @@ class Config(ConfigShared):
             result = '0.0.0.0'
         return result
 
-    def api_ip_bind_port(self):
-        """Get api_ip_bind_port.
+    def ip_bind_port(self):
+        """Get ip_bind_port.
 
         Args:
             None
@@ -193,7 +194,72 @@ class Config(ConfigShared):
         """
         # Initialize key variables
         key = PATTOO_API_WEB_EXECUTABLE
-        sub_key = 'api_ip_bind_port'
+        sub_key = 'ip_bind_port'
+
+        # Get result
+        intermediate = search(key, sub_key, self._configuration, die=False)
+        if intermediate is None:
+            result = 20202
+        else:
+            result = int(intermediate)
+        return result
+
+
+class ConfigAgent(ConfigShared):
+    """Class gathers all configuration information.
+
+    Only processes the following YAML keys in the configuration file:
+
+        The value of the PATTOO_API_WEB_EXECUTABLE constant
+
+    """
+
+    def __init__(self):
+        """Initialize the class.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Instantiate the Config parent
+        ConfigShared.__init__(self)
+
+    def ip_listen_address(self):
+        """Get ip_listen_address.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        key = PATTOO_API_AGENT_EXECUTABLE
+        sub_key = 'ip_listen_address'
+        result = search(key, sub_key, self._configuration, die=False)
+
+        # Default to 0.0.0.0
+        if result is None:
+            result = '0.0.0.0'
+        return result
+
+    def ip_bind_port(self):
+        """Get ip_bind_port.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Initialize key variables
+        key = PATTOO_API_AGENT_EXECUTABLE
+        sub_key = 'ip_bind_port'
 
         # Get result
         intermediate = search(key, sub_key, self._configuration, die=False)

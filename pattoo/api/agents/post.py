@@ -11,8 +11,9 @@ from flask import Blueprint, request, abort
 
 # pattoo imports
 from pattoo_shared import log
-from pattoo_shared.constants import PATTOO_API_AGENT_EXECUTABLE, CACHE_KEYS
+from pattoo_shared.constants import CACHE_KEYS
 from pattoo_shared import configuration
+from pattoo.constants import PATTOO_API_AGENT_EXECUTABLE
 
 
 # Define the POST global variable

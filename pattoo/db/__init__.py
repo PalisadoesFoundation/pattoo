@@ -15,13 +15,14 @@ from sqlalchemy.pool import QueuePool, Pool
 
 # pattoo libraries
 from pattoo_shared import log
-from pattoo import configuration
+from pattoo.configuration import ConfigPattoo as Config
 
 #############################################################################
 # Setup a global pool for database connections
 #############################################################################
 POOL = None
 URL = None
+
 
 def main():
     """Process agent data.
@@ -41,7 +42,7 @@ def main():
     pool_recycle = min(10, pool_timeout - 10)
 
     # Get configuration
-    config = configuration.Config()
+    config = Config()
 
     # Define SQLAlchemy parameters from configuration
     pool_size = config.db_pool_size()

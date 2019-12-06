@@ -53,18 +53,19 @@ Section "{}" not found in configuration file in directory {}. Please fix.\
 
     # Check secondary keys
     secondaries = [
-        'log_level', 'log_directory', 'cache_directory',
-        'daemon_directory', 'polling_interval']
+        'log_level', 'log_directory', 'cache_directory', 'daemon_directory']
     secondary_key_check(config, 'main', secondaries)
     secondaries = [
         'db_pool_size', 'db_max_overflow', 'db_hostname', 'db_username',
         'db_password', 'db_name']
     secondary_key_check(config, 'db', secondaries)
-    secondaries = ['api_ip_address', 'api_ip_bind_port', 'api_uses_https']
+    secondaries = ['ip_listen_address', 'ip_bind_port']
     secondary_key_check(config, 'pattoo-api-agentd', secondaries)
+    secondaries = ['ip_listen_address', 'ip_bind_port']
+    secondary_key_check(config, 'pattoo-apid', secondaries)
 
     # Print Status
-    print('OK: Configuration paramter check passed.')
+    print('OK: Configuration parameter check passed.')
 
 
 def secondary_key_check(config, primary, secondaries):

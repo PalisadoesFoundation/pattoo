@@ -26,7 +26,7 @@ from pattoo_shared.variables import AgentAPIVariable
 from pattoo_shared.agent import Agent, AgentCLI, AgentAPI
 from pattoo.constants import (
     PATTOO_API_WEB_EXECUTABLE, PATTOO_API_WEB_PROXY)
-from pattoo.configuration import Config
+from pattoo.configuration import ConfigPattoo as Config
 from pattoo.api.web import PATTOO_API_WEB
 
 
@@ -38,8 +38,8 @@ def main():
     # Get configuration
     config = Config()
     aav = AgentAPIVariable(
-        ip_bind_port=config.api_ip_bind_port(),
-        listen_address=config.api_listen_address())
+        ip_bind_port=config.ip_bind_port(),
+        ip_listen_address=config.ip_listen_address())
     agent_api = AgentAPI(
         PATTOO_API_WEB_EXECUTABLE,
         PATTOO_API_WEB_PROXY,
