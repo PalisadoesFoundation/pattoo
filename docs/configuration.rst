@@ -48,12 +48,12 @@ The ``config.yaml`` file created from the template will have sections that you w
        daemon_directory: PATTOO_DAEMON_DIRECTORY
        polling_interval: 300
 
-   pattoo-api-agentd:
+   pattoo_api_agentd:
 
        ip_bind_port: 20201
        ip_listen_address: 127.0.0.1
 
-   pattoo-apid:
+   pattoo_apid:
 
        ip_bind_port: 20202
        ip_listen_address: 127.0.0.1
@@ -95,24 +95,24 @@ This table outlines the purpose of each configuration parameter.
    * -
      - ``polling_interval``
      - Interval of data collection and posting in seconds. This value should be the same for all ``pattoo`` configurations in your universe.
-   * - ``pattoo-api-agentd``
+   * - ``pattoo_api_agentd``
      -
      -
    * -
      - ``ip_listen_address``
-     - IP address used by the ``pattoo-api-agentd`` daemon for accepting data from remote ``pattoo`` agents. Default of '0.0.0.0' which indicates listening on all available network interfaces.
+     - IP address used by the ``pattoo_api_agentd`` daemon for accepting data from remote ``pattoo`` agents. Default of '0.0.0.0' which indicates listening on all available network interfaces.
    * -
      - ``ip_bind_port``
-     - TCP port of used by the ``pattoo-api-agentd`` daemon for accepting data from remote ``pattoo`` agents. Default of 20201.
-   * - ``pattoo-apid``
+     - TCP port of used by the ``pattoo_api_agentd`` daemon for accepting data from remote ``pattoo`` agents. Default of 20201.
+   * - ``pattoo_apid``
      -
      -
    * -
      - ``ip_listen_address``
-     - IP address used by the ``pattoo-apid`` daemon for providing data to remote clients.
+     - IP address used by the ``pattoo_apid`` daemon for providing data to remote clients.
    * -
      - ``ip_bind_port``
-     - TCP port of used by the ``pattoo-apid`` daemon for providing data to remote clients. Default of 20202.
+     - TCP port of used by the ``pattoo_apid`` daemon for providing data to remote clients. Default of 20202.
    * - ``db``
      -
      -

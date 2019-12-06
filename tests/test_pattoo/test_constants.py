@@ -43,19 +43,19 @@ class TestConstants(unittest.TestCase):
         """Testing constants."""
         # Test pattoo API constants
         self.assertEqual(
-            PATTOO_API_WEB_NAME, 'pattoo-apid')
+            PATTOO_API_WEB_NAME, 'pattoo_apid')
         self.assertEqual(
             PATTOO_API_WEB_PROXY,
             '{}-gunicorn'.format(PATTOO_API_WEB_NAME))
         self.assertEqual(
-            PATTOO_API_AGENT_NAME, 'pattoo-api-agentd')
+            PATTOO_API_AGENT_NAME, 'pattoo_api_agentd')
         self.assertEqual(
             PATTOO_API_AGENT_PROXY,
             '{}-gunicorn'.format(PATTOO_API_AGENT_NAME))
         self.assertEqual(
-            PATTOO_INGESTERD_NAME, 'pattoo-ingesterd')
+            PATTOO_INGESTERD_NAME, 'pattoo_ingesterd')
         self.assertEqual(
-            PATTOO_INGESTER_SCRIPT, 'pattoo-ingester.py')
+            PATTOO_INGESTER_SCRIPT, 'pattoo_ingester.py')
 
 
 if __name__ == '__main__':

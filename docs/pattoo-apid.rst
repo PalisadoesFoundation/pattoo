@@ -1,7 +1,7 @@
 Pattoo Web API
 ==============
 
-``pattoo-apid`` serves ``pattoo`` agent data from the database via a web API.
+``pattoo_apid`` serves ``pattoo`` agent data from the database via a web API.
 
 Installation
 ------------
@@ -15,14 +15,14 @@ Follow these steps.
 Usage
 -----
 
-``pattoo-apid`` has a simple command structure.
+``pattoo_apid`` has a simple command structure.
 
 The daemon will require a configuration file in the ``etc/`` directory. See the configuration section for details.
 
 .. code-block:: bash
 
-   $ bin/pattoo-apid.py --help
-   usage: pattoo-apid.py [-h] [--start] [--stop] [--status] [--restart]
+   $ bin/pattoo_apid.py --help
+   usage: pattoo_apid.py [-h] [--start] [--stop] [--status] [--restart]
                             [--force]
 
    optional arguments:

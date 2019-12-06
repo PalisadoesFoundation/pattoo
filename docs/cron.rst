@@ -1,10 +1,10 @@
 Periodic Jobs
 =============
 
-The ``pattoo-ingester``
+The ``pattoo_ingester``
 -----------------------
 
-The ``bin/pattoo-ingester.py`` script reads cached agent data files and imports them into the database. Make it run at least every five minutes to process the data. Here is a sample crontab file.
+The ``bin/pattoo_ingester.py`` script reads cached agent data files and imports them into the database. Make it run at least every five minutes to process the data. Here is a sample crontab file.
 
 #. Copy the the ``examples/cron.d/pattoo`` file to the ``/etc/cron.d`` directory.
 #. Edit the ``PATTOO_CONFIGDIR`` path accordingly.

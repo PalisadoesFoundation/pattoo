@@ -34,8 +34,8 @@ How to get the daemons running to collect data.
   :caption: Daemon Setup:
 
   cron
-  pattoo-apid
-  pattoo-api-agentd
+  pattoo_apid
+  pattoo_api_agentd
 
 Testing GraphQL Queries
 -----------------------
