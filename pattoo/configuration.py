@@ -8,7 +8,8 @@ from pattoo_shared import configuration
 from pattoo_shared.configuration import Config as ConfigShared
 from pattoo_shared.configuration import search
 from pattoo.constants import (
-    PATTOO_API_WEB_EXECUTABLE, PATTOO_API_AGENT_EXECUTABLE)
+    PATTOO_API_WEB_NAME, PATTOO_API_AGENT_NAME,
+    PATTOO_INGESTERD_NAME)
 
 
 class ConfigPattoo(ConfigShared):
@@ -16,7 +17,7 @@ class ConfigPattoo(ConfigShared):
 
     Only processes the following YAML keys in the configuration file:
 
-        The value of the PATTOO_API_WEB_EXECUTABLE constant
+        The value of the PATTOO_API_WEB_NAME constant
 
     """
 
@@ -173,7 +174,7 @@ class ConfigPattoo(ConfigShared):
 
         """
         # Get result
-        key = PATTOO_API_WEB_EXECUTABLE
+        key = PATTOO_API_WEB_NAME
         sub_key = 'ip_listen_address'
         result = search(key, sub_key, self._configuration, die=False)
 
@@ -193,7 +194,7 @@ class ConfigPattoo(ConfigShared):
 
         """
         # Initialize key variables
-        key = PATTOO_API_WEB_EXECUTABLE
+        key = PATTOO_API_WEB_NAME
         sub_key = 'ip_bind_port'
 
         # Get result
@@ -210,7 +211,7 @@ class ConfigAgent(ConfigShared):
 
     Only processes the following YAML keys in the configuration file:
 
-        The value of the PATTOO_API_WEB_EXECUTABLE constant
+        The value of the PATTOO_API_WEB_NAME constant
 
     """
 
@@ -238,7 +239,7 @@ class ConfigAgent(ConfigShared):
 
         """
         # Get result
-        key = PATTOO_API_AGENT_EXECUTABLE
+        key = PATTOO_API_AGENT_NAME
         sub_key = 'ip_listen_address'
         result = search(key, sub_key, self._configuration, die=False)
 
@@ -258,7 +259,7 @@ class ConfigAgent(ConfigShared):
 
         """
         # Initialize key variables
-        key = PATTOO_API_AGENT_EXECUTABLE
+        key = PATTOO_API_AGENT_NAME
         sub_key = 'ip_bind_port'
 
         # Get result
@@ -267,4 +268,47 @@ class ConfigAgent(ConfigShared):
             result = 20202
         else:
             result = int(intermediate)
+        return result
+
+
+class ConfigIngester(ConfigShared):
+    """Class gathers all configuration information.
+
+    Only processes the following YAML keys in the configuration file:
+
+        The value of the PATTOO_INGESTERD_NAME constant
+
+    """
+
+    def __init__(self):
+        """Initialize the class.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Instantiate the Config parent
+        ConfigShared.__init__(self)
+
+    def ingester_interval(self):
+        """Get ingester_interval.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        key = PATTOO_INGESTERD_NAME
+        sub_key = 'ingester_interval'
+        result = search(key, sub_key, self._configuration, die=True)
+
+        # Default to 1 hour
+        if result is None:
+            result = 3600
         return result

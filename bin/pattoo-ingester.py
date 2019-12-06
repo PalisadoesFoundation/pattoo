@@ -28,7 +28,7 @@ from pattoo_shared import files
 from pattoo_shared import daemon
 from pattoo_shared import log
 from pattoo_shared import converter
-from pattoo.constants import PATTOO_API_AGENT_EXECUTABLE
+from pattoo.constants import PATTOO_API_AGENT_NAME
 
 from pattoo.ingest import data
 
@@ -62,7 +62,7 @@ def main():
 
     # Get cache directory
     config = Config()
-    directory = config.agent_cache_directory(PATTOO_API_AGENT_EXECUTABLE)
+    directory = config.agent_cache_directory(PATTOO_API_AGENT_NAME)
 
     # Get the CLI arguments
     args = arguments(config)
@@ -238,7 +238,7 @@ def arguments(config):
 
     """
     # Get cache directory
-    directory = config.agent_cache_directory(PATTOO_API_AGENT_EXECUTABLE)
+    directory = config.agent_cache_directory(PATTOO_API_AGENT_NAME)
 
     # Get arguments
     parser = argparse.ArgumentParser(
