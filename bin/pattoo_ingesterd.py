@@ -74,7 +74,7 @@ Starting ingester script {}. Interval of {}s.'''.format(script, interval))
             if bool(result) is True:
                 log_message = ('''\
 Ingester failed to run. Please check log files for possible causes.''')
-            log.log2warning(20029, log_message)
+                log.log2warning(20029, log_message)
 
             # Sleep
             sleep(interval)
