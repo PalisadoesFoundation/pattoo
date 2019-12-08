@@ -91,8 +91,8 @@ class TestBasicFunctioins(unittest.TestCase):
             record = PattooDBrecord(
                 pattoo_checksum=checksum,
                 pattoo_key='key',
-                pattoo_polling_interval=polling_interval,
-                pattoo_source=source,
+                pattoo_agent_polling_interval=polling_interval,
+                pattoo_agent_id=source,
                 pattoo_timestamp=int(time.time() * 1000),
                 pattoo_data_type=DATA_FLOAT,
                 pattoo_value=(data_index * 10),
@@ -121,8 +121,8 @@ class TestBasicFunctioins(unittest.TestCase):
             record = PattooDBrecord(
                 pattoo_checksum=checksum,
                 pattoo_key='key',
-                pattoo_polling_interval=polling_interval,
-                pattoo_source=fake_source,
+                pattoo_agent_polling_interval=polling_interval,
+                pattoo_agent_id=fake_source,
                 pattoo_timestamp=int(time.time() * 1000),
                 pattoo_data_type=DATA_FLOAT,
                 pattoo_value=(data_index * 10),

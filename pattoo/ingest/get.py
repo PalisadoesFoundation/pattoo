@@ -52,7 +52,7 @@ def key_value_pairs(pattoo_db_records):
             # Ignore keys that don't belong in the Pair table
             if key.startswith('pattoo') is True:
                 if key not in [
-                        'pattoo_metadata', 'pattoo_key', 'pattoo_source']:
+                        'pattoo_metadata', 'pattoo_key', 'pattoo_agent_id']:
                     continue
 
             if key == 'pattoo_metadata':

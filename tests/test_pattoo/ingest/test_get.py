@@ -47,8 +47,8 @@ class TestBasicFunctioins(unittest.TestCase):
         record = PattooDBrecord(
             pattoo_checksum='1',
             pattoo_key='3',
-            pattoo_source=4,
-            pattoo_polling_interval=1,
+            pattoo_agent_id=4,
+            pattoo_agent_polling_interval=1,
             pattoo_timestamp=5,
             pattoo_data_type=DATA_FLOAT,
             pattoo_value=6,
@@ -72,8 +72,8 @@ class TestBasicFunctioins(unittest.TestCase):
         record = PattooDBrecord(
             pattoo_checksum='1',
             pattoo_key='3',
-            pattoo_polling_interval=1,
-            pattoo_source=4,
+            pattoo_agent_polling_interval=1,
+            pattoo_agent_id=4,
             pattoo_timestamp=5,
             pattoo_data_type=DATA_FLOAT,
             pattoo_value=6,
@@ -83,7 +83,7 @@ class TestBasicFunctioins(unittest.TestCase):
         # Test
         expected = [
             ('key1', 'value'), ('key2', 'value'),
-            ('pattoo_key', '3'), ('pattoo_source', '4')
+            ('pattoo_agent_id', '4'), ('pattoo_key', '3')
         ]
         result = get.key_value_pairs(record)
         self.assertEqual(sorted(result), expected)

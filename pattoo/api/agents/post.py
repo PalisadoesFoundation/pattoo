@@ -63,7 +63,7 @@ def receive(source):
 
     # Extract key values from posting
     try:
-        timestamp = posted_data['pattoo_source_timestamp']
+        timestamp = posted_data['pattoo_agent_timestamp']
     except:
         log_message = ('''API Failure: [{}, {}, {}]\
 '''.format(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]))
