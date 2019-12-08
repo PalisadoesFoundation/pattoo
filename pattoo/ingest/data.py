@@ -88,7 +88,7 @@ def _process_rows(pattoo_db_records):
 
     # Get DataPoint.idx_datapoint and idx_pair values from db. This is used to
     # speed up the process by reducing the need for future database access.
-    source = pattoo_db_records[0].pattoo_source
+    source = pattoo_db_records[0].pattoo_agent_id
     checksum_table = query.checksums(source)
 
     # Process data
@@ -108,13 +108,13 @@ def _process_rows(pattoo_db_records):
             idx_datapoint = get.idx_datapoint(
                 pattoo_db_record.pattoo_checksum,
                 pattoo_db_record.pattoo_data_type,
-                pattoo_db_record.pattoo_polling_interval)
+                pattoo_db_record.pattoo_agent_polling_interval)
             if bool(idx_datapoint) is True:
                 # Update the lookup table
                 checksum_table[
                     pattoo_db_record.pattoo_checksum] = ChecksumLookup(
                         idx_datapoint=idx_datapoint,
-                        polling_interval=pattoo_db_record.pattoo_polling_interval,
+                        polling_interval=pattoo_db_record.pattoo_agent_polling_interval,
                         last_timestamp=1)
 
                 # Update the Glue table
@@ -140,7 +140,7 @@ def _process_rows(pattoo_db_records):
                 pattoo_db_record.pattoo_timestamp,
                 idx_datapoint)] = IDXTimestampValue(
                     idx_datapoint=idx_datapoint,
-                    polling_interval=pattoo_db_record.pattoo_polling_interval,
+                    polling_interval=pattoo_db_record.pattoo_agent_polling_interval,
                     timestamp=pattoo_db_record.pattoo_timestamp,
                     value=pattoo_db_record.pattoo_value)
 

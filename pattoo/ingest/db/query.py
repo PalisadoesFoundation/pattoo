@@ -63,7 +63,7 @@ def checksums(source):
             DataPoint.idx_datapoint).filter(and_(
                 Glue.idx_datapoint == DataPoint.idx_datapoint,
                 Glue.idx_pair == Pair.idx_pair,
-                Pair.key == 'pattoo_source'.encode(),
+                Pair.key == 'pattoo_agent_id'.encode(),
                 Pair.value == source.encode()
             ))
 

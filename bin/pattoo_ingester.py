@@ -173,11 +173,11 @@ File {} has invalid data. It will not be processed'''.format(filepath))
                 continue
 
             count += len(keypairs)
-            source = keypairs[0].pattoo_source
-            if source in _cache:
-                _cache[source].extend(keypairs)
+            pattoo_agent_id = keypairs[0].pattoo_agent_id
+            if pattoo_agent_id in _cache:
+                _cache[pattoo_agent_id].extend(keypairs)
             else:
-                _cache[source] = keypairs
+                _cache[pattoo_agent_id] = keypairs
 
     # Multiprocess the data
     if bool(_cache) is True:
@@ -185,7 +185,7 @@ File {} has invalid data. It will not be processed'''.format(filepath))
             muliprocessing_data.append(item)
         data.mulitiprocess(muliprocessing_data)
 
-    # Delete source files after processing
+    # Delete cache files after processing
     for filepath in filepaths:
         log_message = 'Deleting cache file {}'.format(filepath)
         log.log2debug(20009, log_message)
