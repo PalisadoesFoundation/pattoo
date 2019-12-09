@@ -151,7 +151,7 @@ def _run_script(cli_string, die=True):
     string2print = 'Running Command: "{}"'.format(cli_string)
     print(string2print)
 
-    # Run update_devices script
+    # Run update_targets script
     do_command_list = list(cli_string.split(' '))
 
     # Create the subprocess object

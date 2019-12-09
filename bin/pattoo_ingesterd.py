@@ -47,7 +47,7 @@ class PollingAgent(Agent):
         Agent.__init__(self, parent)
 
     def query(self):
-        """Query all remote devices for data.
+        """Query all remote targets for data.
 
         Args:
             None
