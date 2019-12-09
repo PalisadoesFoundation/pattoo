@@ -25,9 +25,11 @@ else:
 
 # Pattoo libraries
 from pattoo_shared import log
+from pattoo_shared import files
 from pattoo_shared.agent import Agent, AgentCLI
 from pattoo.constants import PATTOO_INGESTERD_NAME, PATTOO_INGESTER_SCRIPT
 from pattoo.configuration import ConfigIngester as Config
+from pattoo import sysinfo
 
 
 class PollingAgent(Agent):
@@ -69,6 +71,9 @@ class PollingAgent(Agent):
 Starting ingester script {}. Interval of {}s.'''.format(script, interval))
             log.log2debug(20020, log_message)
 
+            # Check lockfile status
+            check_lockfile()
+
             # Now shut up and do it!
             result = call(script.split())
             if bool(result) is True:
@@ -78,6 +83,32 @@ Ingester failed to run. Please check log files for possible causes.''')
 
             # Sleep
             sleep(interval)
+
+
+def check_lockfile():
+    """Delete lockfile if found and ingester is not running.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    agent_name = 'pattoo_ingester'
+    config = Config()
+    lockfile = files.lock_file(agent_name, config)
+
+    # Delete lockfile if found and ingester is not running.
+    # Caused by possible crash.
+    if os.path.exists(lockfile) is True and sysinfo.process_running(
+            PATTOO_INGESTER_SCRIPT) is False:
+        os.remove(lockfile)
+        log_message = ('''\
+Lock file {} found, but the {} script is not running\
+'''.format(lockfile, PATTOO_INGESTER_SCRIPT))
+        log.log2warning(20030, log_message)
 
 
 def main():
