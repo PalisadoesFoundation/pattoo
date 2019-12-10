@@ -177,7 +177,7 @@ class PairXlate(BASE):
 
     __tablename__ = 'pt_pair_xlate'
     __table_args__ = (
-        UniqueConstraint('code'),
+        UniqueConstraint('idx_language', 'idx_pair'),
         {'mysql_engine': 'InnoDB'}
     )
 
@@ -189,4 +189,8 @@ class PairXlate(BASE):
         BIGINT(unsigned=True), ForeignKey('pt_language.idx_language'),
         nullable=False, server_default='1')
 
+    idx_pair = Column(
+        BIGINT(unsigned=True), ForeignKey('pt_pair.idx_pair'),
+        primary_key=True, nullable=False
+    )
     description = Column((MAX_KEYPAIR_LENGTH), nullable=False, default=None)
