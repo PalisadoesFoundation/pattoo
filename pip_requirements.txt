@@ -25,3 +25,6 @@ gunicorn
 
 # Mathematical libraries
 numpy
+
+# System libraries
+psutil

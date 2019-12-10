@@ -1,6 +1,6 @@
-"""Functions for creating URIs."""
+"""Functions for getting system information."""
 
-import psutil
+from subprocess import run, PIPE
 
 
 def process_running(process_name):
@@ -10,18 +10,16 @@ def process_running(process_name):
         None
 
     Returns:
-        result: tuple of (ts_start, ts_stop)
+        result: True if running
 
     """
-    # Iterate over the all the running process
-    for proc in psutil.process_iter():
-        try:
-            # Check if process name contains the given name string.
-            if process_name.lower() in proc.name().lower():
-                return True
-        except (
-                psutil.NoSuchProcess,
-                psutil.AccessDenied,
-                psutil.ZombieProcess):
-            pass
-    return False
+    # Initialize key variables
+    result = False
+    command = 'ps -ef'
+
+    # Check if process name contains the given name string.
+    output = run(command.split(), stdout=PIPE, check=True).stdout.decode()
+    if process_name.lower() in output.lower():
+        result = True
+
+    return result
