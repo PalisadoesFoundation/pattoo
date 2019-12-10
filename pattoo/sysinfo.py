@@ -19,6 +19,7 @@ def process_running(process_name):
 
     # Check if process name contains the given name string.
     output = run(command.split(), stdout=PIPE, check=True).stdout.decode()
+    print(output)
     if process_name.lower() in output.lower():
         result = True
 
