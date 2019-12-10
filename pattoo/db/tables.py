@@ -152,3 +152,41 @@ class Data(BASE):
         DataPoint,
         backref=backref(
             'data_checksum', uselist=True, cascade='delete,all'))
+
+
+class Language(BASE):
+    """Class defining the pt_language table of the database."""
+
+    __tablename__ = 'pt_language'
+    __table_args__ = (
+        UniqueConstraint('code'),
+        {'mysql_engine': 'InnoDB'}
+    )
+
+    idx_language = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    code = Column(VARBINARY(4), nullable=False, default=None)
+
+    description = Column((MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+
+class PairXlate(BASE):
+    """Class defining the pt_language table of the database."""
+
+    __tablename__ = 'pt_pair_xlate'
+    __table_args__ = (
+        UniqueConstraint('code'),
+        {'mysql_engine': 'InnoDB'}
+    )
+
+    idx_pair_xlate = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    idx_language = Column(
+        BIGINT(unsigned=True), ForeignKey('pt_language.idx_language'),
+        nullable=False, server_default='1')
+
+    description = Column((MAX_KEYPAIR_LENGTH), nullable=False, default=None)
