@@ -4,7 +4,7 @@
 
 # Pattoo packages
 
-PattooShared>=0.0.58
+PattooShared>=0.0.59
 
 # Miscellaneous packages
 PyYAML
@@ -25,3 +25,6 @@ gunicorn
 
 # Mathematical libraries
 numpy
+
+# System libraries
+psutil
