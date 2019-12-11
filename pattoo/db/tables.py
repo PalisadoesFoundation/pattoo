@@ -99,12 +99,14 @@ class Glue(BASE):
     )
 
     idx_pair = Column(
-        BIGINT(unsigned=True), ForeignKey('pt_pair.idx_pair'),
+        BIGINT(unsigned=True),
+        ForeignKey('pt_pair.idx_pair'),
         primary_key=True, nullable=False
     )
 
     idx_datapoint = Column(
-        BIGINT(unsigned=True), ForeignKey('pt_datapoint.idx_datapoint'),
+        BIGINT(unsigned=True),
+        ForeignKey('pt_datapoint.idx_datapoint'),
         primary_key=True, nullable=False)
 
     ts_modified = Column(
@@ -139,7 +141,8 @@ class Data(BASE):
     )
 
     idx_datapoint = Column(
-        BIGINT(unsigned=True), ForeignKey('pt_datapoint.idx_datapoint'),
+        BIGINT(unsigned=True),
+        ForeignKey('pt_datapoint.idx_datapoint'),
         nullable=False, server_default='1')
 
     timestamp = Column(BIGINT(unsigned=True), nullable=False, default='1')
@@ -169,7 +172,28 @@ class Language(BASE):
 
     code = Column(VARBINARY(4), nullable=False, default=None)
 
-    description = Column((MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+    description = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+
+class PairXlateGroup(BASE):
+    """Class defining the pt_pair_xlate_group table of the database."""
+
+    __tablename__ = 'pt_pair_xlate_group'
+    __table_args__ = (
+        UniqueConstraint('name'),
+        {'mysql_engine': 'InnoDB'}
+    )
+
+    idx_pair_xlate_group = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    name = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+    description = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
 
 class PairXlate(BASE):
@@ -185,12 +209,65 @@ class PairXlate(BASE):
         BIGINT(unsigned=True), primary_key=True,
         autoincrement=True, nullable=False)
 
-    idx_language = Column(
-        BIGINT(unsigned=True), ForeignKey('pt_language.idx_language'),
+    idx_pair_xlate_group = Column(
+        BIGINT(unsigned=True),
+        ForeignKey('pt_pair_xlate_group.idx_pair_xlate_group'),
         nullable=False, server_default='1')
 
-    idx_pair = Column(
-        BIGINT(unsigned=True), ForeignKey('pt_pair.idx_pair'),
-        primary_key=True, nullable=False
+    idx_language = Column(
+        BIGINT(unsigned=True),
+        ForeignKey('pt_language.idx_language'),
+        nullable=False, server_default='1')
+
+    key = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+    description = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+
+class AgentGroup(BASE):
+    """Class defining the pt_agent_group table of the database."""
+
+    __tablename__ = 'pt_agent_group'
+    __table_args__ = (
+        UniqueConstraint('name'),
+        {'mysql_engine': 'InnoDB'}
     )
-    description = Column((MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+    idx_agent_group = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    idx_pair_xlate_group = Column(
+        BIGINT(unsigned=True),
+        ForeignKey('pt_pair_xlate_group.idx_pair_xlate_group'),
+        nullable=False, server_default='1')
+
+    name = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+
+class AgentTarget(BASE):
+    """Class defining the pt_agent_target table of the database."""
+
+    __tablename__ = 'pt_agent_target'
+    __table_args__ = (
+        UniqueConstraint('agent_id', 'polled_target'),
+        {'mysql_engine': 'InnoDB'}
+    )
+
+    idx_agent_target = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    idx_agent_group = Column(
+        BIGINT(unsigned=True),
+        ForeignKey('pt_agent_group.idx_agent_group'),
+        nullable=False, server_default='1')
+
+    agent_id = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+    polled_target = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
