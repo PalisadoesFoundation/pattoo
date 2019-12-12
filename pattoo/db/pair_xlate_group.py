@@ -6,7 +6,32 @@ from pattoo.db import db
 from pattoo.db.tables import PairXlateGroup
 
 
-def pair_xlate_group_exists(name):
+def idx_exists(idx):
+    """Determine whether primary key exists.
+
+    Args:
+        idx: idx_pair_xlate_group
+
+    Returns:
+        result: True if exists
+
+    """
+    # Initialize key variables
+    result = False
+
+    # Get the result
+    with db.db_query(20005) as session:
+        rows = session.query(PairXlateGroup.idx_pair_xlate_group).filter(
+            PairXlateGroup.idx_pair_xlate_group == idx)
+
+    # Return
+    for _ in rows:
+        result = True
+        break
+    return result
+
+
+def group_exists(name):
     """Get the db PairXlateGroup.idx_pair_xlate_group value for specific agent.
 
     Args:

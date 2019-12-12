@@ -6,7 +6,32 @@ from pattoo.db import db
 from pattoo.db.tables import AgentGroup
 
 
-def agent_group_exists(name):
+def idx_exists(idx):
+    """Determine whether primary key exists.
+
+    Args:
+        idx: idx_agent_group
+
+    Returns:
+        result: True if exists
+
+    """
+    # Initialize key variables
+    result = False
+
+    # Get the result
+    with db.db_query(20005) as session:
+        rows = session.query(AgentGroup.idx_agent_group).filter(
+            AgentGroup.idx_agent_group == idx)
+
+    # Return
+    for _ in rows:
+        result = True
+        break
+    return result
+
+
+def group_exists(name):
     """Get the db AgentGroup.idx_agent_group value for specific agent.
 
     Args:
