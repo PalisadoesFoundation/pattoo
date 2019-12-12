@@ -59,7 +59,7 @@ def mulitiprocess(grouping_pattoo_db_records):
     pool.join()
 
     # Update the agent table
-    # update_agents(grouping_pattoo_db_records)
+    update_agents(grouping_pattoo_db_records)
 
 
 def _process_rows(pattoo_db_records):
@@ -170,7 +170,6 @@ def update_agents(grouping_pattoo_db_records):
 
     # Get agent_ids from agent cache
     for pattoo_db_records in grouping_pattoo_db_records:
-        print('boo')
         # Get the agent_program
         metadata = pattoo_db_records[0].pattoo_metadata
         for (key, value) in metadata:
