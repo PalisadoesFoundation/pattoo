@@ -20,7 +20,7 @@ def idx_exists(idx):
     result = False
 
     # Get the result
-    with db.db_query(20005) as session:
+    with db.db_query(20046) as session:
         rows = session.query(AgentGroup.idx_agent_group).filter(
             AgentGroup.idx_agent_group == idx)
 
@@ -31,11 +31,11 @@ def idx_exists(idx):
     return result
 
 
-def group_exists(name):
+def group_exists(agent_program):
     """Get the db AgentGroup.idx_agent_group value for specific agent.
 
     Args:
-        name: AgentGroup name
+        agent_program: Pattoo agent program name
 
     Returns:
         result: AgentGroup.idx_agent_group value
@@ -46,9 +46,9 @@ def group_exists(name):
     rows = []
 
     # Get the result
-    with db.db_query(20005) as session:
+    with db.db_query(20045) as session:
         rows = session.query(AgentGroup.idx_agent_group).filter(
-            AgentGroup.name == name.encode())
+            AgentGroup.agent_program == agent_program.encode())
 
     # Return
     for row in rows:
@@ -57,26 +57,24 @@ def group_exists(name):
     return result
 
 
-def insert_row(name, description, idx_pair_xlate_group):
+def insert_row(agent_program, description):
     """Create the database AgentGroup.agent value.
 
     Args:
-        name: AgentGroup name
+        agent_program: Pattoo agent program name
         description: AgentGroup description
-        idx_pair_xlate_group: PairXlateGroup table index
 
     Returns:
         None
 
     """
     # Filter invalid data
-    if isinstance(name, str) is True:
+    if isinstance(agent_program, str) is True:
         # Insert and get the new agent value
-        with db.db_modify(20001, die=True) as session:
+        with db.db_modify(20037, die=True) as session:
             session.add(
                 AgentGroup(
-                    name=name.encode(),
-                    description=description.encode(),
-                    idx_pair_xlate_group=idx_pair_xlate_group
+                    agent_program=agent_program.encode(),
+                    description=description.encode()
                 )
             )

@@ -8,6 +8,32 @@ from pattoo.db import db
 from pattoo.db.tables import Language as _Language
 
 
+def idx_exists(idx):
+    """Determine whether primary key exists.
+
+    Args:
+        idx: idx_language
+
+    Returns:
+        result: True if exists
+
+    """
+    # Initialize key variables
+    result = False
+    rows = []
+
+    # Get the result
+    with db.db_query(20046) as session:
+        rows = session.query(_Language.idx_language).filter(
+            _Language.idx_language == idx)
+
+    # Return
+    for _ in rows:
+        result = True
+        break
+    return bool(result)
+
+
 def exists(code):
     """Determine whether code exists in the Language table.
 

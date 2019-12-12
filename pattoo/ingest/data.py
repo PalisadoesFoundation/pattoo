@@ -8,7 +8,7 @@ import multiprocessing
 from pattoo_shared.constants import DATA_NONE, DATA_STRING
 from pattoo.constants import IDXTimestampValue, ChecksumLookup
 from pattoo.ingest import get
-from pattoo.db import pair, glue, misc, data, agent
+from pattoo.db import pair, glue, misc, data, agent, agent_group
 
 
 def mulitiprocess(grouping_pattoo_db_records):
@@ -184,5 +184,13 @@ def update_agents(grouping_pattoo_db_records):
     # Insert as necessary
     for agent_id, agent_program in agent_ids:
         if agent_id not in db_agent_ids:
-            if agent.agent_exists(agent_id) is False:
-                agent.insert_row(agent_id, agent_program)
+            # Create an AgentGroup entry
+            idx_agent_group = agent_group.group_exists(agent_program)
+            if bool(idx_agent_group) is False:
+                agent_group.insert_row(
+                    agent_program, '{} (Change Me)'.format(agent_program))
+
+            # Create an Agent entry
+            idx_agent_group = agent_group.group_exists(agent_program)
+            if bool(agent.agent_exists(agent_id)) is False:
+                agent.insert_row(agent_id, idx_agent_group)

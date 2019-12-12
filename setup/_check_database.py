@@ -30,7 +30,7 @@ from pattoo_shared import log
 from pattoo.configuration import ConfigPattoo as Config
 from pattoo.db import URL
 from pattoo.db.tables import BASE
-from pattoo.db import agent_group, pair_xlate_group
+from pattoo.db import agent_group, language
 
 
 def insertions():
@@ -44,18 +44,18 @@ def insertions():
 
     """
     # Initialize key variables
-    name = 'Pattoo Pool'
-    description = 'Default Group'
+    name = 'Pattoo Reserved'
+    description = 'Pattoo Reserved'
 
     print('??: Attempting to insert default database table entries.')
 
-    # Insert into PairXlateGroup
-    if pair_xlate_group.idx_exists(1) is False:
-        pair_xlate_group.insert_row(name, description)
+    # Insert into Language
+    if language.idx_exists(1) is False:
+        language.insert_row('en', 'English')
 
     # Insert into AgentGroup
     if agent_group.idx_exists(1) is False:
-        agent_group.insert_row(name, description, 1)
+        agent_group.insert_row(name, description)
 
     print('OK: Database table entries inserted.')
 

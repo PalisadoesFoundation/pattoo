@@ -21,7 +21,7 @@ def pair_xlate_exists(name):
     rows = []
 
     # Get the result
-    with db.db_query(20005) as session:
+    with db.db_query(20041) as session:
         rows = session.query(PairXlate.idx_pair_xlate).filter(
             PairXlate.name == name.encode())
 
@@ -48,7 +48,7 @@ def insert_row(name, description, idx_language, idx_pair_xlate_group):
     # Filter invalid data
     if isinstance(name, str) is True:
         # Insert and get the new agent value
-        with db.db_modify(20001, die=True) as session:
+        with db.db_modify(20035, die=True) as session:
             session.add(
                 PairXlate(
                     name=name.encode(),

@@ -25,7 +25,7 @@ def checksum_exists(_checksum):
     rows = []
 
     # Get the result
-    with db.db_query(20005) as session:
+    with db.db_query(20040) as session:
         rows = session.query(DataPoint.idx_datapoint).filter(
             DataPoint.checksum == _checksum.encode())
 
@@ -55,5 +55,5 @@ def insert_row(_checksum, data_type, polling_interval):
             checksum=_checksum.encode(),
             polling_interval=polling_interval,
             data_type=data_type)
-        with db.db_modify(20001, die=True) as session:
+        with db.db_modify(20034, die=True) as session:
             session.add(_row)
