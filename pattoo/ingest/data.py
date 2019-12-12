@@ -8,7 +8,7 @@ import multiprocessing
 from pattoo_shared.constants import DATA_NONE, DATA_STRING
 from pattoo.constants import IDXTimestampValue, ChecksumLookup
 from pattoo.ingest import get
-from pattoo.db import pair, glue, misc, data
+from pattoo.db import pair, glue, misc, data, agent
 
 
 def mulitiprocess(grouping_pattoo_db_records):
@@ -57,6 +57,9 @@ def mulitiprocess(grouping_pattoo_db_records):
 
     # Wait for all the processes to end and get results
     pool.join()
+
+    # Update the agent table
+    # update_agents(grouping_pattoo_db_records)
 
 
 def _process_rows(pattoo_db_records):
@@ -147,3 +150,40 @@ def _process_rows(pattoo_db_records):
     # Update the data table
     if bool(data):
         data.insert_rows(list(_data.values()))
+
+
+def update_agents(grouping_pattoo_db_records):
+    """Update the agent table with any newly found Agent IDs.
+
+    Args:
+        pattoo_db_records: List of dicts read from cache files.
+
+    Returns:
+        None
+
+    """
+    # Initialize key varibles
+    agent_ids = []
+
+    # Get current Agent IDs from the database
+    db_agent_ids = pair.agent_ids()
+
+    # Get agent_ids from agent cache
+    for pattoo_db_records in grouping_pattoo_db_records:
+        print('boo')
+        # Get the agent_program
+        metadata = pattoo_db_records[0].pattoo_metadata
+        for (key, value) in metadata:
+            if key == 'pattoo_agent_program':
+                agent_program = value
+                break
+
+        # Get the Agent ID
+        agent_id = pattoo_db_records[0].pattoo_agent_id
+        agent_ids.append((agent_id, agent_program))
+
+    # Insert as necessary
+    for agent_id, agent_program in agent_ids:
+        if agent_id not in db_agent_ids:
+            if agent.agent_exists(agent_id) is False:
+                agent.insert_row(agent_id, agent_program)

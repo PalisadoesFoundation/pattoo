@@ -148,3 +148,27 @@ def idx_pairs(_items):
     for row in rows:
         result.append(row.idx_pair)
     return sorted(result)
+
+
+def agent_ids():
+    """Get all the agent_ids in the database.
+
+    Args:
+        None
+
+    Returns:
+        result: List of Agent IDs
+
+    """
+    # Initialize key variables
+    result = []
+
+    # Get the result
+    with db.db_query(20005) as session:
+        rows = session.query(Pair.key).filter(
+            Pair.key == 'pattoo_agent_id'.encode())
+
+    # Return
+    for row in rows:
+        result.append(row.key)
+    return result

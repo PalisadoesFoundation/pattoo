@@ -264,6 +264,9 @@ class AgentGroup(BASE):
     name = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
+    description = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
     ts_modified = Column(
         DATETIME, server_default=text(
             'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
@@ -277,7 +280,7 @@ class Agent(BASE):
 
     __tablename__ = 'pt_agent'
     __table_args__ = (
-        UniqueConstraint('agent_id'),
+        UniqueConstraint('pattoo_agent_id'),
         {'mysql_engine': 'InnoDB'}
     )
 
@@ -290,7 +293,10 @@ class Agent(BASE):
         ForeignKey('pt_agent_group.idx_agent_group'),
         nullable=False, server_default='1')
 
-    agent_id = Column(
+    pattoo_agent_id = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+    pattoo_agent_program = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
     ts_modified = Column(
