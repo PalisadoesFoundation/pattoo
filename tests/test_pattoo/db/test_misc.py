@@ -11,28 +11,27 @@ from random import random
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(
     os.path.abspath(os.path.join(
-            os.path.abspath(os.path.join(
-                os.path.abspath(os.path.join(
-                        EXEC_DIR,
-                        os.pardir)), os.pardir)), os.pardir)), os.pardir))
+        os.path.abspath(os.path.join(
+            EXEC_DIR,
+            os.pardir)), os.pardir)), os.pardir))
 
 if EXEC_DIR.endswith(
-        '/pattoo/tests/test_pattoo/ingest/db') is True:
+        '/pattoo/tests/test_pattoo/db') is True:
     # We need to prepend the path in case PattooShared has been installed
     # elsewhere on the system using PIP. This could corrupt expected results
     sys.path.insert(0, ROOT_DIR)
 else:
     print('''\
-This script is not installed in the "pattoo/tests/test_pattoo/ingest/db" \
+This script is not installed in the "pattoo/tests/test_pattoo/db" \
 directory. Please fix.''')
     sys.exit(2)
 
 from pattoo_shared import data
 from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
 from tests.libraries.configuration import UnittestConfig
-from pattoo.constants import ChecksumLookup
-from pattoo.ingest.db import query, insert, exists
+from pattoo.db import datapoint, glue, pair, misc
 from pattoo.ingest import get
+from pattoo.constants import ChecksumLookup
 
 
 class TestBasicFunctioins(unittest.TestCase):
@@ -41,29 +40,6 @@ class TestBasicFunctioins(unittest.TestCase):
     #########################################################################
     # General object setup
     #########################################################################
-
-    def test_idx_datapoints(self):
-        """Testing method / function idx_datapoints."""
-        # Initialize key variables
-        idx_datapoints = []
-        checksums = []
-        polling_interval = 1
-
-        # Populate database
-        for _ in range(0, 10):
-            time.sleep(0.05)
-
-            # Add the checksum to the database
-            checksum = data.hashstring(str(random()))
-            checksums.append(checksum)
-            insert.checksum(checksum, DATA_FLOAT, polling_interval)
-            idx_datapoints.append(exists.checksum(checksum))
-
-        # Test
-        result = query.idx_datapoints(checksums)
-        self.assertEqual(len(result), len(checksums))
-        for idx_datapoint in result:
-            self.assertTrue(idx_datapoint in idx_datapoints)
 
     def test_checksums(self):
         """Testing method / function checksums."""
@@ -78,8 +54,8 @@ class TestBasicFunctioins(unittest.TestCase):
 
             # Add the checksum to the database
             checksum = data.hashstring(str(random()))
-            insert.checksum(checksum, DATA_FLOAT, polling_interval)
-            idx_datapoint = exists.checksum(checksum)
+            datapoint.insert_row(checksum, DATA_FLOAT, polling_interval)
+            idx_datapoint = datapoint.checksum_exists(checksum)
 
             # Define what we expect from the test function
             expected[checksum] = ChecksumLookup(
@@ -98,11 +74,11 @@ class TestBasicFunctioins(unittest.TestCase):
                 pattoo_value=(data_index * 10),
                 pattoo_metadata=[])
             pairs = get.key_value_pairs(record)
-            insert.pairs(pairs)
-            idx_pairs = query.pairs(pairs)
+            pair.insert_rows(pairs)
+            idx_pairs = pair.idx_pairs(pairs)
 
             # Create glue entry
-            insert.glue(idx_datapoint, idx_pairs)
+            glue.insert_rows(idx_datapoint, idx_pairs)
 
         #######################################################################
         # This is added to verify that we only get a subset of results
@@ -114,8 +90,8 @@ class TestBasicFunctioins(unittest.TestCase):
 
             # Add the checksum to the database
             checksum = data.hashstring(str(random()))
-            insert.checksum(checksum, DATA_FLOAT, polling_interval)
-            idx_datapoint = exists.checksum(checksum)
+            datapoint.insert_row(checksum, DATA_FLOAT, polling_interval)
+            idx_datapoint = datapoint.checksum_exists(checksum)
 
             # Add key-pairs to the database
             record = PattooDBrecord(
@@ -128,14 +104,14 @@ class TestBasicFunctioins(unittest.TestCase):
                 pattoo_value=(data_index * 10),
                 pattoo_metadata=[])
             pairs = get.key_value_pairs(record)
-            insert.pairs(pairs)
-            idx_pairs = query.pairs(pairs)
+            pair.insert_rows(pairs)
+            idx_pairs = pair.idx_pairs(pairs)
 
             # Create glue entry
-            insert.glue(idx_datapoint, idx_pairs)
+            glue.insert_rows(idx_datapoint, idx_pairs)
 
         # Test
-        result = query.checksums(source)
+        result = misc.agent_checksums(source)
         self.assertTrue(bool(result))
         self.assertTrue(isinstance(result, dict))
         self.assertEqual(len(result), len(expected))
@@ -149,57 +125,6 @@ class TestBasicFunctioins(unittest.TestCase):
             self.assertEqual(
                 value.last_timestamp,
                 expected[key].last_timestamp)
-
-    def test_glue(self):
-        """Testing method / function glue."""
-        # Initialize key variables
-        checksum = data.hashstring(str(random()))
-        polling_interval = 1
-        keypairs = []
-        idx_pairs = []
-        for _ in range(0, 10):
-            time.sleep(0.05)
-            key = data.hashstring(str(random()))
-            value = data.hashstring(str(random()))
-            keypairs.append((key, value))
-
-        # Insert values in tables
-        insert.pairs(keypairs)
-        insert.checksum(checksum, DATA_FLOAT, polling_interval)
-        idx_datapoint = exists.checksum(checksum)
-
-        # Test
-        for key, value in keypairs:
-            idx_pairs.append(exists.pair(key, value))
-        insert.glue(idx_datapoint, idx_pairs)
-
-        result = query.glue(idx_datapoint)
-        self.assertEqual(len(result), len(idx_pairs))
-        for idx_pair in idx_pairs:
-            self.assertTrue(idx_pair in result)
-
-    def test_pairs(self):
-        """Testing method / function pairs."""
-        # Initialize key variables
-        keypairs = []
-        idx_pairs = []
-        for _ in range(0, 10):
-            time.sleep(0.05)
-            key = data.hashstring(str(random()))
-            value = data.hashstring(str(random()))
-            keypairs.append((key, value))
-
-        # Insert values in tables
-        insert.pairs(keypairs)
-
-        # Test
-        for key, value in keypairs:
-            idx_pairs.append(exists.pair(key, value))
-
-        result = query.pairs(keypairs)
-        self.assertEqual(len(result), len(idx_pairs))
-        for idx_pair in idx_pairs:
-            self.assertTrue(idx_pair in result)
 
 
 if __name__ == '__main__':

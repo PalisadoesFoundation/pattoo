@@ -2,7 +2,7 @@
 """Verifies the existence of various database table primary key values."""
 
 # Import project libraries
-from pattoo.ingest.db import exists, insert, query
+from pattoo.db import pair, datapoint
 
 
 def pairs(pattoo_db_record):
@@ -22,8 +22,8 @@ def pairs(pattoo_db_record):
     _pairs = key_value_pairs(pattoo_db_record)
 
     # Get list of pairs in the database
-    insert.pairs(_pairs)
-    result = query.pairs(_pairs)
+    pair.insert_rows(_pairs)
+    result = pair.idx_pairs(_pairs)
 
     # Return
     return result
@@ -78,10 +78,10 @@ def idx_datapoint(checksum, data_type, polling_interval):
 
     """
     # Create an entry in the database Checksum table
-    _idx_datapoint = exists.checksum(checksum)
+    _idx_datapoint = datapoint.checksum_exists(checksum)
     if bool(_idx_datapoint) is False:
-        insert.checksum(checksum, data_type, polling_interval)
-        _idx_datapoint = exists.checksum(checksum)
+        datapoint.insert_row(checksum, data_type, polling_interval)
+        _idx_datapoint = datapoint.checksum_exists(checksum)
 
     # Return
     return _idx_datapoint

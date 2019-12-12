@@ -27,7 +27,7 @@ directory. Please fix.''')
 from pattoo_shared import data
 from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
 from tests.libraries.configuration import UnittestConfig
-from pattoo.ingest.db import query, insert, exists
+from pattoo.db import pair, datapoint
 from pattoo.ingest import get
 
 
@@ -56,15 +56,15 @@ class TestBasicFunctioins(unittest.TestCase):
         )
 
         # Pairs shouldn't exist
-        self.assertFalse(exists.pair(pair1[0], pair1[1]))
-        self.assertFalse(exists.pair(pair2[0], pair2[1]))
+        self.assertFalse(pair.pair_exists(pair1[0], pair1[1]))
+        self.assertFalse(pair.pair_exists(pair2[0], pair2[1]))
 
         # Insert items
         result = get.pairs(record)
-        self.assertTrue(exists.pair(pair1[0], pair1[1]))
-        self.assertTrue(exists.pair(pair2[0], pair2[1]))
-        self.assertTrue(exists.pair(pair1[0], pair1[1]) in result)
-        self.assertTrue(exists.pair(pair2[0], pair2[1]) in result)
+        self.assertTrue(pair.pair_exists(pair1[0], pair1[1]))
+        self.assertTrue(pair.pair_exists(pair2[0], pair2[1]))
+        self.assertTrue(pair.pair_exists(pair1[0], pair1[1]) in result)
+        self.assertTrue(pair.pair_exists(pair2[0], pair2[1]) in result)
 
     def test_key_value_pairs(self):
         """Testing method / function key_value_pairs."""
@@ -97,16 +97,16 @@ class TestBasicFunctioins(unittest.TestCase):
         # Initialize key variables
         checksum = data.hashstring(str(random()))
         polling_interval = 1
-        self.assertFalse(exists.checksum(checksum))
+        self.assertFalse(datapoint.checksum_exists(checksum))
 
         # Test creation
         result = get.idx_datapoint(checksum, DATA_FLOAT, polling_interval)
-        expected = exists.checksum(checksum)
+        expected = datapoint.checksum_exists(checksum)
         self.assertEqual(result, expected)
 
         # Test after creation
         result = get.idx_datapoint(checksum, DATA_FLOAT, polling_interval)
-        expected = exists.checksum(checksum)
+        expected = datapoint.checksum_exists(checksum)
         self.assertEqual(result, expected)
 
 

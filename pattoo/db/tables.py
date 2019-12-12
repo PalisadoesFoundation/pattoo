@@ -175,6 +175,13 @@ class Language(BASE):
     description = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
 
 class PairXlateGroup(BASE):
     """Class defining the pt_pair_xlate_group table of the database."""
@@ -195,19 +202,22 @@ class PairXlateGroup(BASE):
     description = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
 
 class PairXlate(BASE):
-    """Class defining the pt_language table of the database."""
+    """Class defining the pt_pair_xlate table of the database."""
 
     __tablename__ = 'pt_pair_xlate'
     __table_args__ = (
-        UniqueConstraint('idx_language', 'idx_pair'),
+        PrimaryKeyConstraint('idx_language', 'key', 'idx_pair_xlate_group'),
         {'mysql_engine': 'InnoDB'}
     )
-
-    idx_pair_xlate = Column(
-        BIGINT(unsigned=True), primary_key=True,
-        autoincrement=True, nullable=False)
 
     idx_pair_xlate_group = Column(
         BIGINT(unsigned=True),
@@ -224,6 +234,13 @@ class PairXlate(BASE):
 
     description = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
 
 
 class AgentGroup(BASE):
@@ -247,17 +264,24 @@ class AgentGroup(BASE):
     name = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
 
-class AgentTarget(BASE):
-    """Class defining the pt_agent_target table of the database."""
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
 
-    __tablename__ = 'pt_agent_target'
+
+class Agent(BASE):
+    """Class defining the pt_agent table of the database."""
+
+    __tablename__ = 'pt_agent'
     __table_args__ = (
-        UniqueConstraint('agent_id', 'polled_target'),
+        UniqueConstraint('agent_id'),
         {'mysql_engine': 'InnoDB'}
     )
 
-    idx_agent_target = Column(
+    idx_agent = Column(
         BIGINT(unsigned=True), primary_key=True,
         autoincrement=True, nullable=False)
 
@@ -269,5 +293,9 @@ class AgentTarget(BASE):
     agent_id = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
-    polled_target = Column(
-        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
