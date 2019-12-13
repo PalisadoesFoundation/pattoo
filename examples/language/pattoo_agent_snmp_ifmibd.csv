@@ -1,0 +1,22 @@
+language,agent_program,key,description
+en,pattoo_agent_snmp_ifmibd,ifAlias,Interface Alias
+en,pattoo_agent_snmp_ifmibd,ifDescr,Interface Description
+en,pattoo_agent_snmp_ifmibd,ifHCInBroadcastPkts,Interface Broadcast Packets (HC inbound)
+en,pattoo_agent_snmp_ifmibd,ifHCInMulticastPkts,Interface Multicast Packets (HC inbound)
+en,pattoo_agent_snmp_ifmibd,ifHCInOctets,Interface Traffic (HC inbound)
+en,pattoo_agent_snmp_ifmibd,ifHCInUcastPkts,Interface Unicast Packets (HC inbound)
+en,pattoo_agent_snmp_ifmibd,ifHCOutBroadcastPkts,Interface Broadcast Packets (HC outbound)
+en,pattoo_agent_snmp_ifmibd,ifHCOutMulticastPkts,Interface Multicast Packets (HC outbound)
+en,pattoo_agent_snmp_ifmibd,ifHCOutOctets,Interface Traffic (HC outbound)
+en,pattoo_agent_snmp_ifmibd,ifHCOutUcastPkts,Interface Unicast Packets (HC outbound)
+en,pattoo_agent_snmp_ifmibd,ifInBroadcastPkts,Interface Broadcast Packets (inbound)
+en,pattoo_agent_snmp_ifmibd,ifInMulticastPkts,Interface Multicast Packets (inbound)
+en,pattoo_agent_snmp_ifmibd,ifInOctets,Interface Traffic (inbound)
+en,pattoo_agent_snmp_ifmibd,ifName,Interface Name
+en,pattoo_agent_snmp_ifmibd,ifOutBroadcastPkts,Interface Broadcast Packets (outbound)
+en,pattoo_agent_snmp_ifmibd,ifOutMulticastPkts,Interface Multicast Packets (outbound)
+en,pattoo_agent_snmp_ifmibd,ifOutOctets,Interface Traffic (outbound)
+en,pattoo_agent_snmp_ifmibd,agent_snmpd_ifalias,Interface Alias
+en,pattoo_agent_snmp_ifmibd,agent_snmpd_ifdescr,Interface Description
+en,pattoo_agent_snmp_ifmibd,agent_snmpd_ifname,Interface Name
+en,pattoo_agent_snmp_ifmibd,agent_snmpd_oid,SNMP OID

@@ -372,7 +372,15 @@ class _Import(object):
 
         """
         # Initialize key variables
-        self.subparsers.add_parser(
+        parser = self.subparsers.add_parser(
             'key_pair_translation',
-            help=textwrap.fill('Import key-pair translations.', width=width)
+            help=textwrap.fill('Import key-pair translations from a CSV file',
+            width=width)
         )
+
+        # Add arguments
+        parser.add_argument(
+            '--filename',
+            help='CSV filename',
+            type=str,
+            required=True)
