@@ -157,6 +157,22 @@ class _Show(object):
             help=textwrap.fill('Show agent_group.', width=width)
         )
 
+    def key_pair_translation_group(self, width=80):
+        """Process show key_pair_translation_group CLI commands.
+
+        Args:
+            width: Width of the help text string to STDIO before wrapping
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        self.subparsers.add_parser(
+            'key_pair_translation_group',
+            help=textwrap.fill('Show key-pair translation group.', width=width)
+        )
+
     def key_pair_translation(self, width=80):
         """Process show key_pair_translation CLI commands.
 

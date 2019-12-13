@@ -8,7 +8,7 @@ import multiprocessing
 from pattoo_shared.constants import DATA_NONE, DATA_STRING
 from pattoo.constants import IDXTimestampValue, ChecksumLookup
 from pattoo.ingest import get
-from pattoo.db import pair, glue, misc, data, agent, agent_group
+from pattoo.db import pair, glue, misc, data, agent
 
 
 def mulitiprocess(grouping_pattoo_db_records):

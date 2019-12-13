@@ -91,7 +91,7 @@ def insert_row(code, description=''):
     # Insert
     with db.db_modify(20032, die=True) as session:
         session.add(_Language(
-            code=code.encode(), description=description.encode()))
+            code=code.encode(), description=description.strip().encode()))
 
 
 def update_description(code, description):
@@ -109,7 +109,7 @@ def update_description(code, description):
     with db.db_modify(20048, die=False) as session:
         session.query(_Language).filter(
             _Language.code == code.encode()).update(
-                {'description': description.encode()}
+                {'description': description.strip().encode()}
             )
 
 

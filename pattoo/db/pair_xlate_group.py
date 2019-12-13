@@ -22,7 +22,7 @@ def idx_exists(idx):
     result = False
 
     # Get the result
-    with db.db_query(20052) as session:
+    with db.db_query(20064) as session:
         rows = session.query(PairXlateGroup.idx_pair_xlate_group).filter(
             PairXlateGroup.idx_pair_xlate_group == idx)
 
@@ -48,9 +48,9 @@ def exists(description):
     rows = []
 
     # Ignore certain restricted keys
-    with db.db_query(20056) as session:
+    with db.db_query(20066) as session:
         rows = session.query(PairXlateGroup.idx_language).filter(
-            PairXlateGroup.description == description.encode())
+            PairXlateGroup.description == description.strip().encode())
 
     # Return
     for row in rows:
@@ -72,19 +72,19 @@ def insert_row(description):
     # Filter invalid data
     if isinstance(description, str) is True:
         # Insert and get the new pair_xlate value
-        with db.db_modify(20037, die=True) as session:
+        with db.db_modify(20063, die=True) as session:
             session.add(
                 PairXlateGroup(
-                    description=description.encode()
+                    description=description.strip().encode()
                 )
             )
 
 
-def update_description(idx_pair_xlate_group, description):
+def update_description(idx, description):
     """Upadate a PairXlateGroup table entry.
 
     Args:
-        idx_pair_xlate_group: PairXlateGroup idx_pair_xlate_group
+        idx: PairXlateGroup idx_pair_xlate_group
         description: PairXlateGroup idx_pair_xlate_group description
 
     Returns:
@@ -93,10 +93,10 @@ def update_description(idx_pair_xlate_group, description):
     """
     # Filter invalid data
     if isinstance(description, str) is True:
-        with db.db_modify(20010, die=False) as session:
+        with db.db_modify(20065, die=False) as session:
             session.query(PairXlateGroup).filter(
-                PairXlateGroup.idx_pair_xlate_group == idx_pair_xlate_group.encode()).update(
-                    {'description': description.encode()}
+                PairXlateGroup.idx_pair_xlate_group == idx.encode()).update(
+                    {'description': description.strip().encode()}
                 )
 
 
@@ -113,63 +113,69 @@ def cli_show_dump():
     # Initialize key variables
     result = []
     Record = namedtuple(
-        'Record', 'idx_pair_xlate_group description idx_pair_xlate pair_xlate_id enabled')
+        'Record',
+        'idx_pair_xlate_group description idx_pair_xlate key translation enabled')
 
     # Get the result
-    with db.db_query(20050) as session:
+    with db.db_query(20062) as session:
         rows = session.query(PairXlateGroup)
 
     # Process
     for row in rows:
-        first_pair_xlate = True
+        first_agent = True
 
-        # Get pair_xlates for group
-        with db.db_query(20055) as session:
-            pair_xlate_rows = session.query(PairXlate.pair_xlate_id, PairXlate.idx_pair_xlate).filter(
-                PairXlate.idx_pair_xlate_group == row.idx_pair_xlate_group)
+        # Get agents for group
+        with db.db_query(20061) as session:
+            line_items = session.query(
+                PairXlate.key,
+                PairXlate.description).filter(
+                    PairXlate.idx_pair_xlate_group == row.idx_pair_xlate_group)
 
-        if pair_xlate_rows.count() >= 1:
+        if line_items.count() >= 1:
             # PairXlates assigned to the group
-            for pair_xlate_row in pair_xlate_rows:
-                if first_pair_xlate is True:
-                    # Format first row for pair_xlate group
+            for line_item in line_items:
+                if first_agent is True:
+                    # Format first row for agent group
                     result.append(
                         Record(
                             enabled=row.enabled,
                             idx_pair_xlate_group=row.idx_pair_xlate_group,
-                            idx_pair_xlate=pair_xlate_row.idx_pair_xlate,
-                            pair_xlate_id=pair_xlate_row.pair_xlate_id.decode(),
+                            idx_pair_xlate=line_item.idx_pair_xlate,
+                            key=line_item.key.decode(),
+                            translation=line_item.description.decode(),
                             description=row.description.decode()
                         )
                     )
-                    first_pair_xlate = False
+                    first_agent = False
                 else:
                     # Format subsequent rows
                     result.append(
                         Record(
                             enabled='',
                             idx_pair_xlate_group='',
-                            idx_pair_xlate=pair_xlate_row.idx_pair_xlate,
-                            pair_xlate_id=pair_xlate_row.pair_xlate_id.decode(),
+                            idx_pair_xlate=line_item.idx_pair_xlate,
+                            key=line_item.key.decode(),
+                            translation=line_item.description.decode(),
                             description=''
                         )
                     )
 
         else:
-            # Format only row for pair_xlate group
+            # Format only row for agent group
             result.append(
                 Record(
                     enabled=row.enabled,
                     idx_pair_xlate_group=row.idx_pair_xlate_group,
                     idx_pair_xlate='',
-                    pair_xlate_id='',
+                    key='',
+                    translation='',
                     description=row.description.decode()
                 )
             )
 
-        # Add a spacer between pair_xlate groups
+        # Add a spacer between agent groups
         result.append(Record(
             enabled='', idx_pair_xlate_group='', idx_pair_xlate='',
-            pair_xlate_id='', description=''))
+            key='', description='', translation=''))
 
     return result
