@@ -47,7 +47,7 @@ def insert_rows(items):
 
     # Update the last_timestamp
     for idx_datapoint, timestamp in last_timestamps.items():
-        with db.db_modify(20010, die=False) as session:
+        with db.db_modify(20047, die=False) as session:
             session.query(DataPoint).filter(
                 and_(DataPoint.idx_datapoint == idx_datapoint,
                      DataPoint.enabled == 1)).update(

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Pattoo classes querying the Language table."""
 
+from collections import namedtuple
+
 # Import project libraries
 from pattoo_shared.constants import MAX_KEYPAIR_LENGTH
 from pattoo_shared import log
@@ -48,6 +50,9 @@ def exists(code):
     result = False
     rows = []
 
+    # Lowercase the code
+    code = code.lower()
+
     # Ignore certain restricted keys
     with db.db_query(20031) as session:
         rows = session.query(_Language.idx_language).filter(
@@ -60,7 +65,7 @@ def exists(code):
     return result
 
 
-def insert_row(_code, description=''):
+def insert_row(code, description=''):
     """Create a Language table entry.
 
     Args:
@@ -73,14 +78,64 @@ def insert_row(_code, description=''):
     """
     # Verify values
     if bool(description) is False or isinstance(description, str) is False:
-        _description = 'Change me. Language name not provided.'
+        description = 'Change me. Language name not provided.'
     else:
-        _description = description[:MAX_KEYPAIR_LENGTH]
-    if bool(_code) is False or isinstance(_code, str) is False:
-        log_message = 'Language code "{}" is invalid'.format(_code)
+        description = description[:MAX_KEYPAIR_LENGTH]
+    if bool(code) is False or isinstance(code, str) is False:
+        log_message = 'Language code "{}" is invalid'.format(code)
         log.log2die(20033, log_message)
+
+    # Lowercase the code
+    code = code.lower()
 
     # Insert
     with db.db_modify(20032, die=True) as session:
         session.add(_Language(
-            code=_code.encode(), description=_description.encode()))
+            code=code.encode(), description=description.encode()))
+
+
+def updatedescription(code, description):
+    """Upadate a Language table entry.
+
+    Args:
+        code: Language code
+        description: Language code description
+
+    Returns:
+        None
+
+    """
+    # Update
+    with db.db_modify(20048, die=False) as session:
+        session.query(_Language).filter(
+            _Language.code == code.encode()).update(
+                {'description': description.encode()}
+            )
+
+
+def cli_show_dump():
+    """Get entire content of the table.
+
+    Args:
+        None
+
+    Returns:
+        result: List of NamedTuples
+
+    """
+    # Initialize key variables
+    result = []
+
+    # Get the result
+    with db.db_query(20049) as session:
+        rows = session.query(_Language)
+
+    # Process
+    for row in rows:
+        Record = namedtuple('Record', 'idx_language code description')
+        result.append(
+            Record(
+                idx_language=row.idx_language,
+                description=row.description.decode(),
+                code=row.code.decode()))
+    return result

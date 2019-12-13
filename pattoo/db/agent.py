@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Administer the Agent database table."""
 
+from collections import namedtuple
+
 # Import project libraries
 from pattoo.db import db
 from pattoo.db.tables import Agent
@@ -21,7 +23,7 @@ def agent_exists(agent_id):
     rows = []
 
     # Get the result
-    with db.db_query(20042) as session:
+    with db.db_query(20051) as session:
         rows = session.query(Agent.idx_agent).filter(
             Agent.agent_id == agent_id.encode())
 
@@ -49,3 +51,31 @@ def insert_row(agent_id, idx_agent_group):
         with db.db_modify(20036, die=True) as session:
             session.add(Agent(agent_id=agent_id.encode(),
                               idx_agent_group=idx_agent_group))
+
+
+def cli_show_dump():
+    """Get entire content of the table.
+
+    Args:
+        None
+
+    Returns:
+        result: List of NamedTuples
+
+    """
+    # Initialize key variables
+    result = []
+
+    # Get the result
+    with db.db_query(20042) as session:
+        rows = session.query(Agent)
+
+    # Process
+    for row in rows:
+        Record = namedtuple('Record', 'idx_agent agent_id enabled')
+        result.append(
+            Record(
+                idx_agent=row.idx_agent,
+                enabled=row.enabled,
+                agent_id=row.agent_id.decode()))
+    return result

@@ -185,12 +185,12 @@ def update_agents(grouping_pattoo_db_records):
     for agent_id, agent_program in agent_ids:
         if agent_id not in db_agent_ids:
             # Create an AgentGroup entry
-            idx_agent_group = agent_group.group_exists(agent_program)
+            idx_agent_group = agent_group.exists(agent_program)
             if bool(idx_agent_group) is False:
                 agent_group.insert_row(
                     agent_program, '{} (Change Me)'.format(agent_program))
 
             # Create an Agent entry
-            idx_agent_group = agent_group.group_exists(agent_program)
+            idx_agent_group = agent_group.exists(agent_program)
             if bool(agent.agent_exists(agent_id)) is False:
                 agent.insert_row(agent_id, idx_agent_group)

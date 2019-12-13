@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Administer the AgentGroup database table."""
 
+from collections import namedtuple
+
 # Import project libraries
 from pattoo.db import db
 from pattoo.db.tables import AgentGroup
@@ -20,7 +22,7 @@ def idx_exists(idx):
     result = False
 
     # Get the result
-    with db.db_query(20046) as session:
+    with db.db_query(20052) as session:
         rows = session.query(AgentGroup.idx_agent_group).filter(
             AgentGroup.idx_agent_group == idx)
 
@@ -31,7 +33,7 @@ def idx_exists(idx):
     return result
 
 
-def group_exists(agent_program):
+def exists(agent_program):
     """Get the db AgentGroup.idx_agent_group value for specific agent.
 
     Args:
@@ -78,3 +80,51 @@ def insert_row(agent_program, description):
                     description=description.encode()
                 )
             )
+
+
+def update_description(_agent_program, description):
+    """Upadate a AgentGroup table entry.
+
+    Args:
+        agent_program: AgentGroup agent_program
+        description: AgentGroup agent_program description
+
+    Returns:
+        None
+
+    """
+    # Update
+    with db.db_modify(20010, die=False) as session:
+        session.query(AgentGroup).filter(
+            AgentGroup.agent_program == _agent_program.encode()).update(
+                {'description': description.encode()}
+            )
+
+
+def cli_show_dump():
+    """Get entire content of the table.
+
+    Args:
+        None
+
+    Returns:
+        result: List of NamedTuples
+
+    """
+    # Initialize key variables
+    result = []
+
+    # Get the result
+    with db.db_query(20050) as session:
+        rows = session.query(AgentGroup)
+
+    # Process
+    for row in rows:
+        Record = namedtuple(
+            'Record', 'name description enabled')
+        result.append(
+            Record(
+                enabled=row.enabled,
+                name=row.agent_program.decode(),
+                description=row.description.decode()))
+    return result
