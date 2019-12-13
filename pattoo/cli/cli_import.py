@@ -41,7 +41,7 @@ def _process_key_pair_translation(args):
     """
     # Initialize key variables
     headings_expected = [
-        'landuage', 'idx_pair_xlate_group', 'key', 'description']
+        'language', 'idx_pair_xlate_group', 'key', 'description']
     headings_actual = []
     valid = True
 
@@ -54,7 +54,9 @@ def _process_key_pair_translation(args):
     try:
         data = pd.read_csv(args.filename)
     except:
-        pass
+        log_message = ('''File import failure: [{}, {}, {}]\
+'''.format(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]))
+        log.log2die(20076, log_message)
 
     # Test columns
     for item in data.columns:
