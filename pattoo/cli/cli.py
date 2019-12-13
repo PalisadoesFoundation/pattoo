@@ -576,3 +576,10 @@ class _Import(object):
             help='CSV filename',
             type=str,
             required=True)
+
+        # Add arguments
+        parser.add_argument(
+            '--idx_pair_xlate_group',
+            help='Key-pair translation group index',
+            type=int,
+            required=True)

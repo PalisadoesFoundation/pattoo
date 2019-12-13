@@ -57,3 +57,18 @@ def insert_row(name, description, idx_language, idx_pair_xlate_group):
                     idx_pair_xlate_group=idx_pair_xlate_group
                 )
             )
+
+
+def update(_df):
+    """Import data into the .
+
+    Args:
+        _df: Pandas DataFrame with the following headings
+            ['language', 'idx_pair_xlate_group', 'key', 'description']
+
+    Returns:
+        None
+
+    """
+    for _, row in _df.iterrows():
+        print(row['language'], row['idx_pair_xlate_group'], row['key'], row['description'])

@@ -10,7 +10,7 @@ import pandas as pd
 
 # Import project libraries
 from pattoo_shared import log
-from pattoo.db import pair_xlate
+from pattoo.db import pair_xlate, pair_xlate_group
 
 
 def process(args):
@@ -50,16 +50,22 @@ def _process_key_pair_translation(args):
         log_message = 'File {} does not exist'.format(args.filename)
         log.log2die(20051, log_message)
 
-    # Get data
+    # Check if group exists
+    if pair_xlate_group.idx_exists(args.idx_pair_xlate_group) is False:
+        log_message = ('''\
+idx_pair_xlate_group {} does not exist'''.format(args.idx_pair_xlate_group))
+        log.log2die(20077, log_message)
+
+    # Import CSV
     try:
-        data = pd.read_csv(args.filename)
+        _df = pd.read_csv(args.filename)
     except:
         log_message = ('''File import failure: [{}, {}, {}]\
 '''.format(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]))
         log.log2die(20076, log_message)
 
     # Test columns
-    for item in data.columns:
+    for item in _df.columns:
         headings_actual.append(item)
     for item in headings_actual:
         if item not in headings_expected:
@@ -68,3 +74,6 @@ def _process_key_pair_translation(args):
         log_message = ('''File {} must have the following headings "{}"\
 '''.format(args.filename, '", "'.join(headings_expected)))
         log.log2die(20053, log_message)
+
+    # Import the data
+    pair_xlate.update(_df)
