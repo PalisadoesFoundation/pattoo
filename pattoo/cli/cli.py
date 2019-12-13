@@ -82,6 +82,9 @@ class Parser(object):
         # Parse "import", return object used for parser
         _Import(subparsers, width=width)
 
+        # Parse "assign", return object used for parser
+        _Assign(subparsers, width=width)
+
         # Show help if no arguments
         if len(sys.argv) == 1:
             parser.print_help(sys.stderr)
@@ -188,6 +191,65 @@ class _Show(object):
         )
 
 
+class _Assign(object):
+    """Class gathers all CLI 'assign' information."""
+
+    def __init__(self, subparsers, width=80):
+        """Intialize the class."""
+        # Initialize key variables
+        parser = subparsers.add_parser(
+            'assign',
+            help=textwrap.fill('Assign contents of pattoo DB.', width=width)
+        )
+
+        # Add subparser
+        self.subparsers = parser.add_subparsers(dest='qualifier')
+
+        # Execute all methods in this Class
+        for name in dir(self):
+            # Get all attributes of Class
+            attribute = getattr(self, name)
+
+            # Determine whether attribute is a method
+            if ismethod(attribute):
+                # Ignore if method name is reserved (eg. __Init__)
+                if name.startswith('_'):
+                    continue
+
+                # Execute
+                attribute(width=width)
+
+    def agent(self, width=80):
+        """Process assign agents CLI commands.
+
+        Args:
+            width: Width of the help text string to STDIO before wrapping
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        parser = self.subparsers.add_parser(
+            'agent',
+            help=textwrap.fill(
+                'Assign agent to an "agent group".', width=width)
+        )
+
+        # Add arguments
+        parser.add_argument(
+            '--idx_agent',
+            help='Agent index',
+            type=str,
+            required=True)
+
+        parser.add_argument(
+            '--idx_agent_group',
+            help='Agent group index',
+            type=str,
+            required=True)
+
+
 class _Create(object):
     """Class gathers all CLI 'create' information."""
 
@@ -268,7 +330,7 @@ class _Create(object):
             type=str,
             required=True)
 
-            
+
 class _Set(object):
     """Class gathers all CLI 'set' information."""
 

@@ -19,7 +19,7 @@ else:
 
 # pattoo imports
 from pattoo.cli.cli import Parser
-from pattoo.cli import cli_show, cli_create, cli_set, cli_import
+from pattoo.cli import cli_show, cli_create, cli_set, cli_import, cli_assign
 
 
 def main():
@@ -33,20 +33,19 @@ def main():
 
     # Process CLI options
     if args.action == 'show':
-        # Show DB contents
         cli_show.process(args)
 
     elif args.action == 'create':
-        # "Add" directives
         cli_create.process(args)
 
     elif args.action == 'set':
-        # "Set" directives
         cli_set.process(args)
 
     elif args.action == 'import':
-        # "Set" directives
         cli_import.process(args)
+
+    elif args.action == 'assign':
+        cli_assign.process(args)
 
     # Print help if no argument options were triggered
     parser.print_help(sys.stderr)

@@ -11,6 +11,32 @@ from pattoo.db import db
 from pattoo.db.tables import Agent
 
 
+def idx_exists(idx):
+    """Determine whether primary key exists.
+
+    Args:
+        idx: idx_agent
+
+    Returns:
+        result: True if exists
+
+    """
+    # Initialize key variables
+    result = False
+    rows = []
+
+    # Get the result
+    with db.db_query(20027) as session:
+        rows = session.query(Agent.idx_agent).filter(
+            Agent.idx_agent == idx)
+
+    # Return
+    for _ in rows:
+        result = True
+        break
+    return bool(result)
+
+
 def exists(agent_id, agent_target):
     """Get the db Agent.idx_agent value for specific Agent.
 
@@ -87,6 +113,25 @@ def unique_keys():
         result.append(
             (row.agent_id.decode(), row.agent_polled_target.decode()))
     return result
+
+
+def assign(idx_agent, idx_agent_group):
+    """Assign an agent to an agent group.
+
+    Args:
+        idx_agent: Agent index
+        idx_agent_group: Agent group index
+
+    Returns:
+        None
+
+    """
+    # Update
+    with db.db_modify(20059, die=False) as session:
+        session.query(Agent).filter(
+            Agent.idx_agent == idx_agent).update(
+                {'idx_agent_group': idx_agent_group}
+            )
 
 
 def cli_show_dump():

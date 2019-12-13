@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 """Inserts various database values required during ingest."""
 
-# PIP libraries
-from sqlalchemy import and_
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.tables import DataPoint, Glue, Pair
-from pattoo.constants import ChecksumLookup
+from pattoo.db.tables import DataPoint
 
 
 def checksum_exists(_checksum):

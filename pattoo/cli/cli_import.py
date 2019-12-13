@@ -34,7 +34,7 @@ def _process_key_pair_translation(args):
     """Process import cli arguments.
 
     Args:
-        None
+        args: CLI argparse parser arguments
 
     Returns:
         None

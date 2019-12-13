@@ -121,17 +121,17 @@ def cli_show_dump():
 
     # Process
     for row in rows:
-        count = 0
+        first_agent = True
 
         # Get agents for group
         with db.db_query(20055) as session:
             agent_rows = session.query(Agent.agent_id, Agent.idx_agent).filter(
                 Agent.idx_agent_group == row.idx_agent_group)
 
-        if agent_rows.count() > 1:
+        if agent_rows.count() >= 1:
             # Agents assigned to the group
             for agent_row in agent_rows:
-                if count == 0:
+                if first_agent is True:
                     # Format first row for agent group
                     result.append(
                         Record(
@@ -142,7 +142,7 @@ def cli_show_dump():
                             description=row.description.decode()
                         )
                     )
-                    count += 1
+                    first_agent = False
                 else:
                     # Format subsequent rows
                     result.append(
@@ -154,8 +154,9 @@ def cli_show_dump():
                             description=''
                         )
                     )
+
         else:
-            # No agents assigned to the group
+            # Format only row for agent group
             result.append(
                 Record(
                     enabled=row.enabled,

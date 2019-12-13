@@ -31,7 +31,7 @@ def _process_language(args):
     """Process language cli arguments.
 
     Args:
-        None
+        args: CLI argparse parser arguments
 
     Returns:
         None
@@ -49,7 +49,7 @@ def _process_agent_group(args):
     """Process agent_group cli arguments.
 
     Args:
-        None
+        args: CLI argparse parser arguments
 
     Returns:
         None
