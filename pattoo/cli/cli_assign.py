@@ -43,7 +43,7 @@ def _process_agent(args):
     if bool(agent.idx_exists(args.idx_agent)) is False:
         log_message = (
             'idx_agent "{}" not found.'.format(args.idx_agent))
-        log.log2die(20059, log_message)
+        log.log2die(20060, log_message)
 
     # Assign
     agent.assign(args.idx_agent, args.idx_agent_group)

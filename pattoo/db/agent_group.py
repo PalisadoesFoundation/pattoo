@@ -40,7 +40,7 @@ def exists(description):
         description: Agent group description
 
     Returns:
-        result: AgentGroup.idx_language value
+        result: AgentGroup.idx_agent_group value
 
     """
     # Initialize key variables
@@ -49,12 +49,12 @@ def exists(description):
 
     # Ignore certain restricted keys
     with db.db_query(20056) as session:
-        rows = session.query(AgentGroup.idx_language).filter(
+        rows = session.query(AgentGroup.idx_agent_group).filter(
             AgentGroup.description == description.encode())
 
     # Return
     for row in rows:
-        result = row.idx_language
+        result = row.idx_agent_group
         break
     return result
 

@@ -186,6 +186,65 @@ class Language(BASE):
         DATETIME, server_default=text('CURRENT_TIMESTAMP'))
 
 
+class PairXlateGroup(BASE):
+    """Class defining the pt_pair_xlate_group table of the database."""
+
+    __tablename__ = 'pt_pair_xlate_group'
+    __table_args__ = (
+        {'mysql_engine': 'InnoDB'}
+    )
+
+    idx_pair_xlate_group = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    description = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+    enabled = Column(
+        BIGINT(unsigned=True), nullable=False, server_default='1')
+
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+
+class PairXlate(BASE):
+    """Class defining the pt_pair_xlate table of the database."""
+
+    __tablename__ = 'pt_pair_xlate'
+    __table_args__ = (
+        PrimaryKeyConstraint('idx_language', 'key', 'idx_pair_xlate_group'),
+        {'mysql_engine': 'InnoDB'}
+    )
+
+    idx_pair_xlate_group = Column(
+        BIGINT(unsigned=True),
+        ForeignKey('pt_pair_xlate_group.idx_pair_xlate_group'),
+        nullable=False, server_default='1')
+
+    idx_language = Column(
+        BIGINT(unsigned=True),
+        ForeignKey('pt_language.idx_language'),
+        nullable=False, server_default='1')
+
+    key = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+    description = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+
 class AgentGroup(BASE):
     """Class defining the pt_agent_group table of the database."""
 
@@ -197,6 +256,11 @@ class AgentGroup(BASE):
     idx_agent_group = Column(
         BIGINT(unsigned=True), primary_key=True,
         autoincrement=True, nullable=False)
+
+    idx_pair_xlate_group = Column(
+        BIGINT(unsigned=True),
+        ForeignKey('pt_pair_xlate_group.idx_pair_xlate_group'),
+        nullable=False, server_default='1')
 
     description = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
@@ -241,39 +305,6 @@ class Agent(BASE):
 
     enabled = Column(
         BIGINT(unsigned=True), nullable=False, server_default='1')
-
-    ts_modified = Column(
-        DATETIME, server_default=text(
-            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
-
-    ts_created = Column(
-        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
-
-
-class PairXlate(BASE):
-    """Class defining the pt_pair_xlate table of the database."""
-
-    __tablename__ = 'pt_pair_xlate'
-    __table_args__ = (
-        PrimaryKeyConstraint('idx_language', 'key', 'idx_agent_group'),
-        {'mysql_engine': 'InnoDB'}
-    )
-
-    idx_agent_group = Column(
-        BIGINT(unsigned=True),
-        ForeignKey('pt_agent_group.idx_agent_group'),
-        nullable=False, server_default='1')
-
-    idx_language = Column(
-        BIGINT(unsigned=True),
-        ForeignKey('pt_language.idx_language'),
-        nullable=False, server_default='1')
-
-    key = Column(
-        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
-
-    description = Column(
-        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
     ts_modified = Column(
         DATETIME, server_default=text(
