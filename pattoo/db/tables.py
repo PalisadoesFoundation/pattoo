@@ -191,6 +191,7 @@ class PairXlateGroup(BASE):
 
     __tablename__ = 'pt_pair_xlate_group'
     __table_args__ = (
+        UniqueConstraint('description'),
         {'mysql_engine': 'InnoDB'}
     )
 
@@ -250,6 +251,7 @@ class AgentGroup(BASE):
 
     __tablename__ = 'pt_agent_group'
     __table_args__ = (
+        UniqueConstraint('description'),
         {'mysql_engine': 'InnoDB'}
     )
 

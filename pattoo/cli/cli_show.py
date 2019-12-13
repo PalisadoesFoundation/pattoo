@@ -18,7 +18,7 @@ def process(args):
         None
 
     """
-    # Show agents
+    # Process options
     if args.qualifier == 'agent':
         _process_agent()
         sys.exit(0)
@@ -29,7 +29,7 @@ def process(args):
         _process_language()
         sys.exit(0)
     elif args.qualifier == 'key_pair_translation_group':
-        _process_pair_xlate_group()
+        _process_pair_xlate_group(args)
         sys.exit(0)
 
 
@@ -78,18 +78,18 @@ def _process_language():
     _printer(data)
 
 
-def _process_pair_xlate_group():
+def _process_pair_xlate_group(args):
     """Process pair_xlate_group cli arguments.
 
     Args:
-        None
+        args: CLI argparse parser arguments
 
     Returns:
         None
 
     """
     # Initialize key variables
-    data = pair_xlate_group.cli_show_dump()
+    data = pair_xlate_group.cli_show_dump(args.idx_pair_xlate_group)
     _printer(data)
 
 

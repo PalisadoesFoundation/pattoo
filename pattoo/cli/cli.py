@@ -138,7 +138,7 @@ class _Show(object):
         # Initialize key variables
         self.subparsers.add_parser(
             'agent',
-            help=textwrap.fill('Show agent.', width=width)
+            help=textwrap.fill('Show agent parameters.', width=width)
         )
 
     def agent_group(self, width=80):
@@ -154,7 +154,7 @@ class _Show(object):
         # Initialize key variables
         self.subparsers.add_parser(
             'agent_group',
-            help=textwrap.fill('Show agent_group.', width=width)
+            help=textwrap.fill('Show agent_group parameters.', width=width)
         )
 
     def key_pair_translation_group(self, width=80):
@@ -168,10 +168,17 @@ class _Show(object):
 
         """
         # Initialize key variables
-        self.subparsers.add_parser(
+        parser = self.subparsers.add_parser(
             'key_pair_translation_group',
-            help=textwrap.fill('Show key-pair translation group.', width=width)
+            help=textwrap.fill('''\
+Show key-pair translation group parameters.''', width=width)
         )
+        # Add arguments
+        parser.add_argument(
+            '--idx_pair_xlate_group',
+            help='Filter by this index for key-pair translation group.',
+            type=int,
+            required=False)
 
     def key_pair_translation(self, width=80):
         """Process show key_pair_translation CLI commands.
@@ -203,7 +210,7 @@ class _Show(object):
         # Initialize key variables
         self.subparsers.add_parser(
             'language',
-            help=textwrap.fill('Show language.', width=width)
+            help=textwrap.fill('Show language parameters.', width=width)
         )
 
 
@@ -256,13 +263,43 @@ class _Assign(object):
         parser.add_argument(
             '--idx_agent',
             help='Agent index',
-            type=str,
+            type=int,
             required=True)
 
         parser.add_argument(
             '--idx_agent_group',
             help='Agent group index',
-            type=str,
+            type=int,
+            required=True)
+
+    def agent_group(self, width=80):
+        """Process assign agent_groups CLI commands.
+
+        Args:
+            width: Width of the help text string to STDIO before wrapping
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        parser = self.subparsers.add_parser(
+            'agent_group',
+            help=textwrap.fill('''\
+Assign agent_group to a key-pair "translation group".''', width=width)
+        )
+
+        # Add arguments
+        parser.add_argument(
+            '--idx_pair_xlate_group',
+            help='Key-pair translation group',
+            type=int,
+            required=True)
+
+        parser.add_argument(
+            '--idx_agent_group',
+            help='Agent group index',
+            type=int,
             required=True)
 
 
@@ -336,13 +373,37 @@ class _Create(object):
         # Initialize key variables
         parser = self.subparsers.add_parser(
             'agent_group',
-            help=textwrap.fill('Create agent_group.', width=width)
+            help=textwrap.fill('Create agent group.', width=width)
         )
 
         # Add arguments
         parser.add_argument(
             '--description',
-            help='Language description',
+            help='Agent group description',
+            type=str,
+            required=True)
+
+    def key_pair_translation_group(self, width=80):
+        """Process show key_pair_translation_group CLI commands.
+
+        Args:
+            width: Width of the help text string to STDIO before wrapping
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        parser = self.subparsers.add_parser(
+            'key_pair_translation_group',
+            help=textwrap.fill('''\
+Create key-pair translation group.''', width=width)
+        )
+
+        # Add arguments
+        parser.add_argument(
+            '--description',
+            help='Key-pair translation group description',
             type=str,
             required=True)
 
@@ -395,7 +456,7 @@ class _Set(object):
         parser.add_argument(
             '--idx_agent_group',
             help='Agent group index',
-            type=str,
+            type=int,
             required=True)
 
         parser.add_argument(
@@ -430,6 +491,36 @@ class _Set(object):
         parser.add_argument(
             '--description',
             help='Language description',
+            type=str,
+            required=True)
+
+    def pair_xlate_group(self, width=80):
+        """Process set pair_xlate_group CLI commands.
+
+        Args:
+            width: Width of the help text string to STDIO before wrapping
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        parser = self.subparsers.add_parser(
+            'key_pair_translation_group',
+            help=textwrap.fill('''\
+Set key-pair translation group information.''', width=width)
+        )
+
+        # Add arguments
+        parser.add_argument(
+            '--idx_pair_xlate_group',
+            help='Key-pair translation group index',
+            type=int,
+            required=True)
+
+        parser.add_argument(
+            '--description',
+            help='Agent group description',
             type=str,
             required=True)
 

@@ -23,8 +23,7 @@ def process(args):
         None
 
     """
-    # Initialize key variables
-    # Do creations
+    # Process options
     if args.qualifier == 'key_pair_translation':
         _process_key_pair_translation(args)
         sys.exit(0)
@@ -41,7 +40,8 @@ def _process_key_pair_translation(args):
 
     """
     # Initialize key variables
-    headings_expected = ['landuage', 'agent_program', 'key', 'description']
+    headings_expected = [
+        'landuage', 'idx_pair_xlate_group', 'key', 'description']
     headings_actual = []
     valid = True
 

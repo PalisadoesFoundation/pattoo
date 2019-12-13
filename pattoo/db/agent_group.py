@@ -24,7 +24,7 @@ def idx_exists(idx):
     # Get the result
     with db.db_query(20052) as session:
         rows = session.query(AgentGroup.idx_agent_group).filter(
-            AgentGroup.idx_agent_group == idx)
+            AgentGroup.idx_agent_group == int(idx))
 
     # Return
     for _ in rows:
@@ -100,6 +100,25 @@ def update_description(idx_agent_group, description):
                 )
 
 
+def assign(idx_agent_group, idx_pair_xlate_group):
+    """Assign an agent_group to an key-pair translation group.
+
+    Args:
+        idx_agent_group: AgentGroup table index
+        idx_pair_xlate_group: PairXlateGroup table index
+
+    Returns:
+        None
+
+    """
+    # Update
+    with db.db_modify(20070, die=False) as session:
+        session.query(AgentGroup).filter(
+            AgentGroup.idx_agent_group == idx_agent_group).update(
+                {'idx_pair_xlate_group': idx_pair_xlate_group}
+            )
+
+
 def cli_show_dump():
     """Get entire content of the table.
 
@@ -113,7 +132,9 @@ def cli_show_dump():
     # Initialize key variables
     result = []
     Record = namedtuple(
-        'Record', 'idx_agent_group description idx_agent agent_id enabled')
+        'Record',
+        '''idx_agent_group description idx_pair_xlate_group idx_agent \
+agent_id enabled''')
 
     # Get the result
     with db.db_query(20050) as session:
@@ -136,6 +157,7 @@ def cli_show_dump():
                     result.append(
                         Record(
                             enabled=row.enabled,
+                            idx_pair_xlate_group=row.idx_pair_xlate_group,
                             idx_agent_group=row.idx_agent_group,
                             idx_agent=agent_row.idx_agent,
                             agent_id=agent_row.agent_id.decode(),
@@ -149,9 +171,10 @@ def cli_show_dump():
                         Record(
                             enabled='',
                             idx_agent_group='',
+                            idx_pair_xlate_group='',
+                            description='',
                             idx_agent=agent_row.idx_agent,
-                            agent_id=agent_row.agent_id.decode(),
-                            description=''
+                            agent_id=agent_row.agent_id.decode()
                         )
                     )
 
@@ -161,15 +184,16 @@ def cli_show_dump():
                 Record(
                     enabled=row.enabled,
                     idx_agent_group=row.idx_agent_group,
+                    description=row.description.decode(),
+                    idx_pair_xlate_group=row.idx_pair_xlate_group,
                     idx_agent='',
-                    agent_id='',
-                    description=row.description.decode()
+                    agent_id=''
                 )
             )
 
         # Add a spacer between agent groups
         result.append(Record(
             enabled='', idx_agent_group='', idx_agent='',
-            agent_id='', description=''))
+            agent_id='', description='', idx_pair_xlate_group=''))
 
     return result

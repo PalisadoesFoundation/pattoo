@@ -40,7 +40,7 @@ def exists(description):
         description: PairXlate group description
 
     Returns:
-        result: PairXlateGroup.idx_language value
+        result: PairXlateGroup.idx_pair_xlate_group value
 
     """
     # Initialize key variables
@@ -49,12 +49,12 @@ def exists(description):
 
     # Ignore certain restricted keys
     with db.db_query(20066) as session:
-        rows = session.query(PairXlateGroup.idx_language).filter(
+        rows = session.query(PairXlateGroup.idx_pair_xlate_group).filter(
             PairXlateGroup.description == description.strip().encode())
 
     # Return
     for row in rows:
-        result = row.idx_language
+        result = row.idx_pair_xlate_group
         break
     return result
 
@@ -95,16 +95,16 @@ def update_description(idx, description):
     if isinstance(description, str) is True:
         with db.db_modify(20065, die=False) as session:
             session.query(PairXlateGroup).filter(
-                PairXlateGroup.idx_pair_xlate_group == idx.encode()).update(
+                PairXlateGroup.idx_pair_xlate_group == int(idx)).update(
                     {'description': description.strip().encode()}
                 )
 
 
-def cli_show_dump():
+def cli_show_dump(idx=None):
     """Get entire content of the table.
 
     Args:
-        None
+        idx: idx_pair_xlate_group to filter on
 
     Returns:
         result: List of NamedTuples
@@ -114,11 +114,17 @@ def cli_show_dump():
     result = []
     Record = namedtuple(
         'Record',
-        'idx_pair_xlate_group description idx_pair_xlate key translation enabled')
+        '''idx_pair_xlate_group description idx_pair_xlate key translation \
+enabled''')
 
     # Get the result
-    with db.db_query(20062) as session:
-        rows = session.query(PairXlateGroup)
+    if bool(idx) is False:
+        with db.db_query(20071) as session:
+            rows = session.query(PairXlateGroup)
+    else:
+        with db.db_query(20062) as session:
+            rows = session.query(PairXlateGroup).filter(
+                PairXlateGroup.idx_pair_xlate_group == idx)
 
     # Process
     for row in rows:

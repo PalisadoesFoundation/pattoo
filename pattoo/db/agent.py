@@ -28,7 +28,7 @@ def idx_exists(idx):
     # Get the result
     with db.db_query(20027) as session:
         rows = session.query(Agent.idx_agent).filter(
-            Agent.idx_agent == idx)
+            Agent.idx_agent == int(idx))
 
     # Return
     for _ in rows:
