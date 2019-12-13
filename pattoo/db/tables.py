@@ -191,16 +191,12 @@ class AgentGroup(BASE):
 
     __tablename__ = 'pt_agent_group'
     __table_args__ = (
-        UniqueConstraint('agent_program'),
         {'mysql_engine': 'InnoDB'}
     )
 
     idx_agent_group = Column(
         BIGINT(unsigned=True), primary_key=True,
         autoincrement=True, nullable=False)
-
-    agent_program = Column(
-        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
     description = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
@@ -221,7 +217,7 @@ class Agent(BASE):
 
     __tablename__ = 'pt_agent'
     __table_args__ = (
-        UniqueConstraint('agent_id'),
+        UniqueConstraint('agent_id', 'agent_polled_target'),
         {'mysql_engine': 'InnoDB'}
     )
 
@@ -235,6 +231,12 @@ class Agent(BASE):
         nullable=False, server_default='1')
 
     agent_id = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+    agent_polled_target = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+    agent_program = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
     enabled = Column(

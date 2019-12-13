@@ -56,8 +56,15 @@ def _process_agent_group(args):
 
     """
     # Initialize key variables
-    if bool(agent_group.exists(args.name)) is True:
-        agent_group.update_description(args.name, args.description)
+    exists = agent_group.idx_exists(args.idx_agent_group)
+    if bool(exists) is True:
+        if args.idx_agent_group != 1:
+            agent_group.update_description(
+                args.idx_agent_group, args.description)
+        else:
+            log_message = 'Cannot change Agent group 1'
+            log.log2die(20054, log_message)
     else:
-        log_message = 'Agent program  "{}" not found.'.format(args.name)
+        log_message = (
+            'Agent group  "{}" not found.'.format(args.idx_agent_group))
         log.log2die(20038, log_message)

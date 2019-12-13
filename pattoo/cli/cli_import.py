@@ -48,7 +48,7 @@ def _process_key_pair_translation(args):
     # Check if file exists
     if os.path.isfile(args.filename) is False:
         log_message = 'File {} does not exist'.format(args.filename)
-        log.log2die(20053, log_message)
+        log.log2die(20051, log_message)
 
     # Get data
     try:

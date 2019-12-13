@@ -163,34 +163,33 @@ def update_agents(grouping_pattoo_db_records):
 
     """
     # Initialize key varibles
-    agent_ids = []
+    tuple_groups = []
 
-    # Get current Agent IDs from the database
-    db_agent_ids = pair.agent_ids()
+    # Get current Agent IDs from the database as a list of tuples
+    # [(agent_id, agent_target)...]
+    unique_keys = agent.unique_keys()
 
     # Get agent_ids from agent cache
     for pattoo_db_records in grouping_pattoo_db_records:
-        # Get the agent_program
+        # Get the agent_program and agent_target
         metadata = pattoo_db_records[0].pattoo_metadata
         for (key, value) in metadata:
             if key == 'pattoo_agent_program':
                 agent_program = value
-                break
+            if key == 'pattoo_agent_polled_target':
+                agent_target = value
 
         # Get the Agent ID
         agent_id = pattoo_db_records[0].pattoo_agent_id
-        agent_ids.append((agent_id, agent_program))
+        tuple_group = (agent_id, agent_program, agent_target)
+        if tuple_group not in tuple_groups:
+            tuple_groups.append(tuple_group)
 
     # Insert as necessary
-    for agent_id, agent_program in agent_ids:
-        if agent_id not in db_agent_ids:
-            # Create an AgentGroup entry
-            idx_agent_group = agent_group.exists(agent_program)
-            if bool(idx_agent_group) is False:
-                agent_group.insert_row(
-                    agent_program, '{} (Change Me)'.format(agent_program))
-
-            # Create an Agent entry
-            idx_agent_group = agent_group.exists(agent_program)
-            if bool(agent.agent_exists(agent_id)) is False:
-                agent.insert_row(agent_id, idx_agent_group)
+    for agent_id, agent_program, agent_target in tuple_groups:
+        if (agent_id, agent_target) not in unique_keys:
+            # Create an Agent entry in AgentGroup where idx_agent_group = 1
+            # In other words we default to the pattoo reserved default group
+            idx_agent = agent.exists(agent_id, agent_target)
+            if bool(idx_agent) is False:
+                agent.insert_row(agent_id, agent_target, agent_program)

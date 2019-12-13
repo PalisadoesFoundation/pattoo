@@ -94,7 +94,7 @@ def insert_row(code, description=''):
             code=code.encode(), description=description.encode()))
 
 
-def updatedescription(code, description):
+def update_description(code, description):
     """Upadate a Language table entry.
 
     Args:

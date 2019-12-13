@@ -44,8 +44,7 @@ def insertions():
 
     """
     # Initialize key variables
-    name = 'Pattoo Reserved'
-    description = 'Pattoo Reserved'
+    description = 'Pattoo Default'
 
     print('??: Attempting to insert default database table entries.')
 
@@ -55,7 +54,7 @@ def insertions():
 
     # Insert into AgentGroup
     if agent_group.idx_exists(1) is False:
-        agent_group.insert_row(name, description)
+        agent_group.insert_row(description)
 
     print('OK: Database table entries inserted.')
 

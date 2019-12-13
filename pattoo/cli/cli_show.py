@@ -22,8 +22,8 @@ def process(args):
     if args.qualifier == 'agent':
         _process_agent()
         sys.exit(0)
-    elif args.qualifier == 'agent_program':
-        _process_agent_program()
+    elif args.qualifier == 'agent_group':
+        _process_agent_group()
         sys.exit(0)
     elif args.qualifier == 'language':
         _process_language()
@@ -45,8 +45,8 @@ def _process_agent():
     _printer(data)
 
 
-def _process_agent_program():
-    """Process agent_program cli arguments.
+def _process_agent_group():
+    """Process agent_group cli arguments.
 
     Args:
         None
@@ -107,18 +107,18 @@ def _printer(data):
             max_width[key] = max(max_key, len_value)
 
     # Print heading
-    line = ''
+    segments = []
     for key in keys:
         segment_formatter = column_formatter.format(max_width[key])
         segment = segment_formatter.format(key)
-        line = '{}   {}'.format(line, segment)
-    print('{}\n'.format(line.strip()))
+        segments.append(segment)
+    print('{}\n'.format('  '.join(segments)))
 
     # Print lines
     for item in data:
-        line = ''
+        segments = []
         for key, value in item._asdict().items():
             segment_formatter = column_formatter.format(max_width[key])
             segment = segment_formatter.format(value)
-            line = '{}   {}'.format(line, segment)
-        print(line.strip())
+            segments.append(segment)
+        print('{}'.format('  '.join(segments)))

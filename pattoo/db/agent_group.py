@@ -5,7 +5,7 @@ from collections import namedtuple
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.tables import AgentGroup
+from pattoo.db.tables import AgentGroup, Agent
 
 
 def idx_exists(idx):
@@ -33,37 +33,36 @@ def idx_exists(idx):
     return result
 
 
-def exists(agent_program):
-    """Get the db AgentGroup.idx_agent_group value for specific agent.
+def exists(description):
+    """Determine whether description exists in the AgentGroup table.
 
     Args:
-        agent_program: Pattoo agent program name
+        description: Agent group description
 
     Returns:
-        result: AgentGroup.idx_agent_group value
+        result: AgentGroup.idx_language value
 
     """
     # Initialize key variables
     result = False
     rows = []
 
-    # Get the result
-    with db.db_query(20045) as session:
-        rows = session.query(AgentGroup.idx_agent_group).filter(
-            AgentGroup.agent_program == agent_program.encode())
+    # Ignore certain restricted keys
+    with db.db_query(20056) as session:
+        rows = session.query(AgentGroup.idx_language).filter(
+            AgentGroup.description == description.encode())
 
     # Return
     for row in rows:
-        result = row.idx_agent_group
+        result = row.idx_language
         break
     return result
 
 
-def insert_row(agent_program, description):
-    """Create the database AgentGroup.agent value.
+def insert_row(description):
+    """Create the database AgentGroup row.
 
     Args:
-        agent_program: Pattoo agent program name
         description: AgentGroup description
 
     Returns:
@@ -71,34 +70,34 @@ def insert_row(agent_program, description):
 
     """
     # Filter invalid data
-    if isinstance(agent_program, str) is True:
+    if isinstance(description, str) is True:
         # Insert and get the new agent value
         with db.db_modify(20037, die=True) as session:
             session.add(
                 AgentGroup(
-                    agent_program=agent_program.encode(),
                     description=description.encode()
                 )
             )
 
 
-def update_description(_agent_program, description):
+def update_description(idx_agent_group, description):
     """Upadate a AgentGroup table entry.
 
     Args:
-        agent_program: AgentGroup agent_program
-        description: AgentGroup agent_program description
+        idx_agent_group: AgentGroup idx_agent_group
+        description: AgentGroup idx_agent_group description
 
     Returns:
         None
 
     """
-    # Update
-    with db.db_modify(20010, die=False) as session:
-        session.query(AgentGroup).filter(
-            AgentGroup.agent_program == _agent_program.encode()).update(
-                {'description': description.encode()}
-            )
+    # Filter invalid data
+    if isinstance(description, str) is True:
+        with db.db_modify(20010, die=False) as session:
+            session.query(AgentGroup).filter(
+                AgentGroup.idx_agent_group == idx_agent_group.encode()).update(
+                    {'description': description.encode()}
+                )
 
 
 def cli_show_dump():
@@ -113,6 +112,8 @@ def cli_show_dump():
     """
     # Initialize key variables
     result = []
+    Record = namedtuple(
+        'Record', 'idx_agent_group description idx_agent agent_id enabled')
 
     # Get the result
     with db.db_query(20050) as session:
@@ -120,11 +121,54 @@ def cli_show_dump():
 
     # Process
     for row in rows:
-        Record = namedtuple(
-            'Record', 'name description enabled')
-        result.append(
-            Record(
-                enabled=row.enabled,
-                name=row.agent_program.decode(),
-                description=row.description.decode()))
+        count = 0
+
+        # Get agents for group
+        with db.db_query(20055) as session:
+            agent_rows = session.query(Agent.agent_id, Agent.idx_agent).filter(
+                Agent.idx_agent_group == row.idx_agent_group)
+
+        if agent_rows.count() > 1:
+            # Agents assigned to the group
+            for agent_row in agent_rows:
+                if count == 0:
+                    # Format first row for agent group
+                    result.append(
+                        Record(
+                            enabled=row.enabled,
+                            idx_agent_group=row.idx_agent_group,
+                            idx_agent=agent_row.idx_agent,
+                            agent_id=agent_row.agent_id.decode(),
+                            description=row.description.decode()
+                        )
+                    )
+                    count += 1
+                else:
+                    # Format subsequent rows
+                    result.append(
+                        Record(
+                            enabled='',
+                            idx_agent_group='',
+                            idx_agent=agent_row.idx_agent,
+                            agent_id=agent_row.agent_id.decode(),
+                            description=''
+                        )
+                    )
+        else:
+            # No agents assigned to the group
+            result.append(
+                Record(
+                    enabled=row.enabled,
+                    idx_agent_group=row.idx_agent_group,
+                    idx_agent='',
+                    agent_id='',
+                    description=row.description.decode()
+                )
+            )
+
+        # Add a spacer between agent groups
+        result.append(Record(
+            enabled='', idx_agent_group='', idx_agent='',
+            agent_id='', description=''))
+
     return result

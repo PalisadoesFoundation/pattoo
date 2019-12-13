@@ -138,8 +138,8 @@ class _Show(object):
             help=textwrap.fill('Show agent.', width=width)
         )
 
-    def agent_program(self, width=80):
-        """Process show agent_program CLI commands.
+    def agent_group(self, width=80):
+        """Process show agent_group CLI commands.
 
         Args:
             width: Width of the help text string to STDIO before wrapping
@@ -150,8 +150,8 @@ class _Show(object):
         """
         # Initialize key variables
         self.subparsers.add_parser(
-            'agent_program',
-            help=textwrap.fill('Show agent_program.', width=width)
+            'agent_group',
+            help=textwrap.fill('Show agent_group.', width=width)
         )
 
     def key_pair_translation(self, width=80):
@@ -245,7 +245,30 @@ class _Create(object):
             type=str,
             required=True)
 
+    def agent_group(self, width=80):
+        """Process create agent_group CLI commands.
 
+        Args:
+            width: Width of the help text string to STDIO before wrapping
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        parser = self.subparsers.add_parser(
+            'agent_group',
+            help=textwrap.fill('Create agent_group.', width=width)
+        )
+
+        # Add arguments
+        parser.add_argument(
+            '--description',
+            help='Language description',
+            type=str,
+            required=True)
+
+            
 class _Set(object):
     """Class gathers all CLI 'set' information."""
 
@@ -274,8 +297,8 @@ class _Set(object):
                 # Execute
                 attribute(width=width)
 
-    def agent_program(self, width=80):
-        """Process set agent_program CLI commands.
+    def agent_group(self, width=80):
+        """Process set agent_group CLI commands.
 
         Args:
             width: Width of the help text string to STDIO before wrapping
@@ -286,20 +309,20 @@ class _Set(object):
         """
         # Initialize key variables
         parser = self.subparsers.add_parser(
-            'agent_program',
-            help=textwrap.fill('Set agent_program information.', width=width)
+            'agent_group',
+            help=textwrap.fill('Set agent_group information.', width=width)
         )
 
         # Add arguments
         parser.add_argument(
-            '--name',
-            help='Agent program name',
+            '--idx_agent_group',
+            help='Agent group index',
             type=str,
             required=True)
 
         parser.add_argument(
             '--description',
-            help='Agent program description',
+            help='Agent group description',
             type=str,
             required=True)
 
