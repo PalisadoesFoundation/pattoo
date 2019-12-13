@@ -91,7 +91,7 @@ def _process_pair_xlate_group(args):
         if bool(duplicate) is True:
             log_message = ('''\
 Translation group  "{}" already exists.'''.format(args.description))
-            log.log2die(20074, log_message)
+            log.log2die(20075, log_message)
 
         # Update
         if args.idx_pair_xlate_group != 1:
