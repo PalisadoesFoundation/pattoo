@@ -9,12 +9,12 @@ from pattoo_shared.configuration import Config
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.models import PairXlate, Language, PairXlateGroup
-from pattoo.db.table import language, pair_xlate_group
+from pattoo.db.models import PairXlate, Language
+from pattoo.db.table import language, pair_xlate_group, agent
 
 
 def key_description(key, idx_pair_xlate_group):
-    """Get the db PairXlate.idx_pair_xlate value for specific agent.
+    """Get the db PairXlate.idx_pair_xlate value for specific PairXlateGroup.
 
     Args:
         key: Key to translate
@@ -43,6 +43,40 @@ def key_description(key, idx_pair_xlate_group):
     for row in rows:
         result = row.description.decode()
         break
+    return result
+
+
+def key_descriptions(agent_id):
+    """Get all the db PairXlate.idx_pair_xlate value for specific agent.
+
+    Args:
+        key: Key to translate
+        idx_pair_xlate_group: PairXlateGroup table primary key
+
+    Returns:
+        result: Description
+
+    """
+    # Initialize key variables
+    config = Config()
+    _language = config.language()
+    result = {}
+
+    idx_pair_xlate_group = agent.idx_pair_xlate_group(agent_id)
+    if bool(idx_pair_xlate_group) is True:
+        # Get the result
+        with db.db_query(20041) as session:
+            rows = session.query(
+                PairXlate.key, PairXlate.description).filter(and_(
+                    PairXlate.idx_pair_xlate_group == idx_pair_xlate_group,
+                    Language.idx_language == PairXlate.idx_language,
+                    Language.code == _language.encode()
+                ))
+
+        # Return
+        for row in rows:
+            result[row.key.decode()] = row.description.decode()
+
     return result
 
 
