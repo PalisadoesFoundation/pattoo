@@ -38,6 +38,29 @@ def idx_exists(idx):
     return bool(result)
 
 
+def idx_agent(agent_id, agent_target, agent_program):
+    """Get the db Agent.idx_agent value for a PattooDBrecord object.
+
+    Args:
+        agent_id: Agent ID value (pattoo_agent_id)
+        agent_target: Agent target (pattoo_agent_polled_target)
+        agent_program: Agent program (pattoo_agent_program)
+
+    Returns:
+        _idx_agent: Agent._idx_agent value. None if unsuccessful
+
+    """
+    # Create an entry in the database Checksum table
+    _idx_agent = exists(agent_id, agent_target)
+    if bool(_idx_agent) is False:
+        # Create a record in the Agent table
+        insert_row(agent_id, agent_target, agent_program)
+        _idx_agent = exists(agent_id, agent_target)
+
+    # Return
+    return _idx_agent
+
+
 def exists(agent_id, agent_target):
     """Get the db Agent.idx_agent value for specific Agent.
 
@@ -90,33 +113,7 @@ def insert_row(agent_id, agent_target, agent_program, idx_agent_group=1):
                               idx_agent_group=idx_agent_group))
 
 
-def unique_keys():
-    """Get entire content of the table.
-
-    Args:
-        None
-
-    Returns:
-        result: List of NamedTuples
-
-    """
-    # Initialize key variables
-    result = []
-    rows = []
-
-    # Get the result
-    with db.db_query(20045) as session:
-        rows = session.query(Agent.agent_polled_target, Agent.agent_id).filter(
-            Agent.enabled == 1)
-
-    # Process
-    for row in rows:
-        result.append(
-            (row.agent_id.decode(), row.agent_polled_target.decode()))
-    return result
-
-
-def assign(idx_agent, idx_agent_group):
+def assign(_idx_agent, idx_agent_group):
     """Assign an agent to an agent group.
 
     Args:
@@ -130,7 +127,7 @@ def assign(idx_agent, idx_agent_group):
     # Update
     with db.db_modify(20059, die=False) as session:
         session.query(Agent).filter(
-            Agent.idx_agent == idx_agent).update(
+            Agent.idx_agent == _idx_agent).update(
                 {'idx_agent_group': idx_agent_group}
             )
 

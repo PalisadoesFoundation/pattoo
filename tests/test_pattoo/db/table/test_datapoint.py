@@ -27,7 +27,7 @@ directory. Please fix.''')
     sys.exit(2)
 
 from pattoo_shared import data
-from pattoo_shared.constants import DATA_FLOAT
+from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
 from tests.libraries.configuration import UnittestConfig
 from pattoo.db.table import datapoint
 
@@ -38,6 +38,36 @@ class TestBasicFunctioins(unittest.TestCase):
     #########################################################################
     # General object setup
     #########################################################################
+
+    def test_idx_datapoint(self):
+        """Testing method / function idx_datapoint."""
+        # Initialize key variables
+        checksum = data.hashstring(str(random()))
+        pattoo_db_record = PattooDBrecord(
+            pattoo_checksum=checksum,
+            pattoo_metadata=[('key', 'value')],
+            pattoo_data_type=32,
+            pattoo_key='polar_bear',
+            pattoo_value=0.0,
+            pattoo_timestamp=1575789070108,
+            pattoo_agent_polled_target='panda_bear',
+            pattoo_agent_program='koala_bear',
+            pattoo_agent_hostname='grizzly_bear',
+            pattoo_agent_id='red_stripe_beer',
+            pattoo_agent_polling_interval=10000)
+
+        # Checksum should not exist
+        self.assertFalse(datapoint.checksum_exists(checksum))
+
+        # Test creation
+        result = datapoint.idx_datapoint(pattoo_db_record)
+        expected = datapoint.checksum_exists(checksum)
+        self.assertEqual(result, expected)
+
+        # Test after creation
+        result = datapoint.idx_datapoint(pattoo_db_record)
+        expected = datapoint.checksum_exists(checksum)
+        self.assertEqual(result, expected)
 
     def test_checksum_exists(self):
         """Testing method / function checksum_exists."""

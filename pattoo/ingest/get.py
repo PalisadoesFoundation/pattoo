@@ -41,6 +41,7 @@ def key_value_pairs(pattoo_db_records):
     """
     # Initialize key variables
     rows = []
+    pattoo_agent_pair_table_keys = ['pattoo_metadata', 'pattoo_key']
 
     if isinstance(pattoo_db_records, list) is False:
         pattoo_db_records = [pattoo_db_records]
@@ -51,8 +52,7 @@ def key_value_pairs(pattoo_db_records):
 
             # Ignore keys that don't belong in the Pair table
             if key.startswith('pattoo') is True:
-                if key not in [
-                        'pattoo_metadata', 'pattoo_key', 'pattoo_agent_id']:
+                if key not in pattoo_agent_pair_table_keys:
                     continue
 
             if key == 'pattoo_metadata':
@@ -63,25 +63,3 @@ def key_value_pairs(pattoo_db_records):
                 rows.append((str(key), str(value)))
 
     return sorted(rows)
-
-
-def idx_datapoint(checksum, data_type, polling_interval):
-    """Get the db DataPoint.idx_datapoint value for an PattooDBrecord object.
-
-    Args:
-        checksum: Checksum value
-        data_type: Data type
-        polling_interval: Polling interval
-
-    Returns:
-        _idx_datapoint: DataPoint._idx_datapoint value. None if unsuccessful
-
-    """
-    # Create an entry in the database Checksum table
-    _idx_datapoint = datapoint.checksum_exists(checksum)
-    if bool(_idx_datapoint) is False:
-        datapoint.insert_row(checksum, data_type, polling_interval)
-        _idx_datapoint = datapoint.checksum_exists(checksum)
-
-    # Return
-    return _idx_datapoint

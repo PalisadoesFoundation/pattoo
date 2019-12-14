@@ -21,7 +21,7 @@ from pattoo.db.models import Data, DataPoint
 REST_API_DATA = Blueprint('REST_API_DATA', __name__)
 
 
-@REST_API_DATA.route('/translation/<str:agent_id>')
+@REST_API_DATA.route('/translation/agent_id')
 @CACHE.cached(query_string=True, timeout=10)
 def route_agent_id(agent_id):
     """Provide translation key-pair values for a specific agent_id.

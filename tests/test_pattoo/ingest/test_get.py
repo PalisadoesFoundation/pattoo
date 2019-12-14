@@ -52,6 +52,9 @@ class TestBasicFunctioins(unittest.TestCase):
             pattoo_timestamp=5,
             pattoo_data_type=DATA_FLOAT,
             pattoo_value=6,
+            pattoo_agent_polled_target='x',
+            pattoo_agent_program='y',
+            pattoo_agent_hostname='z',
             pattoo_metadata=[pair1, pair2]
         )
 
@@ -77,36 +80,21 @@ class TestBasicFunctioins(unittest.TestCase):
             pattoo_timestamp=5,
             pattoo_data_type=DATA_FLOAT,
             pattoo_value=6,
+            pattoo_agent_polled_target='x',
+            pattoo_agent_program='y',
+            pattoo_agent_hostname='z',
             pattoo_metadata=[('key1', 'value'), ('key2', 'value')]
         )
 
         # Test
         expected = [
-            ('key1', 'value'), ('key2', 'value'),
-            ('pattoo_agent_id', '4'), ('pattoo_key', '3')
+            ('key1', 'value'), ('key2', 'value'), ('pattoo_key', '3')
         ]
         result = get.key_value_pairs(record)
         self.assertEqual(sorted(result), expected)
 
         # Test with a list
         result = get.key_value_pairs([record])
-        self.assertEqual(result, expected)
-
-    def test_idx_datapoint(self):
-        """Testing method / function idx_datapoint."""
-        # Initialize key variables
-        checksum = data.hashstring(str(random()))
-        polling_interval = 1
-        self.assertFalse(datapoint.checksum_exists(checksum))
-
-        # Test creation
-        result = get.idx_datapoint(checksum, DATA_FLOAT, polling_interval)
-        expected = datapoint.checksum_exists(checksum)
-        self.assertEqual(result, expected)
-
-        # Test after creation
-        result = get.idx_datapoint(checksum, DATA_FLOAT, polling_interval)
-        expected = datapoint.checksum_exists(checksum)
         self.assertEqual(result, expected)
 
 

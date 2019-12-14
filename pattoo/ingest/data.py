@@ -9,7 +9,7 @@ from pattoo_shared.constants import DATA_NONE, DATA_STRING
 from pattoo.constants import IDXTimestampValue, ChecksumLookup
 from pattoo.ingest import get
 from pattoo.db import misc
-from pattoo.db.table import pair, glue, data, agent
+from pattoo.db.table import pair, glue, data, agent, datapoint
 
 
 def mulitiprocess(grouping_pattoo_db_records):
@@ -59,9 +59,6 @@ def mulitiprocess(grouping_pattoo_db_records):
     # Wait for all the processes to end and get results
     pool.join()
 
-    # Update the agent table
-    update_agents(grouping_pattoo_db_records)
-
 
 def _process_rows(pattoo_db_records):
     """Insert all data values for an agent into database.
@@ -109,10 +106,7 @@ def _process_rows(pattoo_db_records):
         else:
             # Entry not in database. Update the database and get the
             # required idx_datapoint
-            idx_datapoint = get.idx_datapoint(
-                pdbr.pattoo_checksum,
-                pdbr.pattoo_data_type,
-                pdbr.pattoo_agent_polling_interval)
+            idx_datapoint = datapoint.idx_datapoint(pdbr)
             if bool(idx_datapoint) is True:
                 # Update the lookup table
                 checksum_table[
@@ -151,46 +145,3 @@ def _process_rows(pattoo_db_records):
     # Update the data table
     if bool(data):
         data.insert_rows(list(_data.values()))
-
-
-def update_agents(grouping_pattoo_db_records):
-    """Update the agent table with any newly found Agent IDs.
-
-    Args:
-        pattoo_db_records: List of dicts read from cache files.
-
-    Returns:
-        None
-
-    """
-    # Initialize key varibles
-    tuple_groups = []
-
-    # Get current Agent IDs from the database as a list of tuples
-    # [(agent_id, agent_target)...]
-    unique_keys = agent.unique_keys()
-
-    # Get agent_ids from agent cache
-    for pattoo_db_records in grouping_pattoo_db_records:
-        # Get the agent_program and agent_target
-        metadata = pattoo_db_records[0].pattoo_metadata
-        for (key, value) in metadata:
-            if key == 'pattoo_agent_program':
-                agent_program = value
-            if key == 'pattoo_agent_polled_target':
-                agent_target = value
-
-        # Get the Agent ID
-        agent_id = pattoo_db_records[0].pattoo_agent_id
-        tuple_group = (agent_id, agent_program, agent_target)
-        if tuple_group not in tuple_groups:
-            tuple_groups.append(tuple_group)
-
-    # Insert as necessary
-    for agent_id, agent_program, agent_target in tuple_groups:
-        if (agent_id, agent_target) not in unique_keys:
-            # Create an Agent entry in AgentGroup where idx_agent_group = 1
-            # In other words we default to the pattoo reserved default group
-            idx_agent = agent.exists(agent_id, agent_target)
-            if bool(idx_agent) is False:
-                agent.insert_row(agent_id, agent_target, agent_program)

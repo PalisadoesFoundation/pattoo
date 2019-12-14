@@ -13,6 +13,7 @@ Based on the pages at:
 import graphene
 from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
+from graphene_sqlalchemy_filter import FilterableConnectionField, FilterSet
 
 # pattoo imports
 from pattoo.db.models import (
@@ -29,38 +30,42 @@ from pattoo.db.models import (
 
 
 def resolve_checksum(obj, _):
-    """Convert DataPoint.checksum from bytes to string."""
+    """Convert 'checksum' from bytes to string."""
     return obj.checksum.decode()
 
 
 def resolve_key(obj, _):
-    """Convert Pair.key from bytes to string."""
+    """Convert 'key' from bytes to string."""
     return obj.key.decode()
 
 
 def resolve_value(obj, _):
-    """Convert Pair.key from bytes to string."""
+    """Convert 'value' from bytes to string."""
     return obj.value.decode()
 
 
 def resolve_description(obj, _):
-    """Convert Pair.key from bytes to string."""
+    """Convert 'description' from bytes to string."""
     return obj.description.decode()
 
 
 def resolve_agent_id(obj, _):
-    """Convert Pair.key from bytes to string."""
+    """Convert 'agent_id' from bytes to string."""
     return obj.agent_id.decode()
 
 
 def resolve_agent_program(obj, _):
-    """Convert Pair.key from bytes to string."""
+    """Convert 'agent_program' from bytes to string."""
     return obj.agent_program.decode()
 
 
 def resolve_agent_polled_target(obj, _):
-    """Convert Pair.key from bytes to string."""
+    """Convert 'agent_polled_target' from bytes to string."""
     return obj.agent_polled_target.decode()
+
+def resolve_code(obj, _):
+    """Convert 'code' from bytes to string."""
+    return obj.code.decode()
 
 
 class DataAttribute(object):
@@ -148,7 +153,10 @@ class DataPointAttribute(object):
     """
 
     idx_datapoint = graphene.String(
-        description='DataPoint index. (ForeignKey)')
+        description='DataPoint index.')
+
+    idx_agent = graphene.String(
+        description='Agent table index. (ForeignKey)')
 
     checksum = graphene.String(
         resolver=resolve_checksum,
@@ -234,6 +242,7 @@ class LanguageAttribute(object):
         description='Language table index.')
 
     code = graphene.String(
+        resolver=resolve_code,
         description='Language code.')
 
     description = graphene.String(
@@ -331,6 +340,15 @@ class PairXlate(SQLAlchemyObjectType, PairXlateAttribute):
 
         model = PairXlateTable
         interfaces = (graphene.relay.Node,)
+
+
+'''class PairXlateFilter(FilterSet):
+
+    class Meta:
+        model = PairXlate
+        fields = {
+            'idx_pair_xlate_group': [...]
+        }'''
 
 
 class PairXlateConnections(relay.Connection):
@@ -456,6 +474,7 @@ class Query(graphene.ObjectType):
     all_pairxlategroup = SQLAlchemyConnectionField(PairXlateGroupConnections)
 
     pairxlate = graphene.relay.Node.Field(PairXlate)
+    # all_pairxlate = FilterableConnectionField(PairXlateConnections, filters=PairXlateFilter())
     all_pairxlate = SQLAlchemyConnectionField(PairXlateConnections)
 
     agentgroup = graphene.relay.Node.Field(AgentGroup)
