@@ -28,7 +28,7 @@ directory. Please fix.''')
 
 from pattoo_shared import data
 from tests.libraries.configuration import UnittestConfig
-from pattoo.db import pair
+from pattoo.db.table import pair
 
 
 class TestBasicFunctioins(unittest.TestCase):

@@ -5,7 +5,7 @@ import sys
 
 # Import project libraries
 from pattoo_shared import log
-from pattoo.db import language, agent_group, pair_xlate_group
+from pattoo.db.table import language, agent_group, pair_xlate_group
 
 
 def process(args):

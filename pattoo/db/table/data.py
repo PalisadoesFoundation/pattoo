@@ -9,7 +9,7 @@ from sqlalchemy import and_
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.tables import Data, DataPoint
+from pattoo.db.models import Data, DataPoint
 
 
 def insert_rows(items):

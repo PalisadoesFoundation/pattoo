@@ -15,7 +15,7 @@ from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 
 # pattoo imports
-from pattoo.db.tables import (
+from pattoo.db.models import (
         Data as DataTable,
         Pair as PairTable,
         DataPoint as DataPointTable,

@@ -1,19 +1,27 @@
 #!/usr/bin/env python3
 """Administer the PairXlate database table."""
 
+from sqlalchemy import and_
+
+# PIP3 libraries
+from pattoo_shared import log
+
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.tables import PairXlate
+from pattoo.db.models import PairXlate
+from pattoo.db.table import language, pair_xlate_group
 
 
-def pair_xlate_exists(name):
+def pair_xlate_exists(idx_pair_xlate_group, idx_language, key):
     """Get the db PairXlate.idx_pair_xlate value for specific agent.
 
     Args:
-        name: PairXlate name
+        idx_pair_xlate_group: PairXlateGroup table primary key
+        idx_language: Language table primary key
+        key: Key for translation
 
     Returns:
-        result: PairXlate.idx_pair_xlate value
+        result: True if exists
 
     """
     # Initialize key variables
@@ -22,21 +30,24 @@ def pair_xlate_exists(name):
 
     # Get the result
     with db.db_query(20041) as session:
-        rows = session.query(PairXlate.idx_pair_xlate).filter(
-            PairXlate.name == name.encode())
+        rows = session.query(PairXlate.description).filter(and_(
+            PairXlate.idx_pair_xlate_group == idx_pair_xlate_group,
+            PairXlate.idx_language == idx_language,
+            PairXlate.key == key.encode()
+        ))
 
     # Return
-    for row in rows:
-        result = row.idx_pair_xlate
+    for _ in rows:
+        result = True
         break
     return result
 
 
-def insert_row(name, description, idx_language, idx_pair_xlate_group):
-    """Create the database PairXlate.agent value.
+def insert_row(key, description, idx_language, idx_pair_xlate_group):
+    """Create a database PairXlate.agent row.
 
     Args:
-        name: PairXlate name
+        key: PairXlate key
         description: PairXlate description
         idx_language: Language table index
         idx_pair_xlate_group: PairXlateGroup table index
@@ -45,30 +56,100 @@ def insert_row(name, description, idx_language, idx_pair_xlate_group):
         None
 
     """
-    # Filter invalid data
-    if isinstance(name, str) is True:
-        # Insert and get the new agent value
-        with db.db_modify(20035, die=True) as session:
-            session.add(
-                PairXlate(
-                    name=name.encode(),
-                    description=description.encode(),
-                    idx_language=idx_language,
-                    idx_pair_xlate_group=idx_pair_xlate_group
-                )
+    # Insert and get the new agent value
+    with db.db_modify(20035, die=True) as session:
+        session.add(
+            PairXlate(
+                key=key.encode(),
+                description=description.encode(),
+                idx_language=idx_language,
+                idx_pair_xlate_group=idx_pair_xlate_group
             )
+        )
 
 
-def update(_df):
-    """Import data into the .
+def update_row(key, description, idx_language, idx_pair_xlate_group):
+    """Update a database PairXlate.agent row.
 
     Args:
-        _df: Pandas DataFrame with the following headings
-            ['language', 'idx_pair_xlate_group', 'key', 'description']
+        key: PairXlate key
+        description: PairXlate description
+        idx_language: Language table index
+        idx_pair_xlate_group: PairXlateGroup table index
 
     Returns:
         None
 
     """
+    # Insert and get the new agent value
+    with db.db_modify(20080, die=False) as session:
+        session.query(PairXlate).filter(and_(
+            key=key.encode(),
+            idx_language=idx_language,
+            idx_pair_xlate_group=idx_pair_xlate_group)).update(
+                {'description': description.strip().encode()}
+            )
+
+
+def update(_df, idx_pair_xlate_group):
+    """Import data into the .
+
+    Args:
+        _df: Pandas DataFrame with the following headings
+            ['language', 'idx_pair_xlate_group', 'key', 'description']
+        idx_pair_xlate_group: PairXlateGroup table index
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    languages = {}
+    headings_expected = [
+        'language', 'key', 'description']
+    headings_actual = []
+    valid = True
+
+    # Check if group exists
+    if pair_xlate_group.idx_exists(idx_pair_xlate_group) is False:
+        log_message = ('''\
+idx_pair_xlate_group {} does not exist'''.format(idx_pair_xlate_group))
+        log.log2die(20077, log_message)
+
+    # Test columns
+    for item in _df.columns:
+        headings_actual.append(item)
+    for item in headings_actual:
+        if item not in headings_expected:
+            valid = False
+    if valid is False:
+        log_message = ('''Imported data must have the following headings "{}"\
+'''.format('", "'.join(headings_expected)))
+        log.log2die(20053, log_message)
+
+    # Process the DataFrame
     for _, row in _df.iterrows():
-        print(row['language'], row['idx_pair_xlate_group'], row['key'], row['description'])
+        # Initialize variables at the top of the loop
+        code = row['language'].lower()
+        key = str(row['key'])
+        description = str(row['description'])
+
+        # Store the idx_language value in a dictionary to improve speed
+        idx_language = languages.get(code)
+        if bool(idx_language) is False:
+            idx_language = language.exists(code)
+            if bool(idx_language) is True:
+                languages[code] = idx_language
+            else:
+                log_message = ('''\
+Language code "{}" not found during key-pair data importation'''.format(code))
+                log.log2warning(20078, log_message)
+                continue
+
+        # Update the database
+        if pair_xlate_exists(idx_pair_xlate_group, idx_language, key) is True:
+            # Update the record
+            update_row(key, description, idx_language, idx_pair_xlate_group)
+        else:
+            # Insert a new record
+            insert_row(key, description, idx_language, idx_pair_xlate_group)

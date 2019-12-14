@@ -33,8 +33,8 @@ from pattoo_shared import data as lib_data
 from pattoo.constants import IDXTimestampValue
 from pattoo_shared.constants import DATA_FLOAT
 from tests.libraries.configuration import UnittestConfig
-from pattoo.db.tables import Data
-from pattoo.db import data
+from pattoo.db.models import Data
+from pattoo.db.table import data
 from pattoo.db import db
 from pattoo.ingest import get
 

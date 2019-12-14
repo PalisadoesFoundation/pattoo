@@ -1,22 +1,22 @@
-language,idx_pair_xlate_group,key,description
-en,4,ifAlias,Interface Alias
-en,4,ifDescr,Interface Description
-en,4,ifHCInBroadcastPkts,Interface Broadcast Packets (HC inbound)
-en,4,ifHCInMulticastPkts,Interface Multicast Packets (HC inbound)
-en,4,ifHCInOctets,Interface Traffic (HC inbound)
-en,4,ifHCInUcastPkts,Interface Unicast Packets (HC inbound)
-en,4,ifHCOutBroadcastPkts,Interface Broadcast Packets (HC outbound)
-en,4,ifHCOutMulticastPkts,Interface Multicast Packets (HC outbound)
-en,4,ifHCOutOctets,Interface Traffic (HC outbound)
-en,4,ifHCOutUcastPkts,Interface Unicast Packets (HC outbound)
-en,4,ifInBroadcastPkts,Interface Broadcast Packets (inbound)
-en,4,ifInMulticastPkts,Interface Multicast Packets (inbound)
-en,4,ifInOctets,Interface Traffic (inbound)
-en,4,ifName,Interface Name
-en,4,ifOutBroadcastPkts,Interface Broadcast Packets (outbound)
-en,4,ifOutMulticastPkts,Interface Multicast Packets (outbound)
-en,4,ifOutOctets,Interface Traffic (outbound)
-en,4,agent_snmpd_ifalias,Interface Alias
-en,4,agent_snmpd_ifdescr,Interface Description
-en,4,agent_snmpd_ifname,Interface Name
-en,4,agent_snmpd_oid,SNMP OID
+language,key,description
+en,ifAlias,Interface Alias
+en,ifDescr,Interface Description
+en,ifHCInBroadcastPkts,Interface Broadcast Packets (HC inbound)
+en,ifHCInMulticastPkts,Interface Multicast Packets (HC inbound)
+en,ifHCInOctets,Interface Traffic (HC inbound)
+en,ifHCInUcastPkts,Interface Unicast Packets (HC inbound)
+en,ifHCOutBroadcastPkts,Interface Broadcast Packets (HC outbound)
+en,ifHCOutMulticastPkts,Interface Multicast Packets (HC outbound)
+en,ifHCOutOctets,Interface Traffic (HC outbound)
+en,ifHCOutUcastPkts,Interface Unicast Packets (HC outbound)
+en,ifInBroadcastPkts,Interface Broadcast Packets (inbound)
+en,ifInMulticastPkts,Interface Multicast Packets (inbound)
+en,ifInOctets,Interface Traffic (inbound)
+en,ifName,Interface Name
+en,ifOutBroadcastPkts,Interface Broadcast Packets (outbound)
+en,ifOutMulticastPkts,Interface Multicast Packets (outbound)
+en,ifOutOctets,Interface Traffic (outbound)
+en,agent_snmpd_ifalias,Interface Alias
+en,agent_snmpd_ifdescr,Interface Description
+en,agent_snmpd_ifname,Interface Name
+en,agent_snmpd_oid,SNMP OID

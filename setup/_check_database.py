@@ -29,8 +29,8 @@ else:
 from pattoo_shared import log
 from pattoo.configuration import ConfigPattoo as Config
 from pattoo.db import URL
-from pattoo.db.tables import BASE
-from pattoo.db import agent_group, language, pair_xlate_group
+from pattoo.db.models import BASE
+from pattoo.db.table import agent_group, language, pair_xlate_group
 
 
 def insertions():

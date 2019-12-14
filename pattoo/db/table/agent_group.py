@@ -5,7 +5,7 @@ from collections import namedtuple
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.tables import AgentGroup, Agent
+from pattoo.db.models import AgentGroup, Agent
 
 
 def idx_exists(idx):

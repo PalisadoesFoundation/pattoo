@@ -6,7 +6,7 @@ from sqlalchemy import and_
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.tables import DataPoint, Glue, Pair
+from pattoo.db.models import DataPoint, Glue, Pair
 from pattoo.constants import ChecksumLookup
 
 

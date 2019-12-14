@@ -28,7 +28,7 @@ directory. Please fix.''')
 from pattoo_shared import data
 from pattoo_shared.constants import DATA_FLOAT
 from tests.libraries.configuration import UnittestConfig
-from pattoo.db import datapoint
+from pattoo.db.table import datapoint
 
 
 class TestBasicFunctioins(unittest.TestCase):

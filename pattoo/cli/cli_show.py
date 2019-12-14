@@ -5,7 +5,7 @@ from __future__ import print_function
 import sys
 
 # Import project libraries
-from pattoo.db import agent, agent_group, language, pair_xlate_group
+from pattoo.db.table import agent, agent_group, language, pair_xlate_group
 
 
 def process(args):

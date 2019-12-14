@@ -6,7 +6,7 @@ from sqlalchemy import and_, tuple_
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.tables import Glue, Pair
+from pattoo.db.models import Glue, Pair
 
 
 class PairDataPoint(object):

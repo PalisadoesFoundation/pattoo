@@ -14,7 +14,7 @@ from pattoo.api.web import CACHE
 from pattoo import data
 from pattoo import uri
 from pattoo.db import db
-from pattoo.db.tables import Data, DataPoint
+from pattoo.db.models import Data, DataPoint
 
 # Define the various global variables
 REST_API_DATA = Blueprint('REST_API_DATA', __name__)

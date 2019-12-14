@@ -27,7 +27,7 @@ directory. Please fix.''')
 from pattoo_shared import data
 from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
 from tests.libraries.configuration import UnittestConfig
-from pattoo.db import pair, datapoint
+from pattoo.db.table import pair, datapoint
 from pattoo.ingest import get
 
 

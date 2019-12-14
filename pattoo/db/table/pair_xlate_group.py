@@ -3,9 +3,12 @@
 
 from collections import namedtuple
 
+# PIP3 imports
+from sqlalchemy import and_
+
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.tables import PairXlateGroup, PairXlate
+from pattoo.db.models import PairXlateGroup, PairXlate, Language
 
 
 def idx_exists(idx):
@@ -112,9 +115,10 @@ def cli_show_dump(idx=None):
     """
     # Initialize key variables
     result = []
+    rows = []
     Record = namedtuple(
         'Record',
-        '''idx_pair_xlate_group description idx_pair_xlate key translation \
+        '''idx_pair_xlate_group description language key translation \
 enabled''')
 
     # Get the result
@@ -133,9 +137,12 @@ enabled''')
         # Get agents for group
         with db.db_query(20061) as session:
             line_items = session.query(
+                Language.code,
                 PairXlate.key,
-                PairXlate.description).filter(
-                    PairXlate.idx_pair_xlate_group == row.idx_pair_xlate_group)
+                PairXlate.description).filter(and_(
+                    PairXlate.idx_pair_xlate_group == row.idx_pair_xlate_group,
+                    PairXlate.idx_language == Language.idx_language
+                    ))
 
         if line_items.count() >= 1:
             # PairXlates assigned to the group
@@ -146,7 +153,7 @@ enabled''')
                         Record(
                             enabled=row.enabled,
                             idx_pair_xlate_group=row.idx_pair_xlate_group,
-                            idx_pair_xlate=line_item.idx_pair_xlate,
+                            language=line_item.code.decode(),
                             key=line_item.key.decode(),
                             translation=line_item.description.decode(),
                             description=row.description.decode()
@@ -159,7 +166,7 @@ enabled''')
                         Record(
                             enabled='',
                             idx_pair_xlate_group='',
-                            idx_pair_xlate=line_item.idx_pair_xlate,
+                            language=line_item.code.decode(),
                             key=line_item.key.decode(),
                             translation=line_item.description.decode(),
                             description=''
@@ -172,7 +179,7 @@ enabled''')
                 Record(
                     enabled=row.enabled,
                     idx_pair_xlate_group=row.idx_pair_xlate_group,
-                    idx_pair_xlate='',
+                    language='',
                     key='',
                     translation='',
                     description=row.description.decode()
@@ -181,7 +188,7 @@ enabled''')
 
         # Add a spacer between agent groups
         result.append(Record(
-            enabled='', idx_pair_xlate_group='', idx_pair_xlate='',
+            enabled='', idx_pair_xlate_group='', language='',
             key='', description='', translation=''))
 
     return result

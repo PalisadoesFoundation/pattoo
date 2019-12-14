@@ -4,7 +4,7 @@
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.tables import DataPoint
+from pattoo.db.models import DataPoint
 
 
 def checksum_exists(_checksum):

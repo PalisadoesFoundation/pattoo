@@ -6,7 +6,7 @@ from sqlalchemy import and_
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.tables import Pair, DataPoint, Glue
+from pattoo.db.models import Pair, DataPoint, Glue
 
 
 def glue_exists(_idx_datapoint, idx_pair):

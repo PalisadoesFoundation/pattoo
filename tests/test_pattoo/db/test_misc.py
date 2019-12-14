@@ -29,7 +29,7 @@ directory. Please fix.''')
 from pattoo_shared import data
 from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
 from tests.libraries.configuration import UnittestConfig
-from pattoo.db import datapoint, glue, pair, misc
+from pattoo.db.table import datapoint, glue, pair, misc
 from pattoo.ingest import get
 from pattoo.constants import ChecksumLookup
 

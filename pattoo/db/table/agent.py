@@ -8,7 +8,7 @@ from sqlalchemy import and_
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.tables import Agent
+from pattoo.db.models import Agent
 
 
 def idx_exists(idx):

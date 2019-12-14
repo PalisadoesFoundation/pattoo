@@ -7,7 +7,7 @@ from collections import namedtuple
 from pattoo_shared.constants import MAX_KEYPAIR_LENGTH
 from pattoo_shared import log
 from pattoo.db import db
-from pattoo.db.tables import Language as _Language
+from pattoo.db.models import Language as _Language
 
 
 def idx_exists(idx):
