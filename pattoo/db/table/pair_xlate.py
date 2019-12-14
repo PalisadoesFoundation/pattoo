@@ -5,11 +5,45 @@ from sqlalchemy import and_
 
 # PIP3 libraries
 from pattoo_shared import log
+from pattoo_shared.configuration import Config
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.models import PairXlate
+from pattoo.db.models import PairXlate, Language, PairXlateGroup
 from pattoo.db.table import language, pair_xlate_group
+
+
+def key_description(key, idx_pair_xlate_group):
+    """Get the db PairXlate.idx_pair_xlate value for specific agent.
+
+    Args:
+        key: Key to translate
+        idx_pair_xlate_group: PairXlateGroup table primary key
+
+    Returns:
+        result: Description
+
+    """
+    # Initialize key variables
+    config = Config()
+    _language = config.language()
+    result = key
+    rows = []
+
+    # Get the result
+    with db.db_query(20041) as session:
+        rows = session.query(PairXlate.description).filter(and_(
+            PairXlate.idx_pair_xlate_group == idx_pair_xlate_group,
+            Language.idx_language == PairXlate.idx_language,
+            Language.code == _language.encode(),
+            PairXlate.key == key.strip.encode()
+        ))
+
+    # Return
+    for row in rows:
+        result = row.description.decode()
+        break
+    return result
 
 
 def pair_xlate_exists(idx_pair_xlate_group, idx_language, key):

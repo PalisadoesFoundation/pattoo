@@ -8,7 +8,8 @@ from sqlalchemy import and_
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.models import Agent
+from pattoo.db.models import Agent, AgentGroup
+from pattoo.db.models import PairXlateGroup as PXG
 
 
 def idx_exists(idx):
@@ -132,6 +133,34 @@ def assign(idx_agent, idx_agent_group):
             Agent.idx_agent == idx_agent).update(
                 {'idx_agent_group': idx_agent_group}
             )
+
+
+def idx_pair_xlate_group(agent_id):
+    """Get the idx_pair_xlate_group of an agent.
+
+    Args:
+        agent_id: Agent ID
+
+    Returns:
+        result: idx_pair_xlate_group for the agent
+
+    """
+    # Initialize key variables
+    result = False
+    rows = []
+
+    # Get the result
+    with db.db_query(20027) as session:
+        rows = session.query(PXG.idx_pair_xlate_group).filter(and_(
+            Agent.agent_id == str(agent_id).encode(),
+            PXG.idx_pair_xlate_group == AgentGroup.idx_pair_xlate_group,
+            Agent.idx_agent_group == AgentGroup.idx_agent_group))
+
+    # Return
+    for row in rows:
+        result = row.idx_pair_xlate_group
+        break
+    return result
 
 
 def cli_show_dump():

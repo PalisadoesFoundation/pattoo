@@ -245,6 +245,20 @@ class PairXlate(BASE):
     ts_created = Column(
         DATETIME, server_default=text('CURRENT_TIMESTAMP'))
 
+    # Use cascade='delete,all' to propagate the deletion of a
+    # PairXlateGroup onto its PairXlate
+    pair_xlate_group = relationship(
+        PairXlateGroup,
+        backref=backref(
+            'pair_xlate_pair_xlate_group', uselist=True, cascade='delete,all'))
+
+    # Use cascade='delete,all' to propagate the deletion of a
+    # Language onto its PairXlate
+    language = relationship(
+        Language,
+        backref=backref(
+            'pair_xlate_language', uselist=True, cascade='delete,all'))
+
 
 class AgentGroup(BASE):
     """Class defining the pt_agent_group table of the database."""
@@ -276,6 +290,14 @@ class AgentGroup(BASE):
 
     ts_created = Column(
         DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+    # Use cascade='delete,all' to propagate the deletion of a
+    # PairXlateGroup onto its PairXlate
+    pair_xlate_group = relationship(
+        PairXlateGroup,
+        backref=backref(
+            'agent_group_pair_xlate_group',
+            uselist=True, cascade='delete,all'))
 
 
 class Agent(BASE):
@@ -314,3 +336,10 @@ class Agent(BASE):
 
     ts_created = Column(
         DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+    # Use cascade='delete,all' to propagate the deletion of a
+    # PairXlateGroup onto its PairXlate
+    agent_group = relationship(
+        AgentGroup,
+        backref=backref(
+            'agent_agent_group', uselist=True, cascade='delete,all'))
