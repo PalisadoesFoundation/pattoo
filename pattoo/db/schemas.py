@@ -19,7 +19,12 @@ from pattoo.db.models import (
         Data as DataTable,
         Pair as PairTable,
         DataPoint as DataPointTable,
-        Glue as GlueTable
+        Glue as GlueTable,
+        Language as LanguageTable,
+        PairXlateGroup as PairXlateGroupTable,
+        PairXlate as PairXlateTable,
+        AgentGroup as AgentGroupTable,
+        Agent as AgentTable
     )
 
 
@@ -38,6 +43,26 @@ def resolve_value(obj, _):
     return obj.value.decode()
 
 
+def resolve_description(obj, _):
+    """Convert Pair.key from bytes to string."""
+    return obj.description.decode()
+
+
+def resolve_agent_id(obj, _):
+    """Convert Pair.key from bytes to string."""
+    return obj.agent_id.decode()
+
+
+def resolve_agent_program(obj, _):
+    """Convert Pair.key from bytes to string."""
+    return obj.agent_program.decode()
+
+
+def resolve_agent_polled_target(obj, _):
+    """Convert Pair.key from bytes to string."""
+    return obj.agent_polled_target.decode()
+
+
 class DataAttribute(object):
     """Descriptive attributes of the Data table.
 
@@ -47,7 +72,7 @@ class DataAttribute(object):
     """
 
     idx_datapoint = graphene.String(
-        description='DataPoint index.')
+        description='DataPoint index. (ForeignKey)')
 
     timestamp = graphene.String(
         description='Data collection timestamp.')
@@ -87,10 +112,12 @@ class PairAttribute(object):
         description='Pair index.')
 
     key = graphene.String(
-        resolver=resolve_key, description='Key-value pair key.')
+        resolver=resolve_key,
+        description='Key-value pair key.')
 
     value = graphene.String(
-        resolver=resolve_value, description='Key-value pair value.')
+        resolver=resolve_value,
+        description='Key-value pair value.')
 
 
 class Pair(SQLAlchemyObjectType, PairAttribute):
@@ -121,9 +148,10 @@ class DataPointAttribute(object):
     """
 
     idx_datapoint = graphene.String(
-        description='DataPoint index.')
+        description='DataPoint index. (ForeignKey)')
 
     checksum = graphene.String(
+        resolver=resolve_checksum,
         description='Unique DataPoint checksum.')
 
     data_type = graphene.String(
@@ -169,10 +197,10 @@ class GlueAttribute(object):
     """
 
     idx_pair = graphene.String(
-        description='Pair table index.')
+        description='Pair table index. (ForeignKey)')
 
     idx_datapoint = graphene.String(
-        description='DataPoint table index.')
+        description='DataPoint table index. (ForeignKey)')
 
 
 class Glue(SQLAlchemyObjectType, GlueAttribute):
@@ -194,6 +222,216 @@ class GlueConnections(relay.Connection):
         node = Glue
 
 
+class LanguageAttribute(object):
+    """Descriptive attributes of the Language table.
+
+    A generic class to mutualize description of attributes for both queries
+    and mutations.
+
+    """
+
+    idx_language = graphene.String(
+        description='Language table index.')
+
+    code = graphene.String(
+        description='Language code.')
+
+    description = graphene.String(
+        resolver=resolve_description,
+        description='Description for language code.')
+
+
+class Language(SQLAlchemyObjectType, LanguageAttribute):
+    """Language node."""
+
+    class Meta:
+        """Define the metadata."""
+
+        model = LanguageTable
+        interfaces = (graphene.relay.Node,)
+
+
+class LanguageConnections(relay.Connection):
+    """GraphQL / SQlAlchemy Connection to the Language table."""
+
+    class Meta:
+        """Define the metadata."""
+
+        node = Language
+
+
+class PairXlateGroupAttribute(object):
+    """Descriptive attributes of the PairXlateGroup table.
+
+    A generic class to mutualize description of attributes for both queries
+    and mutations.
+
+    """
+
+    idx_pair_xlate_group = graphene.String(
+        description='PairXlateGroup table index.')
+
+    description = graphene.String(
+        resolver=resolve_description,
+        description='Description for language code.')
+
+    enabled = graphene.String(
+        description='"True" if the group is enabled.')
+
+
+class PairXlateGroup(SQLAlchemyObjectType, PairXlateGroupAttribute):
+    """PairXlateGroup node."""
+
+    class Meta:
+        """Define the metadata."""
+
+        model = PairXlateGroupTable
+        interfaces = (graphene.relay.Node,)
+
+
+class PairXlateGroupConnections(relay.Connection):
+    """GraphQL / SQlAlchemy Connection to the PairXlateGroup table."""
+
+    class Meta:
+        """Define the metadata."""
+
+        node = PairXlateGroup
+
+
+class PairXlateAttribute(object):
+    """Descriptive attributes of the PairXlate table.
+
+    A generic class to mutualize description of attributes for both queries
+    and mutations.
+
+    """
+
+    idx_pair_xlate_group = graphene.String(
+        description='PairXlateGroup table index (ForeignKey).')
+
+    idx_language = graphene.String(
+        description='Language table index (ForeignKey).')
+
+    key = graphene.String(
+        resolver=resolve_key,
+        description=('''\
+Key-pair key. Part of a composite primary key with "idx_language" and \
+"idx_pair_xlate_group"'''))
+
+    description = graphene.String(
+        resolver=resolve_description,
+        description='Description for for the Key-pair key.')
+
+
+class PairXlate(SQLAlchemyObjectType, PairXlateAttribute):
+    """PairXlate node."""
+
+    class Meta:
+        """Define the metadata."""
+
+        model = PairXlateTable
+        interfaces = (graphene.relay.Node,)
+
+
+class PairXlateConnections(relay.Connection):
+    """GraphQL / SQlAlchemy Connection to the PairXlate table."""
+
+    class Meta:
+        """Define the metadata."""
+
+        node = PairXlate
+
+
+class AgentGroupAttribute(object):
+    """Descriptive attributes of the AgentGroup table.
+
+    A generic class to mutualize description of attributes for both queries
+    and mutations.
+
+    """
+
+    idx_agent_group = graphene.String(
+        description='AgentGroup table index.')
+
+    idx_pair_xlate_group = graphene.String(
+        description='PairXlateGroup table index (ForeignKey).')
+
+    description = graphene.String(
+        resolver=resolve_description,
+        description='Description of the AgentGroup.')
+
+    enabled = graphene.String(
+        description='"True" if the group is enabled.')
+
+
+class AgentGroup(SQLAlchemyObjectType, AgentGroupAttribute):
+    """AgentGroup node."""
+
+    class Meta:
+        """Define the metadata."""
+
+        model = AgentGroupTable
+        interfaces = (graphene.relay.Node,)
+
+
+class AgentGroupConnections(relay.Connection):
+    """GraphQL / SQlAlchemy Connection to the AgentGroup table."""
+
+    class Meta:
+        """Define the metadata."""
+
+        node = AgentGroup
+
+
+class AgentAttribute(object):
+    """Descriptive attributes of the Agent table.
+
+    A generic class to mutualize description of attributes for both queries
+    and mutations.
+
+    """
+
+    idx_agent = graphene.String(
+        description='Agent table index.')
+
+    idx_agent_group = graphene.String(
+        description='AgentGroup table index. (ForeignKey)')
+
+    agent_id = graphene.String(
+        resolver=resolve_agent_id,
+        description='Agent identifier.')
+
+    agent_polled_target = graphene.String(
+        resolver=resolve_agent_polled_target,
+        description='Source of the Agent\'s data')
+
+    agent_program = graphene.String(
+        resolver=resolve_agent_program,
+        description='Name of the Agent program that retrieved the data.')
+
+    enabled = graphene.String(
+        description='"True" if the Agent is enabled.')
+
+
+class Agent(SQLAlchemyObjectType, AgentAttribute):
+    """Agent node."""
+
+    class Meta:
+        """Define the metadata."""
+
+        model = AgentTable
+        interfaces = (graphene.relay.Node,)
+
+
+class AgentConnections(relay.Connection):
+    """GraphQL / SQlAlchemy Connection to the Agent table."""
+
+    class Meta:
+        """Define the metadata."""
+
+        node = Agent
+
+
 class Query(graphene.ObjectType):
     """Define GraphQL queries."""
 
@@ -210,6 +448,21 @@ class Query(graphene.ObjectType):
 
     data = graphene.relay.Node.Field(Data)
     all_data = SQLAlchemyConnectionField(DataConnections)
+
+    language = graphene.relay.Node.Field(Language)
+    all_language = SQLAlchemyConnectionField(LanguageConnections)
+
+    pairxlategroup = graphene.relay.Node.Field(PairXlateGroup)
+    all_pairxlategroup = SQLAlchemyConnectionField(PairXlateGroupConnections)
+
+    pairxlate = graphene.relay.Node.Field(PairXlate)
+    all_pairxlate = SQLAlchemyConnectionField(PairXlateConnections)
+
+    agentgroup = graphene.relay.Node.Field(AgentGroup)
+    all_agentgroup = SQLAlchemyConnectionField(AgentGroupConnections)
+
+    agent = graphene.relay.Node.Field(Agent)
+    all_agent = SQLAlchemyConnectionField(AgentConnections)
 
 
 # Make the schema global
