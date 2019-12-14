@@ -12,23 +12,25 @@ EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(
     os.path.abspath(os.path.join(
         os.path.abspath(os.path.join(
-            EXEC_DIR,
-            os.pardir)), os.pardir)), os.pardir))
+            os.path.abspath(os.path.join(
+                EXEC_DIR,
+                os.pardir)), os.pardir)), os.pardir)), os.pardir))
 
 if EXEC_DIR.endswith(
-        '/pattoo/tests/test_pattoo/db') is True:
+        '/pattoo/tests/test_pattoo/db/table') is True:
     # We need to prepend the path in case PattooShared has been installed
     # elsewhere on the system using PIP. This could corrupt expected results
     sys.path.insert(0, ROOT_DIR)
 else:
     print('''\
-This script is not installed in the "pattoo/tests/test_pattoo/db" \
+This script is not installed in the "pattoo/tests/test_pattoo/db/table" \
 directory. Please fix.''')
     sys.exit(2)
 
 from pattoo_shared import data
+from pattoo_shared.constants import DATA_FLOAT
 from tests.libraries.configuration import UnittestConfig
-from pattoo.db.table import pair
+from pattoo.db.table import glue, pair, datapoint
 
 
 class TestBasicFunctioins(unittest.TestCase):
@@ -38,37 +40,55 @@ class TestBasicFunctioins(unittest.TestCase):
     # General object setup
     #########################################################################
 
-    def test_pair_exists(self):
-        """Testing method / function pair_exists."""
+    def test_glue_exists(self):
+        """Testing method / function glue_exists."""
         # Initialize key variables
+        polling_interval = 1
+        checksum = data.hashstring(str(random()))
         key = data.hashstring(str(random()))
         value = data.hashstring(str(random()))
-        result = pair.pair_exists(key, value)
-        self.assertFalse(result)
+
+        # Insert values in tables
+        pair.insert_rows((key, value))
+        idx_pair = pair.pair_exists(key, value)
+        datapoint.insert_row(checksum, DATA_FLOAT, polling_interval)
+        idx_datapoint = datapoint.checksum_exists(checksum)
 
         # Create entry and check
-        pair.insert_rows((key, value))
-        result = pair.pair_exists(key, value)
+        result = glue.glue_exists(idx_datapoint, idx_pair)
+        self.assertFalse(result)
+        glue.insert_rows(idx_datapoint, idx_pair)
+        result = glue.glue_exists(idx_datapoint, idx_pair)
         self.assertTrue(bool(result))
         self.assertTrue(isinstance(result, int))
 
     def test_insert_rows(self):
         """Testing method / function insert_rows."""
         # Initialize key variables
+        polling_interval = 1
+        checksum = data.hashstring(str(random()))
         key = data.hashstring(str(random()))
         value = data.hashstring(str(random()))
-        result = pair.pair_exists(key, value)
-        self.assertFalse(result)
+
+        # Insert values in tables
+        pair.insert_rows((key, value))
+        idx_pair = pair.pair_exists(key, value)
+        datapoint.insert_row(checksum, DATA_FLOAT, polling_interval)
+        idx_datapoint = datapoint.checksum_exists(checksum)
 
         # Create entry and check
-        pair.insert_rows((key, value))
-        result = pair.pair_exists(key, value)
+        result = glue.glue_exists(idx_datapoint, idx_pair)
+        self.assertFalse(result)
+        glue.insert_rows(idx_datapoint, idx_pair)
+        result = glue.glue_exists(idx_datapoint, idx_pair)
         self.assertTrue(bool(result))
         self.assertTrue(isinstance(result, int))
 
     def test_idx_pairs(self):
         """Testing method / function idx_pairs."""
         # Initialize key variables
+        checksum = data.hashstring(str(random()))
+        polling_interval = 1
         keypairs = []
         idx_pairs = []
         for _ in range(0, 10):
@@ -79,12 +99,15 @@ class TestBasicFunctioins(unittest.TestCase):
 
         # Insert values in tables
         pair.insert_rows(keypairs)
+        datapoint.insert_row(checksum, DATA_FLOAT, polling_interval)
+        idx_datapoint = datapoint.checksum_exists(checksum)
 
         # Test
         for key, value in keypairs:
             idx_pairs.append(pair.pair_exists(key, value))
+        glue.insert_rows(idx_datapoint, idx_pairs)
 
-        result = pair.idx_pairs(keypairs)
+        result = glue.idx_pairs(idx_datapoint)
         self.assertEqual(len(result), len(idx_pairs))
         for idx_pair in idx_pairs:
             self.assertTrue(idx_pair in result)

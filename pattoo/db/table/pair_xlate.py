@@ -31,7 +31,7 @@ def key_description(key, idx_pair_xlate_group):
     rows = []
 
     # Get the result
-    with db.db_query(20041) as session:
+    with db.db_query(20082) as session:
         rows = session.query(PairXlate.description).filter(and_(
             PairXlate.idx_pair_xlate_group == idx_pair_xlate_group,
             Language.idx_language == PairXlate.idx_language,
@@ -97,7 +97,7 @@ def pair_xlate_exists(idx_pair_xlate_group, idx_language, key):
     rows = []
 
     # Get the result
-    with db.db_query(20041) as session:
+    with db.db_query(20081) as session:
         rows = session.query(PairXlate.description).filter(and_(
             PairXlate.idx_pair_xlate_group == idx_pair_xlate_group,
             PairXlate.idx_language == idx_language,

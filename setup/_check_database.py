@@ -98,7 +98,7 @@ ALTER DATABASE {} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci\
 ERROR: Cannot connect to database "{}" on server "{}". Verify database server \
 is started. Verify database is created. Verify that the configured database \
 authentication is correct.'''.format(config.db_name(), config.db_hostname()))
-        log.log2die(21002, log_message)
+        log.log2die(20086, log_message)
 
     # Apply schemas
     print('OK: Database connected.')

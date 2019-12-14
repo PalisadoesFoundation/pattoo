@@ -150,7 +150,7 @@ def idx_pair_xlate_group(agent_id):
     rows = []
 
     # Get the result
-    with db.db_query(20027) as session:
+    with db.db_query(20079) as session:
         rows = session.query(PXG.idx_pair_xlate_group).filter(and_(
             Agent.agent_id == str(agent_id).encode(),
             PXG.idx_pair_xlate_group == AgentGroup.idx_pair_xlate_group,
