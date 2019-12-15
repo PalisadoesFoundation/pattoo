@@ -16,7 +16,6 @@ SQLAlchemy
 # GraphQL packages
 graphene
 graphene-sqlalchemy
-graphene-sqlalchemy-filter
 
 # Web server packages
 Flask

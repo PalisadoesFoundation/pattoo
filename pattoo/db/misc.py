@@ -6,7 +6,7 @@ from sqlalchemy import and_
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.models import DataPoint, Glue, Pair
+from pattoo.db.models import DataPoint, Glue, Pair, Agent
 from pattoo.constants import ChecksumLookup
 
 
@@ -33,8 +33,8 @@ def agent_checksums(agent_id):
             DataPoint.idx_datapoint).filter(and_(
                 Glue.idx_datapoint == DataPoint.idx_datapoint,
                 Glue.idx_pair == Pair.idx_pair,
-                Pair.key == 'pattoo_agent_id'.encode(),
-                Pair.value == agent_id.encode()
+                Agent.agent_id == agent_id.encode(),
+                DataPoint.idx_agent == Agent.idx_agent
             ))
 
     # Return

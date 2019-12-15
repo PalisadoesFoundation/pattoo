@@ -33,6 +33,7 @@ from pattoo.db.table import datapoint, glue, pair
 from pattoo.db import misc
 from pattoo.ingest import get
 from pattoo.constants import ChecksumLookup
+from pattoo.db.table import agent
 
 
 class TestBasicFunctioins(unittest.TestCase):
@@ -47,15 +48,23 @@ class TestBasicFunctioins(unittest.TestCase):
         # Initialize key variables
         expected = {}
         polling_interval = 1
+        pattoo_agent_polled_target = 'panda_bear'
+        pattoo_agent_program = 'koala_bear'
+        pattoo_agent_hostname = 'grizzly_bear'
+
+        # Insert an entry in the agent table
+        agent_id = data.hashstring(str(random()))
+        idx_agent = agent.idx_agent(
+            agent_id, pattoo_agent_polled_target, pattoo_agent_program)
 
         # Populate database with key-value pairs
-        source = data.hashstring(str(random()))
         for data_index in range(0, 10):
-            time.sleep(0.05)
+            time.sleep(0.1)
 
             # Add the checksum to the database
             checksum = data.hashstring(str(random()))
-            datapoint.insert_row(checksum, DATA_FLOAT, polling_interval)
+            datapoint.insert_row(
+                checksum, DATA_FLOAT, polling_interval, idx_agent)
             idx_datapoint = datapoint.checksum_exists(checksum)
 
             # Define what we expect from the test function
@@ -69,10 +78,13 @@ class TestBasicFunctioins(unittest.TestCase):
                 pattoo_checksum=checksum,
                 pattoo_key='key',
                 pattoo_agent_polling_interval=polling_interval,
-                pattoo_agent_id=source,
+                pattoo_agent_id=agent_id,
                 pattoo_timestamp=int(time.time() * 1000),
                 pattoo_data_type=DATA_FLOAT,
                 pattoo_value=(data_index * 10),
+                pattoo_agent_polled_target=pattoo_agent_polled_target,
+                pattoo_agent_program=pattoo_agent_program,
+                pattoo_agent_hostname=pattoo_agent_hostname,
                 pattoo_metadata=[])
             pairs = get.key_value_pairs(record)
             pair.insert_rows(pairs)
@@ -85,13 +97,19 @@ class TestBasicFunctioins(unittest.TestCase):
         # This is added to verify that we only get a subset of results
         #######################################################################
 
-        fake_source = data.hashstring(str(random()))
+        # Insert an entry in the agent table
+        fake_agent_id = data.hashstring(str(random()))
+        idx_agent = agent.idx_agent(
+            fake_agent_id, pattoo_agent_polled_target, pattoo_agent_program)
+
+        # Populate database with key-value pairs
         for data_index in range(0, 17):
-            time.sleep(0.05)
+            time.sleep(0.1)
 
             # Add the checksum to the database
             checksum = data.hashstring(str(random()))
-            datapoint.insert_row(checksum, DATA_FLOAT, polling_interval)
+            datapoint.insert_row(
+                checksum, DATA_FLOAT, polling_interval, idx_agent)
             idx_datapoint = datapoint.checksum_exists(checksum)
 
             # Add key-pairs to the database
@@ -99,10 +117,13 @@ class TestBasicFunctioins(unittest.TestCase):
                 pattoo_checksum=checksum,
                 pattoo_key='key',
                 pattoo_agent_polling_interval=polling_interval,
-                pattoo_agent_id=fake_source,
+                pattoo_agent_id=fake_agent_id,
                 pattoo_timestamp=int(time.time() * 1000),
                 pattoo_data_type=DATA_FLOAT,
                 pattoo_value=(data_index * 10),
+                pattoo_agent_polled_target=pattoo_agent_polled_target,
+                pattoo_agent_program=pattoo_agent_program,
+                pattoo_agent_hostname=pattoo_agent_hostname,
                 pattoo_metadata=[])
             pairs = get.key_value_pairs(record)
             pair.insert_rows(pairs)
@@ -112,7 +133,7 @@ class TestBasicFunctioins(unittest.TestCase):
             glue.insert_rows(idx_datapoint, idx_pairs)
 
         # Test
-        result = misc.agent_checksums(source)
+        result = misc.agent_checksums(agent_id)
         self.assertTrue(bool(result))
         self.assertTrue(isinstance(result, dict))
         self.assertEqual(len(result), len(expected))
