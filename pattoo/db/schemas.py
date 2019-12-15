@@ -13,9 +13,9 @@ Based on the pages at:
 import graphene
 from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
-from graphene_sqlalchemy_filter import FilterableConnectionField, FilterSet
 
 # pattoo imports
+from .filters import PattooFilterableConnectionField
 from pattoo.db.models import (
         Data as DataTable,
         Pair as PairTable,
@@ -342,15 +342,6 @@ class PairXlate(SQLAlchemyObjectType, PairXlateAttribute):
         interfaces = (graphene.relay.Node,)
 
 
-'''class PairXlateFilter(FilterSet):
-
-    class Meta:
-        model = PairXlate
-        fields = {
-            'idx_pair_xlate_group': [...]
-        }'''
-
-
 class PairXlateConnections(relay.Connection):
     """GraphQL / SQlAlchemy Connection to the PairXlate table."""
 
@@ -474,8 +465,7 @@ class Query(graphene.ObjectType):
     all_pairxlategroup = SQLAlchemyConnectionField(PairXlateGroupConnections)
 
     pairxlate = graphene.relay.Node.Field(PairXlate)
-    # all_pairxlate = FilterableConnectionField(PairXlateConnections, filters=PairXlateFilter())
-    all_pairxlate = SQLAlchemyConnectionField(PairXlateConnections)
+    all_pairxlate = PattooFilterableConnectionField(PairXlateConnections)
 
     agentgroup = graphene.relay.Node.Field(AgentGroup)
     all_agentgroup = SQLAlchemyConnectionField(AgentGroupConnections)

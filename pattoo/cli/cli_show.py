@@ -109,6 +109,7 @@ def _printer(data):
     # Initialize key variables
     max_width = {}
     column_formatter = '{{:<{}}}'
+    keys = []
 
     # Get headings. Initialize the values of max_width
     for item in data:
