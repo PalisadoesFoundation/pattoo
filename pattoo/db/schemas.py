@@ -15,17 +15,16 @@ from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 
 # pattoo imports
-from .filters import PattooFilterableConnectionField
 from pattoo.db.models import (
-        Data as DataTable,
-        Pair as PairTable,
-        DataPoint as DataPointTable,
-        Glue as GlueTable,
-        Language as LanguageTable,
-        PairXlateGroup as PairXlateGroupTable,
-        PairXlate as PairXlateTable,
-        AgentGroup as AgentGroupTable,
-        Agent as AgentTable
+        Data as DataModel,
+        Pair as PairModel,
+        DataPoint as DataPointModel,
+        Glue as GlueModel,
+        Language as LanguageModel,
+        PairXlateGroup as PairXlateGroupModel,
+        PairXlate as PairXlateModel,
+        AgentGroup as AgentGroupModel,
+        Agent as AgentModel
     )
 
 
@@ -63,6 +62,7 @@ def resolve_agent_polled_target(obj, _):
     """Convert 'agent_polled_target' from bytes to string."""
     return obj.agent_polled_target.decode()
 
+
 def resolve_code(obj, _):
     """Convert 'code' from bytes to string."""
     return obj.code.decode()
@@ -92,7 +92,7 @@ class Data(SQLAlchemyObjectType, DataAttribute):
     class Meta:
         """Define the metadata."""
 
-        model = DataTable
+        model = DataModel
         interfaces = (graphene.relay.Node,)
 
 
@@ -131,7 +131,7 @@ class Pair(SQLAlchemyObjectType, PairAttribute):
     class Meta:
         """Define the metadata."""
 
-        model = PairTable
+        model = PairModel
         interfaces = (graphene.relay.Node,)
 
 
@@ -183,7 +183,7 @@ class DataPoint(SQLAlchemyObjectType, DataPointAttribute):
     class Meta:
         """Define the metadata."""
 
-        model = DataPointTable
+        model = DataPointModel
         interfaces = (graphene.relay.Node,)
 
 
@@ -217,7 +217,7 @@ class Glue(SQLAlchemyObjectType, GlueAttribute):
     class Meta:
         """Define the metadata."""
 
-        model = GlueTable
+        model = GlueModel
         interfaces = (graphene.relay.Node,)
 
 
@@ -256,7 +256,7 @@ class Language(SQLAlchemyObjectType, LanguageAttribute):
     class Meta:
         """Define the metadata."""
 
-        model = LanguageTable
+        model = LanguageModel
         interfaces = (graphene.relay.Node,)
 
 
@@ -294,7 +294,7 @@ class PairXlateGroup(SQLAlchemyObjectType, PairXlateGroupAttribute):
     class Meta:
         """Define the metadata."""
 
-        model = PairXlateGroupTable
+        model = PairXlateGroupModel
         interfaces = (graphene.relay.Node,)
 
 
@@ -338,7 +338,7 @@ class PairXlate(SQLAlchemyObjectType, PairXlateAttribute):
     class Meta:
         """Define the metadata."""
 
-        model = PairXlateTable
+        model = PairXlateModel
         interfaces = (graphene.relay.Node,)
 
 
@@ -379,7 +379,7 @@ class AgentGroup(SQLAlchemyObjectType, AgentGroupAttribute):
     class Meta:
         """Define the metadata."""
 
-        model = AgentGroupTable
+        model = AgentGroupModel
         interfaces = (graphene.relay.Node,)
 
 
@@ -428,7 +428,7 @@ class Agent(SQLAlchemyObjectType, AgentAttribute):
     class Meta:
         """Define the metadata."""
 
-        model = AgentTable
+        model = AgentModel
         interfaces = (graphene.relay.Node,)
 
 
@@ -446,32 +446,66 @@ class Query(graphene.ObjectType):
 
     node = relay.Node.Field()
 
+    # Results as a single entry filtered by 'id' and as a list
     glue = graphene.relay.Node.Field(Glue)
     all_glues = SQLAlchemyConnectionField(GlueConnections)
 
+    # Results as a single entry filtered by 'id' and as a list
     datapoint = graphene.relay.Node.Field(DataPoint)
     all_datapoints = SQLAlchemyConnectionField(DataPointConnections)
 
+    # Results as a single entry filtered by 'id' and as a list
     pair = graphene.relay.Node.Field(Pair)
     all_pairs = SQLAlchemyConnectionField(PairConnections)
 
+    # Results as a single entry filtered by 'id' and as a list
     data = graphene.relay.Node.Field(Data)
     all_data = SQLAlchemyConnectionField(DataConnections)
 
+    # Results as a single entry filtered by 'id' and as a list
     language = graphene.relay.Node.Field(Language)
     all_language = SQLAlchemyConnectionField(LanguageConnections)
 
-    pairxlategroup = graphene.relay.Node.Field(PairXlateGroup)
-    all_pairxlategroup = SQLAlchemyConnectionField(PairXlateGroupConnections)
+    # Results as a single entry filtered by 'id' and as a list
+    pair_xlate_group = graphene.relay.Node.Field(PairXlateGroup)
+    all_pair_xlate_group = SQLAlchemyConnectionField(PairXlateGroupConnections)
 
-    pairxlate = graphene.relay.Node.Field(PairXlate)
-    all_pairxlate = PattooFilterableConnectionField(PairXlateConnections)
+    # Results as a single entry filtered by 'id' and as a list
+    pair_xlate = graphene.relay.Node.Field(PairXlate)
+    all_pair_xlate = SQLAlchemyConnectionField(PairXlateConnections)
 
-    agentgroup = graphene.relay.Node.Field(AgentGroup)
-    all_agentgroup = SQLAlchemyConnectionField(AgentGroupConnections)
+    # Results as a single entry filtered by 'id' and as a list
+    agent_group = graphene.relay.Node.Field(AgentGroup)
+    all_agent_group = SQLAlchemyConnectionField(AgentGroupConnections)
 
+    # Results as a single entry filtered by 'id' and as a list
     agent = graphene.relay.Node.Field(Agent)
     all_agent = SQLAlchemyConnectionField(AgentConnections)
+
+    ###########################################################################
+    # Example: filterPairXlateKey
+    ###########################################################################
+    filter_pair_xlate_key = graphene.Field(
+        lambda: graphene.List(PairXlate),
+        key=graphene.String())
+
+    def resolve_filter_pair_xlate_key(self, info, key):
+        """Filter by column PairXlate.key."""
+        query = PairXlate.get_query(info)
+        return query.filter(PairXlateModel.key == key.encode())
+
+    ###########################################################################
+    # Example: filterPairXlateKey
+    ###########################################################################
+    filter_pair_xlate = graphene.Field(
+        lambda: graphene.List(PairXlate),
+        idx_pair_xlate_group=graphene.Float())
+
+    def resolve_filter_pair_xlate(self, info, idx_pair_xlate_group):
+        """Filter by column PairXlate.idx_pair_xlate_group."""
+        query = PairXlate.get_query(info)
+        return query.filter(
+            PairXlateModel.idx_pair_xlate_group == idx_pair_xlate_group)
 
 
 # Make the schema global
