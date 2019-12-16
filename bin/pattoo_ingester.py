@@ -71,7 +71,7 @@ def main():
 
     # Log what we are doing
     log_message = 'Running script {}.'.format(script)
-    log.log2info(21003, log_message)
+    log.log2info(20085, log_message)
 
     # Get the number of files in the directory
     files_found = len(
@@ -113,7 +113,7 @@ This can be adjusted on the CLI.'''.format(max_duration))
         files_to_process = len(os.listdir(directory))
         log_message = 'Processing {} of {} cache files.'.format(
             min(files_per_batch, files_to_process), files_to_process)
-        log.log2info(21009, log_message)
+        log.log2info(20083, log_message)
 
         # Process the data
         count = process(directory_data)
@@ -131,7 +131,7 @@ This can be adjusted on the CLI.'''.format(max_duration))
 Agent cache ingest completed. {0} records processed in {1} seconds, {2:.2f} \
 records / second. {3} files read. \
 '''.format(records, duration, records / duration, files_read))
-        log.log2info(21004, log_message)
+        log.log2info(20084, log_message)
     else:
         log_message = 'No files found to ingest'
         log.log2info(20021, log_message)

@@ -13,11 +13,30 @@ from pattoo_shared import times
 from pattoo.api.web import CACHE
 from pattoo import data
 from pattoo import uri
+from pattoo.db.table import pair_xlate
 from pattoo.db import db
-from pattoo.db.tables import Data, DataPoint
+from pattoo.db.models import Data, DataPoint
 
 # Define the various global variables
 REST_API_DATA = Blueprint('REST_API_DATA', __name__)
+
+
+@REST_API_DATA.route('/translation/agent_id')
+@CACHE.cached(query_string=True, timeout=10)
+def route_agent_id(agent_id):
+    """Provide translation key-pair values for a specific agent_id.
+
+    Args:
+        agent_id: Agent.agent_id value
+
+    Returns:
+        _result: JSONify dict of {key: value} from the PairXlate table.
+
+    """
+    # Return
+    _result = pair_xlate.key_descriptions(agent_id)
+    result = jsonify(_result)
+    return result
 
 
 @REST_API_DATA.route('/data/<int:idx_datapoint>')
@@ -85,7 +104,7 @@ def _query(idx_datapoint, ts_start, ts_stop, metadata):
         norm_ts_start, norm_ts_stop, polling_interval)}
 
     # Get data from database
-    with db.db_query(20127) as session:
+    with db.db_query(20092) as session:
         rows = session.query(Data.timestamp, Data.value).filter(and_(
             Data.timestamp < ts_stop, Data.timestamp > ts_start,
             Data.idx_datapoint == idx_datapoint)).order_by(

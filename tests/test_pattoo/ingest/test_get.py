@@ -27,7 +27,7 @@ directory. Please fix.''')
 from pattoo_shared import data
 from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
 from tests.libraries.configuration import UnittestConfig
-from pattoo.ingest.db import query, insert, exists
+from pattoo.db.table import pair, datapoint
 from pattoo.ingest import get
 
 
@@ -52,19 +52,22 @@ class TestBasicFunctioins(unittest.TestCase):
             pattoo_timestamp=5,
             pattoo_data_type=DATA_FLOAT,
             pattoo_value=6,
+            pattoo_agent_polled_target='x',
+            pattoo_agent_program='y',
+            pattoo_agent_hostname='z',
             pattoo_metadata=[pair1, pair2]
         )
 
         # Pairs shouldn't exist
-        self.assertFalse(exists.pair(pair1[0], pair1[1]))
-        self.assertFalse(exists.pair(pair2[0], pair2[1]))
+        self.assertFalse(pair.pair_exists(pair1[0], pair1[1]))
+        self.assertFalse(pair.pair_exists(pair2[0], pair2[1]))
 
         # Insert items
         result = get.pairs(record)
-        self.assertTrue(exists.pair(pair1[0], pair1[1]))
-        self.assertTrue(exists.pair(pair2[0], pair2[1]))
-        self.assertTrue(exists.pair(pair1[0], pair1[1]) in result)
-        self.assertTrue(exists.pair(pair2[0], pair2[1]) in result)
+        self.assertTrue(pair.pair_exists(pair1[0], pair1[1]))
+        self.assertTrue(pair.pair_exists(pair2[0], pair2[1]))
+        self.assertTrue(pair.pair_exists(pair1[0], pair1[1]) in result)
+        self.assertTrue(pair.pair_exists(pair2[0], pair2[1]) in result)
 
     def test_key_value_pairs(self):
         """Testing method / function key_value_pairs."""
@@ -77,36 +80,21 @@ class TestBasicFunctioins(unittest.TestCase):
             pattoo_timestamp=5,
             pattoo_data_type=DATA_FLOAT,
             pattoo_value=6,
+            pattoo_agent_polled_target='x',
+            pattoo_agent_program='y',
+            pattoo_agent_hostname='z',
             pattoo_metadata=[('key1', 'value'), ('key2', 'value')]
         )
 
         # Test
         expected = [
-            ('key1', 'value'), ('key2', 'value'),
-            ('pattoo_agent_id', '4'), ('pattoo_key', '3')
+            ('key1', 'value'), ('key2', 'value'), ('pattoo_key', '3')
         ]
         result = get.key_value_pairs(record)
         self.assertEqual(sorted(result), expected)
 
         # Test with a list
         result = get.key_value_pairs([record])
-        self.assertEqual(result, expected)
-
-    def test_idx_datapoint(self):
-        """Testing method / function idx_datapoint."""
-        # Initialize key variables
-        checksum = data.hashstring(str(random()))
-        polling_interval = 1
-        self.assertFalse(exists.checksum(checksum))
-
-        # Test creation
-        result = get.idx_datapoint(checksum, DATA_FLOAT, polling_interval)
-        expected = exists.checksum(checksum)
-        self.assertEqual(result, expected)
-
-        # Test after creation
-        result = get.idx_datapoint(checksum, DATA_FLOAT, polling_interval)
-        expected = exists.checksum(checksum)
         self.assertEqual(result, expected)
 
 

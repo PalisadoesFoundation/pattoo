@@ -10,7 +10,7 @@ from sqlalchemy import and_
 # pattoo libraries
 from pattoo_shared import log
 from pattoo.db import POOL
-from pattoo.db.tables import DataPoint
+from pattoo.db.models import DataPoint
 
 
 @contextmanager
