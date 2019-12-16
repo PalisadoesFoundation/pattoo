@@ -315,6 +315,9 @@ class PairXlateAttribute(object):
 
     """
 
+    idx_pair_xlate = graphene.String(
+        description='PairXlate table index.')
+
     idx_pair_xlate_group = graphene.String(
         description='PairXlateGroup table index (ForeignKey).')
 
@@ -331,6 +334,9 @@ Key-pair key. Part of a composite primary key with "idx_language" and \
         resolver=resolve_description,
         description='Description for for the Key-pair key.')
 
+    enabled = graphene.String(
+        description='"True" if enabled.')
+        
 
 class PairXlate(SQLAlchemyObjectType, PairXlateAttribute):
     """PairXlate node."""
