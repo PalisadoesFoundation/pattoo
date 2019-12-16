@@ -26,7 +26,6 @@ from pattoo.db.models import (
         AgentGroup as AgentGroupModel,
         Agent as AgentModel
     )
-from .filters import PattooFilterableConnectionField
 
 
 def resolve_checksum(obj, _):
@@ -341,7 +340,6 @@ class PairXlate(SQLAlchemyObjectType, PairXlateAttribute):
 
         model = PairXlateModel
         interfaces = (graphene.relay.Node,)
-        connection_field_factory = PattooFilterableConnectionField.factory
 
 
 class PairXlateConnections(relay.Connection):
@@ -474,8 +472,7 @@ class Query(graphene.ObjectType):
 
     # Results as a single entry filtered by 'id' and as a list
     pair_xlate = graphene.relay.Node.Field(PairXlate)
-    # all_pair_xlate = SQLAlchemyConnectionField(PairXlateConnections)
-    all_pair_xlate = PattooFilterableConnectionField(PairXlateConnections)
+    all_pair_xlate = SQLAlchemyConnectionField(PairXlateConnections)
 
     # Results as a single entry filtered by 'id' and as a list
     agent_group = graphene.relay.Node.Field(AgentGroup)
@@ -498,13 +495,13 @@ class Query(graphene.ObjectType):
         return query.filter(PairXlateModel.key == key.encode())
 
     ###########################################################################
-    # Example: filterPairXlateKey
+    # Example: Filter "keys"
     ###########################################################################
-    filter_pair_xlate = graphene.Field(
+    keys = graphene.Field(
         lambda: graphene.List(PairXlate),
         idx_pair_xlate_group=graphene.Float())
 
-    def resolve_filter_pair_xlate(self, info, idx_pair_xlate_group):
+    def resolve_keys(self, info, idx_pair_xlate_group):
         """Filter by column PairXlate.idx_pair_xlate_group."""
         query = PairXlate.get_query(info)
         return query.filter(
