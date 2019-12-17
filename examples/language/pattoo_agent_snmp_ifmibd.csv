@@ -16,7 +16,8 @@ en,agent_snmp_ifmibd_ifname,Interface Name
 en,agent_snmp_ifmibd_ifoutbroadcastpkts,Interface Broadcast Packets (outbound)
 en,agent_snmp_ifmibd_ifoutmulticastpkts,Interface Multicast Packets (outbound)
 en,agent_snmp_ifmibd_ifoutoctets,Interface Traffic (outbound)
-en,agent_snmpd_agent_snmp_ifmibd_ifalias,Interface Alias
-en,agent_snmpd_agent_snmp_ifmibd_ifdescr,Interface Description
-en,agent_snmpd_agent_snmp_ifmibd_ifname,Interface Name
+en,agent_snmp_ifmibd_oid,SNMP OID
+en,agent_snmpd_ifalias,Interface Alias
+en,agent_snmpd_ifdescr,Interface Description
+en,agent_snmpd_ifname,Interface Name
 en,agent_snmpd_oid,SNMP OID
