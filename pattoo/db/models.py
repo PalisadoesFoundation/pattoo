@@ -92,9 +92,13 @@ class PairXlate(BASE):
 
     __tablename__ = 'pt_pair_xlate'
     __table_args__ = (
-        PrimaryKeyConstraint('idx_language', 'key', 'idx_pair_xlate_group'),
+        UniqueConstraint('idx_language', 'key', 'idx_pair_xlate_group'),
         {'mysql_engine': 'InnoDB'}
     )
+
+    idx_pair_xlate = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
 
     idx_pair_xlate_group = Column(
         BIGINT(unsigned=True),
@@ -111,6 +115,9 @@ class PairXlate(BASE):
 
     description = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+    enabled = Column(
+        BIGINT(unsigned=True), nullable=False, server_default='1')
 
     ts_modified = Column(
         DATETIME, server_default=text(
