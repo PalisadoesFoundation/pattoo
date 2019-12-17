@@ -180,12 +180,11 @@ def cli_show_dump():
     # Process
     for row in rows:
         Record = namedtuple(
-            'Record', 'idx_agent agent_program agent_target agent_id enabled')
+            'Record', 'idx_agent agent_program agent_target enabled')
         result.append(
             Record(
                 idx_agent=row.idx_agent,
                 enabled=row.enabled,
                 agent_program=row.agent_program.decode(),
-                agent_target=row.agent_polled_target.decode(),
-                agent_id=row.agent_id.decode()))
+                agent_target=row.agent_polled_target.decode()))
     return result
