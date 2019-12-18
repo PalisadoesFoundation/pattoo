@@ -29,7 +29,7 @@ directory. Please fix.''')
 
 from pattoo_shared import data
 from tests.libraries.configuration import UnittestConfig
-from pattoo.db.table import agent, agent_group
+from pattoo.db.table import agent, agent_group, pair_xlate_group
 from pattoo.db.models import Agent
 from pattoo.db import db
 
@@ -106,7 +106,7 @@ class TestBasicFunctioins(unittest.TestCase):
         self.assertFalse(bool(result))
 
         # Add an entry to the database
-        agent_group.insert_row(agent_id, agent_target, agent_program)
+        agent.insert_row(agent_id, agent_target, agent_program)
         idx_agent = agent.exists(agent_id, agent_target)
 
         # Get current idx_agent for the agent
@@ -128,7 +128,34 @@ class TestBasicFunctioins(unittest.TestCase):
 
     def test_idx_pair_xlate_group(self):
         """Testing method / function idx_pair_xlate_group."""
-        pass
+        # Create a new PairXlateGroup entry
+        description = data.hashstring(str(random()))
+        pair_xlate_group.insert_row(description)
+        idx_pair_xlate_group = pair_xlate_group.exists(description)
+
+        # Add an entry to the database
+        description = data.hashstring(str(random()))
+        agent_group.insert_row(description)
+
+        # Make sure it exists
+        idx_agent_group = agent_group.exists(description)
+
+        # Assign AgentGroup
+        agent_group.assign(idx_agent_group, idx_pair_xlate_group)
+
+        # Add an entry to the database
+        agent_id = data.hashstring(str(random()))
+        agent_target = data.hashstring(str(random()))
+        agent_program = data.hashstring(str(random()))
+        agent.insert_row(agent_id, agent_target, agent_program)
+        idx_agent = agent.exists(agent_id, agent_target)
+
+        # Assign Agent got AgentGroup
+        agent.assign(idx_agent, idx_agent_group)
+
+        # Test
+        result = agent.idx_pair_xlate_group(agent_id)
+        self.assertEqual(result, idx_pair_xlate_group)
 
     def test_cli_show_dump(self):
         """Testing method / function cli_show_dump."""
