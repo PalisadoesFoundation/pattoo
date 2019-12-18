@@ -97,6 +97,7 @@ class TestBasicFunctioins(unittest.TestCase):
 
         # Make sure it exists
         idx = agent_group.exists(description)
+        self.assertTrue(bool(idx))
 
         # Get current description
         with db.db_query(20096) as session:
@@ -104,7 +105,7 @@ class TestBasicFunctioins(unittest.TestCase):
                 AgentGroup.idx_agent_group == idx).one()
 
         # Test
-        self.assertEqual(description, result.description)
+        self.assertEqual(description, result.description.decode())
 
         # Update the description
         new_description = data.hashstring(str(random()))
@@ -116,7 +117,7 @@ class TestBasicFunctioins(unittest.TestCase):
                 AgentGroup.idx_agent_group == idx).one()
 
         # Test
-        self.assertEqual(new_description, result.description)
+        self.assertEqual(new_description, result.description.decode())
 
     def test_assign(self):
         """Testing method / function assign."""

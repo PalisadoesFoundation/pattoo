@@ -95,7 +95,7 @@ def update_description(idx_agent_group, description):
     if isinstance(description, str) is True:
         with db.db_modify(20010, die=False) as session:
             session.query(AgentGroup).filter(
-                AgentGroup.idx_agent_group == idx_agent_group.encode()).update(
+                AgentGroup.idx_agent_group == idx_agent_group).update(
                     {'description': description.encode()}
                 )
 
