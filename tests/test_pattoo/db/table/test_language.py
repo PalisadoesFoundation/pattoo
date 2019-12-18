@@ -34,6 +34,7 @@ from pattoo.db.models import Language
 from pattoo.db import db
 
 
+
 class TestBasicFunctioins(unittest.TestCase):
     """Checks all functions and methods."""
 
@@ -93,7 +94,7 @@ class TestBasicFunctioins(unittest.TestCase):
                 Language.code == code.encode()).one()
 
         # Test
-        self.assertEqual(description, result.description)
+        self.assertEqual(description, result.description.decode())
 
         # Update the description
         new_description = data.hashstring(str(random()))
@@ -105,7 +106,7 @@ class TestBasicFunctioins(unittest.TestCase):
                 Language.code == code.encode()).one()
 
         # Test
-        self.assertEqual(new_description, result.description)
+        self.assertEqual(new_description, result.description.decode())
 
     def test_cli_show_dump(self):
         """Testing method / function cli_show_dump."""

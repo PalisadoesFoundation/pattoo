@@ -44,7 +44,7 @@ class Language(BASE):
         BIGINT(unsigned=True), primary_key=True,
         autoincrement=True, nullable=False)
 
-    code = Column(VARBINARY(4), nullable=False, default=None)
+    code = Column(VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
     description = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
