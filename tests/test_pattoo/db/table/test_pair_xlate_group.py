@@ -29,7 +29,7 @@ directory. Please fix.''')
 from pattoo_shared import data
 from tests.libraries.configuration import UnittestConfig
 from pattoo.db.table import pair_xlate_group
-from pattoo.db.models import PairXlateGroup
+from pattoo.db.models import PairXlateGroup, Language
 from pattoo.db import db
 
 
@@ -103,7 +103,7 @@ class TestBasicFunctioins(unittest.TestCase):
                 PairXlateGroup.idx_pair_xlate_group == idx).one()
 
         # Test
-        self.assertEqual(description, result.description)
+        self.assertEqual(description, result.description.decode())
 
         # Update the description
         new_description = data.hashstring(str(random()))
@@ -115,7 +115,7 @@ class TestBasicFunctioins(unittest.TestCase):
                 PairXlateGroup.idx_pair_xlate_group == idx).one()
 
         # Test
-        self.assertEqual(new_description, result.description)
+        self.assertEqual(new_description, result.description.decode())
 
     def test_cli_show_dump(self):
         """Testing method / function cli_show_dump."""
@@ -130,7 +130,6 @@ class TestBasicFunctioins(unittest.TestCase):
         for item in result:
             if item.idx_pair_xlate_group == idx_pair_xlate_group:
                 self.assertEqual(item.description, description)
-                self.assertEqual(item.idx_language, 1)
                 break
 
 

@@ -53,7 +53,7 @@ def exists(code):
     # Lowercase the code
     code = code.lower()
 
-    # Ignore certain restricted keys
+    # Get code from database
     with db.db_query(20031) as session:
         rows = session.query(_Language.idx_language).filter(
             _Language.code == code.encode())
