@@ -2,7 +2,7 @@
 """Verifies the existence of various database table primary key values."""
 
 # Import project libraries
-from pattoo.db.table import pair, datapoint
+from pattoo.db.table import pair
 
 
 def pairs(pattoo_db_record):

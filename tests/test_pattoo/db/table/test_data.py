@@ -31,13 +31,13 @@ directory. Please fix.''')
     sys.exit(2)
 
 from pattoo_shared import data as lib_data
+from pattoo_shared.constants import PattooDBrecord
 from pattoo.constants import IDXTimestampValue
 from pattoo_shared.constants import DATA_FLOAT
 from tests.libraries.configuration import UnittestConfig
 from pattoo.db.models import Data
-from pattoo.db.table import data
+from pattoo.db.table import data, datapoint
 from pattoo.db import db
-from pattoo.ingest import get
 
 
 class TestBasicFunctioins(unittest.TestCase):
@@ -51,19 +51,34 @@ class TestBasicFunctioins(unittest.TestCase):
         """Testing method / function insert_rows."""
         # Initialize key variables
         checksum = lib_data.hashstring(str(random()))
+        agent_id = lib_data.hashstring(str(random()))
         data_type = DATA_FLOAT
         polling_interval = 10
-        value = 27
+        pattoo_value = 27
+        pattoo_key = lib_data.hashstring(str(random()))
         timestamp = int(time.time() * 1000)
 
+        insert = PattooDBrecord(
+            pattoo_checksum=checksum,
+            pattoo_key=pattoo_key,
+            pattoo_agent_id=agent_id,
+            pattoo_agent_polling_interval=polling_interval,
+            pattoo_timestamp=timestamp,
+            pattoo_data_type=data_type,
+            pattoo_value=pattoo_value,
+            pattoo_agent_polled_target='pattoo_agent_polled_target',
+            pattoo_agent_program='pattoo_agent_program',
+            pattoo_agent_hostname='pattoo_agent_hostname',
+            pattoo_metadata=[]
+        )
+
         # Create checksum entry in the DB, then update the data table
-        idx_datapoint = get.idx_datapoint(
-            checksum, data_type, polling_interval)
+        idx_datapoint = datapoint.idx_datapoint(insert)
         _data = [IDXTimestampValue(
             idx_datapoint=idx_datapoint,
             polling_interval=polling_interval,
             timestamp=timestamp,
-            value=value)]
+            value=pattoo_value)]
         data.insert_rows(_data)
 
         # Verify that the data is there
@@ -73,7 +88,7 @@ class TestBasicFunctioins(unittest.TestCase):
                     Data.idx_datapoint == idx_datapoint,
                     Data.timestamp == timestamp))
         for row in rows:
-            self.assertEqual(row.value, value)
+            self.assertEqual(row.value, pattoo_value)
 
 
 if __name__ == '__main__':

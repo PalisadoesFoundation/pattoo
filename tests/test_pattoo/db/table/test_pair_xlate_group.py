@@ -4,7 +4,6 @@
 import os
 import unittest
 import sys
-import time
 from random import random
 
 # Try to create a working PYTHONPATH
