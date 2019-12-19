@@ -29,7 +29,7 @@ directory. Please fix.''')
 from pattoo_shared import data
 from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
 from tests.libraries.configuration import UnittestConfig
-from pattoo.db.table import datapoint
+from pattoo.db.table import datapoint, agent
 
 
 class TestBasicFunctioins(unittest.TestCase):
@@ -76,11 +76,19 @@ class TestBasicFunctioins(unittest.TestCase):
         polling_interval = 1
         self.assertFalse(result)
 
+        # Create a new Agent entry
+        agent_id = data.hashstring(str(random()))
+        agent_target = data.hashstring(str(random()))
+        agent_program = data.hashstring(str(random()))
+        agent.insert_row(agent_id, agent_target, agent_program)
+        idx_agent = agent.exists(agent_id, agent_target)
+
         # Create entry and check
         _checksum = data.hashstring(str(random()))
         result = datapoint.checksum_exists(_checksum)
         self.assertFalse(result)
-        datapoint.insert_row(_checksum, DATA_FLOAT, polling_interval)
+        datapoint.insert_row(
+            _checksum, DATA_FLOAT, polling_interval, idx_agent)
         result = datapoint.checksum_exists(_checksum)
         self.assertTrue(bool(result))
         self.assertTrue(isinstance(result, int))
@@ -92,11 +100,18 @@ class TestBasicFunctioins(unittest.TestCase):
         polling_interval = 1
         self.assertFalse(result)
 
+        # Create a new Agent entry
+        agent_id = data.hashstring(str(random()))
+        agent_target = data.hashstring(str(random()))
+        agent_program = data.hashstring(str(random()))
+        agent.insert_row(agent_id, agent_target, agent_program)
+        idx_agent = agent.exists(agent_id, agent_target)
+
         # Create entry and check
         checksum = data.hashstring(str(random()))
         result = datapoint.checksum_exists(checksum)
         self.assertFalse(result)
-        datapoint.insert_row(checksum, DATA_FLOAT, polling_interval)
+        datapoint.insert_row(checksum, DATA_FLOAT, polling_interval, idx_agent)
         result = datapoint.checksum_exists(checksum)
         self.assertTrue(bool(result))
         self.assertTrue(isinstance(result, int))
