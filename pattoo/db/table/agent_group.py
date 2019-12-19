@@ -95,7 +95,7 @@ def update_description(idx_agent_group, description):
     if isinstance(description, str) is True:
         with db.db_modify(20010, die=False) as session:
             session.query(AgentGroup).filter(
-                AgentGroup.idx_agent_group == idx_agent_group.encode()).update(
+                AgentGroup.idx_agent_group == idx_agent_group).update(
                     {'description': description.encode()}
                 )
 
@@ -134,7 +134,7 @@ def cli_show_dump():
     Record = namedtuple(
         'Record',
         '''idx_agent_group description idx_pair_xlate_group idx_agent \
-agent_id enabled''')
+agent_program agent_target enabled''')
 
     # Get the result
     with db.db_query(20050) as session:
@@ -146,12 +146,15 @@ agent_id enabled''')
 
         # Get agents for group
         with db.db_query(20055) as session:
-            agent_rows = session.query(Agent.agent_id, Agent.idx_agent).filter(
-                Agent.idx_agent_group == row.idx_agent_group)
+            a_rows = session.query(
+                Agent.agent_program,
+                Agent.agent_polled_target,
+                Agent.idx_agent).filter(
+                    Agent.idx_agent_group == row.idx_agent_group)
 
-        if agent_rows.count() >= 1:
+        if a_rows.count() >= 1:
             # Agents assigned to the group
-            for agent_row in agent_rows:
+            for a_row in a_rows:
                 if first_agent is True:
                     # Format first row for agent group
                     result.append(
@@ -159,8 +162,9 @@ agent_id enabled''')
                             enabled=row.enabled,
                             idx_pair_xlate_group=row.idx_pair_xlate_group,
                             idx_agent_group=row.idx_agent_group,
-                            idx_agent=agent_row.idx_agent,
-                            agent_id=agent_row.agent_id.decode(),
+                            idx_agent=a_row.idx_agent,
+                            agent_program=a_row.agent_program.decode(),
+                            agent_target=a_row.agent_polled_target.decode(),
                             description=row.description.decode()
                         )
                     )
@@ -173,8 +177,9 @@ agent_id enabled''')
                             idx_agent_group='',
                             idx_pair_xlate_group='',
                             description='',
-                            idx_agent=agent_row.idx_agent,
-                            agent_id=agent_row.agent_id.decode()
+                            idx_agent=a_row.idx_agent,
+                            agent_program=a_row.agent_program.decode(),
+                            agent_target=a_row.agent_polled_target.decode()
                         )
                     )
 
@@ -187,13 +192,19 @@ agent_id enabled''')
                     description=row.description.decode(),
                     idx_pair_xlate_group=row.idx_pair_xlate_group,
                     idx_agent='',
-                    agent_id=''
+                    agent_program='',
+                    agent_target=''
                 )
             )
 
         # Add a spacer between agent groups
         result.append(Record(
-            enabled='', idx_agent_group='', idx_agent='',
-            agent_id='', description='', idx_pair_xlate_group=''))
+            enabled='',
+            idx_agent_group='',
+            idx_agent='',
+            agent_program='',
+            agent_target='',
+            description='',
+            idx_pair_xlate_group=''))
 
     return result

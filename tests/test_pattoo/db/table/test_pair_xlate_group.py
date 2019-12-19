@@ -4,7 +4,6 @@
 import os
 import unittest
 import sys
-import time
 from random import random
 
 # Try to create a working PYTHONPATH
@@ -30,7 +29,7 @@ directory. Please fix.''')
 from pattoo_shared import data
 from tests.libraries.configuration import UnittestConfig
 from pattoo.db.table import pair_xlate_group
-from pattoo.db.models import PairXlateGroup
+from pattoo.db.models import PairXlateGroup, Language
 from pattoo.db import db
 
 
@@ -56,8 +55,14 @@ class TestBasicFunctioins(unittest.TestCase):
 
     def test_exists(self):
         """Testing method / function exists."""
-        # Add an entry to the database
+        # Create a description
         description = data.hashstring(str(random()))
+
+        # Make sure it does not exist
+        result = pair_xlate_group.exists(description)
+        self.assertFalse(bool(result))
+
+        # Add an entry to the database
         pair_xlate_group.insert_row(description)
 
         # Make sure it exists
@@ -81,6 +86,12 @@ class TestBasicFunctioins(unittest.TestCase):
         """Testing method / function update_description."""
         # Add an entry to the database
         description = data.hashstring(str(random()))
+
+        # Make sure it does not exist
+        result = pair_xlate_group.exists(description)
+        self.assertFalse(bool(result))
+
+        # Add row to database
         pair_xlate_group.insert_row(description)
 
         # Make sure it exists
@@ -92,7 +103,7 @@ class TestBasicFunctioins(unittest.TestCase):
                 PairXlateGroup.idx_pair_xlate_group == idx).one()
 
         # Test
-        self.assertEqual(description, result.description)
+        self.assertEqual(description, result.description.decode())
 
         # Update the description
         new_description = data.hashstring(str(random()))
@@ -104,7 +115,7 @@ class TestBasicFunctioins(unittest.TestCase):
                 PairXlateGroup.idx_pair_xlate_group == idx).one()
 
         # Test
-        self.assertEqual(new_description, result.description)
+        self.assertEqual(new_description, result.description.decode())
 
     def test_cli_show_dump(self):
         """Testing method / function cli_show_dump."""
@@ -119,7 +130,6 @@ class TestBasicFunctioins(unittest.TestCase):
         for item in result:
             if item.idx_pair_xlate_group == idx_pair_xlate_group:
                 self.assertEqual(item.description, description)
-                self.assertEqual(item.idx_language, 1)
                 break
 
 

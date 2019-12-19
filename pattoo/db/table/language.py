@@ -7,7 +7,7 @@ from collections import namedtuple
 from pattoo_shared.constants import MAX_KEYPAIR_LENGTH
 from pattoo_shared import log
 from pattoo.db import db
-from pattoo.db.models import Language as _Language
+from pattoo.db.models import Language
 
 
 def idx_exists(idx):
@@ -26,8 +26,8 @@ def idx_exists(idx):
 
     # Get the result
     with db.db_query(20046) as session:
-        rows = session.query(_Language.idx_language).filter(
-            _Language.idx_language == idx)
+        rows = session.query(Language.idx_language).filter(
+            Language.idx_language == idx)
 
     # Return
     for _ in rows:
@@ -51,12 +51,12 @@ def exists(code):
     rows = []
 
     # Lowercase the code
-    code = code.lower()
+    code = code.lower().strip()
 
-    # Ignore certain restricted keys
+    # Get code from database
     with db.db_query(20031) as session:
-        rows = session.query(_Language.idx_language).filter(
-            _Language.code == code.encode())
+        rows = session.query(Language.idx_language).filter(
+            Language.code == code.encode())
 
     # Return
     for row in rows:
@@ -79,19 +79,18 @@ def insert_row(code, description=''):
     # Verify values
     if bool(description) is False or isinstance(description, str) is False:
         description = 'Change me. Language name not provided.'
-    else:
-        description = description[:MAX_KEYPAIR_LENGTH]
     if bool(code) is False or isinstance(code, str) is False:
         log_message = 'Language code "{}" is invalid'.format(code)
         log.log2die(20033, log_message)
 
     # Lowercase the code
-    code = code.lower()
+    code = code.strip().lower()[:MAX_KEYPAIR_LENGTH]
+    description = description.strip()[:MAX_KEYPAIR_LENGTH]
 
     # Insert
+    row = Language(code=code.encode(), description=description.encode())
     with db.db_modify(20032, die=True) as session:
-        session.add(_Language(
-            code=code.encode(), description=description.strip().encode()))
+        session.add(row)
 
 
 def update_description(code, description):
@@ -106,9 +105,10 @@ def update_description(code, description):
 
     """
     # Update
+    code = code.strip().lower()
     with db.db_modify(20048, die=False) as session:
-        session.query(_Language).filter(
-            _Language.code == code.encode()).update(
+        session.query(Language).filter(
+            Language.code == code.encode()).update(
                 {'description': description.strip().encode()}
             )
 
@@ -128,7 +128,7 @@ def cli_show_dump():
 
     # Get the result
     with db.db_query(20049) as session:
-        rows = session.query(_Language)
+        rows = session.query(Language)
 
     # Process
     for row in rows:

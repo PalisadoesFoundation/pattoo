@@ -29,10 +29,9 @@ directory. Please fix.''')
 
 from pattoo_shared import data
 from tests.libraries.configuration import UnittestConfig
-from pattoo.db.table import language
-from pattoo.db.models import Language
+from pattoo.db.table import agent_group, pair_xlate_group
+from pattoo.db.models import AgentGroup
 from pattoo.db import db
-
 
 
 class TestBasicFunctioins(unittest.TestCase):
@@ -45,84 +44,126 @@ class TestBasicFunctioins(unittest.TestCase):
     def test_idx_exists(self):
         """Testing method / function idx_exists."""
         # Add an entry to the database
-        code = data.hashstring(str(random()))
         description = data.hashstring(str(random()))
-        language.insert_row(code, description)
+        agent_group.insert_row(description)
 
         # Make sure it exists
-        idx_language = language.exists(code)
+        idx_agent_group = agent_group.exists(description)
 
         # Verify the index exists
-        result = language.idx_exists(idx_language)
+        result = agent_group.idx_exists(idx_agent_group)
         self.assertTrue(result)
 
     def test_exists(self):
         """Testing method / function exists."""
-        # Add an entry to the database
-        code = data.hashstring(str(random()))
+        # Create a description
         description = data.hashstring(str(random()))
-        language.insert_row(code, description)
+
+        # Make sure it does not exist
+        result = agent_group.exists(description)
+        self.assertFalse(bool(result))
+
+        # Add database row
+        agent_group.insert_row(description)
 
         # Make sure it exists
-        result = language.exists(code)
+        result = agent_group.exists(description)
         self.assertTrue(bool(result))
 
     def test_insert_row(self):
         """Testing method / function insert_row."""
         # Add an entry to the database
-        code = data.hashstring(str(random()))
         description = data.hashstring(str(random()))
-        language.insert_row(code, description)
+        agent_group.insert_row(description)
 
         # Make sure it exists
-        idx_language = language.exists(code)
+        idx_agent_group = agent_group.exists(description)
 
         # Verify the index exists
-        result = language.idx_exists(idx_language)
+        result = agent_group.idx_exists(idx_agent_group)
         self.assertTrue(result)
 
     def test_update_description(self):
         """Testing method / function update_description."""
         # Add an entry to the database
-        code = data.hashstring(str(random()))
         description = data.hashstring(str(random()))
-        language.insert_row(code, description)
+
+        # Make sure it does not exist
+        result = agent_group.exists(description)
+        self.assertFalse(bool(result))
+
+        # Add database row
+        agent_group.insert_row(description)
+
+        # Make sure it exists
+        idx = agent_group.exists(description)
+        self.assertTrue(bool(idx))
 
         # Get current description
-        with db.db_query(20003) as session:
-            result = session.query(Language.description).filter(
-                Language.code == code.encode()).one()
+        with db.db_query(20096) as session:
+            result = session.query(AgentGroup.description).filter(
+                AgentGroup.idx_agent_group == idx).one()
 
         # Test
         self.assertEqual(description, result.description.decode())
 
         # Update the description
         new_description = data.hashstring(str(random()))
-        language.update_description(code, new_description)
+        agent_group.update_description(idx, new_description)
 
         # Get current description
-        with db.db_query(20045) as session:
-            result = session.query(Language.description).filter(
-                Language.code == code.encode()).one()
+        with db.db_query(20097) as session:
+            result = session.query(AgentGroup.description).filter(
+                AgentGroup.idx_agent_group == idx).one()
 
         # Test
         self.assertEqual(new_description, result.description.decode())
 
+    def test_assign(self):
+        """Testing method / function assign."""
+        # Create a new PairXlateGroup entry
+        description = data.hashstring(str(random()))
+        pair_xlate_group.insert_row(description)
+        idx_pair_xlate_group = pair_xlate_group.exists(description)
+
+        # Add an entry to the database
+        description = data.hashstring(str(random()))
+        agent_group.insert_row(description)
+
+        # Make sure it exists
+        idx_agent_group = agent_group.exists(description)
+
+        # Get current idx_pair_xlate_group for the agent group
+        with db.db_query(20095) as session:
+            result = session.query(AgentGroup.idx_pair_xlate_group).filter(
+                AgentGroup.idx_agent_group == idx_agent_group).one()
+        idx_original = result.idx_pair_xlate_group
+        self.assertNotEqual(idx_pair_xlate_group, idx_original)
+
+        # Assign
+        agent_group.assign(idx_agent_group, idx_pair_xlate_group)
+
+        # Get current idx_pair_xlate_group for the agent group
+        with db.db_query(20098) as session:
+            result = session.query(AgentGroup.idx_pair_xlate_group).filter(
+                AgentGroup.idx_agent_group == idx_agent_group).one()
+        idx_new = result.idx_pair_xlate_group
+        self.assertEqual(idx_pair_xlate_group, idx_new)
+
     def test_cli_show_dump(self):
         """Testing method / function cli_show_dump."""
         # Add an entry to the database
-        code = data.hashstring(str(random()))
         description = data.hashstring(str(random()))
-        language.insert_row(code, description)
+        agent_group.insert_row(description)
 
         # Make sure it exists
-        idx_language = language.exists(code)
+        idx_agent_group = agent_group.exists(description)
 
-        result = language.cli_show_dump()
+        result = agent_group.cli_show_dump()
         for item in result:
-            if item.idx_language == idx_language:
+            if item.idx_agent_group == idx_agent_group:
                 self.assertEqual(item.description, description)
-                self.assertEqual(item.code, code)
+                self.assertEqual(item.idx_pair_xlate_group, 1)
                 break
 
 

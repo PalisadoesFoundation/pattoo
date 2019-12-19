@@ -30,7 +30,7 @@ directory. Please fix.''')
 from pattoo_shared import data
 from pattoo_shared.constants import DATA_FLOAT
 from tests.libraries.configuration import UnittestConfig
-from pattoo.db.table import glue, pair, datapoint
+from pattoo.db.table import glue, pair, datapoint, agent
 
 
 class TestBasicFunctioins(unittest.TestCase):
@@ -48,10 +48,17 @@ class TestBasicFunctioins(unittest.TestCase):
         key = data.hashstring(str(random()))
         value = data.hashstring(str(random()))
 
+        # Create a new Agent entry
+        agent_id = data.hashstring(str(random()))
+        agent_target = data.hashstring(str(random()))
+        agent_program = data.hashstring(str(random()))
+        agent.insert_row(agent_id, agent_target, agent_program)
+        idx_agent = agent.exists(agent_id, agent_target)
+
         # Insert values in tables
         pair.insert_rows((key, value))
         idx_pair = pair.pair_exists(key, value)
-        datapoint.insert_row(checksum, DATA_FLOAT, polling_interval)
+        datapoint.insert_row(checksum, DATA_FLOAT, polling_interval, idx_agent)
         idx_datapoint = datapoint.checksum_exists(checksum)
 
         # Create entry and check
@@ -70,10 +77,17 @@ class TestBasicFunctioins(unittest.TestCase):
         key = data.hashstring(str(random()))
         value = data.hashstring(str(random()))
 
+        # Create a new Agent entry
+        agent_id = data.hashstring(str(random()))
+        agent_target = data.hashstring(str(random()))
+        agent_program = data.hashstring(str(random()))
+        agent.insert_row(agent_id, agent_target, agent_program)
+        idx_agent = agent.exists(agent_id, agent_target)
+
         # Insert values in tables
         pair.insert_rows((key, value))
         idx_pair = pair.pair_exists(key, value)
-        datapoint.insert_row(checksum, DATA_FLOAT, polling_interval)
+        datapoint.insert_row(checksum, DATA_FLOAT, polling_interval, idx_agent)
         idx_datapoint = datapoint.checksum_exists(checksum)
 
         # Create entry and check
@@ -97,9 +111,16 @@ class TestBasicFunctioins(unittest.TestCase):
             value = data.hashstring(str(random()))
             keypairs.append((key, value))
 
+        # Create a new Agent entry
+        agent_id = data.hashstring(str(random()))
+        agent_target = data.hashstring(str(random()))
+        agent_program = data.hashstring(str(random()))
+        agent.insert_row(agent_id, agent_target, agent_program)
+        idx_agent = agent.exists(agent_id, agent_target)
+
         # Insert values in tables
         pair.insert_rows(keypairs)
-        datapoint.insert_row(checksum, DATA_FLOAT, polling_interval)
+        datapoint.insert_row(checksum, DATA_FLOAT, polling_interval, idx_agent)
         idx_datapoint = datapoint.checksum_exists(checksum)
 
         # Test
