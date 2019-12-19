@@ -21,6 +21,7 @@ graphene-sqlalchemy
 Flask
 Flask-GraphQL
 Flask-Caching
+Flask-Testing
 gunicorn
 
 # Mathematical libraries
