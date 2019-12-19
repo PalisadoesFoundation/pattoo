@@ -23,6 +23,7 @@ Flask-GraphQL
 Flask-Caching
 Flask-Testing
 gunicorn
+requests
 
 # Mathematical libraries
 numpy
