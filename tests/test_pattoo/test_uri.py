@@ -49,7 +49,8 @@ class TestBasicFunctiions(unittest.TestCase):
         for value in values:
             (ts_start, ts_stop) = uri.chart_timestamp_args(value)
             expected = int(time.time() * 1000) - (
-                (cfg.ingester_interval() * 1000) + cfg.polling_interval())
+                (cfg.ingester_interval() * 1000) + (
+                    2 * cfg.polling_interval()))
             self.assertEqual(ts_stop > ts_start, True)
             self.assertEqual(ts_stop, expected)
 

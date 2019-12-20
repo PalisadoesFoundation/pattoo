@@ -7,7 +7,7 @@ Retrieve's system data from remote host over HTTP.
 
 # Standard libraries
 from __future__ import print_function
-from time import sleep
+from time import sleep, time
 import sys
 import os
 from subprocess import call
@@ -64,6 +64,9 @@ class PollingAgent(Agent):
 
         # Post data to the remote server
         while True:
+            # Get start time
+            ts_start = time()
+
             # Say what we are doing
             script = '{}{}{}'.format(
                 _BIN_DIRECTORY, os.sep, PATTOO_INGESTER_SCRIPT)
@@ -82,7 +85,8 @@ Ingester failed to run. Please check log files for possible causes.''')
                 log.log2warning(20029, log_message)
 
             # Sleep
-            sleep(interval)
+            duration = time() - ts_start
+            sleep(abs(interval - duration))
 
 
 def check_lockfile():
