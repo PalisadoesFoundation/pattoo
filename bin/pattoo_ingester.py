@@ -87,7 +87,7 @@ def main():
         # situation where we always have files available that are newer than
         # the desired fileage.
         loopstart = time.time()
-        _fileage = max(fileage, (looptime * 2) + fileage)
+        fileage = fileage + looptime
 
         # Automatically stop if we are going on too long.(1 of 2)
         duration = loopstart - start
@@ -103,9 +103,9 @@ This can be adjusted on the CLI.'''.format(max_duration))
             # No need to log. This is an expected outcome.
             break
 
-        # Read data from cache
+        # Read data from cache. Stop if there is no data found.
         directory_data = files.read_json_files(
-            directory, die=False, age=_fileage, count=files_per_batch)
+            directory, die=False, age=fileage, count=files_per_batch)
         if bool(directory_data) is False:
             break
 
