@@ -21,7 +21,7 @@ def chart_timestamp_args(secondsago=None):
     # a few extra seconds to prevent zero values at the end.
     config = ConfigIngester()
     ts_stop = int(time.time() * 1000) - (
-        (config.ingester_interval() * 1000) + config.polling_interval())
+        (config.ingester_interval() * 1000) + (2 * config.polling_interval()))
 
     # Calculate start
     if bool(secondsago) is True and isinstance(secondsago, int) is True:
