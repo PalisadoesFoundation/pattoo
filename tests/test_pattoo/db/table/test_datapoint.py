@@ -30,9 +30,12 @@ from pattoo_shared import data
 from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
 from tests.libraries.configuration import UnittestConfig
 from pattoo.db.table import datapoint, agent
+from pattoo.db.table.datapoint import DataPoint
+from pattoo.db.models import DataPoint as _DataPoint
+from pattoo.db import db
 
 
-class TestBasicFunctioins(unittest.TestCase):
+class TestBasicFunctions(unittest.TestCase):
     """Checks all functions and methods."""
 
     #########################################################################
@@ -115,6 +118,127 @@ class TestBasicFunctioins(unittest.TestCase):
         result = datapoint.checksum_exists(checksum)
         self.assertTrue(bool(result))
         self.assertTrue(isinstance(result, int))
+
+    def test__counters(self):
+        """Testing method / function _counters."""
+        pass
+
+    def test__response(self):
+        """Testing method / function _response."""
+        pass
+
+
+class TestDataPoint(unittest.TestCase):
+    """Checks all functions and methods."""
+
+    def test___init__(self):
+        """Testing method / function __init__."""
+        # Create a new row in the database
+        pass
+
+    def test_enabled(self):
+        """Testing method / function enabled."""
+        # Create a new row in the database and test
+        idx_datapoint = _idx_datapoint()
+        obj = DataPoint(idx_datapoint)
+
+        # Get the result
+        with db.db_query(20105) as session:
+            result = session.query(_DataPoint.enabled).filter(
+                _DataPoint.idx_datapoint == idx_datapoint).one()
+        self.assertEqual(result.enabled, obj.enabled())
+
+    def test_idx_agent(self):
+        """Testing method / function idx_agent."""
+        # Create a new row in the database and test
+        idx_datapoint = _idx_datapoint()
+        obj = DataPoint(idx_datapoint)
+
+        # Get the result
+        with db.db_query(20104) as session:
+            result = session.query(_DataPoint.idx_agent).filter(
+                _DataPoint.idx_datapoint == idx_datapoint).one()
+        self.assertEqual(result.idx_agent, obj.idx_agent())
+
+    def test_checksum(self):
+        """Testing method / function checksum."""
+        # Create a new row in the database and test
+        idx_datapoint = _idx_datapoint()
+        obj = DataPoint(idx_datapoint)
+
+        # Get the result
+        with db.db_query(20103) as session:
+            result = session.query(_DataPoint.checksum).filter(
+                _DataPoint.idx_datapoint == idx_datapoint).one()
+        self.assertEqual(result.checksum.decode(), obj.checksum())
+
+    def test_data_type(self):
+        """Testing method / function data_type."""
+        # Create a new row in the database and test
+        idx_datapoint = _idx_datapoint()
+        obj = DataPoint(idx_datapoint)
+
+        # Get the result
+        with db.db_query(20102) as session:
+            result = session.query(_DataPoint.data_type).filter(
+                _DataPoint.idx_datapoint == idx_datapoint).one()
+        self.assertEqual(result.data_type, obj.data_type())
+
+    def test_exists(self):
+        """Testing method / function exists."""
+        # Create a new row in the database and test
+        idx_datapoint = _idx_datapoint()
+        obj = DataPoint(idx_datapoint)
+        self.assertTrue(obj.exists())
+
+    def test_last_timestamp(self):
+        """Testing method / function last_timestamp."""
+        # Create a new row in the database and test
+        idx_datapoint = _idx_datapoint()
+        obj = DataPoint(idx_datapoint)
+
+        # Get the result
+        with db.db_query(20101) as session:
+            result = session.query(_DataPoint.last_timestamp).filter(
+                _DataPoint.idx_datapoint == idx_datapoint).one()
+        self.assertEqual(result.last_timestamp, obj.last_timestamp())
+
+    def test_polling_interval(self):
+        """Testing method / function polling_interval."""
+        # Create a new row in the database and test
+        idx_datapoint = _idx_datapoint()
+        obj = DataPoint(idx_datapoint)
+
+        # Get the result
+        with db.db_query(20106) as session:
+            result = session.query(_DataPoint.polling_interval).filter(
+                _DataPoint.idx_datapoint == idx_datapoint).one()
+        self.assertEqual(result.polling_interval, obj.polling_interval())
+
+    def test_data(self):
+        """Testing method / function data."""
+        pass
+
+
+def _idx_datapoint():
+    """Testing method / function checksum_exists."""
+    # Initialize key variables
+    polling_interval = 1
+
+    # Create a new Agent entry
+    agent_id = data.hashstring(str(random()))
+    agent_target = data.hashstring(str(random()))
+    agent_program = data.hashstring(str(random()))
+    agent.insert_row(agent_id, agent_target, agent_program)
+    idx_agent = agent.exists(agent_id, agent_target)
+
+    # Create entry and check
+    _checksum = data.hashstring(str(random()))
+    result = datapoint.checksum_exists(_checksum)
+    datapoint.insert_row(
+        _checksum, DATA_FLOAT, polling_interval, idx_agent)
+    result = datapoint.checksum_exists(_checksum)
+    return result
 
 
 if __name__ == '__main__':

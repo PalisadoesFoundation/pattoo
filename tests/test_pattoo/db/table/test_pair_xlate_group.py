@@ -33,7 +33,7 @@ from pattoo.db.models import PairXlateGroup, Language
 from pattoo.db import db
 
 
-class TestBasicFunctioins(unittest.TestCase):
+class TestBasicFunctions(unittest.TestCase):
     """Checks all functions and methods."""
 
     #########################################################################
