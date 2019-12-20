@@ -28,7 +28,6 @@ directory. Please fix.''')
     sys.exit(2)
 
 from pattoo_shared import data, times
-from pattoo_shared.constants import PattooDBrecord
 from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
 from pattoo.db.table import datapoint, agent
 from pattoo.db.table import data as lib_data
@@ -243,8 +242,6 @@ class TestDataPoint(unittest.TestCase):
 
     def test_data(self):
         """Testing method / function data."""
-        self.maxDiff = None
-
         # Initialize key variables
         _data = []
         expected = []

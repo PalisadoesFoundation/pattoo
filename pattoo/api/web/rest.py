@@ -28,10 +28,11 @@ def route_data(idx_datapoint):
     # Initialize key variables
     _result = {}
     secondsago = data.integerize(request.args.get('secondsago'))
-    (ts_start, ts_stop) = uri.chart_timestamp_args(secondsago)
+    ts_start = uri.chart_timestamp_args(secondsago)
 
     # Get data
     _datapoint = DataPoint(idx_datapoint)
+    ts_stop = _datapoint.last_timestamp()
     _result = _datapoint.data(ts_start, ts_stop)
 
     # Return
