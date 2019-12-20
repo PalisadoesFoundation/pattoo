@@ -81,9 +81,10 @@ def _query(idx_datapoint, ts_start, ts_stop, metadata):
     """Create list of dicts of counter values retrieved from database.
 
     Args:
-        nones: Dict of values keyed by timestamp
-        polling_interval: Polling interval
-        places: Number of places to round values
+        idx_datapoint: DataPoint index
+        ts_start: Start time for query
+        ts_stop: Stop time for query
+        metadata: Metadata from database
 
     Returns:
         result: List of key-value pair dicts
