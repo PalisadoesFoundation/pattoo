@@ -27,6 +27,7 @@ directory. Please fix.''')
     sys.exit(2)
 
 from pattoo_shared import data
+from pattoo_shared.constants import PattooDBrecord
 from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
 from tests.libraries.configuration import UnittestConfig
 from pattoo.db.table import datapoint, agent
@@ -121,11 +122,32 @@ class TestBasicFunctions(unittest.TestCase):
 
     def test__counters(self):
         """Testing method / function _counters."""
-        pass
+        # Create a counter-like dict
+        increment = 2
+        inputs = {}
+        for item in range(0, 20, increment):
+            inputs[item] = item
+
+        result = datapoint._counters(inputs, 1, 1)
+        self.assertEqual(len(inputs) - 1, len(result))
+        for item in result:
+            self.assertTrue(item['timestamp'] in inputs)
+            self.assertEqual(item['value'], increment * 1000)
 
     def test__response(self):
         """Testing method / function _response."""
-        pass
+        # Initialize variables
+        inputs = {
+            1: 1 * 3,
+            2: 2 * 3,
+            3: 3 * 3,
+            4: 4 * 3
+        }
+        result = datapoint._response(inputs)
+        self.assertEqual(len(inputs), len(result))
+        for item in result:
+            timestamp = item['timestamp']
+            self.assertEqual(item['value'], inputs[timestamp])
 
 
 class TestDataPoint(unittest.TestCase):
@@ -133,7 +155,7 @@ class TestDataPoint(unittest.TestCase):
 
     def test___init__(self):
         """Testing method / function __init__."""
-        # Create a new row in the database
+        # Tested by other methods
         pass
 
     def test_enabled(self):
