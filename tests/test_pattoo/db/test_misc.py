@@ -36,7 +36,7 @@ from pattoo.constants import ChecksumLookup
 from pattoo.db.table import agent
 
 
-class TestBasicFunctioins(unittest.TestCase):
+class TestBasicFunctions(unittest.TestCase):
     """Checks all functions and methods."""
 
     #########################################################################

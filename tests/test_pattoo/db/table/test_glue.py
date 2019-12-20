@@ -33,7 +33,7 @@ from tests.libraries.configuration import UnittestConfig
 from pattoo.db.table import glue, pair, datapoint, agent
 
 
-class TestBasicFunctioins(unittest.TestCase):
+class TestBasicFunctions(unittest.TestCase):
     """Checks all functions and methods."""
 
     #########################################################################

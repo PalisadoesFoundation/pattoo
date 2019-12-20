@@ -15,24 +15,21 @@ def chart_timestamp_args(secondsago=None):
             stop times for charts
 
     Returns:
-        result: tuple of (ts_start, ts_stop)
+        result: Starting time
 
     """
     # Calculate stop. This takes into account the ingester cycle and subtracts
     # a few extra seconds to prevent zero values at the end.
     config = ConfigIngester()
     polling_interval = config.polling_interval()
-    ts_norm = normalized_timestamp(polling_interval, int(time.time() * 1000))
-    ts_stop = ts_norm - (
-        (config.ingester_interval() * 1000) + (3 * config.polling_interval()))
+    now = normalized_timestamp(polling_interval, int(time.time() * 1000))
 
     # Calculate start
     if bool(secondsago) is True and isinstance(secondsago, int) is True:
-        ts_start = ts_stop - (abs(secondsago) * 1000)
+        result = now - (abs(secondsago) * 1000)
     else:
-        # ts_start = ts_stop - (604800 * 1000)
-        ts_start = ts_stop - (3600 * 24 * 7) * 1000
+        # result = ts_stop - (604800 * 1000)
+        result = now - (3600 * 24 * 7) * 1000
 
     # Return
-    result = (ts_start, ts_stop)
     return result

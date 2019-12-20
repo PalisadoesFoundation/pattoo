@@ -24,7 +24,9 @@ directory. Please fix.''')
 # Pattoo imports
 from tests.libraries.configuration import UnittestConfig
 
+from pattoo_shared.times import normalized_timestamp
 from pattoo import uri
+from pattoo.configuration import ConfigIngester
 
 
 class TestBasicFunctiions(unittest.TestCase):
@@ -37,14 +39,21 @@ class TestBasicFunctiions(unittest.TestCase):
     def test_chart_timestamp_args(self):
         """Testing function chart_timestamp_args."""
         # Test nuisance cases
-        (ts_start, ts_stop) = uri.chart_timestamp_args('foo')
-        self.assertEqual(ts_start + 604800000, ts_stop)
+        config = ConfigIngester()
+        _pi = config.polling_interval()
 
         # Other cases
-        values = [None, -1, -6011, 1, 6011]
+        values = ['foo', None]
         for value in values:
-            (ts_start, ts_stop) = uri.chart_timestamp_args(value)
-            self.assertEqual(ts_stop > ts_start, True)
+            now = normalized_timestamp(_pi, int(time.time() * 1000))
+            result = uri.chart_timestamp_args(value)
+            self.assertEqual(result + 604800000, now)
+
+        values = [-1, -6011, 1, 6011]
+        for value in values:
+            now = normalized_timestamp(_pi, int(time.time() * 1000))
+            result = uri.chart_timestamp_args(value)
+            self.assertEqual(result + (abs(value) * 1000), now)
 
 
 if __name__ == '__main__':

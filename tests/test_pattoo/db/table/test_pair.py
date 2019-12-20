@@ -32,7 +32,7 @@ from tests.libraries.configuration import UnittestConfig
 from pattoo.db.table import pair
 
 
-class TestBasicFunctioins(unittest.TestCase):
+class TestBasicFunctions(unittest.TestCase):
     """Checks all functions and methods."""
 
     #########################################################################

@@ -40,7 +40,7 @@ from pattoo.db.table import data, datapoint
 from pattoo.db import db
 
 
-class TestBasicFunctioins(unittest.TestCase):
+class TestBasicFunctions(unittest.TestCase):
     """Checks all functions and methods."""
 
     #########################################################################

@@ -66,7 +66,11 @@ class UnittestConfig(object):
                 'ip_bind_port': 40201,
             },
             'pattoo_apid': {
-                'ip_listen_address': '127.0.0.3',
+                'ip_listen_address': '127.0.0.1',
+                'ip_bind_port': 40202,
+            },
+            'pattoo': {
+                'ip_address': '127.0.0.1',
                 'ip_bind_port': 40202,
             },
             'pattoo_ingesterd': {
