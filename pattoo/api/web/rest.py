@@ -96,12 +96,8 @@ def _query(idx_datapoint, ts_start, ts_stop, metadata):
     result = []
 
     # Make sure we have entries for entire time range
-    (norm_ts_stop, _) = times.normalized_timestamp(
-        polling_interval, timestamp=ts_stop)
-    (norm_ts_start, _) = times.normalized_timestamp(
-        polling_interval, timestamp=ts_start)
-    nones = {_key: None for _key in range(
-        norm_ts_start, norm_ts_stop, polling_interval)}
+    timestamps = times.timestamps(ts_start, ts_stop, polling_interval)
+    nones = {_key: None for _key in timestamps}
 
     # Get data from database
     with db.db_query(20092) as session:
@@ -112,9 +108,9 @@ def _query(idx_datapoint, ts_start, ts_stop, metadata):
 
     # Put values into a dict for ease of processing
     for row in rows:
-        # Get timestamp to the nearest polling_interval bounary
-        (timestamp, _) = times.normalized_timestamp(
-            polling_interval, timestamp=row.timestamp)
+        # Find the first timestamp in the sorted list that is greater than
+        # that found in the database
+        timestamp = round(row.timestamp / polling_interval) * polling_interval
         rounded_value = round(float(row.value), places)
         nones[timestamp] = rounded_value
 
@@ -197,6 +193,6 @@ def _response(nones):
     """
     # Return a list of dicts
     result = []
-    for timestamp, value in nones.items():
+    for timestamp, value in sorted(nones.items()):
         result.append({'timestamp': timestamp, 'value': value})
     return result
