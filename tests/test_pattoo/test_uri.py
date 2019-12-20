@@ -25,7 +25,6 @@ directory. Please fix.''')
 from tests.libraries.configuration import UnittestConfig
 
 from pattoo import uri
-from pattoo.configuration import ConfigIngester as Config
 
 
 class TestBasicFunctiions(unittest.TestCase):
@@ -37,9 +36,6 @@ class TestBasicFunctiions(unittest.TestCase):
 
     def test_chart_timestamp_args(self):
         """Testing function chart_timestamp_args."""
-        # Initialize key variables
-        cfg = Config()
-
         # Test nuisance cases
         (ts_start, ts_stop) = uri.chart_timestamp_args('foo')
         self.assertEqual(ts_start + 604800000, ts_stop)
@@ -48,11 +44,7 @@ class TestBasicFunctiions(unittest.TestCase):
         values = [None, -1, -6011, 1, 6011]
         for value in values:
             (ts_start, ts_stop) = uri.chart_timestamp_args(value)
-            expected = int(time.time() * 1000) - (
-                (cfg.ingester_interval() * 1000) + (
-                    4 * cfg.polling_interval()))
             self.assertEqual(ts_stop > ts_start, True)
-            self.assertEqual(ts_stop, expected)
 
 
 if __name__ == '__main__':
