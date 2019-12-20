@@ -72,7 +72,7 @@ class PollingAgent(Agent):
                 _BIN_DIRECTORY, os.sep, PATTOO_INGESTER_SCRIPT)
             log_message = ('''\
 Starting ingester script {}. Interval of {}s.'''.format(script, interval))
-            log.log2debug(20020, log_message)
+            log.log2info(20020, log_message)
 
             # Check lockfile status
             check_lockfile()
@@ -86,7 +86,11 @@ Ingester failed to run. Please check log files for possible causes.''')
 
             # Sleep
             duration = time() - ts_start
-            sleep(abs(interval - duration))
+            sleep_time = abs(interval - duration)
+            log_message = (
+                'Ingester sleeping for {:6.2f}s.'.format(sleep_time))
+            log.log2info(20100, log_message)
+            sleep(sleep_time)
 
 
 def check_lockfile():
