@@ -5,6 +5,7 @@ import os
 import unittest
 import sys
 from random import random
+import time
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -26,14 +27,17 @@ This script is not installed in the "pattoo/tests/test_pattoo/db/table" \
 directory. Please fix.''')
     sys.exit(2)
 
-from pattoo_shared import data
+from pattoo_shared import data, times
 from pattoo_shared.constants import PattooDBrecord
 from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
-from tests.libraries.configuration import UnittestConfig
 from pattoo.db.table import datapoint, agent
+from pattoo.db.table import data as lib_data
 from pattoo.db.table.datapoint import DataPoint
 from pattoo.db.models import DataPoint as _DataPoint
 from pattoo.db import db
+from pattoo.constants import IDXTimestampValue
+
+from tests.libraries.configuration import UnittestConfig
 
 
 class TestBasicFunctions(unittest.TestCase):
@@ -239,11 +243,71 @@ class TestDataPoint(unittest.TestCase):
 
     def test_data(self):
         """Testing method / function data."""
-        pass
+        self.maxDiff = None
+
+        # Initialize key variables
+        _data = []
+        expected = []
+        checksum = data.hashstring(str(random()))
+        pattoo_key = data.hashstring(str(random()))
+        agent_id = data.hashstring(str(random()))
+        polling_interval = 300 * 1000
+        data_type = DATA_FLOAT
+        _pattoo_value = 27
+        _timestamp = int(time.time() * 1000)
+        ts_start = _timestamp
+
+        for count in range(0, 10):
+            timestamp = _timestamp + (polling_interval * count)
+            ts_stop = timestamp
+            pattoo_value = _pattoo_value * count
+            insert = PattooDBrecord(
+                pattoo_checksum=checksum,
+                pattoo_key=pattoo_key,
+                pattoo_agent_id=agent_id,
+                pattoo_agent_polling_interval=polling_interval,
+                pattoo_timestamp=timestamp,
+                pattoo_data_type=data_type,
+                pattoo_value=pattoo_value * count,
+                pattoo_agent_polled_target='pattoo_agent_polled_target',
+                pattoo_agent_program='pattoo_agent_program',
+                pattoo_agent_hostname='pattoo_agent_hostname',
+                pattoo_metadata=[]
+            )
+
+            # Create checksum entry in the DB, then update the data table
+            idx_datapoint = datapoint.idx_datapoint(insert)
+            _data.append(IDXTimestampValue(
+                idx_datapoint=idx_datapoint,
+                polling_interval=polling_interval,
+                timestamp=timestamp,
+                value=pattoo_value))
+
+            # Append to expected results
+            expected.append(
+                {'timestamp': times.normalized_timestamp(
+                    polling_interval, timestamp), 'value': pattoo_value}
+            )
+
+        # Insert rows of new data
+        lib_data.insert_rows(_data)
+
+        # Test
+        obj = DataPoint(idx_datapoint)
+        result = obj.data(ts_start, ts_stop)
+        self.assertEqual(result, expected)
 
 
 def _idx_datapoint():
-    """Testing method / function checksum_exists."""
+    """Create a new DataPoint db entry.
+
+    Args:
+        value: Value to convert
+
+    Returns:
+        result: idx_datapoint value for new DataPoint
+
+    """
     # Initialize key variables
     polling_interval = 1
 

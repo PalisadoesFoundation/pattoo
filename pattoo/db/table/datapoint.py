@@ -192,7 +192,7 @@ class DataPoint(object):
         # Get data from database
         with db.db_query(20092) as session:
             rows = session.query(Data.timestamp, Data.value).filter(and_(
-                Data.timestamp < ts_stop, Data.timestamp > ts_start,
+                Data.timestamp <= ts_stop, Data.timestamp >= ts_start,
                 Data.idx_datapoint == self._idx_datapoint)).order_by(
                     Data.timestamp).all()
 
@@ -200,7 +200,7 @@ class DataPoint(object):
         for row in rows:
             # Find the first timestamp in the sorted list that is greater than
             # that found in the database
-            timestamp = round(row.timestamp / _pi) * _pi
+            timestamp = times.normalized_timestamp(_pi, row.timestamp)
             rounded_value = round(float(row.value), places)
             nones[timestamp] = rounded_value
 
@@ -214,38 +214,6 @@ class DataPoint(object):
             result = _counters(nones, _pi, places)
 
         return result
-
-
-def idx_datapoint(pattoo_db_record):
-    """Get the db DataPoint.idx_datapoint value for a PattooDBrecord object.
-
-    Args:
-        pattoo_db_record: PattooDBrecord object
-
-    Returns:
-        _idx_datapoint: DataPoint._idx_datapoint value. None if unsuccessful
-
-    """
-    # Initialize key variables
-    checksum = pattoo_db_record.pattoo_checksum
-    data_type = pattoo_db_record.pattoo_data_type
-    polling_interval = pattoo_db_record.pattoo_agent_polling_interval
-    agent_id = pattoo_db_record.pattoo_agent_id
-    agent_target = pattoo_db_record.pattoo_agent_polled_target
-    agent_program = pattoo_db_record.pattoo_agent_program
-
-    # Create an entry in the database Checksum table
-    _idx_datapoint = checksum_exists(checksum)
-    if bool(_idx_datapoint) is False:
-        # Create a record in the Agent table
-        idx_agent = agent.idx_agent(agent_id, agent_target, agent_program)
-
-        # Create a record in the DataPoint table
-        insert_row(checksum, data_type, polling_interval, idx_agent)
-        _idx_datapoint = checksum_exists(checksum)
-
-    # Return
-    return _idx_datapoint
 
 
 def _counters(nones, polling_interval, places):
@@ -318,6 +286,38 @@ def _response(nones):
     for timestamp, value in sorted(nones.items()):
         result.append({'timestamp': timestamp, 'value': value})
     return result
+
+
+def idx_datapoint(pattoo_db_record):
+    """Get the db DataPoint.idx_datapoint value for a PattooDBrecord object.
+
+    Args:
+        pattoo_db_record: PattooDBrecord object
+
+    Returns:
+        _idx_datapoint: DataPoint._idx_datapoint value. None if unsuccessful
+
+    """
+    # Initialize key variables
+    checksum = pattoo_db_record.pattoo_checksum
+    data_type = pattoo_db_record.pattoo_data_type
+    polling_interval = pattoo_db_record.pattoo_agent_polling_interval
+    agent_id = pattoo_db_record.pattoo_agent_id
+    agent_target = pattoo_db_record.pattoo_agent_polled_target
+    agent_program = pattoo_db_record.pattoo_agent_program
+
+    # Create an entry in the database Checksum table
+    _idx_datapoint = checksum_exists(checksum)
+    if bool(_idx_datapoint) is False:
+        # Create a record in the Agent table
+        idx_agent = agent.idx_agent(agent_id, agent_target, agent_program)
+
+        # Create a record in the DataPoint table
+        insert_row(checksum, data_type, polling_interval, idx_agent)
+        _idx_datapoint = checksum_exists(checksum)
+
+    # Return
+    return _idx_datapoint
 
 
 def checksum_exists(_checksum):
