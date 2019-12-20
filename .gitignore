@@ -16,6 +16,8 @@ log/**
 !log/.gitkeep
 daemon/**
 !daemon/.gitkeep
+templates/**
+!templates/.gitkeep
 
 ###############################################################################
 # Vim editor files
