@@ -3,13 +3,55 @@
 
 # Standard imports
 import multiprocessing
+import sys
+
+# PIP3 imports
+import tblib.pickling_support
+tblib.pickling_support.install()
+
 
 # Import project libraries
 from pattoo_shared.constants import DATA_NONE, DATA_STRING
 from pattoo.constants import IDXTimestampValue, ChecksumLookup
 from pattoo.ingest import get
 from pattoo.db import misc
-from pattoo.db.table import pair, glue, data, agent, datapoint
+from pattoo.db.table import pair, glue, data, datapoint
+
+
+class ExceptionWrapper(object):
+    """Class to handle unexpected exceptions with multiprocessing.
+
+    Based on:
+        https://stackoverflow.com/questions/6126007/python-getting-a-traceback-from-a-multiprocessing-process
+
+    """
+
+    def __init__(self, error_exception):
+        """Initialize the class.
+
+        Args:
+            error_exception: Exception object
+
+        Returns:
+            None
+
+        """
+        # Process
+        self._error_exception = error_exception
+        (_, __, self._traceback) = sys.exc_info()
+
+    def re_raise(self):
+        """Extend the re_raise method.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Process traceback
+        raise self._error_exception.with_traceback(self._traceback)
 
 
 def mulitiprocess(grouping_pattoo_db_records):
@@ -47,6 +89,11 @@ def mulitiprocess(grouping_pattoo_db_records):
     # Wait for all the processes to end and get results
     pool.join()
 
+    # Process the tracebacks
+    for result in per_process_key_value_pairs:
+        if isinstance(result, ExceptionWrapper):
+            result.re_raise()
+
     # Update the database with key value pairs
     pair.insert_rows(per_process_key_value_pairs)
 
@@ -54,10 +101,15 @@ def mulitiprocess(grouping_pattoo_db_records):
     with multiprocessing.Pool(processes=sub_processes_in_pool) as pool:
 
         # Create sub processes from the pool
-        pool.starmap(_process_rows, arguments)
+        row_results = pool.starmap(_process_rows, arguments)
 
     # Wait for all the processes to end and get results
     pool.join()
+
+    # Process the tracebacks
+    for result in row_results:
+        if isinstance(result, ExceptionWrapper):
+            result.re_raise()
 
 
 def _process_rows(pattoo_db_records):

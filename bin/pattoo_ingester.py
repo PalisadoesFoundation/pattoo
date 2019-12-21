@@ -77,7 +77,7 @@ def main():
     files_found = len(
         [_ for _ in os.listdir(directory) if _.endswith('.json')])
 
-    # Create lockfile.
+    # Create lockfile.  
     lock()
 
     # Process the files in batches to reduce the database connection count

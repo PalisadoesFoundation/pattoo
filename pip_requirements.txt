@@ -31,3 +31,6 @@ pandas
 
 # System libraries
 psutil
+
+# Helps with multiprocessing errors
+tblib
