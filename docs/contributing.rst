@@ -1,8 +1,13 @@
 How To Contribute
 =================
 
-Below is the workflow for having your contribution accepted into the ``pattoo`` repository.
+PLACEHOLDER THIS DOES NOT WORK YET
+PLACEHOLDER THIS DOES NOT WORK YET
+PLACEHOLDER THIS DOES NOT WORK YET
+PLACEHOLDER THIS DOES NOT WORK YET
+PLACEHOLDER THIS DOES NOT WORK YET
 
+Below is the workflow for having your contribution accepted into the ``pattoo`` repository.
 
 #. Create an Issue or comment on an existing issue to discuss the feature
 #. If the feature is approved, assign the issue to yourself
@@ -32,9 +37,10 @@ Below is the workflow for having your contribution accepted into the ``pattoo`` 
     See also: #456, #789
 
 
-
-#. When you need to synch with upstream (pull the latest changes from main repo into your current branch), do: git fetch upstream -> -> git merge upstream/master. (or run ``make synch`` to let the projects makefile handle synching)
-#. Check for uneccesary whitespace with ``git diff --check``.
+#. When you need to synch with upstream (pull the latest changes from main repo into your current branch), do:
+   #. ``git fetch upstream``
+   #. ``git merge upstream/master`` (or run ``make synch`` to let the projects makefile handle synching)
+#. Check for unnecessary white space with ``git diff --check``.
 #. Write the necessary unit tests for your changes.
 #. Run all the tests to assure nothing else was accidentally broken (run: ``make test``\ )
 #. Push your changes to your forked repository (git push origin ``branch``\ )
@@ -48,11 +54,9 @@ The ``make synch`` command will synch your repository
 Code Style Guide
 ================
 
-For ease of readability and maintainability ``pattoo`` code must follow thse guidelines.
-Code that does not comply will not be added to the ``master`` branch.
+For ease of readability and maintainability ``pattoo`` code must follow these guidelines. Code that does not comply will not be added to the ``master`` branch.
 
-
-#. ``pattoo`` uses the Google Python Style Guide for general style requirements
+#. ``pattoo`` uses the `Google Python Style Guide <https://google.github.io/styleguide/pyguide.html#Exceptions>`_ for general style requirements
 #. ``pattoo`` uses the The Chromium Projects Python Style Guidelines for docstrings.
 #. Indentations must be multiples of 4 blank spaces. No tabs.
 #. All strings must be enclosed in single quotes
@@ -62,22 +66,20 @@ Code that does not comply will not be added to the ``master`` branch.
 Guidelines to remember
 ----------------------
 
-
 * Always opt for the most pythonic solution to a problem
 * Avoid applying idioms from other programming languages
 * Import each module with its full path name. ie: from pack.subpack import module
-* Use exceptions where appropriate ( https://google.github.io/styleguide/pyguide.html#Exceptions )
-* Use doc strings ( http://sphinxcontrib-napoleon.readthedocs.org/en/latest/example_google.html )
-* Try not to have returns at multiple points in a function unless they are failure state returns
+* `Use exceptions where appropriate <https://google.github.io/styleguide/pyguide.html#Exceptions>`_
+* `Use doc strings <http://sphinxcontrib-napoleon.readthedocs.org/en/latest/example_google.html>`_
+* Try not to have returns at multiple points in a function unless they are failure state returns.
 * If you are in the middle of a development session and have to interrupt your work, it is a good idea to write a broken unit test about what you want to develop next. When coming back to work, you will have a pointer to where you were and get back on track faster.
 
 Commits
 -------
 
-``pattoo`` strives to maintain a proper log of development through well structured git commits.
-The link below offer insight and advice on the topic of commit messages:
-https://robots.thoughtbot.com/5-useful-tips-for-a-better-commit-message
-http://chris.beams.io/posts/git-commit/
+``pattoo`` strives to maintain a proper log of development through well structured git commits. The links below offer insight and advice on the topic of commit messages:
+#. https://robots.thoughtbot.com/5-useful-tips-for-a-better-commit-message
+#. http://chris.beams.io/posts/git-commit/
 
 PEP8 and PEP257 Compliance
 --------------------------
@@ -88,13 +90,11 @@ VirtualEnv
 ----------
 
 ``virtualenv`` is a tool to create isolated Python environments.
-It creates an environment that has its own installation directories,
-that doesn’t share libraries with other virtualenv environments nor does it access the globally installed libraries either.
+It creates an environment that has its own installation directories, that doesn’t share libraries with other virtualenv environments nor does it access the globally installed libraries either.
 
-The ``pattoo`` project's makefile wil automatically set up a makefile for you once you have virutalenv installed globally.
-All dependencies that ``pattoo`` requires, aside from pip and virtualenv itself, will be installed to this virtual env.
-The makefile will run commands such as ``nosetests`` from the virtual env. If you wish to run these commands manually,
-run them as ``venv/bin/nosetests`` as they would not have been installed to your machine globally.
+* The ``pattoo`` project's ``makefile`` will automatically set up a ``makefile`` for you once you have virutalenv installed globally.
+* All dependencies that ``pattoo`` requires, aside from ``pip`` and ``virtualenv`` itself, will be installed to this virtual env.
+* The makefile will run commands such as ``nosetests`` from the virtual env. If you wish to run these commands manually, run them as ``venv/bin/nosetests`` as they would not have been installed to your machine globally.
 
 Makefile
 --------
