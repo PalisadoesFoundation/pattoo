@@ -20,6 +20,7 @@ General information about the project, including the the prerequisite steps to g
    :caption: Introduction:
 
    palisadoes
+   contributing
    introduction
    installation
    configuration
