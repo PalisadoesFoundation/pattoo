@@ -77,7 +77,7 @@ def main():
     files_found = len(
         [_ for _ in os.listdir(directory) if _.endswith('.json')])
 
-    # Create lockfile.  
+    # Create lockfile.
     lock()
 
     # Process the files in batches to reduce the database connection count
@@ -222,7 +222,15 @@ instance running? If not, delete the lockfile and rerun this script.\
         else:
             open(lockfile, 'a').close()
     else:
-        os.remove(lockfile)
+        if os.path.exists(lockfile) is True:
+            try:
+                os.remove(lockfile)
+            except:
+                log_message = ('Error deleting lockfile {}.'.format(lockfile))
+                log.log2warning(20107, log_message)
+        else:
+            log_message = ('Lockfile {} not found.'.format(lockfile))
+            log.log2warning(20108, log_message)
 
 
 def arguments(config):
