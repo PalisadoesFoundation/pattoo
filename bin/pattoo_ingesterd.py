@@ -10,7 +10,6 @@ from __future__ import print_function
 from time import sleep, time
 import sys
 import os
-from subprocess import call
 
 # Try to create a working PYTHONPATH
 _BIN_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
