@@ -13,6 +13,7 @@ tblib.pickling_support.install()
 # Import project libraries
 from pattoo_shared.constants import DATA_NONE, DATA_STRING
 from pattoo.constants import IDXTimestampValue, ChecksumLookup
+from pattoo_shared import log
 from pattoo.ingest import get
 from pattoo.db import misc
 from pattoo.db.table import pair, glue, data, datapoint
@@ -113,6 +114,38 @@ def mulitiprocess(grouping_pattoo_db_records):
 
 
 def _process_rows(pattoo_db_records):
+    """Insert all data values for an agent into database.
+
+    Args:
+        pattoo_db_records: List of dicts read from cache files.
+
+    Returns:
+        None
+
+    Method:
+        1) Get all the idx_datapoint and idx_pair values that exist in the
+           PattooDBrecord data from the database. All the records MUST be
+           from the same source.
+        2) Add these idx values to tracking memory variables for speedy lookup
+        3) Ignore non numeric data values sent
+        4) Add data to the database. If new checksum values are found in the
+           PattooDBrecord data, then create the new index values to the
+           database, update the tracking memory variables before hand.
+
+    """
+    try:
+        multi_process_rows(pattoo_db_records)
+    except Exception as error:
+        return ExceptionWrapper(error)
+    except:
+        (etype, evalue, etraceback) = sys.exc_info()
+        log_message = ('''\
+Ingester failure: [Exception:{}, Exception Instance: {}, Stack Trace: {}]\
+'''.format(etype, evalue, etraceback))
+        log.log2warning(20109, log_message)
+
+
+def multi_process_rows(pattoo_db_records):
     """Insert all data values for an agent into database.
 
     Args:
