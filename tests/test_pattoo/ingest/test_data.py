@@ -26,6 +26,7 @@ directory. Please fix.''')
     sys.exit(2)
 
 from pattoo_shared import data as lib_data
+from pattoo_shared import times
 from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
 from tests.libraries.configuration import UnittestConfig
 from pattoo.db.table import pair, datapoint
@@ -66,23 +67,24 @@ class TestBasicFunctions(unittest.TestCase):
         checksum = lib_data.hashstring(str(random()))
         agent_id = lib_data.hashstring(str(random()))
         data_type = DATA_FLOAT
-        polling_interval = 10 * 1000
+        _pi = 10 * 1000
         pattoo_key = lib_data.hashstring(str(random()))
-        _timestamp = int(time.time() * 1000)
+        _timestamp = times.normalized_timestamp(
+            _pi, int(time.time() * 1000))
         expected = []
         timestamps = []
         records = []
 
         # Create a list of PattooDBrecord objects
         for pattoo_value in range(0, 5):
-            timestamp = _timestamp + (pattoo_value * polling_interval)
-            expected.append({'timestamp': _timestamp, 'value': pattoo_value})
+            timestamp = _timestamp + (pattoo_value * _pi)
+            expected.append({'timestamp': timestamp, 'value': pattoo_value})
             timestamps.append(timestamp)
             record = PattooDBrecord(
                 pattoo_checksum=checksum,
                 pattoo_key=pattoo_key,
                 pattoo_agent_id=agent_id,
-                pattoo_agent_polling_interval=polling_interval,
+                pattoo_agent_polling_interval=_pi,
                 pattoo_timestamp=timestamp,
                 pattoo_data_type=data_type,
                 pattoo_value=pattoo_value,
@@ -105,10 +107,12 @@ class TestBasicFunctions(unittest.TestCase):
         _dp = datapoint.DataPoint(idx_datapoint)
         ts_start = min(timestamps)
         ts_stop = max(timestamps)
-        result = _dp.data(ts_start, ts_stop)
+        results = _dp.data(ts_start, ts_stop)
 
         # Test
-        self.assertEqual(result, expected)
+        for index, result in enumerate(results):
+            self.assertEqual(result['value'], expected[index]['value'])
+            self.assertEqual(result['timestamp'], expected[index]['timestamp'])
 
 
 if __name__ == '__main__':
