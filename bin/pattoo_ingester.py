@@ -190,7 +190,11 @@ File {} has invalid data. It will not be processed'''.format(filepath))
         log_message = 'Deleting cache file {}'.format(filepath)
         log.log2debug(20009, log_message)
         if os.path.exists(filepath):
-            os.remove(filepath)
+            try:
+                os.remove(filepath)
+            except:
+                log_message = 'Error deleting cache file {}.'.format(filepath)
+                log.log2warning(20110, log_message)
 
     # Return
     return count
