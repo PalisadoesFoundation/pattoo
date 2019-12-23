@@ -77,7 +77,7 @@ Starting ingester script {}. Interval of {}s.'''.format(script, interval))
             check_lockfile()
 
             # Now shut up and do it!
-            result = files.execute(script)
+            result = files.execute(script, die=False)
             if bool(result) is True:
                 log_message = ('''\
 Ingester failed to run. Please check log files for possible causes.''')
