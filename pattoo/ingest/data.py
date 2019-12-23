@@ -134,7 +134,7 @@ def _process_rows(pattoo_db_records):
 
     """
     try:
-        multi_process_rows(pattoo_db_records)
+        process_db_records(pattoo_db_records)
     except Exception as error:
         return ExceptionWrapper(error)
     except:
@@ -145,7 +145,7 @@ Ingester failure: [Exception:{}, Exception Instance: {}, Stack Trace: {}]\
         log.log2warning(20109, log_message)
 
 
-def multi_process_rows(pattoo_db_records):
+def process_db_records(pattoo_db_records):
     """Insert all data values for an agent into database.
 
     Args:
@@ -228,5 +228,5 @@ def multi_process_rows(pattoo_db_records):
                     value=pdbr.pattoo_value)
 
     # Update the data table
-    if bool(data):
+    if bool(_data) is True:
         data.insert_rows(list(_data.values()))

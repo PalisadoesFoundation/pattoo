@@ -27,6 +27,10 @@ def insert_rows(items):
     last_timestamps = {}
     polling_intervals = {}
 
+    # Fail safe checks
+    if bool(items) is False:
+        return
+
     # Update the data
     for item in sorted(items, key=attrgetter('timestamp')):
         # Insert data
