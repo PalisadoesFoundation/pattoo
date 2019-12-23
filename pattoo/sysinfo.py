@@ -24,5 +24,6 @@ def process_running(process_name):
     for item in process_name:
         if item.lower() in output.lower():
             result = True
+            break
 
     return result
