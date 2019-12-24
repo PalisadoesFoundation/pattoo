@@ -17,6 +17,7 @@ from pattoo_shared import log
 from pattoo.ingest import get
 from pattoo.db import misc
 from pattoo.db.table import pair, glue, data, datapoint
+from pattoo.configuration import ConfigIngester as Config
 
 
 class ExceptionWrapper(object):
@@ -55,94 +56,117 @@ class ExceptionWrapper(object):
         raise self._error_exception.with_traceback(self._traceback)
 
 
-def mulitiprocess(grouping_pattoo_db_records):
-    """Insert PattooDBrecord objects into the database.
+class Process(object):
+    """Process data using multiprocessing."""
 
-    Args:
-        grouping_pattoo_db_records: List of PattooDBrecord oject lists grouped
-            by source and sorted by timestamp. This data is obtained from
-            PattooShared.converter.extract
+    def __init__(self, grouping_pattoo_db_records):
+        """Initialize the class.
 
-    Returns:
-        None
+        Args:
+            grouping_pattoo_db_records: List of PattooDBrecord oject lists
+                grouped by source and sorted by timestamp. This data is
+                obtained from PattooShared.converter.extract
 
-    Method:
-        1) Extract all the key-value pairs from the data
-        2) Update the database with pairs not previously seen
-        3) Add the remaining data to the database using the pair
-           indices created in (2)
+        Returns:
+            None
 
-    """
-    # Initialize key variables
-    arguments = []
-    sub_processes_in_pool = max(1, multiprocessing.cpu_count() * 2)
+        """
+        # Initialize key variables
+        config = Config()
 
-    # Setup the arguments for multiprocessing
-    arguments = [(_, ) for _ in grouping_pattoo_db_records]
+        # Setup the arguments for multiprocessing
+        self._arguments = [(_, ) for _ in grouping_pattoo_db_records]
+        self._pool_size = max(1, multiprocessing.cpu_count() * 2)
+        self._multiprocess = config.multiprocessing()
 
-    # Create a pool of sub process resources
-    with multiprocessing.Pool(processes=sub_processes_in_pool) as pool:
+    def multiprocess_pairs(self):
+        """Update rows in the Pair database table if necessary.
 
-        # Create sub processes from the pool
-        per_process_key_value_pairs = pool.starmap(
-            get.key_value_pairs, arguments)
+        Args:
+            None
 
-    # Wait for all the processes to end and get results
-    pool.join()
+        Returns:
+            None
 
-    # Process the tracebacks
-    for result in per_process_key_value_pairs:
-        if isinstance(result, ExceptionWrapper):
-            result.re_raise()
+        """
+        # Create a pool of sub process resources
+        with multiprocessing.Pool(processes=self._pool_size) as pool:
 
-    # Update the database with key value pairs
-    pair.insert_rows(per_process_key_value_pairs)
+            # Create sub processes from the pool
+            per_process_key_value_pairs = pool.starmap(
+                get.key_value_pairs, self._arguments)
 
-    # Create a pool of sub process resources
-    with multiprocessing.Pool(processes=sub_processes_in_pool) as pool:
+        # Wait for all the processes to end and get results
+        pool.join()
 
-        # Create sub processes from the pool
-        row_results = pool.starmap(_process_rows, arguments)
+        # Update the database with key value pairs
+        pair.insert_rows(per_process_key_value_pairs)
 
-    # Wait for all the processes to end and get results
-    pool.join()
+    def multiprocess_data(self):
+        """Insert rows into the Data and DataPoint tables as necessary.
 
-    # Process the tracebacks
-    for result in row_results:
-        if isinstance(result, ExceptionWrapper):
-            result.re_raise()
+        Args:
+            None
 
+        Returns:
+            None
 
-def _process_rows(pattoo_db_records):
-    """Insert all data values for an agent into database.
+        """
+        # Create a pool of sub process resources
+        with multiprocessing.Pool(processes=self._pool_size) as pool:
 
-    Args:
-        pattoo_db_records: List of dicts read from cache files.
+            # Create sub processes from the pool
+            pool.starmap(process_db_records, self._arguments)
 
-    Returns:
-        None
+        # Wait for all the processes to end and get results
+        pool.join()
 
-    Method:
-        1) Get all the idx_datapoint and idx_pair values that exist in the
-           PattooDBrecord data from the database. All the records MUST be
-           from the same source.
-        2) Add these idx values to tracking memory variables for speedy lookup
-        3) Ignore non numeric data values sent
-        4) Add data to the database. If new checksum values are found in the
-           PattooDBrecord data, then create the new index values to the
-           database, update the tracking memory variables before hand.
+    def singleprocess_pairs(self):
+        """Update rows in the Pair database table if necessary.
 
-    """
-    try:
-        process_db_records(pattoo_db_records)
-    except Exception as error:
-        return ExceptionWrapper(error)
-    except:
-        (etype, evalue, etraceback) = sys.exc_info()
-        log_message = ('''\
-Ingester failure: [Exception:{}, Exception Instance: {}, Stack Trace: {}]\
-'''.format(etype, evalue, etraceback))
-        log.log2warning(20109, log_message)
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Process data
+        for row in self._arguments:
+            per_process_key_value_pairs = get.key_value_pairs(row)
+            pair.insert_rows(per_process_key_value_pairs)
+
+    def singleprocess_data(self):
+        """Insert rows into the Data and DataPoint tables as necessary.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Process data
+        for row in self._arguments:
+            process_db_records(row)
+
+    def data(self):
+        """Insert rows into the Data and DataPoint tables as necessary.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Update
+        if self._multiprocess is True:
+            self.multiprocess_pairs()
+            self.multiprocess_data()
+        else:
+            self.singleprocess_pairs()
+            self.singleprocess_data()
 
 
 def process_db_records(pattoo_db_records):

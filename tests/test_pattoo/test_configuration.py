@@ -147,6 +147,15 @@ class TestConfigAgent(unittest.TestCase):
         result = self.config.ingester_interval()
         self.assertEqual(result, expected)
 
+    def test_multiprocessing(self):
+        """Testing function multiprocessing."""
+        # Initialize key values
+        expected = True
+
+        # Test
+        result = self.config.multiprocessing()
+        self.assertEqual(result, expected)
+
 
 if __name__ == '__main__':
     # Make sure the environment is OK to run unittests

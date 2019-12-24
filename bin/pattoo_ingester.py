@@ -30,7 +30,7 @@ from pattoo_shared import log
 from pattoo_shared import converter
 from pattoo.constants import PATTOO_API_AGENT_NAME
 
-from pattoo.ingest import data
+from pattoo.ingest.data import Process
 
 
 def main():
@@ -183,7 +183,8 @@ File {} has invalid data. It will not be processed'''.format(filepath))
     if bool(_cache) is True:
         for _, item in sorted(_cache.items()):
             muliprocessing_data.append(item)
-        data.mulitiprocess(muliprocessing_data)
+        _ingest = Process(muliprocessing_data)
+        _ingest.data()
 
     # Delete cache files after processing
     for filepath in filepaths:
