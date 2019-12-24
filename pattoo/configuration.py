@@ -318,3 +318,25 @@ class ConfigIngester(ConfigShared):
         if result is None:
             result = 3600
         return result
+
+    def multiprocessing(self):
+        """Get multiprocessing.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        key = PATTOO_INGESTERD_NAME
+        sub_key = 'multiprocessing'
+        _result = search(key, sub_key, self._configuration, die=False)
+
+        # Return
+        if _result is None:
+            result = True
+        else:
+            result = bool(_result)
+        return result
