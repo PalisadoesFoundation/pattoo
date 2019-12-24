@@ -132,9 +132,11 @@ class Process(object):
 
         """
         # Process data
+        pairs = []
         for row in self._arguments:
             per_process_key_value_pairs = get.key_value_pairs(row)
-            pair.insert_rows(per_process_key_value_pairs)
+            pairs.append(per_process_key_value_pairs)
+        pair.insert_rows(pairs)
 
     def singleprocess_data(self):
         """Insert rows into the Data and DataPoint tables as necessary.
