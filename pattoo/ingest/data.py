@@ -133,7 +133,7 @@ class Process(object):
         """
         # Process data
         pairs = []
-        for row in self._arguments:
+        for row, _ in self._arguments:
             per_process_key_value_pairs = get.key_value_pairs(row)
             pairs.append(per_process_key_value_pairs)
         pair.insert_rows(pairs)
@@ -149,7 +149,7 @@ class Process(object):
 
         """
         # Process data
-        for row in self._arguments:
+        for row, _ in self._arguments:
             process_db_records(row)
 
     def data(self):
