@@ -65,8 +65,9 @@ def receive(source):
     try:
         timestamp = posted_data['pattoo_agent_timestamp']
     except:
+        (etype, evalue, etraceback) = sys.exc_info()
         log_message = ('''API Failure: [{}, {}, {}]\
-'''.format(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]))
+'''.format(etype, evalue, etraceback))
         log.log2warning(20025, log_message)
         abort(404)
 
@@ -86,8 +87,9 @@ def receive(source):
         log.log2warning(20016, log_message)
         abort(404)
     except:
-        log_message = ("""API Failure: [{}, {}, {}]\
-""".format(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]))
+        (etype, evalue, etraceback) = sys.exc_info()
+        log_message = ('''API Failure: [{}, {}, {}]\
+'''.format(etype, evalue, etraceback))
         log.log2warning(20017, log_message)
         abort(404)
 
