@@ -270,6 +270,10 @@ def process_db_records(pattoo_db_records):
     agent_id = pattoo_db_records[0].pattoo_agent_id
     checksum_table = misc.agent_checksums(agent_id)
 
+    # Log message
+    log_message = 'Starting data processing for agent_id: {}'.format(agent_id)
+    log.log2debug(20112, log_message)
+
     # Process data
     for pdbr in pattoo_db_records:
         # We only want to insert non-string, non-None values
@@ -323,3 +327,7 @@ def process_db_records(pattoo_db_records):
     # Update the data table
     if bool(_data) is True:
         data.insert_rows(list(_data.values()))
+
+    # Log message
+    log_message = 'Finished data processing for agent_id: {}'.format(agent_id)
+    log.log2debug(20113, log_message)
