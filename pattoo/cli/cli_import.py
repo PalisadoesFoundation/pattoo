@@ -10,7 +10,7 @@ import pandas as pd
 
 # Import project libraries
 from pattoo_shared import log
-from pattoo.db.table import pair_xlate, pair_xlate_group
+from pattoo.db.table import pair_xlate
 
 
 def process(args):
@@ -48,8 +48,9 @@ def _process_key_pair_translation(args):
     try:
         _df = pd.read_csv(args.filename)
     except:
+        (etype, evalue, etraceback) = sys.exc_info()
         log_message = ('''File import failure: [{}, {}, {}]\
-'''.format(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]))
+'''.format(etype, evalue, etraceback))
         log.log2die(20076, log_message)
 
     # Import the data

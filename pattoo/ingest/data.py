@@ -40,7 +40,7 @@ class ExceptionWrapper(object):
         """
         # Process
         self._error_exception = error_exception
-        (_, __, self._traceback) = sys.exc_info()
+        (self._etype, self._evalue, self._etraceback) = sys.exc_info()
 
     def re_raise(self):
         """Extend the re_raise method.
@@ -52,8 +52,14 @@ class ExceptionWrapper(object):
             None
 
         """
+        # Log message
+        log_message = ('''\
+[Exception:{}, Exception Instance: {}, Stack Trace: {}]\
+'''.format(self._etype, self._evalue, self._etraceback))
+        log.log2warning(20114, log_message)
+
         # Process traceback
-        raise self._error_exception.with_traceback(self._traceback)
+        raise self._error_exception.with_traceback(self._etraceback)
 
 
 class Process(object):
