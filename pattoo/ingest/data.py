@@ -94,10 +94,15 @@ class Process(object):
 
             # Create sub processes from the pool
             per_process_key_value_pairs = pool.starmap(
-                get.key_value_pairs, self._arguments)
+                m_key_value_pairs, self._arguments)
 
         # Wait for all the processes to end and get results
         pool.join()
+
+        # Test for exceptions
+        for result in per_process_key_value_pairs:
+            if isinstance(result, ExceptionWrapper):
+                result.re_raise()
 
         # Update the database with key value pairs
         pair.insert_rows(per_process_key_value_pairs)
@@ -116,10 +121,15 @@ class Process(object):
         with multiprocessing.Pool(processes=self._pool_size) as pool:
 
             # Create sub processes from the pool
-            pool.starmap(process_db_records, self._arguments)
+            results = pool.starmap(m_process_db_records, self._arguments)
 
         # Wait for all the processes to end and get results
         pool.join()
+
+        # Test for exceptions
+        for result in results:
+            if isinstance(result, ExceptionWrapper):
+                result.re_raise()
 
     def singleprocess_pairs(self):
         """Update rows in the Pair database table if necessary.
@@ -171,6 +181,61 @@ class Process(object):
         else:
             self.singleprocess_pairs()
             self.singleprocess_data()
+
+
+def m_key_value_pairs(pattoo_db_records):
+    """Get all the key-value pairs found.
+
+    Args:
+        pattoo_db_records: List of dicts read from cache files.
+
+    Returns:
+        None
+
+    Method:
+        Trap any exceptions and return them for processing
+
+    """
+    # Execute
+    try:
+        result = get.key_value_pairs(pattoo_db_records)
+    except Exception as error:
+        return ExceptionWrapper(error)
+    except:
+        (etype, evalue, etraceback) = sys.exc_info()
+        log_message = ('''\
+Ingest failure: [Exception:{}, Exception Instance: {}, Stack Trace: {}]\
+'''.format(etype, evalue, etraceback))
+        log.log2die(20111, log_message)
+
+    # Return
+    return result
+
+
+def m_process_db_records(pattoo_db_records):
+    """Insert all data values for an agent into database.
+
+    Args:
+        pattoo_db_records: List of dicts read from cache files.
+
+    Returns:
+        None
+
+    Method:
+        Trap any exceptions and return them for processing
+
+    """
+    # Execute
+    try:
+        process_db_records(pattoo_db_records)
+    except Exception as error:
+        return ExceptionWrapper(error)
+    except:
+        (etype, evalue, etraceback) = sys.exc_info()
+        log_message = ('''\
+Ingest failure: [Exception:{}, Exception Instance: {}, Stack Trace: {}]\
+'''.format(etype, evalue, etraceback))
+        log.log2die(20109, log_message)
 
 
 def process_db_records(pattoo_db_records):

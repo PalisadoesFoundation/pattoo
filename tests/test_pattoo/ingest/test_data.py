@@ -34,7 +34,6 @@ from pattoo.ingest import get
 from pattoo.ingest import data as ingest_data
 
 
-
 class TestExceptionWrapper(unittest.TestCase):
     """Checks all functions and methods."""
 
@@ -174,12 +173,14 @@ class TestBasicFunctions(unittest.TestCase):
     # General object setup
     #########################################################################
 
-    def test_mulitiprocess(self):
-        """Testing method / function mulitiprocess."""
+    def test_m_key_value_pairs(self):
+        """Testing method / function m_key_value_pairs."""
+        # Tested by TestProcess class unittests in this file
         pass
 
-    def test__process_rows(self):
-        """Testing method / function _process_rows."""
+    def test_m_process_db_records(self):
+        """Testing method / function m_process_db_records."""
+        # Tested by TestProcess class unittests in this file
         pass
 
     def test_process_db_records(self):
