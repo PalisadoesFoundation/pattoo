@@ -37,7 +37,7 @@ class TestBasicFunctiions(unittest.TestCase):
     def test_process_running(self):
         """Testing function process_running."""
         # Test running process
-        current_processes = [os.path.basename(__file__), 'do_all_tests.py']
+        current_processes = 'do_all_tests.py'
         result = sysinfo.process_running(current_processes)
         self.assertTrue(result)
 
