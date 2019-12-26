@@ -86,6 +86,9 @@ Ingester failed to run. Please check log files for possible causes.''')
             # Sleep. The duration could exceed the polling interval. Set sleep
             # time to the polling interval when this occurs.
             duration = time() - ts_start
+            if duration > interval:
+                log_message = ('''Ingestion exceeded configured \
+"ingester_interval" parameter by {:6.2f}s.'''.format(duration - interval))
             sleep_time = min(interval, abs(interval - duration))
             log_message = (
                 'Ingester sleeping for {:6.2f}s.'.format(sleep_time))
