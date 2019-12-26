@@ -87,7 +87,7 @@ Starting ingester script {}. Interval of {}s.'''.format(script, interval))
                 log_message = ('''\
 Ingester is unexpectedly still running. Check your parameters of error logs \
 for possible causes.''')
-                log.log2warning(20029, log_message)
+                log.log2warning(20129, log_message)
 
             # Sleep. The duration could exceed the polling interval. Set sleep
             # time to the polling interval when this occurs.
