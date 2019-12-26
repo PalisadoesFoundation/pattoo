@@ -1,6 +1,6 @@
 """Functions for getting system information."""
 
-from subprocess import run, PIPE
+import psutil
 
 
 def process_running(process_name):
@@ -15,15 +15,24 @@ def process_running(process_name):
     """
     # Initialize key variables
     result = False
-    command = 'ps -ef'
-    if isinstance(process_name, list) is False:
-        process_name = [process_name]
+    if isinstance(process_name, list) is True:
+        process_name = ' '.join(process_name)
+    else:
+        process_name = str(process_name)
 
-    # Check if process name contains the given name string.
-    output = run(command.split(), stdout=PIPE, check=True).stdout.decode()
-    for item in process_name:
-        if item.lower() in output.lower():
-            result = True
-            break
+    # Check existence
+    for proc in psutil.process_iter():
+        try:
+            # Get process CLI
+            command_line = ' '.join(proc.cmdline())
+            print(command_line)
+            if process_name in command_line:
+                result = True
+                break
+        except (
+                psutil.NoSuchProcess,
+                psutil.AccessDenied,
+                psutil.ZombieProcess):
+            pass
 
     return result
