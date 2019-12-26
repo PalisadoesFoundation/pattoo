@@ -103,12 +103,12 @@ class PairXlate(BASE):
     idx_pair_xlate_group = Column(
         BIGINT(unsigned=True),
         ForeignKey('pt_pair_xlate_group.idx_pair_xlate_group'),
-        nullable=False, server_default='1')
+        index=True, nullable=False, server_default='1')
 
     idx_language = Column(
         BIGINT(unsigned=True),
         ForeignKey('pt_language.idx_language'),
-        nullable=False, server_default='1')
+        index=True, nullable=False, server_default='1')
 
     key = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
@@ -157,7 +157,7 @@ class AgentGroup(BASE):
     idx_pair_xlate_group = Column(
         BIGINT(unsigned=True),
         ForeignKey('pt_pair_xlate_group.idx_pair_xlate_group'),
-        nullable=False, server_default='1')
+        index=True, nullable=False, server_default='1')
 
     description = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
@@ -197,7 +197,7 @@ class Agent(BASE):
     idx_agent_group = Column(
         BIGINT(unsigned=True),
         ForeignKey('pt_agent_group.idx_agent_group'),
-        nullable=False, server_default='1')
+        index=True, nullable=False, server_default='1')
 
     agent_id = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
@@ -242,7 +242,7 @@ class DataPoint(BASE):
     idx_agent = Column(
         BIGINT(unsigned=True),
         ForeignKey('pt_agent.idx_agent'),
-        nullable=False, server_default='1')
+        index=True, nullable=False, server_default='1')
 
     checksum = Column(VARBINARY(512), unique=True, nullable=True, default=None)
 
@@ -350,7 +350,7 @@ class Data(BASE):
     idx_datapoint = Column(
         BIGINT(unsigned=True),
         ForeignKey('pt_datapoint.idx_datapoint'),
-        nullable=False, server_default='1')
+        index=True, nullable=False, server_default='1')
 
     timestamp = Column(BIGINT(unsigned=True), nullable=False, default='1')
 
