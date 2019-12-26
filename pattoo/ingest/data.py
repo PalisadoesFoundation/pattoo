@@ -113,10 +113,20 @@ class Process(object):
         log_message = 'Finished key-value pairs processing from cache.'
         log.log2debug(20116, log_message)
 
+        # Log
+        log_message = (
+            'Starting key-value pairs processing cache exception evaluation.')
+        log.log2debug(20120, log_message)
+
         # Test for exceptions
         for result in per_process_key_value_pairs:
             if isinstance(result, ExceptionWrapper):
                 result.re_raise()
+
+        # Log
+        log_message = (
+            'Finished key-value pairs processing cache exception evaluation.')
+        log.log2debug(20127, log_message)
 
         # Log again
         log_message = 'Starting key-value pair DB update.'
@@ -152,14 +162,24 @@ class Process(object):
         # Wait for all the processes to end and get results
         pool.join()
 
+        # Log
+        log_message = (
+            'Starting polled data values DB update exception evaluation.')
+        log.log2debug(20128, log_message)
+
         # Test for exceptions
         for result in results:
             if isinstance(result, ExceptionWrapper):
                 result.re_raise()
 
         # Log
+        log_message = (
+            'Finished polled data values DB update exception evaluation.')
+        log.log2debug(20130, log_message)
+
+        # Log
         log_message = 'Finished polled data values DB update.'
-        log.log2debug(20120, log_message)
+        log.log2debug(20131, log_message)
 
     def singleprocess_pairs(self):
         """Update rows in the Pair database table if necessary.
