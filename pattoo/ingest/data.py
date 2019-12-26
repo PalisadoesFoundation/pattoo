@@ -163,6 +163,10 @@ class Process(object):
         pool.join()
 
         # Log
+        log_message = 'Finished polled data values DB update.'
+        log.log2debug(20131, log_message)
+
+        # Log
         log_message = (
             'Starting polled data values DB update exception evaluation.')
         log.log2debug(20128, log_message)
@@ -176,10 +180,6 @@ class Process(object):
         log_message = (
             'Finished polled data values DB update exception evaluation.')
         log.log2debug(20130, log_message)
-
-        # Log
-        log_message = 'Finished polled data values DB update.'
-        log.log2debug(20131, log_message)
 
     def singleprocess_pairs(self):
         """Update rows in the Pair database table if necessary.
