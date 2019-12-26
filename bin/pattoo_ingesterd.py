@@ -74,13 +74,19 @@ Starting ingester script {}. Interval of {}s.'''.format(script, interval))
             log.log2info(20020, log_message)
 
             # Check lockfile status
-            check_lockfile()
+            running = check_lockfile()
 
-            # Now shut up and do it!
-            result = files.execute(script, die=False)
-            if bool(result) is True:
+            # Process
+            if running is False:
+                result = files.execute(script, die=False)
+                if bool(result) is True:
+                    log_message = ('''\
+    Ingester failed to run. Please check log files for possible causes.''')
+                    log.log2warning(20029, log_message)
+            else:
                 log_message = ('''\
-Ingester failed to run. Please check log files for possible causes.''')
+Ingester is unexpectedly still running. Check your parameters of error logs \
+for possible causes.''')
                 log.log2warning(20029, log_message)
 
             # Sleep. The duration could exceed the polling interval. Set sleep
@@ -103,7 +109,7 @@ def check_lockfile():
         None
 
     Returns:
-        None
+        running: True if ingester script is running
 
     """
     # Initialize key variables
@@ -111,15 +117,19 @@ def check_lockfile():
     config = Config()
     lockfile = files.lock_file(agent_name, config)
 
+    # Script running
+    running = sysinfo.process_running(PATTOO_INGESTER_SCRIPT)
+
     # Delete lockfile if found and ingester is not running.
     # Caused by possible crash.
-    if os.path.exists(lockfile) is True and sysinfo.process_running(
-            PATTOO_INGESTER_SCRIPT) is False:
+    if os.path.exists(lockfile) is True and running is False:
         os.remove(lockfile)
         log_message = ('''\
 Lock file {} found, but the {} script is not running\
 '''.format(lockfile, PATTOO_INGESTER_SCRIPT))
         log.log2warning(20030, log_message)
+
+    return running
 
 
 def main():
