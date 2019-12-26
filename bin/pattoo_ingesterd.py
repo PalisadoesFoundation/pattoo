@@ -83,9 +83,10 @@ Starting ingester script {}. Interval of {}s.'''.format(script, interval))
 Ingester failed to run. Please check log files for possible causes.''')
                 log.log2warning(20029, log_message)
 
-            # Sleep
+            # Sleep. The duration could exceed the polling interval. Set sleep
+            # time to the polling interval when this occurs.
             duration = time() - ts_start
-            sleep_time = abs(interval - duration)
+            sleep_time = min(interval, abs(interval - duration))
             log_message = (
                 'Ingester sleeping for {:6.2f}s.'.format(sleep_time))
             log.log2info(20100, log_message)
