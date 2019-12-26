@@ -25,7 +25,8 @@ def process_running(process_name):
         try:
             # Get process CLI
             command_line = ' '.join(proc.cmdline())
-            print(command_line)
+            if bool(command_line) is False:
+                continue
             if process_name in command_line:
                 result = True
                 break
