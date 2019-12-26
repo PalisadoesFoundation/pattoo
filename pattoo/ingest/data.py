@@ -95,6 +95,10 @@ class Process(object):
             None
 
         """
+        # Log message
+        log_message = 'Starting key-value pairs processing from cache.'
+        log.log2debug(20115, log_message)
+
         # Create a pool of sub process resources
         with multiprocessing.Pool(processes=self._pool_size) as pool:
 
@@ -105,13 +109,25 @@ class Process(object):
         # Wait for all the processes to end and get results
         pool.join()
 
+        # Log again
+        log_message = 'Finished key-value pairs processing from cache.'
+        log.log2debug(20116, log_message)
+
         # Test for exceptions
         for result in per_process_key_value_pairs:
             if isinstance(result, ExceptionWrapper):
                 result.re_raise()
 
+        # Log again
+        log_message = 'Starting key-value pair DB update.'
+        log.log2debug(20117, log_message)
+
         # Update the database with key value pairs
         pair.insert_rows(per_process_key_value_pairs)
+
+        # Log again
+        log_message = 'Finished key-value pair DB update.'
+        log.log2debug(20118, log_message)
 
     def multiprocess_data(self):
         """Insert rows into the Data and DataPoint tables as necessary.
@@ -123,6 +139,10 @@ class Process(object):
             None
 
         """
+        # Log
+        log_message = 'Starting polled data values DB update.'
+        log.log2debug(20119, log_message)
+
         # Create a pool of sub process resources
         with multiprocessing.Pool(processes=self._pool_size) as pool:
 
@@ -137,6 +157,10 @@ class Process(object):
             if isinstance(result, ExceptionWrapper):
                 result.re_raise()
 
+        # Log
+        log_message = 'Finished polled data values DB update.'
+        log.log2debug(20120, log_message)
+
     def singleprocess_pairs(self):
         """Update rows in the Pair database table if necessary.
 
@@ -147,13 +171,31 @@ class Process(object):
             None
 
         """
+        # Log message
+        log_message = 'Starting key-value pairs processing from cache.'
+        log.log2debug(20121, log_message)
+
         # Process data
         pairs = []
         for item in self._arguments:
             row = item[0]
             per_process_key_value_pairs = get.key_value_pairs(row)
             pairs.append(per_process_key_value_pairs)
+
+        # Log again
+        log_message = 'Finished key-value pairs processing from cache.'
+        log.log2debug(20122, log_message)
+
+        # Log again
+        log_message = 'Starting key-value pair DB update.'
+        log.log2debug(20123, log_message)
+
+        # Insert
         pair.insert_rows(pairs)
+
+        # Log again
+        log_message = 'Finished key-value pair DB update.'
+        log.log2debug(20124, log_message)
 
     def singleprocess_data(self):
         """Insert rows into the Data and DataPoint tables as necessary.
@@ -165,10 +207,18 @@ class Process(object):
             None
 
         """
+        # Log
+        log_message = 'Starting polled data values DB update.'
+        log.log2debug(20125, log_message)
+
         # Process data
         for item in self._arguments:
             row = item[0]
             process_db_records(row)
+
+        # Log
+        log_message = 'Finished polled data values DB update.'
+        log.log2debug(20126, log_message)
 
     def data(self):
         """Insert rows into the Data and DataPoint tables as necessary.
