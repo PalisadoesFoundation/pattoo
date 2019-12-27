@@ -74,10 +74,10 @@ Starting ingester script {}. Interval of {}s.'''.format(script, interval))
             log.log2info(20020, log_message)
 
             # Check lockfile status
-            running = check_lockfile()
+            _running = check_lockfile()
 
             # Process
-            if running is False:
+            if _running is False:
                 result = files.execute(script, die=False)
                 if bool(result) is True:
                     log_message = ('''\

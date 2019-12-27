@@ -328,7 +328,8 @@ def process_db_records(pattoo_db_records):
         pattoo_db_records: List of dicts read from cache files.
 
     Returns:
-        None
+        success: True if records have been processed. Required to make
+            pool.join() work correctly when tailing syslog.
 
     Method:
         1) Get all the idx_datapoint and idx_pair values that exist in the
@@ -343,10 +344,11 @@ def process_db_records(pattoo_db_records):
     """
     # Initialize key variables
     _data = {}
+    success = False
 
     # Return if there is nothint to process
     if bool(pattoo_db_records) is False:
-        return
+        return success
 
     # Get DataPoint.idx_datapoint and idx_pair values from db. This is used to
     # speed up the process by reducing the need for future database access.
@@ -414,3 +416,7 @@ def process_db_records(pattoo_db_records):
     # Log message
     log_message = 'Finished data processing for agent_id: {}'.format(agent_id)
     log.log2debug(20113, log_message)
+
+    # Return
+    success = True
+    return success
