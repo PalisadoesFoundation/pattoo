@@ -279,6 +279,9 @@ def m_key_value_pairs(pattoo_db_records):
         Trap any exceptions and return them for processing
 
     """
+    # Initialize key variables
+    result = []
+    
     # Execute
     try:
         result = get.key_value_pairs(pattoo_db_records)
