@@ -289,6 +289,11 @@ def m_key_value_pairs(pattoo_db_records):
     try:
         result = get.key_value_pairs(pattoo_db_records)
     except Exception as error:
+        (etype, evalue, etraceback) = sys.exc_info()
+        log_message = ('''\
+Ingest failure: [Exception:{}, Exception Instance: {}, Stack Trace: {}]\
+'''.format(etype, evalue, etraceback))
+        log.log2warning(20133, log_message)
         return ExceptionWrapper(error)
     except:
         (etype, evalue, etraceback) = sys.exc_info()
@@ -324,6 +329,11 @@ def m_process_db_records(pattoo_db_records):
     try:
         success = process_db_records(pattoo_db_records)
     except Exception as error:
+        (etype, evalue, etraceback) = sys.exc_info()
+        log_message = ('''\
+Ingest failure: [Exception:{}, Exception Instance: {}, Stack Trace: {}]\
+'''.format(etype, evalue, etraceback))
+        log.log2warning(20132, log_message)
         return ExceptionWrapper(error)
     except:
         (etype, evalue, etraceback) = sys.exc_info()
