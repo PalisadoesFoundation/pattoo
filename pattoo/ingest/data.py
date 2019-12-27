@@ -26,6 +26,9 @@ class ExceptionWrapper(object):
     Based on:
         https://stackoverflow.com/questions/6126007/python-getting-a-traceback-from-a-multiprocessing-process
 
+        _NOTE_ The subprocess needs to return a value for this to work.
+        Returning an implicit "None" isn't sufficient
+
     """
 
     def __init__(self, error_exception):
@@ -281,7 +284,7 @@ def m_key_value_pairs(pattoo_db_records):
     """
     # Initialize key variables
     result = []
-    
+
     # Execute
     try:
         result = get.key_value_pairs(pattoo_db_records)
