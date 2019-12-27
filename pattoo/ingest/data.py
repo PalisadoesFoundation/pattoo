@@ -302,15 +302,21 @@ def m_process_db_records(pattoo_db_records):
         pattoo_db_records: List of dicts read from cache files.
 
     Returns:
-        None
+        success: True if records have been processed. Required to make
+            pool.join() work correctly when tailing syslog. There have been
+            issues where the processes hang on successful completion but never
+            trigger pool.join(). This methodolgy has reduced the risk.
 
     Method:
         Trap any exceptions and return them for processing
 
     """
+    # Initialize key variables
+    success = False
+
     # Execute
     try:
-        process_db_records(pattoo_db_records)
+        success = process_db_records(pattoo_db_records)
     except Exception as error:
         return ExceptionWrapper(error)
     except:
@@ -319,6 +325,9 @@ def m_process_db_records(pattoo_db_records):
 Ingest failure: [Exception:{}, Exception Instance: {}, Stack Trace: {}]\
 '''.format(etype, evalue, etraceback))
         log.log2die(20109, log_message)
+
+    # Return
+    return success
 
 
 def process_db_records(pattoo_db_records):
@@ -329,7 +338,9 @@ def process_db_records(pattoo_db_records):
 
     Returns:
         success: True if records have been processed. Required to make
-            pool.join() work correctly when tailing syslog.
+            pool.join() work correctly when tailing syslog. There have been
+            issues where the processes hang on successful completion but never
+            trigger pool.join(). This methodolgy has reduced the risk.
 
     Method:
         1) Get all the idx_datapoint and idx_pair values that exist in the
