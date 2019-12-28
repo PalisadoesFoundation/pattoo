@@ -86,7 +86,8 @@ class Records(object):
         config = Config()
 
         # Setup the arguments for multiprocessing
-        self._arguments = [(_, ) for _ in grouping_pattoo_db_records]
+        self._arguments = [
+            (_, ) for _ in grouping_pattoo_db_records if bool(_) is False]
         self._multiprocess = config.multiprocessing()
 
         '''
