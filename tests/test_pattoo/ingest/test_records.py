@@ -173,13 +173,23 @@ class TestBasicFunctions(unittest.TestCase):
     # General object setup
     #########################################################################
 
-    def test_m_key_value_pairs(self):
-        """Testing method / function m_key_value_pairs."""
+    def test__process_kvps_exception(self):
+        """Testing method / function _process_kvps_exception."""
         # Tested by TestProcess class unittests in this file
         pass
 
-    def test_m_process_db_records(self):
-        """Testing method / function m_process_db_records."""
+    def test__process_data_exception(self):
+        """Testing method / function _process_data_exception."""
+        # Tested by TestProcess class unittests in this file
+        pass
+
+    def test__multiprocess_pairs(self):
+        """Testing method / function _multiprocess_pairs."""
+        # Tested by TestProcess class unittests in this file
+        pass
+
+    def test__multiprocess_data(self):
+        """Testing method / function _multiprocess_data."""
         # Tested by TestProcess class unittests in this file
         pass
 
