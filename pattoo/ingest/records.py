@@ -4,6 +4,7 @@
 # Standard imports
 import multiprocessing
 import sys
+import os
 
 # PIP3 imports
 import tblib.pickling_support
@@ -12,12 +13,13 @@ tblib.pickling_support.install()
 
 # Import project libraries
 from pattoo_shared.constants import DATA_NONE, DATA_STRING
+from pattoo_shared import log, files, converter
 from pattoo.constants import IDXTimestampValue, ChecksumLookup
-from pattoo_shared import log
 from pattoo.ingest import get
 from pattoo.db import misc
 from pattoo.db.table import pair, glue, data, datapoint
 from pattoo.configuration import ConfigIngester as Config
+from pattoo.constants import PATTOO_API_AGENT_NAME
 
 
 class ExceptionWrapper(object):
@@ -65,7 +67,7 @@ class ExceptionWrapper(object):
         raise self._error_exception.with_traceback(self._etraceback)
 
 
-class Process(object):
+class Records(object):
     """Process data using multiprocessing."""
 
     def __init__(self, grouping_pattoo_db_records):
@@ -211,7 +213,7 @@ class Process(object):
             row = item[0]
             process_db_records(row)
 
-    def data(self):
+    def ingest(self):
         """Insert rows into the Data and DataPoint tables as necessary.
 
         Args:
