@@ -305,6 +305,10 @@ def m_process_db_records(pattoo_db_records):
     # Execute
     try:
         success = process_db_records(pattoo_db_records)
+
+        agent_id = pattoo_db_records[0].pattoo_agent_id
+        log_message = ('Success - {}'.format(agent_id))
+        log.log2debug(20118, log_message)
     except Exception as error:
         (etype, evalue, etraceback) = sys.exc_info()
         log_message = ('''\
