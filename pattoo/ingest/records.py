@@ -121,31 +121,13 @@ class Records(object):
         # Wait for all the processes to end and get results
         pool.join()
 
-        # Log
-        log_message = (
-            'Starting key-value pairs processing cache exception evaluation.')
-        log.log2debug(20120, log_message)
-
         # Test for exceptions
         for result in per_process_key_value_pairs:
             if isinstance(result, ExceptionWrapper):
                 result.re_raise()
 
-        # Log
-        log_message = (
-            'Finished key-value pairs processing cache exception evaluation.')
-        log.log2debug(20127, log_message)
-
-        # Log again
-        log_message = 'Starting key-value pair DB update.'
-        log.log2debug(20117, log_message)
-
         # Update the database with key value pairs
         pair.insert_rows(per_process_key_value_pairs)
-
-        # Log again
-        log_message = 'Finished key-value pair DB update.'
-        log.log2debug(20118, log_message)
 
     def multiprocess_data(self):
         """Insert rows into the Data and DataPoint tables as necessary.
@@ -166,20 +148,10 @@ class Records(object):
         # Wait for all the processes to end and get results
         pool.join()
 
-        # Log
-        log_message = (
-            'Starting polled data values DB update exception evaluation.')
-        log.log2debug(20128, log_message)
-
         # Test for exceptions
         for result in results:
             if isinstance(result, ExceptionWrapper):
                 result.re_raise()
-
-        # Log
-        log_message = (
-            'Finished polled data values DB update exception evaluation.')
-        log.log2debug(20130, log_message)
 
     def singleprocess_pairs(self):
         """Update rows in the Pair database table if necessary.
@@ -198,16 +170,8 @@ class Records(object):
             per_process_key_value_pairs = get.key_value_pairs(row)
             pairs.append(per_process_key_value_pairs)
 
-        # Log again
-        log_message = 'Starting key-value pair DB update.'
-        log.log2debug(20123, log_message)
-
         # Insert
         pair.insert_rows(pairs)
-
-        # Log again
-        log_message = 'Finished key-value pair DB update.'
-        log.log2debug(20124, log_message)
 
     def singleprocess_data(self):
         """Insert rows into the Data and DataPoint tables as necessary.
