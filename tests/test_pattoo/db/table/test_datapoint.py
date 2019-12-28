@@ -171,7 +171,7 @@ class TestDataPoint(unittest.TestCase):
         with db.db_query(20105) as session:
             result = session.query(_DataPoint.enabled).filter(
                 _DataPoint.idx_datapoint == idx_datapoint).one()
-        self.assertEqual(result.enabled, obj.enabled())
+        self.assertEqual(bool(result.enabled), obj.enabled())
 
     def test_idx_agent(self):
         """Testing method / function idx_agent."""

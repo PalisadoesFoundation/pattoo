@@ -138,7 +138,6 @@ class TestBasicFunctions(LiveServerTestCase):
         count = 0
         for item in result:
             ts_norm = times.normalized_timestamp(_pi, ts_start)
-            print(item, ts_norm)
             if item['timestamp'] < ts_norm:
                 self.assertIsNone(item['value'])
             else:

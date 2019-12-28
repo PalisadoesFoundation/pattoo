@@ -70,11 +70,11 @@ class ExceptionWrapper(object):
 class Records(object):
     """Process data using multiprocessing."""
 
-    def __init__(self, grouping_pattoo_db_records):
+    def __init__(self, pattoo_db_records_lists):
         """Initialize the class.
 
         Args:
-            grouping_pattoo_db_records: List of PattooDBrecord oject lists
+            pattoo_db_records_lists: List of PattooDBrecord oject lists
                 grouped by source and sorted by timestamp. This data is
                 obtained from PattooShared.converter.extract
 
@@ -86,7 +86,8 @@ class Records(object):
         config = Config()
 
         # Setup the arguments for multiprocessing
-        self._arguments = [(_, ) for _ in grouping_pattoo_db_records]
+        self._arguments = [
+            (_, ) for _ in pattoo_db_records_lists if bool(_) is False]
         self._multiprocess = config.multiprocessing()
 
         '''
@@ -104,6 +105,9 @@ class Records(object):
     def multiprocess_pairs(self):
         """Update rows in the Pair database table if necessary.
 
+        Do all multiprocessing outside of the class for consistent results
+        without unexpected hanging waiting for pool.join() to happen.
+
         Args:
             None
 
@@ -111,27 +115,15 @@ class Records(object):
             None
 
         """
-        # Create a pool of sub process resources
-        with multiprocessing.Pool(processes=self._pool_size) as pool:
-
-            # Create sub processes from the pool
-            per_process_key_value_pairs = pool.starmap(
-                m_key_value_pairs, self._arguments)
-
-        # Wait for all the processes to end and get results
-        pool.join()
-
-        # Test for exceptions
-        for result in per_process_key_value_pairs:
-            if isinstance(result, ExceptionWrapper):
-                result.re_raise()
-
-        # Update the database with key value pairs
-        pair.insert_rows(per_process_key_value_pairs)
+        # Process
+        _multiprocess_pairs(self._arguments, self._pool_size)
 
     def multiprocess_data(self):
         """Insert rows into the Data and DataPoint tables as necessary.
 
+        Do all multiprocessing outside of the class for consistent results
+        without unexpected hanging waiting for pool.join() to happen.
+
         Args:
             None
 
@@ -139,19 +131,8 @@ class Records(object):
             None
 
         """
-        # Create a pool of sub process resources
-        with multiprocessing.Pool(processes=self._pool_size) as pool:
-
-            # Create sub processes from the pool
-            results = pool.starmap(m_process_db_records, self._arguments)
-
-        # Wait for all the processes to end and get results
-        pool.join()
-
-        # Test for exceptions
-        for result in results:
-            if isinstance(result, ExceptionWrapper):
-                result.re_raise()
+        # Process
+        _multiprocess_data(self._arguments, self._pool_size)
 
     def singleprocess_pairs(self):
         """Update rows in the Pair database table if necessary.
@@ -246,17 +227,82 @@ class Records(object):
             log.log2debug(20131, log_message)
 
 
-def m_key_value_pairs(pattoo_db_records):
+def _multiprocess_pairs(pattoo_db_records_lists_tuple, pool_size):
+    """Update rows in the Pair database table if necessary.
+
+    Do all multiprocessing outside of the class for consistent results
+    without unexpected hanging waiting for pool.join() to happen.
+
+    Args:
+        pattoo_db_records_lists_tuple: List of (list, ) tuples. Each (list, )
+            made up of PattooDBrecord objects
+        pool_size: Size of pool to use for updates
+
+    Returns:
+        None
+
+    """
+    # Create a pool of sub process resources
+    with multiprocessing.Pool(processes=pool_size) as pool:
+
+        # Create sub processes from the pool
+        per_process_key_value_pairs = pool.starmap(
+            _process_kvps_exception, pattoo_db_records_lists_tuple)
+
+    # Wait for all the processes to end and get results
+    pool.join()
+
+    # Test for exceptions
+    for result in per_process_key_value_pairs:
+        if isinstance(result, ExceptionWrapper):
+            result.re_raise()
+
+    # Update the database with key value pairs
+    pair.insert_rows(per_process_key_value_pairs)
+
+
+def _multiprocess_data(pattoo_db_records_lists_tuple, pool_size):
+    """Insert rows into the Data and DataPoint tables as necessary.
+
+    Do all multiprocessing outside of the class for consistent results
+    without unexpected hanging waiting for pool.join() to happen.
+
+    Args:
+        pattoo_db_records_lists_tuple: List of (list, ) tuples. Each (list, )
+            made up of PattooDBrecord objects
+        pool_size: Size of pool to use for updates
+
+    Returns:
+        None
+
+    """
+    # Create a pool of sub process resources
+    with multiprocessing.Pool(processes=pool_size) as pool:
+
+        # Create sub processes from the pool
+        results = pool.starmap(
+            _process_data_exception, pattoo_db_records_lists_tuple)
+
+    # Wait for all the processes to end and get results
+    pool.join()
+
+    # Test for exceptions
+    for result in results:
+        if isinstance(result, ExceptionWrapper):
+            result.re_raise()
+
+
+def _process_kvps_exception(pattoo_db_records):
     """Get all the key-value pairs found.
+
+    Traps any exceptions and return them for processing. Very helpful in
+    troubleshooting multiprocessing
 
     Args:
         pattoo_db_records: List of dicts read from cache files.
 
     Returns:
         None
-
-    Method:
-        Trap any exceptions and return them for processing
 
     """
     # Initialize key variables
@@ -283,8 +329,11 @@ Ingest failure: [Exception:{}, Exception Instance: {}, Stack Trace: {}]\
     return result
 
 
-def m_process_db_records(pattoo_db_records):
+def _process_data_exception(pattoo_db_records):
     """Insert all data values for an agent into database.
+
+    Traps any exceptions and return them for processing. Very helpful in
+    troubleshooting multiprocessing
 
     Args:
         pattoo_db_records: List of dicts read from cache files.
@@ -294,9 +343,6 @@ def m_process_db_records(pattoo_db_records):
             pool.join() work correctly when tailing syslog. There have been
             issues where the processes hang on successful completion but never
             trigger pool.join(). This methodolgy has reduced the risk.
-
-    Method:
-        Trap any exceptions and return them for processing
 
     """
     # Initialize key variables
