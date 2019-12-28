@@ -87,8 +87,19 @@ class Records(object):
 
         # Setup the arguments for multiprocessing
         self._arguments = [(_, ) for _ in grouping_pattoo_db_records]
-        self._pool_size = max(1, multiprocessing.cpu_count() * 2)
         self._multiprocess = config.multiprocessing()
+
+        '''
+        Set the pool size to be greater than 1. It should also not be greater
+        than the number of CPU cores or less than the number of agent_ids
+        represented. There have been issues with multiprocessing hanging when
+        systems with multiple CPUs (vs. cores) are used where processes hang
+        indefinitely for pool.join. The suspicion lies with ineffective inter
+        CPU communication with Python multiprocessing. This is an attempt to
+        reduce that risk by only invoking the optimal number of threads needed.
+        '''
+        self._pool_size = max(1, min(
+            len(self._arguments), multiprocessing.cpu_count()))
 
     def multiprocess_pairs(self):
         """Update rows in the Pair database table if necessary.
