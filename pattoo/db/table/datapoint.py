@@ -37,7 +37,7 @@ class DataPoint(object):
         # Initialize keys for use by methods
         self._result = {}
         keys = [
-            'idx_agent', 'checksum ', 'data_type', 'last_timestamp ',
+            'idx_agent', 'checksum ', 'data_type', 'last_timestamp ', 'exists',
             'polling_interval', 'enabled']
         for key in keys:
             self._result[key] = None
@@ -75,7 +75,7 @@ class DataPoint(object):
 
         """
         # Initialize key variables
-        value = self._result['enabled']
+        value = bool(self._result['enabled'])
         return value
 
     def idx_agent(self):
@@ -131,7 +131,7 @@ class DataPoint(object):
 
         """
         # Initialize key variables
-        value = self._result['exists']
+        value = bool(self._result['exists'])
         return value
 
     def last_timestamp(self):
@@ -188,7 +188,7 @@ class DataPoint(object):
         # Normalize timestamp to match the start of the nones array. If not,
         # we could get the starting timestamp of the result to have a "None"
         # value
-        ts_start = times.normalized_timestamp(_pi, ts_start)
+        ts_start = times.normalized_timestamp(_pi, timestamp=ts_start)
 
         # Make sure we have entries for entire time range
         timestamps = times.timestamps(ts_start, ts_stop, _pi)
