@@ -30,6 +30,7 @@ class Cache(object):
         # Get cache directory
         config = Config()
         directory = config.agent_cache_directory(PATTOO_API_AGENT_NAME)
+        self._batch_id = int(time.time() * 1000)
 
         # Read data from cache. Stop if there is no data found.
         self._data = files.read_json_files(
@@ -54,10 +55,6 @@ class Cache(object):
 
         # Read data from files
         for filepath, json_data in sorted(self._data):
-            # Log what we are doing
-            log_message = 'Processing cache file {}.'.format(filepath)
-            log.log2debug(20004, log_message)
-
             # Get data from JSON file. Convert to rows of key-pairs
             if bool(json_data) is True and isinstance(json_data, dict) is True:
                 pdbrs = converter.cache_to_keypairs(json_data)
@@ -95,10 +92,12 @@ File {} has invalid data. It will not be processed'''.format(filepath))
         # Initialize key variables
         filepaths = [filepath for filepath, _ in self._data]
 
+        log_message = ('''\
+Purging ingest cache files. Batch ID: {}'''.format(self._batch_id))
+        log.log2debug(20009, log_message)
+
         # Delete cache files after processing
         for filepath in filepaths:
-            log_message = 'Deleting cache file {}'.format(filepath)
-            log.log2debug(20009, log_message)
             if os.path.exists(filepath):
                 try:
                     os.remove(filepath)
@@ -106,6 +105,10 @@ File {} has invalid data. It will not be processed'''.format(filepath))
                     log_message = ('''\
 Error deleting cache file {}.'''.format(filepath))
                     log.log2warning(20110, log_message)
+
+        log_message = ('''\
+Finished purging ingest cache files. Batch ID: {}'''.format(self._batch_id))
+        log.log2debug(20083, log_message)
 
     def ingest(self):
         """Ingest cache data into the database.
@@ -117,11 +120,21 @@ Error deleting cache file {}.'''.format(filepath))
             records: Number of records processed
 
         """
-        # Initialize list of files that have been processed
+        # Log
+        log_message = ('''\
+Processing ingest cache files. Batch ID: {}'''.format(self._batch_id))
+        log.log2debug(20004, log_message)
+
+        # Process
         _data = self.records()
         records = Records(_data)
         records.ingest()
         self.purge()
+
+        # Log
+        log_message = ('''\
+Finished processing ingest cache files. Batch ID: {}'''.format(self._batch_id))
+        log.log2debug(20117, log_message)
 
         # Determine the number of key pairs read
         records = 0
@@ -153,7 +166,7 @@ def process_cache(batch_size=500, max_duration=3600):
     # Initialize key variables
     records = 0
     fileage = 10
-    start = int(time.time())
+    start = time.time()
     looptime = 0
     files_read = 0
 
@@ -210,7 +223,7 @@ This can be adjusted on the CLI.'''.format(max_duration))
         looptime = max(time.time() - loopstart, looptime)
 
     # Print result
-    duration = int(time.time()) - start
+    duration = time.time() - start
     if bool(records) is True and bool(duration) is True:
         log_message = ('''\
 Agent cache ingest completed. {0} records processed in {1} seconds, {2:.2f} \
