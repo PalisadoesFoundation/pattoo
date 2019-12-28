@@ -226,8 +226,8 @@ This can be adjusted on the CLI.'''.format(max_duration))
     duration = time.time() - start
     if bool(records) is True and bool(duration) is True:
         log_message = ('''\
-Agent cache ingest completed. {0} records processed in {1} seconds, {2:.2f} \
-records / second. {3} files read. \
+Agent cache ingest completed. {0} records processed in {1:.2f} seconds, \
+{2:.2f} records / second. {3} files read. \
 '''.format(records, duration, records / duration, files_read))
         log.log2info(20084, log_message)
     else:
