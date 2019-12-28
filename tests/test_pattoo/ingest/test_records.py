@@ -31,7 +31,7 @@ from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
 from tests.libraries.configuration import UnittestConfig
 from pattoo.db.table import pair, datapoint
 from pattoo.ingest import get
-from pattoo.ingest import data as ingest_data
+from pattoo.ingest import records as ingest_data
 
 
 class TestExceptionWrapper(unittest.TestCase):
@@ -46,7 +46,7 @@ class TestExceptionWrapper(unittest.TestCase):
         pass
 
 
-class TestProcess(unittest.TestCase):
+class TestRecords(unittest.TestCase):
     """Checks all functions and methods."""
 
     def test___init__(self):
@@ -67,7 +67,7 @@ class TestProcess(unittest.TestCase):
             self.assertFalse(result)
 
         # Insert pairs as necessary
-        process = ingest_data.Process([records])
+        process = ingest_data.Records([records])
         process.multiprocess_pairs()
 
         # Key-value pair should exist
@@ -91,7 +91,7 @@ class TestProcess(unittest.TestCase):
         self.assertFalse(result)
 
         # Test
-        process = ingest_data.Process([records])
+        process = ingest_data.Records([records])
         process.multiprocess_pairs()
         process.multiprocess_data()
 
@@ -121,7 +121,7 @@ class TestProcess(unittest.TestCase):
             self.assertFalse(result)
 
         # Insert pairs as necessary
-        process = ingest_data.Process([records])
+        process = ingest_data.Records([records])
         process.singleprocess_pairs()
 
         # Key-value pair should exist
@@ -145,7 +145,7 @@ class TestProcess(unittest.TestCase):
         self.assertFalse(result)
 
         # Test
-        process = ingest_data.Process([records])
+        process = ingest_data.Records([records])
         process.singleprocess_pairs()
         process.singleprocess_data()
 
@@ -161,8 +161,8 @@ class TestProcess(unittest.TestCase):
             self.assertEqual(result['value'], expected[index]['value'])
             self.assertEqual(result['timestamp'], expected[index]['timestamp'])
 
-    def test_data(self):
-        """Testing method / function data."""
+    def test_ingest(self):
+        """Testing method / function ingest."""
         pass
 
 
