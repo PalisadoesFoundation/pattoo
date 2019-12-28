@@ -301,14 +301,10 @@ def m_process_db_records(pattoo_db_records):
     """
     # Initialize key variables
     success = False
-    agent_id = pattoo_db_records[0].pattoo_agent_id
 
     # Execute
     try:
         success = process_db_records(pattoo_db_records)
-
-        log_message = ('Success - {}'.format(agent_id))
-        log.log2debug(20118, log_message)
     except Exception as error:
         (etype, evalue, etraceback) = sys.exc_info()
         log_message = ('''\
@@ -322,9 +318,6 @@ Ingest failure: [Exception:{}, Exception Instance: {}, Stack Trace: {}]\
 Ingest failure: [Exception:{}, Exception Instance: {}, Stack Trace: {}]\
 '''.format(etype, evalue, etraceback))
         log.log2die(20109, log_message)
-
-    log_message = ('Success Again - {}'.format(agent_id))
-    log.log2debug(20120, log_message)
 
     # Return
     return success
