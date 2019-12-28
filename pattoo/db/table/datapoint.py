@@ -185,6 +185,11 @@ class DataPoint(object):
         if self.exists() is False:
             return result
 
+        # Normalize timestamp to match the start of the nones array. If not,
+        # we could get the starting timestamp of the result to have a "None"
+        # value
+        ts_start = times.normalized_timestamp(_pi, ts_start)
+
         # Make sure we have entries for entire time range
         timestamps = times.timestamps(ts_start, ts_stop, _pi)
         nones = {_key: None for _key in timestamps}
