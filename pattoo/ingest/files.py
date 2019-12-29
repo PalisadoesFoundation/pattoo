@@ -92,10 +92,6 @@ File {} has invalid data. It will not be processed'''.format(filepath))
         # Initialize key variables
         filepaths = [filepath for filepath, _ in self._data]
 
-        log_message = ('''\
-Purging ingest cache files. Batch ID: {}'''.format(self._batch_id))
-        log.log2debug(20009, log_message)
-
         # Delete cache files after processing
         for filepath in filepaths:
             if os.path.exists(filepath):
@@ -105,10 +101,6 @@ Purging ingest cache files. Batch ID: {}'''.format(self._batch_id))
                     log_message = ('''\
 Error deleting cache file {}.'''.format(filepath))
                     log.log2warning(20110, log_message)
-
-        log_message = ('''\
-Finished purging ingest cache files. Batch ID: {}'''.format(self._batch_id))
-        log.log2debug(20083, log_message)
 
     def ingest(self):
         """Ingest cache data into the database.
