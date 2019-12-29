@@ -9,14 +9,14 @@ import time
 # Import project libraries
 from pattoo_shared import log, files, converter
 from pattoo.configuration import ConfigIngester as Config
-from pattoo.constants import PATTOO_API_AGENT_NAME
+from pattoo.constants import PATTOO_API_AGENT_NAME, PATTOO_INGESTER_NAME
 from .records import Records
 
 
 class Cache(object):
     """Process ingest cache data."""
 
-    def __init__(self, batch_size=500, age=None):
+    def __init__(self, batch_size=500, age=0):
         """Initialize the class.
 
         Args:
@@ -127,8 +127,8 @@ Processing ingest cache files. Batch ID: {}'''.format(self._batch_id))
 
         # Process
         _data = self.records()
-        records = Records(_data)
-        records.ingest()
+        _records = Records(_data)
+        _records.ingest()
         self.purge()
 
         # Log
@@ -143,12 +143,13 @@ Finished processing ingest cache files. Batch ID: {}'''.format(self._batch_id))
         return records
 
 
-def process_cache(batch_size=500, max_duration=3600):
+def process_cache(batch_size=500, max_duration=3600, fileage=10):
     """Ingest data.
 
     Args:
         batch_size: Number of files to process at a time
         max_duration: Maximum duration
+        fileage: Minimum age of files to be processed in seconds
 
     Returns:
         None
@@ -165,7 +166,6 @@ def process_cache(batch_size=500, max_duration=3600):
     """
     # Initialize key variables
     records = 0
-    fileage = 10
     start = time.time()
     looptime = 0
     files_read = 0
@@ -249,9 +249,8 @@ def _lock(delete=False):
 
     """
     # Initialize key variables
-    agent_name = 'pattoo_ingester'
     config = Config()
-    lockfile = files.lock_file(agent_name, config)
+    lockfile = files.lock_file(PATTOO_INGESTER_NAME, config)
 
     # Lock
     if bool(delete) is False:

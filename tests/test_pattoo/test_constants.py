@@ -29,6 +29,7 @@ from pattoo.constants import PATTOO_API_WEB_PROXY
 from pattoo.constants import PATTOO_API_AGENT_NAME
 from pattoo.constants import PATTOO_API_AGENT_PROXY
 from pattoo.constants import PATTOO_INGESTERD_NAME
+from pattoo.constants import PATTOO_INGESTER_NAME
 from pattoo.constants import PATTOO_INGESTER_SCRIPT
 
 
@@ -54,6 +55,8 @@ class TestConstants(unittest.TestCase):
             '{}-gunicorn'.format(PATTOO_API_AGENT_NAME))
         self.assertEqual(
             PATTOO_INGESTERD_NAME, 'pattoo_ingesterd')
+        self.assertEqual(
+            PATTOO_INGESTER_NAME, 'pattoo_ingester')
         self.assertEqual(
             PATTOO_INGESTER_SCRIPT, 'pattoo_ingester.py')
 

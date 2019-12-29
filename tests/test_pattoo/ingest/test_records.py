@@ -163,7 +163,32 @@ class TestRecords(unittest.TestCase):
 
     def test_ingest(self):
         """Testing method / function ingest."""
-        pass
+        # Initialize key variables
+        items = make_records()
+        timestamps = items['timestamps']
+        records = items['records']
+        expected = items['expected']
+        checksum = items['checksum']
+
+        # Entry should not exist
+        result = datapoint.checksum_exists(checksum)
+        self.assertFalse(result)
+
+        # Test
+        process = ingest_data.Records([records])
+        process.ingest()
+
+        # Get data from database
+        idx_datapoint = datapoint.checksum_exists(checksum)
+        _dp = datapoint.DataPoint(idx_datapoint)
+        ts_start = min(timestamps)
+        ts_stop = max(timestamps)
+        results = _dp.data(ts_start, ts_stop)
+
+        # Test
+        for index, result in enumerate(results):
+            self.assertEqual(result['value'], expected[index]['value'])
+            self.assertEqual(result['timestamp'], expected[index]['timestamp'])
 
 
 class TestBasicFunctions(unittest.TestCase):
