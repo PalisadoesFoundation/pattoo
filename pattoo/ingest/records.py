@@ -4,7 +4,6 @@
 # Standard imports
 import multiprocessing
 import sys
-import os
 
 # PIP3 imports
 import tblib.pickling_support
@@ -13,13 +12,12 @@ tblib.pickling_support.install()
 
 # Import project libraries
 from pattoo_shared.constants import DATA_NONE, DATA_STRING
-from pattoo_shared import log, files, converter
+from pattoo_shared import log
 from pattoo.constants import IDXTimestampValue, ChecksumLookup
 from pattoo.ingest import get
 from pattoo.db import misc
 from pattoo.db.table import pair, glue, data, datapoint
 from pattoo.configuration import ConfigIngester as Config
-from pattoo.constants import PATTOO_API_AGENT_NAME
 
 
 class ExceptionWrapper(object):
@@ -87,7 +85,7 @@ class Records(object):
 
         # Setup the arguments for multiprocessing
         self._arguments = [
-            (_, ) for _ in pattoo_db_records_lists if bool(_) is False]
+            (_, ) for _ in pattoo_db_records_lists if bool(_) is True]
         self._multiprocess = config.multiprocessing()
 
         '''
