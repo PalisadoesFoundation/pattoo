@@ -209,7 +209,7 @@ def _multiprocess_pairs(pattoo_db_records_lists_tuple, pool_size):
 
     """
     # Create a pool of sub process resources
-    with multiprocessing.Pool(processes=pool_size) as pool:
+    with multiprocessing.Pool(processes=pool_size, maxtasksperchild=1) as pool:
 
         # Create sub processes from the pool
         per_process_key_value_pairs = pool.starmap(
@@ -243,7 +243,7 @@ def _multiprocess_data(pattoo_db_records_lists_tuple, pool_size):
 
     """
     # Create a pool of sub process resources
-    with multiprocessing.Pool(processes=pool_size) as pool:
+    with multiprocessing.Pool(processes=pool_size, maxtasksperchild=1) as pool:
 
         # Create sub processes from the pool
         results = pool.starmap(
