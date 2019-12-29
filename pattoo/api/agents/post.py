@@ -65,10 +65,9 @@ def receive(source):
     try:
         timestamp = posted_data['pattoo_agent_timestamp']
     except:
-        (etype, evalue, etraceback) = sys.exc_info()
-        log_message = ('''API Failure: [{}, {}, {}]\
-'''.format(etype, evalue, etraceback))
-        log.log2warning(20025, log_message)
+        _exception = sys.exc_info()
+        log_message = ('API Failure')
+        log.log2exception(20025, _exception, message=log_message)
         abort(404)
 
     # Create filename. Add a suffix in the event the source is posting
@@ -87,10 +86,9 @@ def receive(source):
         log.log2warning(20016, log_message)
         abort(404)
     except:
-        (etype, evalue, etraceback) = sys.exc_info()
-        log_message = ('''API Failure: [{}, {}, {}]\
-'''.format(etype, evalue, etraceback))
-        log.log2warning(20017, log_message)
+        _exception = sys.exc_info()
+        log_message = ('API Failure')
+        log.log2exception(20017, _exception, message=log_message)
         abort(404)
 
     # Return

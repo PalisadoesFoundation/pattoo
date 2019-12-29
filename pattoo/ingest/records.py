@@ -56,10 +56,7 @@ class ExceptionWrapper(object):
 
         """
         # Log message
-        log_message = ('''\
-[Exception:{}, Exception Instance: {}, Stack Trace: {}]\
-'''.format(self._etype, self._evalue, self._etraceback))
-        log.log2warning(20114, log_message)
+        log.log2exception(20114, (self._etype, self._evalue, self._etraceback))
 
         # Process traceback
         raise self._error_exception.with_traceback(self._etraceback)
@@ -278,18 +275,12 @@ def _process_kvps_exception(pattoo_db_records):
     try:
         result = get.key_value_pairs(pattoo_db_records)
     except Exception as error:
-        (etype, evalue, etraceback) = sys.exc_info()
-        log_message = ('''\
-Ingest failure: [Exception:{}, Exception Instance: {}, Stack Trace: {}]\
-'''.format(etype, evalue, etraceback))
-        log.log2warning(20133, log_message)
+        _exception = sys.exc_info()
+        log.log2exception(20133, _exception)
         return ExceptionWrapper(error)
     except:
-        (etype, evalue, etraceback) = sys.exc_info()
-        log_message = ('''\
-Ingest failure: [Exception:{}, Exception Instance: {}, Stack Trace: {}]\
-'''.format(etype, evalue, etraceback))
-        log.log2die(20111, log_message)
+        _exception = sys.exc_info()
+        log.log2exception_die(20111, _exception)
 
     # Return
     return result
@@ -318,18 +309,12 @@ def _process_data_exception(pattoo_db_records):
     try:
         success = process_db_records(pattoo_db_records)
     except Exception as error:
-        (etype, evalue, etraceback) = sys.exc_info()
-        log_message = ('''\
-Ingest failure: [Exception:{}, Exception Instance: {}, Stack Trace: {}]\
-'''.format(etype, evalue, etraceback))
-        log.log2warning(20132, log_message)
+        _exception = sys.exc_info()
+        log.log2exception(20132, _exception)
         return ExceptionWrapper(error)
     except:
-        (etype, evalue, etraceback) = sys.exc_info()
-        log_message = ('''\
-Ingest failure: [Exception:{}, Exception Instance: {}, Stack Trace: {}]\
-'''.format(etype, evalue, etraceback))
-        log.log2die(20109, log_message)
+        _exception = sys.exc_info()
+        log.log2exception_die(20109, _exception)
 
     # Return
     return success
