@@ -179,50 +179,18 @@ class Records(object):
         """
         # Update
         if self._multiprocess is True:
-            # Log
-            log_message = 'Starting key-value pairs processing from cache.'
-            log.log2debug(20121, log_message)
-
             # Process pairs
             self.multiprocess_pairs()
-
-            # Log
-            log_message = 'Finished key-value pairs processing from cache.'
-            log.log2debug(20122, log_message)
-
-            # Log
-            log_message = 'Starting polled data values DB update.'
-            log.log2debug(20125, log_message)
 
             # Process data
             self.multiprocess_data()
 
-            # Log
-            log_message = 'Finished polled data values DB update.'
-            log.log2debug(20126, log_message)
-
         else:
-            # Log message
-            log_message = 'Starting key-value pairs processing from cache.'
-            log.log2debug(20115, log_message)
-
             # Process pairs
             self.singleprocess_pairs()
 
-            # Log again
-            log_message = 'Finished key-value pairs processing from cache.'
-            log.log2debug(20116, log_message)
-
-            # Log
-            log_message = 'Starting polled data values DB update.'
-            log.log2debug(20119, log_message)
-
             # Process data
             self.singleprocess_data()
-
-            # Log
-            log_message = 'Finished polled data values DB update.'
-            log.log2debug(20131, log_message)
 
 
 def _multiprocess_pairs(pattoo_db_records_lists_tuple, pool_size):
@@ -241,7 +209,7 @@ def _multiprocess_pairs(pattoo_db_records_lists_tuple, pool_size):
 
     """
     # Create a pool of sub process resources
-    with multiprocessing.Pool(processes=pool_size) as pool:
+    with multiprocessing.Pool(processes=pool_size, maxtasksperchild=1) as pool:
 
         # Create sub processes from the pool
         per_process_key_value_pairs = pool.starmap(
@@ -275,7 +243,7 @@ def _multiprocess_data(pattoo_db_records_lists_tuple, pool_size):
 
     """
     # Create a pool of sub process resources
-    with multiprocessing.Pool(processes=pool_size) as pool:
+    with multiprocessing.Pool(processes=pool_size, maxtasksperchild=1) as pool:
 
         # Create sub processes from the pool
         results = pool.starmap(
@@ -404,7 +372,8 @@ def process_db_records(pattoo_db_records):
     checksum_table = misc.agent_checksums(agent_id)
 
     # Log message
-    log_message = 'Starting data processing for agent_id: {}'.format(agent_id)
+    log_message = ('''\
+Starting cache data processing for agent_id: {}'''.format(agent_id))
     log.log2debug(20112, log_message)
 
     # Process data
@@ -462,7 +431,8 @@ def process_db_records(pattoo_db_records):
         data.insert_rows(list(_data.values()))
 
     # Log message
-    log_message = 'Finished data processing for agent_id: {}'.format(agent_id)
+    log_message = ('''\
+Finished cache data processing for agent_id: {}'''.format(agent_id))
     log.log2debug(20113, log_message)
 
     # Return
