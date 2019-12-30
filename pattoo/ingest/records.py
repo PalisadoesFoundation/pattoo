@@ -94,7 +94,7 @@ class Records(object):
         CPU communication with Python multiprocessing. This is an attempt to
         reduce that risk by only invoking the optimal number of threads needed.
         '''
-        
+
         '''self._pool_size = max(1, min(
             len(self._arguments), multiprocessing.cpu_count()))'''
         self._pool_size = multiprocessing.cpu_count()
@@ -362,11 +362,6 @@ def process_db_records(pattoo_db_records):
     # speed up the process by reducing the need for future database access.
     agent_id = pattoo_db_records[0].pattoo_agent_id
     checksum_table = misc.agent_checksums(agent_id)
-
-    # Log message
-    log_message = ('''\
-Starting cache data processing for agent_id: {}'''.format(agent_id))
-    log.log2debug(20112, log_message)
 
     # Process data
     for pdbr in pattoo_db_records:
