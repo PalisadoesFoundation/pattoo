@@ -60,6 +60,7 @@ class PollingAgent(Agent):
         """
         # Initialize key variables
         use_script = False
+        _running = False
         config = Config()
         interval = config.ingester_interval()
 
@@ -76,7 +77,8 @@ Starting ingester script {}. Interval of {}s.'''.format(script, interval))
             log.log2info(20020, log_message)
 
             # Check lockfile status
-            _running = check_lockfile()
+            if use_script is True:
+                _running = check_lockfile()
 
             # Process
             if _running is False:
