@@ -94,8 +94,10 @@ class Records(object):
         CPU communication with Python multiprocessing. This is an attempt to
         reduce that risk by only invoking the optimal number of threads needed.
         '''
-        self._pool_size = max(1, min(
-            len(self._arguments), multiprocessing.cpu_count()))
+        
+        '''self._pool_size = max(1, min(
+            len(self._arguments), multiprocessing.cpu_count()))'''
+        self._pool_size = multiprocessing.cpu_count()
 
     def multiprocess_pairs(self):
         """Update rows in the Pair database table if necessary.
