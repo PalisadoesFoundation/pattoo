@@ -239,6 +239,11 @@ def _multiprocess_data(pattoo_db_records_lists_tuple, pool_size):
         None
 
     """
+    # Troubleshooting log
+    log_message = 'Processing {} agents from cache'.format(
+        len(pattoo_db_records_lists_tuple))
+    log.log2debug(20009, log_message)
+
     # Create a pool of sub process resources
     with multiprocessing.Pool(processes=pool_size, maxtasksperchild=1) as pool:
 
