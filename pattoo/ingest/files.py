@@ -135,7 +135,7 @@ Finished processing ingest cache files. Batch ID: {}'''.format(self._batch_id))
         return records
 
 
-def process_cache(batch_size=500, max_duration=3600, fileage=10):
+def process_cache(batch_size=500, max_duration=3600, fileage=10, script=False):
     """Ingest data.
 
     Args:
@@ -161,6 +161,7 @@ def process_cache(batch_size=500, max_duration=3600, fileage=10):
     start = time.time()
     looptime = 0
     files_read = 0
+    success = True
 
     # Get cache directory
     config = Config()
@@ -174,10 +175,12 @@ def process_cache(batch_size=500, max_duration=3600, fileage=10):
     files_found = len(
         [_ for _ in os.listdir(directory) if _.endswith('.json')])
 
-    # Create lockfile.
-    success = _lock()
-    if bool(success) is False:
-        return bool(success)
+    # Create lockfile only if running as a script.
+    # The daemon has its own locking mechanism
+    if bool(script) is True:
+        success = _lock()
+        if bool(success) is False:
+            return bool(success)
 
     # Process the files in batches to reduce the database connection count
     # This can cause errors
@@ -228,8 +231,15 @@ Agent cache ingest completed. {0} records processed in {1:.2f} seconds, \
         log_message = 'No files found to ingest'
         log.log2info(20021, log_message)
 
-    # Delete lockfile
-    success = _lock(delete=True)
+    # Delete lockfile only if running as a script.
+    # The daemon has its own locking mechanism
+    if bool(script) is True:
+        success = _lock(delete=True)
+
+    # Log what we are doing
+    log_message = 'Finished processing ingest cache.'
+    log.log2info(20020, log_message)
+
     return bool(success)
 
 
