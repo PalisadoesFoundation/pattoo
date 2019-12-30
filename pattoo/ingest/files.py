@@ -144,7 +144,7 @@ def process_cache(batch_size=500, max_duration=3600, fileage=10):
         fileage: Minimum age of files to be processed in seconds
 
     Returns:
-        None
+        success: True if successful
 
     Method:
         1) Read the files in the cache directory older than a threshold
@@ -175,7 +175,9 @@ def process_cache(batch_size=500, max_duration=3600, fileage=10):
         [_ for _ in os.listdir(directory) if _.endswith('.json')])
 
     # Create lockfile.
-    _lock()
+    success = _lock()
+    if bool(success) is False:
+        return bool(success)
 
     # Process the files in batches to reduce the database connection count
     # This can cause errors
@@ -227,7 +229,8 @@ Agent cache ingest completed. {0} records processed in {1:.2f} seconds, \
         log.log2info(20021, log_message)
 
     # Delete lockfile
-    _lock(delete=True)
+    success = _lock(delete=True)
+    return bool(success)
 
 
 def _lock(delete=False):
@@ -243,6 +246,7 @@ def _lock(delete=False):
     # Initialize key variables
     config = Config()
     lockfile = files.lock_file(PATTOO_INGESTER_NAME, config)
+    success = False
 
     # Lock
     if bool(delete) is False:
@@ -251,16 +255,20 @@ def _lock(delete=False):
 Lockfile {} exists. Will not start ingester script. Is another Ingester \
 instance running? If not, delete the lockfile and rerun this script.\
 '''.format(lockfile))
-            log.log2die(20023, log_message)
+            log.log2warning(20023, log_message)
         else:
             open(lockfile, 'a').close()
+            success = True
     else:
         if os.path.exists(lockfile) is True:
             try:
                 os.remove(lockfile)
+                success = True
             except:
                 log_message = ('Error deleting lockfile {}.'.format(lockfile))
                 log.log2warning(20107, log_message)
         else:
             log_message = ('Lockfile {} not found.'.format(lockfile))
             log.log2warning(20108, log_message)
+
+    return success
