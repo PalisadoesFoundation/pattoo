@@ -53,7 +53,9 @@ def main():
     # Process cache
     args = arguments()
     success = files.process_cache(
-        batch_size=args.batch_size, max_duration=args.max_duration)
+        batch_size=args.batch_size,
+        max_duration=args.max_duration,
+        script=True)
     sys.exit(int(not success))
 
 

@@ -63,18 +63,13 @@ class PollingAgent(Agent):
         _running = False
         config = Config()
         interval = config.ingester_interval()
+        script = '{}{}{}'.format(
+            _BIN_DIRECTORY, os.sep, PATTOO_INGESTER_SCRIPT)
 
         # Post data to the remote server
         while True:
             # Get start time
             ts_start = time()
-
-            # Say what we are doing
-            script = '{}{}{}'.format(
-                _BIN_DIRECTORY, os.sep, PATTOO_INGESTER_SCRIPT)
-            log_message = ('''\
-Starting ingester script {}. Interval of {}s.'''.format(script, interval))
-            log.log2info(20020, log_message)
 
             # Check lockfile status
             if use_script is True:
@@ -90,7 +85,7 @@ Starting ingester script {}. Interval of {}s.'''.format(script, interval))
                     # Process cache with function
                     success = files.process_cache()
 
-                if bool(success) is True:
+                if bool(success) is False:
                     log_message = ('''\
 Ingester failed to run. Please check log files for possible causes.''')
                     log.log2warning(20029, log_message)
