@@ -186,7 +186,8 @@ class TestBasicFunctions(unittest.TestCase):
         self.assertFalse(datapoint.checksum_exists(checksum))
 
         # Ingest using process_cache
-        files_test.process_cache(fileage=0)
+        result = files_test.process_cache(fileage=0)
+        self.assertTrue(result)
 
         # Test (checksum should exist)
         idx_datapoint = datapoint.checksum_exists(checksum)
@@ -209,21 +210,25 @@ class TestBasicFunctions(unittest.TestCase):
 
         # Test
         self.assertFalse(os.path.isfile(lockfile))
-        files_test._lock()
+        result = files_test._lock()
         self.assertTrue(os.path.isfile(lockfile))
+        self.assertTrue(result)
 
         # Should fail
-        with self.assertRaises(SystemExit):
-            files_test._lock()
+        result = files_test._lock()
+        self.assertFalse(result)
 
         # Remove and test again
-        files_test._lock(delete=True)
+        result = files_test._lock(delete=True)
+        self.assertTrue(result)
         self.assertFalse(os.path.isfile(lockfile))
-        files_test._lock()
+        result = files_test._lock()
+        self.assertTrue(result)
         self.assertTrue(os.path.isfile(lockfile))
 
         # Delete again to revert to known working state
-        files_test._lock(delete=True)
+        result = files_test._lock(delete=True)
+        self.assertTrue(result)
 
 
 def create_cache():
