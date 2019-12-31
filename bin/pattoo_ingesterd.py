@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Pattoo multi-user operating system reporter daemon.
+"""Pattoo agent data cache ingester daemon.
 
-Retrieve's system data from remote host over HTTP.
+Used to add data to backend database
 
 """
 
@@ -30,6 +30,7 @@ from pattoo.constants import PATTOO_INGESTERD_NAME, PATTOO_INGESTER_SCRIPT
 from pattoo.configuration import ConfigIngester as Config
 from pattoo import sysinfo
 from pattoo.ingest import files
+from pattoo.db.db import connectivity
 
 
 class PollingAgent(Agent):
@@ -141,7 +142,7 @@ Lock file {} found, but the {} script is not running\
 
 
 def main():
-    """Start the pattoo agent.
+    """Start the pattoo ingester daemon.
 
     Args:
         None
@@ -150,6 +151,9 @@ def main():
         None
 
     """
+    # Make sure we have a database
+    _ = connectivity()
+
     # Poll
     agent_poller = PollingAgent(PATTOO_INGESTERD_NAME)
 

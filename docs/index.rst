@@ -38,6 +38,17 @@ How to get the daemons running to collect data.
   pattoo_apid
   pattoo_api_agentd
 
+Using the CLI
+-------------
+
+How to use the Command Line Interface (CLI).
+
+.. toctree::
+  :maxdepth: 2
+  :caption: CLI:
+
+  cli
+
 Testing GraphQL Queries
 -----------------------
 

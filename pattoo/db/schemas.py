@@ -336,7 +336,7 @@ Key-pair key. Part of a composite primary key with "idx_language" and \
 
     enabled = graphene.String(
         description='"True" if enabled.')
-        
+
 
 class PairXlate(SQLAlchemyObjectType, PairXlateAttribute):
     """PairXlate node."""
@@ -512,6 +512,18 @@ class Query(graphene.ObjectType):
         query = PairXlate.get_query(info)
         return query.filter(
             PairXlateModel.idx_pair_xlate_group == idx_pair_xlate_group)
+
+    ###########################################################################
+    # Example: filterIdxDataPoint
+    ###########################################################################
+    filter_idx_datapoint = graphene.Field(
+        lambda: graphene.List(DataPoint),
+        idx_datapoint=graphene.String())
+
+    def resolve_filter_idx_datapoint(self, info, idx_datapoint):
+        """Filter by column DataPoint.idx_datapoint."""
+        query = DataPoint.get_query(info)
+        return query.filter(DataPointModel.idx_datapoint == idx_datapoint)
 
 
 # Make the schema global
