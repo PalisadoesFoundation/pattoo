@@ -27,7 +27,7 @@ from pattoo_shared import files
 from pattoo_shared import log
 from pattoo_shared import converter
 from pattoo.constants import PATTOO_API_AGENT_NAME
-
+from pattoo.db.db import connectivity
 from pattoo.ingest import files
 
 
@@ -50,6 +50,9 @@ def main():
         memory, and ensure we can exit if we are running too long.
 
     """
+    # Make sure we have a database
+    _ = connectivity()
+
     # Process cache
     args = arguments()
     success = files.process_cache(

@@ -20,10 +20,22 @@ else:
 # pattoo imports
 from pattoo.cli.cli import Parser
 from pattoo.cli import cli_show, cli_create, cli_set, cli_import, cli_assign
+from pattoo.db.db import connectivity
 
 
 def main():
-    """Ingest data."""
+    """Pattoo CLI script.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Make sure we have a database
+    _ = connectivity()
+
     # Initialize key variables
     _help = 'This program is the CLI interface to configuring pattoo'
 

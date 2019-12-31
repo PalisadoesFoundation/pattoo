@@ -28,10 +28,22 @@ from pattoo.constants import (
     PATTOO_API_WEB_NAME, PATTOO_API_WEB_PROXY)
 from pattoo.configuration import ConfigPattoo as Config
 from pattoo.api.web import PATTOO_API_WEB
+from pattoo.db.db import connectivity
 
 
 def main():
-    """Main function to start the Gunicorn WSGI."""
+    """Start the Gunicorn WSGI.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Make sure we have a database
+    _ = connectivity()
+
     # Get PID filenename for Gunicorn
     agent_gunicorn = Agent(PATTOO_API_WEB_PROXY)
 

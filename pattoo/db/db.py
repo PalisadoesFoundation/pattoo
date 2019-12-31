@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """Class to process connection."""
-
+import sys
 from contextlib import contextmanager
 
 # PIP3 imports
@@ -89,11 +89,11 @@ def db_query(error_code):
         session.close()
 
 
-def connectivity():
+def connectivity(die=True):
     """Check connectivity to the database.
 
     Args:
-        None
+        die: Die if true
 
     Returns:
         valid: True if connectivity is OK
@@ -103,13 +103,27 @@ def connectivity():
     valid = False
 
     # Do test
-    with db_query(20008) as session:
-        result = session.query(DataPoint.idx_datapoint).filter(
-            and_(DataPoint.idx_datapoint == 1,
-                 DataPoint.checksum == '-1'.encode()))
-        for _ in result:
-            break
-        valid = True
+    try:
+        with db_query(20008) as session:
+            rows = session.query(DataPoint.idx_datapoint).filter(
+                and_(DataPoint.idx_datapoint == 1,
+                     DataPoint.checksum == '-1'.encode()))
+            for _ in rows:
+                break
+            valid = True
+    except:
+        _exception = sys.exc_info()
+        log.log2exception_die(20115, _exception)
+
+    # Log
+    if valid is False:
+        log_message = ('''\
+No connectivity to database. Make sure the installation script has been run. \
+Check log files and do appropriate troubleshooting.''')
+        if bool(die) is False:
+            log.log2warning(20083, log_message)
+        else:
+            log.log2die(20112, log_message)
 
     # Return
     return valid
