@@ -6,6 +6,7 @@ import unittest
 import sys
 import time
 from random import random, uniform
+from pprint import pprint
 
 # PIP3 imports
 import requests
@@ -78,7 +79,6 @@ class TestBasicFunctions(LiveServerTestCase):
     def test_route_graphql(self):
         """Testing method / function add_url_rule (graphql)."""
         # Initialize key variables
-        return
         _data = []
         pattoo_checksum = data.hashstring(str(random()))
         pattoo_key = data.hashstring(str(random()))
@@ -115,27 +115,18 @@ class TestBasicFunctions(LiveServerTestCase):
         lib_data.insert_rows(_data)
 
         # Test
-        query = '''\
+        query = ('''\
 {
-  datapoint(id: "{}") {
-    id
-    idxDatapoint
-    agent {
-      agentPolledTarget
-      agentGroup {
-        pairXlateGroup {
-          idxPairXlateGroup
-          id
-        }
-      }
-    }
-'''.format(idx_datapoint)
+  filterIdxDatapoint(idxDatapoint: "IDX") {
+    checksum
+  }
+}
+'''.replace('IDX', str(idx_datapoint)))
 
         # Test
-        expected_checksum = converter._checksum(
-            agent_id, pattoo_agent_polled_target, pattoo_checksum)
-        result = _get(query)
-        self.assertEqual(result, expected_checksum)
+        graphql_result = _get(query)
+        result = graphql_result['data']['filterIdxDatapoint'][0]
+        self.assertEqual(result['checksum'], pattoo_checksum)
 
 
 def _get(query):
