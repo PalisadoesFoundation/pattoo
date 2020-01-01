@@ -11,7 +11,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import event
 from sqlalchemy import exc
-from sqlalchemy.pool import QueuePool, Pool
+from sqlalchemy.pool import QueuePool, Pool, NullPool
 
 # pattoo libraries
 from pattoo_shared import log
@@ -58,7 +58,7 @@ def main():
         db_engine = create_engine(
             URL, echo=False,
             encoding='utf8',
-            poolclass=QueuePool,
+            poolclass=NullPool,
             max_overflow=max_overflow,
             pool_size=pool_size,
             pool_pre_ping=True,
