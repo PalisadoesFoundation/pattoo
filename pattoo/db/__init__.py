@@ -22,6 +22,7 @@ from pattoo.configuration import ConfigPattoo as Config
 #############################################################################
 POOL = None
 URL = None
+ENGINE = None
 
 
 def main():
@@ -38,6 +39,7 @@ def main():
     use_mysql = True
     global POOL
     global URL
+    global ENGINE
     pool_timeout = 30
     pool_recycle = min(10, pool_timeout - 10)
 
@@ -55,7 +57,7 @@ def main():
             config.db_hostname(), config.db_name()))
 
         # Add MySQL to the pool
-        db_engine = create_engine(
+        ENGINE = create_engine(
             URL, echo=False,
             encoding='utf8',
             poolclass=QueuePool,
@@ -66,14 +68,14 @@ def main():
             pool_timeout=pool_timeout)
 
         # Fix for multiprocessing
-        _add_engine_pidguard(db_engine)
+        _add_engine_pidguard(ENGINE)
 
         # Create database session object
         POOL = scoped_session(
             sessionmaker(
                 autoflush=True,
                 autocommit=False,
-                bind=db_engine
+                bind=ENGINE
             )
         )
 

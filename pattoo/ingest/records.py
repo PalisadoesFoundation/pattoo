@@ -17,6 +17,7 @@ from pattoo.constants import IDXTimestampValue, ChecksumLookup
 from pattoo.ingest import get
 from pattoo.db import misc
 from pattoo.db.table import pair, glue, data, datapoint
+from pattoo.db import ENGINE
 from pattoo.configuration import ConfigIngester as Config
 
 
@@ -207,6 +208,17 @@ def _multiprocess_pairs(pattoo_db_records_lists_tuple, pool_size):
         None
 
     """
+
+    '''
+    Shut any existing idle connections in the pool prior to multiprocessing.
+
+    pattoo.db.add_engine_pidguard() works with multi-core but single CPU
+    systems. This adds protection for mulit-CPU environments where it doesn't
+    appear to be as effective using the 'yields' of pattoo.db.db.db_query and
+    pattoo.db.db.db_update.
+    '''
+    ENGINE.dispose()
+
     # Create a pool of sub process resources
     with multiprocessing.Pool(processes=pool_size) as pool:
 
@@ -245,6 +257,16 @@ def _multiprocess_data(pattoo_db_records_lists_tuple, pool_size):
     log_message = 'Processing {} agents from cache'.format(
         len(pattoo_db_records_lists_tuple))
     log.log2debug(20009, log_message)
+
+    '''
+    Shut any existing idle connections in the pool prior to multiprocessing.
+
+    pattoo.db.add_engine_pidguard() works with multi-core but single CPU
+    systems. This adds protection for mulit-CPU environments where it doesn't
+    appear to be as effective using the 'yields' of pattoo.db.db.db_query and
+    pattoo.db.db.db_update.
+    '''
+    ENGINE.dispose()
 
     # Create a pool of sub process resources
     with multiprocessing.Pool(processes=pool_size) as pool:
