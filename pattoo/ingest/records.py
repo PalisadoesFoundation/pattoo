@@ -186,6 +186,9 @@ class Records(object):
             if isinstance(result, ExceptionWrapper):
                 result.re_raise()
 
+        # Clean up any loose connections
+        ENGINE.dispose()
+        
     def singleprocess_pairs(self):
         """Update rows in the Pair database table if necessary.
 
@@ -300,9 +303,6 @@ def _process_data_exception(pattoo_db_records):
     # Execute
     try:
         success = process_db_records(pattoo_db_records)
-
-        # Clean up any loose connections
-        ENGINE.dispose()
     except Exception as error:
         _exception = sys.exc_info()
         log.log2exception(20132, _exception)
