@@ -16,6 +16,7 @@ from pattoo_shared import log
 from pattoo.constants import IDXTimestampValue, ChecksumLookup
 from pattoo.ingest import get
 from pattoo.db import misc
+from pattoo.db import ENGINE
 from pattoo.db.table import pair, glue, data, datapoint
 from pattoo.configuration import ConfigIngester as Config
 
@@ -299,6 +300,9 @@ def _process_data_exception(pattoo_db_records):
     # Execute
     try:
         success = process_db_records(pattoo_db_records)
+
+        # Clean up any loose connections
+        ENGINE.dispose()
     except Exception as error:
         _exception = sys.exc_info()
         log.log2exception(20132, _exception)
