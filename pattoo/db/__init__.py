@@ -11,7 +11,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import event
 from sqlalchemy import exc
-from sqlalchemy.pool import QueuePool, Pool
+from sqlalchemy.pool import QueuePool
 
 # pattoo libraries
 from pattoo_shared import log
