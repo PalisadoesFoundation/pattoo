@@ -64,7 +64,34 @@ class ExceptionWrapper(object):
 
 
 class Records(object):
-    """Process data using multiprocessing."""
+    """Process data using multiprocessing.
+
+    NOTE:
+
+    It is important to shut any existing idle database connections in the pool
+    prior to doing multiprocessing. This is done with ENGINE.dispose()
+
+    The pattoo.db.add_engine_pidguard() works by with multi-core, single CPU
+    systems. This adds protection for mulit-CPU environments where it
+    doesn't appear to be as effective using the 'yields' of
+    pattoo.db.db.db_query and pattoo.db.db.db_update.
+
+    Mentioned in: https://docs.sqlalchemy.org/en/13/faq/connections.html
+
+    "How do I use engines / connections / sessions with Python multiprocessing,
+    or os.fork()?"
+
+    'The above strategies will accommodate the case of an Engine being shared
+    among processes. However, for the case of a transaction-active Session or
+    Connection being shared, there’s no automatic fix for this; an application
+    needs to ensure a new child process only initiate new Connection objects
+    and transactions, as well as ORM Session objects. For a Session object,
+    technically this is only needed if the session is currently
+    transaction-bound, however the scope of a single Session is in any case
+    intended to be kept within a single call stack in any case (e.g. not a
+    global object, not shared between processes or threads).'
+
+    """
 
     def __init__(self, pattoo_db_records_lists):
         """Initialize the class.
@@ -85,19 +112,6 @@ class Records(object):
         self._arguments = [
             (_, ) for _ in pattoo_db_records_lists if bool(_) is True]
         self._multiprocess = config.multiprocessing()
-
-        '''
-        Set the pool size to be greater than 1. It should also not be greater
-        than the number of CPU cores or less than the number of agent_ids
-        represented. There have been issues with multiprocessing hanging when
-        systems with multiple CPUs (vs. cores) are used where processes hang
-        indefinitely for pool.join. The suspicion lies with ineffective inter
-        CPU communication with Python multiprocessing. This is an attempt to
-        reduce that risk by only invoking the optimal number of threads needed.
-        '''
-
-        '''self._pool_size = max(1, min(
-            len(self._arguments), multiprocessing.cpu_count()))'''
         self._pool_size = multiprocessing.cpu_count()
 
     def multiprocess_pairs(self):
@@ -113,8 +127,27 @@ class Records(object):
             None
 
         """
-        # Process
-        _multiprocess_pairs(self._arguments, self._pool_size)
+        # Initialize key variables
+        pattoo_db_records_lists_tuple = self._arguments
+        pool_size = self._pool_size
+
+        # Create a pool of sub process resources
+        with multiprocessing.Pool(processes=pool_size) as pool:
+
+            # Create sub processes from the pool
+            per_process_key_value_pairs = pool.starmap(
+                _process_kvps_exception, pattoo_db_records_lists_tuple)
+
+        # Wait for all the processes to end and get results
+        pool.join()
+
+        # Test for exceptions
+        for result in per_process_key_value_pairs:
+            if isinstance(result, ExceptionWrapper):
+                result.re_raise()
+
+        # Update the database with key value pairs
+        pair.insert_rows(per_process_key_value_pairs)
 
     def multiprocess_data(self):
         """Insert rows into the Data and DataPoint tables as necessary.
@@ -129,8 +162,29 @@ class Records(object):
             None
 
         """
-        # Process
-        _multiprocess_data(self._arguments, self._pool_size)
+        # Initialize key variables
+        pattoo_db_records_lists_tuple = self._arguments
+        pool_size = self._pool_size
+
+        # Troubleshooting log
+        log_message = 'Processing {} agents from cache'.format(
+            len(pattoo_db_records_lists_tuple))
+        log.log2debug(20009, log_message)
+
+        # Create a pool of sub process resources
+        with multiprocessing.Pool(processes=pool_size) as pool:
+
+            # Create sub processes from the pool
+            results = pool.starmap(
+                _process_data_exception, pattoo_db_records_lists_tuple)
+
+        # Wait for all the processes to end and get results
+        pool.join()
+
+        # Test for exceptions
+        for result in results:
+            if isinstance(result, ExceptionWrapper):
+                result.re_raise()
 
     def singleprocess_pairs(self):
         """Update rows in the Pair database table if necessary.
@@ -193,97 +247,6 @@ class Records(object):
             self.singleprocess_data()
 
 
-def _multiprocess_pairs(pattoo_db_records_lists_tuple, pool_size):
-    """Update rows in the Pair database table if necessary.
-
-    Do all multiprocessing outside of the class for consistent results
-    without unexpected hanging waiting for pool.join() to happen.
-
-    Args:
-        pattoo_db_records_lists_tuple: List of (list, ) tuples. Each (list, )
-            made up of PattooDBrecord objects
-        pool_size: Size of pool to use for updates
-
-    Returns:
-        None
-
-    """
-
-    '''
-    Shut any existing idle connections in the pool prior to multiprocessing.
-
-    pattoo.db.add_engine_pidguard() works with multi-core but single CPU
-    systems. This adds protection for mulit-CPU environments where it doesn't
-    appear to be as effective using the 'yields' of pattoo.db.db.db_query and
-    pattoo.db.db.db_update.
-    '''
-    ENGINE.dispose()
-
-    # Create a pool of sub process resources
-    with multiprocessing.Pool(processes=pool_size) as pool:
-
-        # Create sub processes from the pool
-        per_process_key_value_pairs = pool.starmap(
-            _process_kvps_exception, pattoo_db_records_lists_tuple)
-
-    # Wait for all the processes to end and get results
-    pool.join()
-
-    # Test for exceptions
-    for result in per_process_key_value_pairs:
-        if isinstance(result, ExceptionWrapper):
-            result.re_raise()
-
-    # Update the database with key value pairs
-    pair.insert_rows(per_process_key_value_pairs)
-
-
-def _multiprocess_data(pattoo_db_records_lists_tuple, pool_size):
-    """Insert rows into the Data and DataPoint tables as necessary.
-
-    Do all multiprocessing outside of the class for consistent results
-    without unexpected hanging waiting for pool.join() to happen.
-
-    Args:
-        pattoo_db_records_lists_tuple: List of (list, ) tuples. Each (list, )
-            made up of PattooDBrecord objects
-        pool_size: Size of pool to use for updates
-
-    Returns:
-        None
-
-    """
-    # Troubleshooting log
-    log_message = 'Processing {} agents from cache'.format(
-        len(pattoo_db_records_lists_tuple))
-    log.log2debug(20009, log_message)
-
-    '''
-    Shut any existing idle connections in the pool prior to multiprocessing.
-
-    pattoo.db.add_engine_pidguard() works with multi-core but single CPU
-    systems. This adds protection for mulit-CPU environments where it doesn't
-    appear to be as effective using the 'yields' of pattoo.db.db.db_query and
-    pattoo.db.db.db_update.
-    '''
-    ENGINE.dispose()
-
-    # Create a pool of sub process resources
-    with multiprocessing.Pool(processes=pool_size) as pool:
-
-        # Create sub processes from the pool
-        results = pool.starmap(
-            _process_data_exception, pattoo_db_records_lists_tuple)
-
-    # Wait for all the processes to end and get results
-    pool.join()
-
-    # Test for exceptions
-    for result in results:
-        if isinstance(result, ExceptionWrapper):
-            result.re_raise()
-
-
 def _process_kvps_exception(pattoo_db_records):
     """Get all the key-value pairs found.
 
@@ -297,6 +260,10 @@ def _process_kvps_exception(pattoo_db_records):
         None
 
     """
+    # Close all idle database sessions prior and possible DB access in
+    # multiprocessing.
+    ENGINE.dispose()
+
     # Initialize key variables
     result = []
 
@@ -331,6 +298,10 @@ def _process_data_exception(pattoo_db_records):
             trigger pool.join(). This methodolgy has reduced the risk.
 
     """
+    # Close all idle database sessions prior and possible DB access in
+    # multiprocessing.
+    ENGINE.dispose()
+
     # Initialize key variables
     success = False
 
