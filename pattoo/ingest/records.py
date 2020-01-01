@@ -17,7 +17,6 @@ from pattoo.constants import IDXTimestampValue, ChecksumLookup
 from pattoo.ingest import get
 from pattoo.db import misc
 from pattoo.db.table import pair, glue, data, datapoint
-from pattoo.db import ENGINE
 from pattoo.configuration import ConfigIngester as Config
 
 
@@ -260,10 +259,6 @@ def _process_kvps_exception(pattoo_db_records):
         None
 
     """
-    # Close all idle database sessions prior and possible DB access in
-    # multiprocessing.
-    ENGINE.dispose()
-
     # Initialize key variables
     result = []
 
@@ -298,10 +293,6 @@ def _process_data_exception(pattoo_db_records):
             trigger pool.join(). This methodolgy has reduced the risk.
 
     """
-    # Close all idle database sessions prior and possible DB access in
-    # multiprocessing.
-    ENGINE.dispose()
-
     # Initialize key variables
     success = False
 
