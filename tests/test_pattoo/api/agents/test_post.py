@@ -97,12 +97,6 @@ class TestBasicFunctions(LiveServerTestCase):
         self.assertEqual(len(cache_data[0]), 2)
         result = cache_data[0][1]
 
-        print('\n\n')
-        pprint(expected)
-        print('\n\n')
-        pprint(result)
-        print('\n\n')
-
         # Result and expected are not quite the same. 'expected' will have
         # lists of tuples where 'result' will have lists of lists
         for key, value in result.items():
