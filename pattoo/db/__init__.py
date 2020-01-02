@@ -56,18 +56,22 @@ def main():
             config.db_username(), config.db_password(),
             config.db_hostname(), config.db_name()))
 
+        # Fix for multiprocessing on pools.
+        pid_guard_queue = QueuePool
+        _add_engine_pidguard(QueuePool)
+
         # Add MySQL to the pool
         ENGINE = create_engine(
             URL, echo=False,
             encoding='utf8',
-            poolclass=QueuePool,
+            poolclass=pid_guard_queue,
             max_overflow=max_overflow,
             pool_size=pool_size,
             pool_pre_ping=True,
             pool_recycle=pool_recycle,
             pool_timeout=pool_timeout)
 
-        # Fix for multiprocessing
+        # Fix for multiprocessing on engines.
         _add_engine_pidguard(ENGINE)
 
         # Create database session object
@@ -115,6 +119,7 @@ def _add_engine_pidguard(engine):
             None
 
         """
+        # Update the connection_record variable for later
         connection_record.info['pid'] = os.getpid()
 
     @event.listens_for(engine, 'checkout')
