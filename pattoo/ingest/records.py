@@ -16,7 +16,6 @@ from pattoo_shared import log
 from pattoo.constants import IDXTimestampValue, ChecksumLookup
 from pattoo.ingest import get
 from pattoo.db import misc
-from pattoo.db import ENGINE
 from pattoo.db.table import pair, glue, data, datapoint
 from pattoo.configuration import ConfigIngester as Config
 
@@ -64,34 +63,7 @@ class ExceptionWrapper(object):
 
 
 class Records(object):
-    """Process data using multiprocessing.
-
-    NOTE:
-
-    It is important to shut any existing idle database connections in the pool
-    prior to doing multiprocessing. This is done with ENGINE.dispose()
-
-    The pattoo.db.add_engine_pidguard() works by with multi-core, single CPU
-    systems. This adds protection for mulit-CPU environments where it
-    doesn't appear to be as effective using the 'yields' of
-    pattoo.db.db.db_query and pattoo.db.db.db_update.
-
-    Mentioned in: https://docs.sqlalchemy.org/en/13/faq/connections.html
-
-    "How do I use engines / connections / sessions with Python multiprocessing,
-    or os.fork()?"
-
-    'The above strategies will accommodate the case of an Engine being shared
-    among processes. However, for the case of a transaction-active Session or
-    Connection being shared, there’s no automatic fix for this; an application
-    needs to ensure a new child process only initiate new Connection objects
-    and transactions, as well as ORM Session objects. For a Session object,
-    technically this is only needed if the session is currently
-    transaction-bound, however the scope of a single Session is in any case
-    intended to be kept within a single call stack in any case (e.g. not a
-    global object, not shared between processes or threads).'
-
-    """
+    """Process data using multiprocessing."""
 
     def __init__(self, pattoo_db_records_lists):
         """Initialize the class.
@@ -186,9 +158,6 @@ class Records(object):
             if isinstance(result, ExceptionWrapper):
                 result.re_raise()
 
-        # Clean up any loose connections
-        ENGINE.dispose()
-        
     def singleprocess_pairs(self):
         """Update rows in the Pair database table if necessary.
 
