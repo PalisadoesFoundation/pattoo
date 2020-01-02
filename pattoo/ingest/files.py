@@ -117,13 +117,13 @@ Error deleting cache file {}.'''.format(filepath))
 
         # Process
         _data = self.records()
-
         if bool(_data) is True:
             # Log
             log_message = ('''\
 Processing ingest cache files. Batch ID: {}'''.format(self._batch_id))
             log.log2debug(20004, log_message)
 
+            # Add records to the database
             _records = Records(_data)
             _records.ingest()
             self.purge()
