@@ -9,7 +9,7 @@ from sqlalchemy import and_
 
 # pattoo libraries
 from pattoo_shared import log
-from pattoo.db import POOL
+from pattoo.db import POOL, ENGINE
 from pattoo.db.models import DataPoint
 
 
@@ -52,7 +52,11 @@ def db_modify(error_code, die=True):
         else:
             log.log2info(error_code, log_message)
     finally:
+        # Return the Connection to the pool
         session.close()
+
+        # Dispose of it as a multiprocessing protection
+        ENGINE.dispose()
 
 
 @contextmanager
@@ -86,7 +90,11 @@ def db_query(error_code):
         log_message = '{}. Unknown error'.format(prefix)
         log.log2info(error_code, log_message)
     finally:
+        # Return the Connection to the pool
         session.close()
+
+        # Dispose of it as a multiprocessing protection
+        ENGINE.dispose()
 
 
 def connectivity(die=True):
