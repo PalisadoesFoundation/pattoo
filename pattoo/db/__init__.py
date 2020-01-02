@@ -57,14 +57,13 @@ def main():
             config.db_hostname(), config.db_name()))
 
         # Fix for multiprocessing on pools.
-        pid_guard_queue = QueuePool
         _add_engine_pidguard(QueuePool)
 
         # Add MySQL to the pool
         ENGINE = create_engine(
             URL, echo=False,
             encoding='utf8',
-            poolclass=pid_guard_queue,
+            poolclass=QueuePool,
             max_overflow=max_overflow,
             pool_size=pool_size,
             pool_pre_ping=True,
@@ -112,8 +111,9 @@ def _add_engine_pidguard(engine):
         """Get the PID of the sub-process for connections.
 
         Args:
-            dbapi_connection: Connection object
-            connection_record: Connection record object
+            dbapi_connection: A SqlALchemy DBAPI connection.
+            connection_record: The SqlALchemy _ConnectionRecord managing the
+                DBAPI connection.
 
         Returns:
             None
@@ -129,9 +129,12 @@ def _add_engine_pidguard(engine):
             Checkout is called when a connection is retrieved from the Pool.
 
         Args:
-            dbapi_connection: Connection object
-            connection_record: Connection record object
-            connection_proxy: Connection proxy object
+            dbapi_connection: A SqlALchemy DBAPI connection.
+            connection_record: The SqlALchemy _ConnectionRecord managing the
+                DBAPI connection.
+            connection_proxy: The SqlALchemy _ConnectionFairy object which
+                will proxy the public interface of the DBAPI connection for the
+                lifespan of the checkout.
 
         Returns:
             None

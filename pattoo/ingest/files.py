@@ -112,9 +112,6 @@ Error deleting cache file {}.'''.format(filepath))
             records: Number of records processed
 
         """
-        # Initialize key variables
-        records = 0
-
         # Process
         _data = self.records()
         if bool(_data) is True:
