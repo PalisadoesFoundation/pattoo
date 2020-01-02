@@ -130,12 +130,6 @@ Processing ingest cache files. Batch ID: {}'''.format(self._batch_id))
 Finished processing ingest cache files. Batch ID: {}'''.format(self._batch_id))
             log.log2debug(20117, log_message)
 
-        else:
-            # Log
-            log_message = ('''\
-No files found to ingest. Batch ID: {}'''.format(self._batch_id))
-            log.log2debug(20122, log_message)
-
         # Determine the number of key pairs read
         records = 0
         for item in _data:
