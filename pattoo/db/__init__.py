@@ -58,20 +58,17 @@ def main():
         _add_engine_pidguard(QueuePool)
 
         # Add MySQL to the pool
-        '''db_engine = create_engine(
-            URL, echo=False,
+        db_engine = create_engine(
+            URL,
+            echo=True,
+            echo_pool=True,
             encoding='utf8',
             poolclass=QueuePool,
             max_overflow=max_overflow,
             pool_size=pool_size,
             pool_pre_ping=True,
             pool_recycle=pool_recycle,
-            pool_timeout=pool_timeout)'''
-
-        db_engine = create_engine(
-            URL, echo=False,
-            encoding='utf8',
-            poolclass=QueuePool)
+            pool_timeout=pool_timeout)
 
         # Fix for multiprocessing on engines.
         _add_engine_pidguard(db_engine)
