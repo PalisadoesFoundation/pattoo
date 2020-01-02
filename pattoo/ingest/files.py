@@ -112,21 +112,23 @@ Error deleting cache file {}.'''.format(filepath))
             records: Number of records processed
 
         """
-        # Log
-        log_message = ('''\
-Processing ingest cache files. Batch ID: {}'''.format(self._batch_id))
-        log.log2debug(20004, log_message)
-
         # Process
         _data = self.records()
-        _records = Records(_data)
-        _records.ingest()
-        self.purge()
+        if bool(_data) is True:
+            # Log
+            log_message = ('''\
+Processing ingest cache files. Batch ID: {}'''.format(self._batch_id))
+            log.log2debug(20004, log_message)
 
-        # Log
-        log_message = ('''\
+            # Add records to the database
+            _records = Records(_data)
+            _records.ingest()
+            self.purge()
+
+            # Log
+            log_message = ('''\
 Finished processing ingest cache files. Batch ID: {}'''.format(self._batch_id))
-        log.log2debug(20117, log_message)
+            log.log2debug(20117, log_message)
 
         # Determine the number of key pairs read
         records = 0

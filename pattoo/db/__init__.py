@@ -22,7 +22,6 @@ from pattoo.configuration import ConfigPattoo as Config
 #############################################################################
 POOL = None
 URL = None
-ENGINE = None
 
 
 def main():
@@ -39,7 +38,6 @@ def main():
     use_mysql = True
     global POOL
     global URL
-    global ENGINE
     pool_timeout = 30
     pool_recycle = min(10, pool_timeout - 10)
 
@@ -57,14 +55,13 @@ def main():
             config.db_hostname(), config.db_name()))
 
         # Fix for multiprocessing on pools.
-        pid_guard_queue = QueuePool
         _add_engine_pidguard(QueuePool)
 
         # Add MySQL to the pool
-        ENGINE = create_engine(
+        db_engine = create_engine(
             URL, echo=False,
             encoding='utf8',
-            poolclass=pid_guard_queue,
+            poolclass=QueuePool,
             max_overflow=max_overflow,
             pool_size=pool_size,
             pool_pre_ping=True,
@@ -72,14 +69,14 @@ def main():
             pool_timeout=pool_timeout)
 
         # Fix for multiprocessing on engines.
-        _add_engine_pidguard(ENGINE)
+        _add_engine_pidguard(db_engine)
 
         # Create database session object
         POOL = scoped_session(
             sessionmaker(
                 autoflush=True,
                 autocommit=False,
-                bind=ENGINE
+                bind=db_engine
             )
         )
 
@@ -112,8 +109,9 @@ def _add_engine_pidguard(engine):
         """Get the PID of the sub-process for connections.
 
         Args:
-            dbapi_connection: Connection object
-            connection_record: Connection record object
+            dbapi_connection: A SqlALchemy DBAPI connection.
+            connection_record: The SqlALchemy _ConnectionRecord managing the
+                DBAPI connection.
 
         Returns:
             None
@@ -129,9 +127,12 @@ def _add_engine_pidguard(engine):
             Checkout is called when a connection is retrieved from the Pool.
 
         Args:
-            dbapi_connection: Connection object
-            connection_record: Connection record object
-            connection_proxy: Connection proxy object
+            dbapi_connection: A SqlALchemy DBAPI connection.
+            connection_record: The SqlALchemy _ConnectionRecord managing the
+                DBAPI connection.
+            connection_proxy: The SqlALchemy _ConnectionFairy object which
+                will proxy the public interface of the DBAPI connection for the
+                lifespan of the checkout.
 
         Returns:
             None
