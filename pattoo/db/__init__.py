@@ -71,7 +71,7 @@ def main():
             pool_timeout=pool_timeout)
 
         # Fix for multiprocessing on engines.
-        _add_engine_pidguard(db_engine)
+        # _add_engine_pidguard(db_engine)
 
         # Create database session object
         POOL = scoped_session(
