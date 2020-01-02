@@ -60,8 +60,8 @@ def main():
         # Add MySQL to the pool
         db_engine = create_engine(
             URL,
-            echo=True,
-            echo_pool=True,
+            echo=False,
+            echo_pool=False,
             encoding='utf8',
             poolclass=QueuePool,
             max_overflow=max_overflow,
