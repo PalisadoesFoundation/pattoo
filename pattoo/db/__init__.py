@@ -13,6 +13,11 @@ from sqlalchemy import event
 from sqlalchemy import exc
 from sqlalchemy.pool import QueuePool
 
+# Test logging
+import logging
+logging.basicConfig()
+logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
+
 # pattoo libraries
 from pattoo_shared import log
 from pattoo.configuration import ConfigPattoo as Config
