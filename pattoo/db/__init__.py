@@ -22,6 +22,7 @@ from pattoo.configuration import ConfigPattoo as Config
 #############################################################################
 POOL = None
 URL = None
+ENGINE = None
 
 
 def main():
@@ -38,6 +39,7 @@ def main():
     use_mysql = True
     global POOL
     global URL
+    global ENGINE
     pool_timeout = 30
     pool_recycle = min(10, pool_timeout - 10)
 
@@ -54,26 +56,30 @@ def main():
             config.db_username(), config.db_password(),
             config.db_hostname(), config.db_name()))
 
+        # Fix for multiprocessing on pools.
+        pid_guard_queue = QueuePool
+        _add_engine_pidguard(QueuePool)
+
         # Add MySQL to the pool
-        db_engine = create_engine(
+        ENGINE = create_engine(
             URL, echo=False,
             encoding='utf8',
-            poolclass=QueuePool,
+            poolclass=pid_guard_queue,
             max_overflow=max_overflow,
             pool_size=pool_size,
             pool_pre_ping=True,
             pool_recycle=pool_recycle,
             pool_timeout=pool_timeout)
 
-        # Fix for multiprocessing
-        _add_engine_pidguard(db_engine)
+        # Fix for multiprocessing on engines.
+        _add_engine_pidguard(ENGINE)
 
         # Create database session object
         POOL = scoped_session(
             sessionmaker(
                 autoflush=True,
                 autocommit=False,
-                bind=db_engine
+                bind=ENGINE
             )
         )
 
@@ -113,6 +119,7 @@ def _add_engine_pidguard(engine):
             None
 
         """
+        # Update the connection_record variable for later
         connection_record.info['pid'] = os.getpid()
 
     @event.listens_for(engine, 'checkout')

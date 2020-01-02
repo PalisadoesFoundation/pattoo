@@ -16,6 +16,7 @@ from pattoo_shared import log
 from pattoo.constants import IDXTimestampValue, ChecksumLookup
 from pattoo.ingest import get
 from pattoo.db import misc
+from pattoo.db import ENGINE
 from pattoo.db.table import pair, glue, data, datapoint
 from pattoo.configuration import ConfigIngester as Config
 
@@ -185,6 +186,9 @@ class Records(object):
             if isinstance(result, ExceptionWrapper):
                 result.re_raise()
 
+        # Clean up any loose connections
+        ENGINE.dispose()
+        
     def singleprocess_pairs(self):
         """Update rows in the Pair database table if necessary.
 
