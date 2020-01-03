@@ -269,7 +269,6 @@ def _process_data_exception(pattoo_db_records):
     """
     # Initialize key variables
     success = False
-    return True
 
     # Execute
     try:
@@ -312,6 +311,7 @@ def process_db_records(pattoo_db_records):
     # Initialize key variables
     _data = {}
     success = False
+    return True
 
     # Return if there is nothint to process
     if bool(pattoo_db_records) is False:
