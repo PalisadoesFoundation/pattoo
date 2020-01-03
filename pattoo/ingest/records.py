@@ -321,6 +321,8 @@ def process_db_records(pattoo_db_records):
     agent_id = pattoo_db_records[0].pattoo_agent_id
     checksum_table = misc.agent_checksums(agent_id)
 
+    return True
+
     # Process data
     for pdbr in pattoo_db_records:
         # We only want to insert non-string, non-None values
@@ -350,8 +352,6 @@ def process_db_records(pattoo_db_records):
                 glue.insert_rows(idx_datapoint, idx_pairs)
             else:
                 continue
-
-        continue
 
         # Append item to items
         if pdbr.pattoo_timestamp > checksum_table[
