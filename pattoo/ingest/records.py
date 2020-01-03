@@ -144,8 +144,8 @@ class Records(object):
             len(pattoo_db_records_lists_tuple))
         log.log2debug(20009, log_message)
 
-        ENGINE.dispose()
-        
+        # ENGINE.dispose()
+
         # Create a pool of sub process resources
         with multiprocessing.Pool(processes=pool_size) as pool:
 
@@ -349,7 +349,8 @@ def process_db_records(pattoo_db_records):
                 checksum_table[
                     pdbr.pattoo_checksum] = ChecksumLookup(
                         idx_datapoint=idx_datapoint,
-                        polling_interval=pdbr.pattoo_agent_polling_interval,
+                        polling_interval=int(
+                            pdbr.pattoo_agent_polling_interval),
                         last_timestamp=1)
 
                 # Update the Glue table
@@ -375,7 +376,7 @@ def process_db_records(pattoo_db_records):
                 pdbr.pattoo_timestamp,
                 idx_datapoint)] = IDXTimestampValue(
                     idx_datapoint=idx_datapoint,
-                    polling_interval=pdbr.pattoo_agent_polling_interval,
+                    polling_interval=int(pdbr.pattoo_agent_polling_interval),
                     timestamp=pdbr.pattoo_timestamp,
                     value=pdbr.pattoo_value)
 
