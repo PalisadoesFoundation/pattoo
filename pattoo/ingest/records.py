@@ -237,6 +237,20 @@ def _process_kvps_exception(pattoo_db_records):
     # Initialize key variables
     result = []
 
+    '''
+    Sleep for a short random time. We have seen where on very fast systems
+    SQLAlchemy will hang the creation of multiprocessing subprocesses. The
+    typical behaviour is the creation of one fewer
+    pattoo.db._add_engine_pidguard() log messages than agents to process.
+    These messages correspond to the creation of a subprocess which immediately
+    invalidates a parent process's DB connection that will cause errors
+    if used, which provided the clue to the source of the problem.
+
+    Though SQLAlchemy isn't used by key_value_pairs. It's added as a
+    future precaution in case it does.
+    '''
+    time.sleep(random.random())
+
     # Execute
     try:
         result = get.key_value_pairs(pattoo_db_records)
