@@ -4,6 +4,8 @@
 # Standard imports
 import multiprocessing
 import sys
+import time
+import random
 
 # PIP3 imports
 import tblib.pickling_support
@@ -269,6 +271,7 @@ def _process_data_exception(pattoo_db_records):
     """
     # Initialize key variables
     success = False
+    time.sleep(random.random())
 
     # Execute
     try:
@@ -315,8 +318,6 @@ def process_db_records(pattoo_db_records):
     # Return if there is nothint to process
     if bool(pattoo_db_records) is False:
         return success
-
-    return True
 
     # Get DataPoint.idx_datapoint and idx_pair values from db. This is used to
     # speed up the process by reducing the need for future database access.
