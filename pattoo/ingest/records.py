@@ -311,7 +311,6 @@ def process_db_records(pattoo_db_records):
     # Initialize key variables
     _data = {}
     success = False
-    return True
 
     # Return if there is nothint to process
     if bool(pattoo_db_records) is False:
@@ -351,6 +350,8 @@ def process_db_records(pattoo_db_records):
                 glue.insert_rows(idx_datapoint, idx_pairs)
             else:
                 continue
+
+    return True
 
         # Append item to items
         if pdbr.pattoo_timestamp > checksum_table[
