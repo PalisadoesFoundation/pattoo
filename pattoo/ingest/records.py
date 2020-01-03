@@ -316,12 +316,12 @@ def process_db_records(pattoo_db_records):
     if bool(pattoo_db_records) is False:
         return success
 
+    return True
+
     # Get DataPoint.idx_datapoint and idx_pair values from db. This is used to
     # speed up the process by reducing the need for future database access.
     agent_id = pattoo_db_records[0].pattoo_agent_id
     checksum_table = misc.agent_checksums(agent_id)
-
-    return True
 
     # Process data
     for pdbr in pattoo_db_records:
