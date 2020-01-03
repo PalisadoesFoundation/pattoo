@@ -4,9 +4,8 @@
 # Main python libraries
 import sys
 import os
-import locale
 import subprocess
-
+import traceback
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -139,59 +138,58 @@ def _run_script(cli_string, die=True):
 
     """
     # Initialize key variables
-    encoding = locale.getdefaultlocale()[1]
-    pattoo_returncode = ('----- pattoo Return Code '
-                         '----------------------------------------')
-    pattoo_stdoutdata = ('----- pattoo Test Output '
-                         '----------------------------------------')
-    pattoo_stderrdata = ('----- pattoo Test Error '
-                         '-----------------------------------------')
+    messages = []
+    stdoutdata = ''.encode()
+    stderrdata = ''.encode()
+    returncode = 1
 
     # Say what we are doing
-    string2print = 'Running Command: "{}"'.format(cli_string)
-    print(string2print)
+    print('Running Command: "{}"'.format(cli_string))
 
     # Run update_targets script
     do_command_list = list(cli_string.split(' '))
 
     # Create the subprocess object
-    process = subprocess.Popen(
-        do_command_list,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
-    stdoutdata, stderrdata = process.communicate()
-    returncode = process.returncode
+    try:
+        process = subprocess.Popen(
+            do_command_list,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        stdoutdata, stderrdata = process.communicate()
+        returncode = process.returncode
+    except:
+        (exc_type, exc_value, exc_traceback) = sys.exc_info()
+        messages.append('''\
+Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
+    '''.format(exc_type, exc_value, exc_traceback))
+        messages.append(traceback.format_exc())
 
     # Crash if the return code is not 0
-    if die is True and bool(returncode) is True:
+    if bool(returncode) is True:
         # Print the Return Code header
-        string2print = '\n{}'.format(pattoo_returncode)
-        print(string2print)
-
-        # Print the Return Code
-        string2print = '\n{}'.format(returncode)
-        print(string2print)
-
-        # Print the STDOUT header
-        string2print = '\n{}\n'.format(pattoo_stdoutdata)
-        print(string2print)
+        messages.append(
+            'Return code:{}'.format(returncode)
+        )
 
         # Print the STDOUT
-        for line in stdoutdata.decode(encoding).split('\n'):
-            string2print = '{}'.format(line)
-            print(string2print)
-
-        # Print the STDERR header
-        string2print = '\n{}\n'.format(pattoo_stderrdata)
-        print(string2print)
+        for line in stdoutdata.decode().split('\n'):
+            messages.append(
+                'STDOUT: {}'.format(line)
+            )
 
         # Print the STDERR
-        for line in stderrdata.decode(encoding).split('\n'):
-            string2print = '{}'.format(line)
-            print(string2print)
+        for line in stderrdata.decode().split('\n'):
+            messages.append(
+                'STDERR: {}'.format(line)
+            )
 
-        # All done
-        sys.exit(2)
+        # Log message
+        for log_message in messages:
+            print(log_message)
+
+        if bool(die) is True:
+            # All done
+            sys.exit(2)
 
     # Return
     return (returncode, stdoutdata, stderrdata)
