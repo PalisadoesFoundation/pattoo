@@ -7,11 +7,18 @@ Manages connection pooling among other things.
 
 # Main python libraries
 import os
+import logging
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import event
 from sqlalchemy import exc
 from sqlalchemy.pool import QueuePool
+import sqlalchemy
+
+logging.basicConfig()
+logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 
 # pattoo libraries
 from pattoo_shared import log
