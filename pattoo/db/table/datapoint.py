@@ -10,6 +10,7 @@ from pattoo_shared import times
 from pattoo_shared.constants import (
     DATA_INT, DATA_FLOAT, DATA_COUNT64, DATA_COUNT)
 
+
 # Import project libraries
 from pattoo.db import db
 from pattoo.db.models import DataPoint as _DataPoint

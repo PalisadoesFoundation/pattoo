@@ -52,6 +52,7 @@ def db_modify(error_code, die=True):
         else:
             log.log2info(error_code, log_message)
     finally:
+        # Return the Connection to the pool
         session.close()
 
 
@@ -86,6 +87,7 @@ def db_query(error_code):
         log_message = '{}. Unknown error'.format(prefix)
         log.log2info(error_code, log_message)
     finally:
+        # Return the Connection to the pool
         session.close()
 
 

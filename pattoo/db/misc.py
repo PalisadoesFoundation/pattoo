@@ -31,8 +31,6 @@ def agent_checksums(agent_id):
             DataPoint.last_timestamp,
             DataPoint.polling_interval,
             DataPoint.idx_datapoint).filter(and_(
-                Glue.idx_datapoint == DataPoint.idx_datapoint,
-                Glue.idx_pair == Pair.idx_pair,
                 Agent.agent_id == agent_id.encode(),
                 DataPoint.idx_agent == Agent.idx_agent
             ))

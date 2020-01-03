@@ -7,6 +7,8 @@ Manages connection pooling among other things.
 
 # Main python libraries
 import os
+import logging
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import event
@@ -59,7 +61,9 @@ def main():
 
         # Add MySQL to the pool
         db_engine = create_engine(
-            URL, echo=False,
+            URL,
+            echo=False,
+            echo_pool=False,
             encoding='utf8',
             poolclass=QueuePool,
             max_overflow=max_overflow,
