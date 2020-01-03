@@ -12,11 +12,9 @@ You must set the location of the configuration directory by using the ``PATTOO_C
 
     $ export PATTOO_CONFIGDIR=/path/to/configuration/directory
 
-``pattoo`` will read any ``.yaml`` files found in this directory for configuration parameters.
+``pattoo`` will only read the configuration placed in a file named ``pattoo.yaml`` in this directory.
 
-Beginners should use a single file. For the purposes of this document we will assume this file is called ``etc/config.yaml``.
-
-Make sure that files in this directory are editable by the user that will be running ``pattoo`` daemons.
+Make sure that files in this directory are readable by the user that will be running ``pattoo`` daemons.
 
 Copy the Template to Your Configuration Directory
 -------------------------------------------------
@@ -25,17 +23,17 @@ Copy the template file in the ``examples/etc`` directory to the ``PATTOO_CONFIGD
 
 .. code-block:: bash
 
-    $ cp examples/etc/config.yaml.template \
-      /path/to/configuration/directory/config.yaml
+    $ cp examples/etc/pattoo.yaml.template \
+      /path/to/configuration/directory/pattoo.yaml
 
-The next step is to edit the contents of ``config.yaml``
+The next step is to edit the contents of ``pattoo.yaml``
 
 Edit Your Configuration
 -----------------------
 
 Take some time to read up on ``YAML`` formatted files if you are not familiar with them. A background knowledge is always helpful.
 
-The ``config.yaml`` file created from the template will have sections that you will need to edit with custom values. Don't worry, these sections are easily identifiable as they all start with ``PATTOO_``
+The ``pattoo.yaml`` file created from the template will have sections that you will need to edit with custom values. Don't worry, these sections are easily identifiable as they all start with ``PATTOO_``
 
 **NOTE:** The indentations in the YAML configuration are important. Make sure indentations line up. Dashes '-' indicate one item in a list of items (if applicable).
 
@@ -134,11 +132,3 @@ This table outlines the purpose of each configuration parameter.
    * -
      - ``db_max_overflow``
      - Maximum overflow size. When the number of connections reaches the size set in ``db_pool_size``, additional connections will be returned up to this limit. This is the floating number of additional database connections to be made available.
-
-
-Notes
------
-
-Here are some additional tips.
-
-#. You can create a separate configuration file for each section. If you are doing this, make sure there is only one file per agent section. Keep the mandtatory configurations sections in a separate file for simplicity. Practice on a test system before doing this. *Start with a single file first to gain confidence.*
