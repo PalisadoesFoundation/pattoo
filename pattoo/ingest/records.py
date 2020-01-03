@@ -104,9 +104,6 @@ class Records(object):
         pattoo_db_records_lists_tuple = self._arguments
         pool_size = self._pool_size
 
-        # Dispose of it as a multiprocessing protection
-        ENGINE.dispose()
-
         # Create a pool of sub process resources
         with multiprocessing.Pool(processes=pool_size) as pool:
 
@@ -146,9 +143,6 @@ class Records(object):
         log_message = 'Processing {} agents from cache'.format(
             len(pattoo_db_records_lists_tuple))
         log.log2debug(20009, log_message)
-
-        # Dispose of it as a multiprocessing protection
-        ENGINE.dispose()
 
         # Create a pool of sub process resources
         with multiprocessing.Pool(processes=pool_size) as pool:
@@ -239,6 +233,9 @@ def _process_kvps_exception(pattoo_db_records):
         None
 
     """
+    # Dispose of any connections as a multiprocessing protection
+    ENGINE.dispose()
+
     # Initialize key variables
     result = []
 
@@ -275,6 +272,9 @@ def _process_data_exception(pattoo_db_records):
     """
     # Initialize key variables
     success = False
+
+    # Dispose of any connections as a multiprocessing protection
+    ENGINE.dispose()
 
     # Execute
     try:
