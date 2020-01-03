@@ -149,15 +149,15 @@ class Records(object):
 
             # Create sub processes from the pool
             results = pool.starmap(
-                process_db_records, pattoo_db_records_lists_tuple)
+                _process_data_exception, pattoo_db_records_lists_tuple)
 
         # Wait for all the processes to end and get results
         pool.join()
 
         # Test for exceptions
-        '''for result in results:
+        for result in results:
             if isinstance(result, ExceptionWrapper):
-                result.re_raise()'''
+                result.re_raise()
 
     def singleprocess_pairs(self):
         """Update rows in the Pair database table if necessary.
@@ -269,6 +269,7 @@ def _process_data_exception(pattoo_db_records):
     """
     # Initialize key variables
     success = False
+    return True
 
     # Execute
     try:
