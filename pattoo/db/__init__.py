@@ -14,11 +14,6 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import event
 from sqlalchemy import exc
 from sqlalchemy.pool import QueuePool
-import sqlalchemy
-
-logging.basicConfig()
-logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
-logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 
 # pattoo libraries
 from pattoo_shared import log
@@ -29,7 +24,7 @@ from pattoo.configuration import ConfigPattoo as Config
 #############################################################################
 POOL = None
 URL = None
-ENGINE = None
+
 
 def main():
     """Process agent data.
@@ -45,7 +40,6 @@ def main():
     use_mysql = True
     global POOL
     global URL
-    global ENGINE
     pool_timeout = 30
     pool_recycle = min(10, pool_timeout - 10)
 
@@ -66,7 +60,7 @@ def main():
         _add_engine_pidguard(QueuePool)
 
         # Add MySQL to the pool
-        ENGINE = create_engine(
+        db_engine = create_engine(
             URL,
             echo=False,
             echo_pool=False,
@@ -79,14 +73,14 @@ def main():
             pool_timeout=pool_timeout)
 
         # Fix for multiprocessing on engines.
-        _add_engine_pidguard(ENGINE)
+        _add_engine_pidguard(db_engine)
 
         # Create database session object
         POOL = scoped_session(
             sessionmaker(
                 autoflush=True,
                 autocommit=False,
-                bind=ENGINE
+                bind=db_engine
             )
         )
 

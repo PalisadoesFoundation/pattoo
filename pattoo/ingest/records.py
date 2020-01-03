@@ -18,7 +18,6 @@ from pattoo_shared import log
 from pattoo.constants import IDXTimestampValue, ChecksumLookup
 from pattoo.ingest import get
 from pattoo.db import misc
-from pattoo.db import ENGINE
 from pattoo.db.table import pair, glue, data, datapoint
 from pattoo.configuration import ConfigIngester as Config
 
@@ -263,19 +262,25 @@ def _process_data_exception(pattoo_db_records):
         pattoo_db_records: List of dicts read from cache files.
 
     Returns:
-        success: True if records have been processed. Required to make
-            pool.join() work correctly when tailing syslog. There have been
-            issues where the processes hang on successful completion but never
-            trigger pool.join(). This methodolgy has reduced the risk.
+        None
 
     """
-    # Initialize key variables
-    success = False
+    # Initialize
+
+    '''
+    Sleep for a short random time. We have seen where on very fast systems
+    SQLAlchemy will hang the creation of multiprocessing subprocesses. The
+    typical behaviour is the creation of one fewer
+    pattoo.db._add_engine_pidguard() log messages than agents to process.
+    These messages correspond to the creation of a subprocess which immediately
+    invalidates a parent process's DB connection that will cause errors
+    if used, which provided the clue to the source of the problem.
+    '''
     time.sleep(random.random())
 
     # Execute
     try:
-        success = process_db_records(pattoo_db_records)
+        process_db_records(pattoo_db_records)
     except Exception as error:
         _exception = sys.exc_info()
         log.log2exception(20132, _exception)
@@ -285,7 +290,7 @@ def _process_data_exception(pattoo_db_records):
         log.log2exception_die(20109, _exception)
 
     # Return
-    return success
+    return None
 
 
 def process_db_records(pattoo_db_records):
@@ -295,10 +300,7 @@ def process_db_records(pattoo_db_records):
         pattoo_db_records: List of dicts read from cache files.
 
     Returns:
-        success: True if records have been processed. Required to make
-            pool.join() work correctly when tailing syslog. There have been
-            issues where the processes hang on successful completion but never
-            trigger pool.join(). This methodolgy has reduced the risk.
+        None
 
     Method:
         1) Get all the idx_datapoint and idx_pair values that exist in the
@@ -313,11 +315,10 @@ def process_db_records(pattoo_db_records):
     """
     # Initialize key variables
     _data = {}
-    success = False
 
     # Return if there is nothint to process
     if bool(pattoo_db_records) is False:
-        return success
+        return
 
     # Get DataPoint.idx_datapoint and idx_pair values from db. This is used to
     # speed up the process by reducing the need for future database access.
@@ -383,7 +384,3 @@ def process_db_records(pattoo_db_records):
     log_message = ('''\
 Finished cache data processing for agent_id: {}'''.format(agent_id))
     log.log2debug(20113, log_message)
-
-    # Return
-    success = True
-    return success
