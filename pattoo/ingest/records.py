@@ -236,7 +236,7 @@ def _process_kvps_exception(pattoo_db_records):
 
     """
     # Dispose of any connections as a multiprocessing protection
-    ENGINE.dispose()
+    # ENGINE.dispose()
 
     # Initialize key variables
     result = []
@@ -276,7 +276,7 @@ def _process_data_exception(pattoo_db_records):
     success = False
 
     # Dispose of any connections as a multiprocessing protection
-    ENGINE.dispose()
+    # ENGINE.dispose()
 
     # Execute
     try:
