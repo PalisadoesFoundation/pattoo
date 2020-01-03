@@ -214,6 +214,8 @@ class Records(object):
             # Process data
             self.multiprocess_data()
 
+            # Dispose of any connections as a multiprocessing protection
+            ENGINE.dispose()
         else:
             # Process pairs
             self.singleprocess_pairs()
