@@ -351,7 +351,7 @@ def process_db_records(pattoo_db_records):
             else:
                 continue
 
-    return True
+        continue
 
         # Append item to items
         if pdbr.pattoo_timestamp > checksum_table[
