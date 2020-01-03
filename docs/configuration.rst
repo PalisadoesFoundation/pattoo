@@ -14,7 +14,7 @@ You must set the location of the configuration directory by using the ``PATTOO_C
 
 ``pattoo`` will only read the configuration placed in a file named ``pattoo.yaml`` in this directory.
 
-Make sure that files in this directory are readable by the user that will be running ``pattoo`` daemons.
+Make sure that files in this directory are readable by the user that will be running ``pattoo`` daemons or scripts.
 
 Copy the Template to Your Configuration Directory
 -------------------------------------------------
