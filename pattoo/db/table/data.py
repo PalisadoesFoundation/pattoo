@@ -56,7 +56,8 @@ def insert_rows(items):
                 and_(DataPoint.idx_datapoint == idx_datapoint,
                      DataPoint.enabled == 1)).update(
                          {'last_timestamp': timestamp,
-                          'polling_interval': polling_intervals[idx_datapoint]}
+                          'polling_interval': int(
+                            polling_intervals[idx_datapoint])}
                      )
 
     # Update after updating the last timestamp. Helps to prevent

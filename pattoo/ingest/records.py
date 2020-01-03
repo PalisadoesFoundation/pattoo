@@ -144,6 +144,8 @@ class Records(object):
             len(pattoo_db_records_lists_tuple))
         log.log2debug(20009, log_message)
 
+        ENGINE.dispose()
+        
         # Create a pool of sub process resources
         with multiprocessing.Pool(processes=pool_size) as pool:
 
