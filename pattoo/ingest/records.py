@@ -144,8 +144,6 @@ class Records(object):
             len(pattoo_db_records_lists_tuple))
         log.log2debug(20009, log_message)
 
-        # ENGINE.dispose()
-
         # Create a pool of sub process resources
         with multiprocessing.Pool(processes=pool_size) as pool:
 
@@ -214,8 +212,6 @@ class Records(object):
             # Process data
             self.multiprocess_data()
 
-            # Dispose of any connections as a multiprocessing protection
-            ENGINE.dispose()
         else:
             # Process pairs
             self.singleprocess_pairs()
@@ -237,9 +233,6 @@ def _process_kvps_exception(pattoo_db_records):
         None
 
     """
-    # Dispose of any connections as a multiprocessing protection
-    # ENGINE.dispose()
-
     # Initialize key variables
     result = []
 
@@ -276,9 +269,6 @@ def _process_data_exception(pattoo_db_records):
     """
     # Initialize key variables
     success = False
-
-    # Dispose of any connections as a multiprocessing protection
-    # ENGINE.dispose()
 
     # Execute
     try:
