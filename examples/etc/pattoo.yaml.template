@@ -5,23 +5,9 @@ main:
     cache_directory: PATTOO_CACHE_DIRECTORY
     daemon_directory: PATTOO_DAEMON_DIRECTORY
 
-polling:
-    polling_interval: 300
-    ip_address: ::1
-    ip_bind_port: 20201
-
-pattoo:
-    ip_address: ::1
-    ip_bind_port: 20202
-
 pattoo_ingesterd:
 
     ingester_interval: 3600
-
-pattoo_webd:
-
-    ip_listen_address: 0.0.0.0
-    ip_bind_port: 20200
 
 pattoo_api_agentd:
 

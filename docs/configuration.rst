@@ -44,7 +44,6 @@ The ``pattoo.yaml`` file created from the template will have sections that you w
        log_directory: PATTOO_LOG_DIRECTORY
        cache_directory: PATTOO_CACHE_DIRECTORY
        daemon_directory: PATTOO_DAEMON_DIRECTORY
-       polling_interval: 300
 
    pattoo_api_agentd:
 
@@ -55,6 +54,10 @@ The ``pattoo.yaml`` file created from the template will have sections that you w
 
        ip_bind_port: 20202
        ip_listen_address: 127.0.0.1
+
+   pattoo_ingesterd:
+
+       ingester_interval: 3600
 
    db:
        db_pool_size: 10
@@ -90,9 +93,6 @@ This table outlines the purpose of each configuration parameter.
    * -
      - ``daemon_directory``
      - Directory used to store daemon related data that needs to be maintained between reboots
-   * -
-     - ``polling_interval``
-     - Interval of data collection and posting in seconds. This value should be the same for all ``pattoo`` configurations in your universe.
    * - ``pattoo_api_agentd``
      -
      -
@@ -111,6 +111,12 @@ This table outlines the purpose of each configuration parameter.
    * -
      - ``ip_bind_port``
      - TCP port of used by the ``pattoo_apid`` daemon for providing data to remote clients. Default of 20202.
+   * - ``pattoo_ingesterd``
+     -
+     -
+   * -
+     - ``ingester_interval``
+     - The interval between checking for new agent files in the cache directory. Only valid if using the ``pattoo_ingesterd`` daemon.
    * - ``db``
      -
      -
