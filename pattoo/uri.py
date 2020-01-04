@@ -3,14 +3,15 @@
 import time
 
 # Pattoo imports
-from pattoo.configuration import ConfigIngester
 from pattoo_shared.times import normalized_timestamp
+from pattoo.db.table.datapoint import DataPoint
 
 
-def chart_timestamp_args(secondsago=None):
+def chart_timestamp_args(idx_datapoint, secondsago=None):
     """Create URI arguments for charts.
 
     Args:
+        idx_datapoint: DataPoint index value
         secondsago: Number of seconds in the past to calculate start and
             stop times for charts
 
@@ -20,8 +21,8 @@ def chart_timestamp_args(secondsago=None):
     """
     # Calculate stop. This takes into account the ingester cycle and subtracts
     # a few extra seconds to prevent zero values at the end.
-    config = ConfigIngester()
-    polling_interval = config.polling_interval()
+    datapoint = DataPoint(idx_datapoint)
+    polling_interval = datapoint.polling_interval()
     now = normalized_timestamp(polling_interval, int(time.time() * 1000))
 
     # Calculate start

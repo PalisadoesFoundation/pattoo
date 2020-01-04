@@ -6,6 +6,7 @@ import unittest
 import os
 import sys
 import time
+from random import random
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -25,8 +26,11 @@ directory. Please fix.''')
 from tests.libraries.configuration import UnittestConfig
 
 from pattoo_shared.times import normalized_timestamp
+from pattoo_shared.constants import DATA_FLOAT
+from pattoo_shared import data
 from pattoo import uri
 from pattoo.configuration import ConfigIngester
+from pattoo.db.table import agent, datapoint
 
 
 class TestBasicFunctiions(unittest.TestCase):
@@ -38,22 +42,39 @@ class TestBasicFunctiions(unittest.TestCase):
 
     def test_chart_timestamp_args(self):
         """Testing function chart_timestamp_args."""
-        # Test nuisance cases
-        config = ConfigIngester()
-        _pi = config.polling_interval()
+        # Create a new Agent entry
+        _pi = 1000
+        agent_id = data.hashstring(str(random()))
+        agent_target = data.hashstring(str(random()))
+        agent_program = data.hashstring(str(random()))
+        agent.insert_row(agent_id, agent_target, agent_program)
+        idx_agent = agent.exists(agent_id, agent_target)
 
-        # Other cases
-        values = ['foo', None]
+        # Create entry and check
+        checksum = data.hashstring(str(random()))
+        result = datapoint.checksum_exists(checksum)
+        self.assertFalse(result)
+        datapoint.insert_row(checksum, DATA_FLOAT, _pi, idx_agent)
+        idx_datapoint = datapoint.checksum_exists(checksum)
+
+        # Test
+        values = [False, None]
         for value in values:
             now = normalized_timestamp(_pi, int(time.time() * 1000))
-            result = uri.chart_timestamp_args(value)
+            result = uri.chart_timestamp_args(idx_datapoint, value)
             self.assertEqual(result + 604800000, now)
 
         values = [-1, -6011, 1, 6011]
         for value in values:
             now = normalized_timestamp(_pi, int(time.time() * 1000))
-            result = uri.chart_timestamp_args(value)
+            result = uri.chart_timestamp_args(idx_datapoint, value)
             self.assertEqual(result + (abs(value) * 1000), now)
+
+        values = ['foo', [None]]
+        for value in values:
+            now = normalized_timestamp(_pi, int(time.time() * 1000))
+            result = uri.chart_timestamp_args(idx_datapoint, value)
+            self.assertEqual(result + 604800000, now)
 
 
 if __name__ == '__main__':

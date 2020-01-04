@@ -1,7 +1,7 @@
 Pattoo Agent API
 ================
 
-The ``pattoo_api_agentd`` API daemon accepts data from remote ``patoo`` agents for storage in a database.
+The ``pattoo_api_agentd`` API daemon accepts data from remote ``pattoo`` agents for storage in a database.
 
 Installation
 ------------

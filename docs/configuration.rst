@@ -12,30 +12,30 @@ You must set the location of the configuration directory by using the ``PATTOO_C
 
     $ export PATTOO_CONFIGDIR=/path/to/configuration/directory
 
-``pattoo`` will read any ``.yaml`` files found in this directory for configuration parameters.
+``pattoo`` will only read the configuration placed in a file named ``pattoo.yaml`` in this directory.
 
-Beginners should use a single file. For the purposes of this document we will assume this file is called ``etc/config.yaml``.
-
-Make sure that files in this directory are editable by the user that will be running ``pattoo`` daemons.
+Make sure that files in this directory are readable by the user that will be running ``pattoo`` daemons or scripts.
 
 Copy the Template to Your Configuration Directory
 -------------------------------------------------
 
 Copy the template file in the ``examples/etc`` directory to the ``PATTOO_CONFIGDIR`` location.
 
+**NOTE:** If a ``/path/to/configuration/directory/pattoo.yaml`` file already exists in the directory then skip this step and edit the file according to the steps in following sections.
+
 .. code-block:: bash
 
-    $ cp examples/etc/config.yaml.template \
-      /path/to/configuration/directory/config.yaml
+    $ cp examples/etc/pattoo.yaml.template \
+      /path/to/configuration/directory/pattoo.yaml
 
-The next step is to edit the contents of ``config.yaml``
+The next step is to edit the contents of ``pattoo.yaml``
 
 Edit Your Configuration
 -----------------------
 
 Take some time to read up on ``YAML`` formatted files if you are not familiar with them. A background knowledge is always helpful.
 
-The ``config.yaml`` file created from the template will have sections that you will need to edit with custom values. Don't worry, these sections are easily identifiable as they all start with ``PATTOO_``
+The ``pattoo.yaml`` file created from the template will have sections that you will need to edit with custom values. Don't worry, these sections are easily identifiable as they all start with ``PATTOO_``
 
 **NOTE:** The indentations in the YAML configuration are important. Make sure indentations line up. Dashes '-' indicate one item in a list of items (if applicable).
 
@@ -46,7 +46,6 @@ The ``config.yaml`` file created from the template will have sections that you w
        log_directory: PATTOO_LOG_DIRECTORY
        cache_directory: PATTOO_CACHE_DIRECTORY
        daemon_directory: PATTOO_DAEMON_DIRECTORY
-       polling_interval: 300
 
    pattoo_api_agentd:
 
@@ -57,6 +56,10 @@ The ``config.yaml`` file created from the template will have sections that you w
 
        ip_bind_port: 20202
        ip_listen_address: 127.0.0.1
+
+   pattoo_ingesterd:
+
+       ingester_interval: 3600
 
    db:
        db_pool_size: 10
@@ -92,9 +95,6 @@ This table outlines the purpose of each configuration parameter.
    * -
      - ``daemon_directory``
      - Directory used to store daemon related data that needs to be maintained between reboots
-   * -
-     - ``polling_interval``
-     - Interval of data collection and posting in seconds. This value should be the same for all ``pattoo`` configurations in your universe.
    * - ``pattoo_api_agentd``
      -
      -
@@ -113,6 +113,12 @@ This table outlines the purpose of each configuration parameter.
    * -
      - ``ip_bind_port``
      - TCP port of used by the ``pattoo_apid`` daemon for providing data to remote clients. Default of 20202.
+   * - ``pattoo_ingesterd``
+     -
+     -
+   * -
+     - ``ingester_interval``
+     - The interval between checking for new agent files in the cache directory. Only valid if using the ``pattoo_ingesterd`` daemon.
    * - ``db``
      -
      -
@@ -134,11 +140,3 @@ This table outlines the purpose of each configuration parameter.
    * -
      - ``db_max_overflow``
      - Maximum overflow size. When the number of connections reaches the size set in ``db_pool_size``, additional connections will be returned up to this limit. This is the floating number of additional database connections to be made available.
-
-
-Notes
------
-
-Here are some additional tips.
-
-#. You can create a separate configuration file for each section. If you are doing this, make sure there is only one file per agent section. Keep the mandtatory configurations sections in a separate file for simplicity. Practice on a test system before doing this. *Start with a single file first to gain confidence.*

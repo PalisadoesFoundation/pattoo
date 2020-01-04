@@ -15,7 +15,7 @@ The ``pattoo-agents`` repository provides a number standard data collection agen
 Operational Overview
 --------------------
 
-``patoo`` handles data in three steps.
+``pattoo`` handles data in three steps.
 
 #. ``pattoo-agents`` collect data and send it to a central ``pattoo`` server in a standardized format.
 #. The ``pattoo`` server stores the agent data.

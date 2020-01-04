@@ -249,7 +249,7 @@ def _process_kvps_exception(pattoo_db_records):
     Though SQLAlchemy isn't used by key_value_pairs. It's added as a
     future precaution in case it does.
     '''
-    time.sleep(random.random() / 10)
+    time.sleep((random.random() / 10) + 0.1)
 
     # Execute
     try:
@@ -290,7 +290,7 @@ def _process_data_exception(pattoo_db_records):
     invalidates a parent process's DB connection that will cause errors
     if used, which provided the clue to the source of the problem.
     '''
-    time.sleep(random.random() / 10)
+    time.sleep((random.random() / 10) + 0.1)
 
     # Execute
     try:
