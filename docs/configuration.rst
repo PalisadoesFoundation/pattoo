@@ -21,6 +21,8 @@ Copy the Template to Your Configuration Directory
 
 Copy the template file in the ``examples/etc`` directory to the ``PATTOO_CONFIGDIR`` location.
 
+**NOTE:** If a ``/path/to/configuration/directory/pattoo.yaml`` file already exists in the directory then skip this step and edit the file according to the steps in following sections.
+
 .. code-block:: bash
 
     $ cp examples/etc/pattoo.yaml.template \
