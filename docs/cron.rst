@@ -1,6 +1,8 @@
 Periodic Jobs
 =============
 
+You will need to configure some jobs to improve ``pattoo`` performance and troubleshooting.
+
 The ``pattoo_ingester``
 -----------------------
 
