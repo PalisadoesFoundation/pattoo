@@ -60,7 +60,7 @@ class TestBasicFunctions(LiveServerTestCase):
         config = Config()
 
         app.config['TESTING'] = True
-        app.config['LIVESERVER_PORT'] = config.api_ip_bind_port()
+        app.config['LIVESERVER_PORT'] = config.agent_api_ip_bind_port()
         os.environ['FLASK_ENV'] = 'development'
 
         # Clear the flask cache
@@ -77,7 +77,7 @@ class TestBasicFunctions(LiveServerTestCase):
 
         # Create URL
         config = Config()
-        agent_url = config.api_server_url('')
+        agent_url = config.agent_api_server_url('')
         url = agent_url.replace('/receive/', '/status')
 
         # Check response

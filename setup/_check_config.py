@@ -19,7 +19,7 @@ else:
 
 
 # Pattoo imports
-from pattoo_shared import files
+from pattoo_shared import files, configuration
 from pattoo_shared import log
 
 
@@ -40,10 +40,11 @@ def check():
     print('??: Checking configuration parameters.')
 
     # Check config
-    config = files.read_yaml_files(config_directory)
+    config_file = configuration.agent_config_filename('pattoo')
+    config = files.read_yaml_file(config_file)
 
     # Check main keys
-    keys = ['main', 'db', 'pattoo_api_agentd']
+    keys = ['pattoo', 'pattoo_db', 'pattoo_api_agentd']
     for key in keys:
         if key not in config:
             log_message = ('''\
@@ -54,11 +55,11 @@ Section "{}" not found in configuration file in directory {}. Please fix.\
     # Check secondary keys
     secondaries = [
         'log_level', 'log_directory', 'cache_directory', 'daemon_directory']
-    secondary_key_check(config, 'main', secondaries)
+    secondary_key_check(config, 'pattoo', secondaries)
     secondaries = [
         'db_pool_size', 'db_max_overflow', 'db_hostname', 'db_username',
         'db_password', 'db_name']
-    secondary_key_check(config, 'db', secondaries)
+    secondary_key_check(config, 'pattoo_db', secondaries)
     secondaries = ['ip_listen_address', 'ip_bind_port']
     secondary_key_check(config, 'pattoo_api_agentd', secondaries)
     secondaries = ['ip_listen_address', 'ip_bind_port']

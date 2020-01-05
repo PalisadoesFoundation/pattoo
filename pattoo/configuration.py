@@ -45,7 +45,7 @@ class ConfigPattoo(ConfigShared):
 
         """
         # Initialize key variables
-        key = 'db'
+        key = 'pattoo_db'
         sub_key = 'db_name'
 
         # Process configuration
@@ -65,7 +65,7 @@ class ConfigPattoo(ConfigShared):
 
         """
         # Initialize key variables
-        key = 'db'
+        key = 'pattoo_db'
         sub_key = 'db_username'
 
         # Process configuration
@@ -85,7 +85,7 @@ class ConfigPattoo(ConfigShared):
 
         """
         # Initialize key variables
-        key = 'db'
+        key = 'pattoo_db'
         sub_key = 'db_password'
 
         # Process configuration
@@ -108,7 +108,7 @@ class ConfigPattoo(ConfigShared):
 
         """
         # Initialize key variables
-        key = 'db'
+        key = 'pattoo_db'
         sub_key = 'db_hostname'
 
         # Process configuration
@@ -128,7 +128,7 @@ class ConfigPattoo(ConfigShared):
 
         """
         # Get result
-        key = 'db'
+        key = 'pattoo_db'
         sub_key = 'db_pool_size'
         intermediate = configuration.search(
             key, sub_key, self._configuration, die=False)
@@ -151,7 +151,7 @@ class ConfigPattoo(ConfigShared):
 
         """
         # Get result
-        key = 'db'
+        key = 'pattoo_db'
         sub_key = 'db_max_overflow'
         intermediate = configuration.search(
             key, sub_key, self._configuration, die=False)
