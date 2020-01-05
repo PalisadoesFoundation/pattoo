@@ -40,28 +40,36 @@ def check():
     print('??: Checking configuration parameters.')
 
     # Check config
-    config_file = configuration.agent_config_filename('pattoo')
+    config_file = configuration.agent_config_filename('pattoo_server')
     config = files.read_yaml_file(config_file)
 
     # Check main keys
-    keys = ['pattoo', 'pattoo_db', 'pattoo_api_agentd']
+    keys = [
+        'pattoo', 'pattoo_db', 'pattoo_api_agentd', 'pattoo_apid',
+        'pattoo_ingesterd']
     for key in keys:
         if key not in config:
             log_message = ('''\
-Section "{}" not found in configuration file in directory {}. Please fix.\
-'''.format(key, config_directory))
+Section "{}" not found in {} configuration file. Please fix.\
+'''.format(key, config_file))
             log.log2die_safe(20090, log_message)
 
-    # Check secondary keys
+    # Check secondary keys for 'pattoo'
     secondaries = [
         'log_level', 'log_directory', 'cache_directory', 'daemon_directory']
     secondary_key_check(config, 'pattoo', secondaries)
+
+    # Check secondary keys for 'pattoo_db'
     secondaries = [
         'db_pool_size', 'db_max_overflow', 'db_hostname', 'db_username',
         'db_password', 'db_name']
     secondary_key_check(config, 'pattoo_db', secondaries)
+
+    # Check secondary keys for 'pattoo_api_agentd'
     secondaries = ['ip_listen_address', 'ip_bind_port']
     secondary_key_check(config, 'pattoo_api_agentd', secondaries)
+
+    # Check secondary keys for 'pattoo_apid'
     secondaries = ['ip_listen_address', 'ip_bind_port']
     secondary_key_check(config, 'pattoo_apid', secondaries)
 

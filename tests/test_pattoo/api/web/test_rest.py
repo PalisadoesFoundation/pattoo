@@ -35,9 +35,10 @@ directory. Please fix.''')
 
 from pattoo_shared import data, times
 from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
+from pattoo_shared.configuration import Config
+
 from tests.libraries.configuration import UnittestConfig
 from pattoo.api.web import PATTOO_API_WEB as APP
-from pattoo.configuration import ConfigPattoo as Config
 from pattoo.constants import IDXTimestampValue
 from pattoo.db.table import datapoint
 from pattoo.db.table import data as lib_data

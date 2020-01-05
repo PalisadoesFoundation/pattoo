@@ -12,7 +12,7 @@ You must set the location of the configuration directory by using the ``PATTOO_C
 
     $ export PATTOO_CONFIGDIR=/path/to/configuration/directory
 
-``pattoo`` will only read the configuration placed in a file named ``pattoo.yaml`` in this directory.
+``pattoo`` will only read the configuration placed in a file named ``pattoo_server.yaml`` in this directory.
 
 Make sure that files in this directory are readable by the user that will be running ``pattoo`` daemons or scripts.
 
@@ -21,21 +21,21 @@ Copy the Template to Your Configuration Directory
 
 Copy the template file in the ``examples/etc`` directory to the ``PATTOO_CONFIGDIR`` location.
 
-**NOTE:** If a ``/path/to/configuration/directory/pattoo.yaml`` file already exists in the directory then skip this step and edit the file according to the steps in following sections.
+**NOTE:** If a ``/path/to/configuration/directory/pattoo_server.yaml`` file already exists in the directory then skip this step and edit the file according to the steps in following sections.
 
 .. code-block:: bash
 
-    $ cp examples/etc/pattoo.yaml.template \
-      /path/to/configuration/directory/pattoo.yaml
+    $ cp examples/etc/pattoo_server.yaml.template \
+      /path/to/configuration/directory/pattoo_server.yaml
 
-The next step is to edit the contents of ``pattoo.yaml``
+The next step is to edit the contents of ``pattoo_server.yaml``
 
 Edit Your Configuration
 -----------------------
 
 Take some time to read up on ``YAML`` formatted files if you are not familiar with them. A background knowledge is always helpful.
 
-The ``pattoo.yaml`` file created from the template will have sections that you will need to edit with custom values. Don't worry, these sections are easily identifiable as they all start with ``PATTOO_``
+The ``pattoo_server.yaml`` file created from the template will have sections that you will need to edit with custom values. Don't worry, these sections are easily identifiable as they all start with ``PATTOO_``
 
 **NOTE:** The indentations in the YAML configuration are important. Make sure indentations line up. Dashes '-' indicate one item in a list of items (if applicable).
 
