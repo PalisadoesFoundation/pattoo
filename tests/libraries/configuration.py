@@ -56,8 +56,7 @@ class UnittestConfig(object):
                 'db_password': 'K2nJ8kFdthEbuwXE',
                 'db_name': 'pattoo_unittest'
             },
-            'polling': {
-                'polling_interval': 300,
+            'pattoo_agent_api': {
                 'ip_address': '127.0.0.1',
                 'ip_bind_port': 40201
             },
@@ -69,7 +68,7 @@ class UnittestConfig(object):
                 'ip_listen_address': '127.0.0.1',
                 'ip_bind_port': 40202,
             },
-            'pattoo': {
+            'pattoo_web_api': {
                 'ip_address': '127.0.0.1',
                 'ip_bind_port': 40202,
             },
