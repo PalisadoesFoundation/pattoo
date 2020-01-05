@@ -46,7 +46,6 @@ class UnittestConfig(object):
                 'log_level': 'debug',
                 'cache_directory': self._cache_directory,
                 'daemon_directory': self._daemon_directory,
-                'polling_interval': 20
             },
             'pattoo_db': {
                 'db_pool_size': 10,

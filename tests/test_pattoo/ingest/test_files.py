@@ -83,7 +83,7 @@ class TestCache(unittest.TestCase):
             pattoo_values['pattoo_agent_hostname'])
         self.assertEqual(
             result.pattoo_agent_polling_interval,
-            '300000')
+            '20000')
         self.assertEqual(
             result.pattoo_metadata,
             [])
@@ -118,8 +118,8 @@ class TestCache(unittest.TestCase):
     def test_ingest(self):
         """Testing method / function ingest."""
         # Initialize key variables
-        config = Config()
-        _pi = config.polling_interval() * 1000
+        polling_interval = 20
+        _pi = polling_interval * 1000
 
         _ = create_cache()
 
@@ -165,8 +165,8 @@ class TestBasicFunctions(unittest.TestCase):
     def test_process_cache(self):
         """Testing method / function process_cache."""
         # Initialize key variables
-        config = Config()
-        _pi = config.polling_interval() * 1000
+        polling_interval = 20
+        _pi = polling_interval * 1000
 
         _ = create_cache()
 
@@ -235,6 +235,7 @@ def create_cache():
     """Testing method / function records."""
     # Initialize key variables
     config = Config()
+    polling_interval = 20
     cache_directory = config.agent_cache_directory(PATTOO_API_AGENT_NAME)
     result = {
         'pattoo_agent_program': data.hashstring(str(random())),
@@ -257,7 +258,7 @@ def create_cache():
         config)
 
     # Setup AgentPolledData
-    apd = AgentPolledData(result['pattoo_agent_program'], config)
+    apd = AgentPolledData(result['pattoo_agent_program'], polling_interval)
 
     # Initialize TargetDataPoints
     ddv = TargetDataPoints(result['pattoo_agent_hostname'])

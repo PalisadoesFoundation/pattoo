@@ -19,7 +19,7 @@ else:
 
 
 # Pattoo imports
-from pattoo_shared import files
+from pattoo_shared import files, configuration
 from pattoo_shared import log
 
 
@@ -40,7 +40,8 @@ def check():
     print('??: Checking configuration parameters.')
 
     # Check config
-    config = files.read_yaml_files(config_directory)
+    config_file = configuration.agent_config_filename('pattoo')
+    config = files.read_yaml_file(config_file)
 
     # Check main keys
     keys = ['pattoo', 'pattoo_db', 'pattoo_api_agentd']

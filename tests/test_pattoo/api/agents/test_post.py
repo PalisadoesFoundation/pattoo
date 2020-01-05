@@ -66,7 +66,7 @@ class TestBasicFunctions(LiveServerTestCase):
         config = Config()
 
         app.config['TESTING'] = True
-        app.config['LIVESERVER_PORT'] = config.api_ip_bind_port()
+        app.config['LIVESERVER_PORT'] = config.agent_api_ip_bind_port()
         os.environ['FLASK_ENV'] = 'development'
 
         # Clear the flask cache
@@ -126,6 +126,7 @@ def _create_apd():
     """Testing method / function records."""
     # Initialize key variables
     config = Config()
+    polling_interval = 20
     pattoo_agent_program = 1
     pattoo_agent_polled_target = 2
     pattoo_key = '3'
@@ -139,7 +140,7 @@ def _create_apd():
         os.remove(filename)
 
     # Setup AgentPolledData
-    apd = AgentPolledData(pattoo_agent_program, config)
+    apd = AgentPolledData(pattoo_agent_program, polling_interval)
 
     # Initialize TargetDataPoints
     ddv = TargetDataPoints(pattoo_agent_polled_target)
