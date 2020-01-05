@@ -36,10 +36,10 @@ directory. Please fix.''')
 from pattoo_shared import data, converter, files
 from pattoo_shared.constants import DATA_INT
 from pattoo_shared.phttp import PostAgent
+from pattoo_shared.configuration import Config
 from pattoo_shared.variables import (
     DataPoint, TargetDataPoints, AgentPolledData)
 from pattoo.api.agents import PATTOO_API_AGENT as APP
-from pattoo.configuration import ConfigPattoo as Config
 from pattoo.constants import PATTOO_API_AGENT_NAME
 from tests.libraries.configuration import UnittestConfig
 

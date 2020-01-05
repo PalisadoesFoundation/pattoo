@@ -33,9 +33,9 @@ directory. Please fix.''')
     sys.exit(2)
 
 from pattoo_shared import data
+from pattoo_shared.configuration import Config
 from tests.libraries.configuration import UnittestConfig
 from pattoo.api.agents import PATTOO_API_AGENT as APP
-from pattoo.configuration import ConfigPattoo as Config
 
 
 class TestBasicFunctions(LiveServerTestCase):

@@ -5,14 +5,17 @@ import os
 
 # Import project libraries
 from pattoo_shared import configuration
-from pattoo_shared.configuration import Config as ConfigShared
+from pattoo_shared.configuration import _Config
 from pattoo_shared.configuration import search
 from pattoo.constants import (
     PATTOO_API_WEB_NAME, PATTOO_API_AGENT_NAME,
     PATTOO_INGESTERD_NAME)
 
 
-class ConfigPattoo(ConfigShared):
+_FILENAME = 'pattoo_server.yaml'
+
+
+class ConfigPattoo(_Config):
     """Class gathers all configuration information.
 
     Only processes the following YAML keys in the configuration file:
@@ -32,7 +35,7 @@ class ConfigPattoo(ConfigShared):
 
         """
         # Instantiate the Config parent
-        ConfigShared.__init__(self)
+        _Config.__init__(self, _FILENAME)
 
     def db_name(self):
         """Get db_name.
@@ -206,7 +209,7 @@ class ConfigPattoo(ConfigShared):
         return result
 
 
-class ConfigAgent(ConfigShared):
+class ConfigAgent(_Config):
     """Class gathers all configuration information.
 
     Only processes the following YAML keys in the configuration file:
@@ -226,7 +229,7 @@ class ConfigAgent(ConfigShared):
 
         """
         # Instantiate the Config parent
-        ConfigShared.__init__(self)
+        _Config.__init__(self, _FILENAME)
 
     def ip_listen_address(self):
         """Get ip_listen_address.
@@ -271,7 +274,7 @@ class ConfigAgent(ConfigShared):
         return result
 
 
-class ConfigIngester(ConfigShared):
+class ConfigIngester(_Config):
     """Class gathers all configuration information.
 
     Only processes the following YAML keys in the configuration file:
@@ -291,7 +294,7 @@ class ConfigIngester(ConfigShared):
 
         """
         # Instantiate the Config parent
-        ConfigShared.__init__(self)
+        _Config.__init__(self, _FILENAME)
 
     def ingester_interval(self):
         """Get ingester_interval.

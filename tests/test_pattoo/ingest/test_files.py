@@ -30,7 +30,7 @@ from pattoo_shared import converter, files, data, times
 from pattoo_shared.variables import (
     DataPoint, TargetDataPoints, AgentPolledData)
 from pattoo_shared.constants import DATA_INT
-from pattoo.configuration import ConfigIngester as Config
+from pattoo_shared.configuration import Config
 from pattoo.constants import PATTOO_API_AGENT_NAME, PATTOO_INGESTER_NAME
 from pattoo.db.table import datapoint
 from pattoo.ingest.files import Cache
