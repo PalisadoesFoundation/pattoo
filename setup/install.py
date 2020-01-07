@@ -210,11 +210,18 @@ def next_steps():
 Hooray successful installation! Panna Cotta Time!
 
 Next Steps:
-    1) Start the 'bin/pattoo_api_agentd.py' script to accept agent data.
-    2) Configure your agents to post data to this server.
+    1) Start the 'bin/pattoo_api_agentd.py' script to accept and cache agent \
+data .
+    2) Start the 'bin/pattoo_ingesterd.py' script to agent cache data into the \
+database.
+    3) Start the 'bin/pattoo_apid.py' script to provide data to the pattoo \
+web API.
+    4) Configure your agents to post data to this server.
 
 Other steps:
-    1) You can make pattoo a system daemon by running the scripts in the
+    1) You can make 'pattoo_api_agentd.py', 'pattoo_ingesterd.py' and \
+'pattoo_apid.py' scripts into system daemons so they will automatically \
+restart on booting by running the scripts in the
        'setup/systemd' directory. Visit this link for details:
 
        https://github.com/PalisadoesFoundation/pattoo/tree/master/setup/systemd
