@@ -345,6 +345,12 @@ def process_db_records(pattoo_db_records):
         if pdbr.pattoo_data_type in [DATA_NONE, DATA_STRING]:
             continue
 
+        # Try to make the value a float for insertion into the database
+        try:
+            float_value = float(pdbr.pattoo_value)
+        except:
+            continue
+
         # Get the idx_datapoint value for the PattooDBrecord
         if pdbr.pattoo_checksum in checksum_table:
             # Get last_timestamp for existing idx_datapoint entry
@@ -388,7 +394,7 @@ def process_db_records(pattoo_db_records):
                     idx_datapoint=idx_datapoint,
                     polling_interval=int(pdbr.pattoo_agent_polling_interval),
                     timestamp=pdbr.pattoo_timestamp,
-                    value=pdbr.pattoo_value)
+                    value=float_value)
 
     # Update the data table
     if bool(_data) is True:
