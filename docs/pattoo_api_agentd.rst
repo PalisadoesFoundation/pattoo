@@ -1,5 +1,5 @@
-Pattoo Agent API
-================
+Pattoo Agent API Daemon
+=======================
 
 The ``pattoo_api_agentd`` API daemon accepts data from remote ``pattoo`` agents for storage in a database.
 

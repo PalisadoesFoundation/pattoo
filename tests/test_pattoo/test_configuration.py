@@ -156,6 +156,15 @@ class TestConfigAgent(unittest.TestCase):
         result = self.config.multiprocessing()
         self.assertEqual(result, expected)
 
+    def test_batch_size(self):
+        """Testing function batch_size."""
+        # Initialize key values
+        expected = 1503
+
+        # Test
+        result = self.config.batch_size()
+        self.assertEqual(result, expected)
+
 
 if __name__ == '__main__':
     # Make sure the environment is OK to run unittests

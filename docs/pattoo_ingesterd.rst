@@ -1,7 +1,7 @@
-Pattoo Web API Daemon
-=====================
+Pattoo Ingester Daemon
+======================
 
-``pattoo_apid`` serves ``pattoo`` agent data from the database via a web API.
+``pattoo_ingesterd`` batch processes agent data received by the ``pattoo`` agent API daemon.
 
 Installation
 ------------
@@ -15,14 +15,14 @@ Follow these steps.
 Usage
 -----
 
-``pattoo_apid`` has a simple command structure.
+``pattoo_ingesterd`` has a simple command structure.
 
 The daemon will require a configuration file in the ``etc/`` directory. See the configuration section for details.
 
 .. code-block:: bash
 
-   $ bin/pattoo_apid.py --help
-   usage: pattoo_apid.py [-h] [--start] [--stop] [--status] [--restart]
+   $ bin/pattoo_ingesterd.py --help
+   usage: pattoo_ingesterd.py [-h] [--start] [--stop] [--status] [--restart]
                             [--force]
 
    optional arguments:

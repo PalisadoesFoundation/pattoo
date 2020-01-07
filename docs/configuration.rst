@@ -60,6 +60,7 @@ The ``pattoo_server.yaml`` file created from the template will have sections tha
    pattoo_ingesterd:
 
        ingester_interval: 3600
+       batch_size: 500
 
    db:
        db_pool_size: 10
@@ -119,6 +120,9 @@ This table outlines the purpose of each configuration parameter.
    * -
      - ``ingester_interval``
      - The interval between checking for new agent files in the cache directory. Only valid if using the ``pattoo_ingesterd`` daemon.
+   * -
+     - ``batch_size``
+     - The number of files to read per processing batch until all files are processed.
    * - ``db``
      -
      -

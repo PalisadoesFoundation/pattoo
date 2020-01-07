@@ -65,7 +65,8 @@ class UnittestConfig(object):
                     'ip_bind_port': 40202,
                 },
                 'pattoo_ingesterd': {
-                    'ingester_interval': 45
+                    'ingester_interval': 45,
+                    'batch_size': 1503
                 },
             },
             'pattoo': {

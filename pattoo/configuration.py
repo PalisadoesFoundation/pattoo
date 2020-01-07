@@ -343,3 +343,31 @@ class ConfigIngester(_Config):
         else:
             result = bool(_result)
         return result
+
+    def batch_size(self):
+        """Get batch_size.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Initialize key varibles
+        default = 500
+
+        # Get result
+        key = PATTOO_INGESTERD_NAME
+        sub_key = 'batch_size'
+        _result = search(key, sub_key, self._configuration, die=False)
+
+        # Return
+        if _result is None:
+            result = default
+        else:
+            try:
+                result = int(_result)
+            except:
+                result = default
+        return result
