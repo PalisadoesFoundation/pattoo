@@ -45,6 +45,8 @@ def insertions():
     """
     # Initialize key variables
     default_description = 'Pattoo Default'
+    idx_agent_groups = {}
+    idx_pair_xlate_groups = {}
     languages = {}
     xlate_data = [
         ('IfMIB Agents', [
@@ -240,6 +242,7 @@ def insertions():
             # Get PairXlateGroup index value after creating an entry
             pair_xlate_group.insert_row(description)
             idx_pair_xlate_group = pair_xlate_group.exists(description)
+            idx_pair_xlate_groups[description] = idx_pair_xlate_group
 
             # Insert values into the PairXlate table for PairXlateGroup
             for row in rows:
@@ -257,6 +260,14 @@ def insertions():
         agent_group.insert_row(default_description)
         for description, _ in xlate_data:
             agent_group.insert_row(description)
+            index = agent_group.exists(description)
+            idx_agent_groups[description] = index
+
+    # Assign agent groups to pair_xlate_groups
+    for description, idx_agent_group in idx_agent_groups.items():
+        index = idx_pair_xlate_groups.get(description)
+        if bool(index) is True:
+            agent_group.assign(idx_agent_group, index)
 
     print('OK: Database table entries inserted.')
 
