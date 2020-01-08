@@ -42,6 +42,7 @@ class TestBasicFunctions(unittest.TestCase):
         """Testing method / function pairs."""
         pair1 = ('key1', data.hashstring(str(random())))
         pair2 = ('key2', data.hashstring(str(random())))
+        pap = 'y'
 
         # Create a PattooDBrecord
         record = PattooDBrecord(
@@ -53,21 +54,27 @@ class TestBasicFunctions(unittest.TestCase):
             pattoo_data_type=DATA_FLOAT,
             pattoo_value=6,
             pattoo_agent_polled_target='x',
-            pattoo_agent_program='y',
+            pattoo_agent_program=pap,
             pattoo_agent_hostname='z',
             pattoo_metadata=[pair1, pair2]
         )
 
         # Pairs shouldn't exist
-        self.assertFalse(pair.pair_exists(pair1[0], pair1[1]))
-        self.assertFalse(pair.pair_exists(pair2[0], pair2[1]))
+        self.assertFalse(pair.pair_exists(
+            get.make_key(pap, pair1[0]), pair1[1]))
+        self.assertFalse(pair.pair_exists(
+            get.make_key(pap, pair2[0]), pair2[1]))
 
         # Insert items
         result = get.pairs(record)
-        self.assertTrue(pair.pair_exists(pair1[0], pair1[1]))
-        self.assertTrue(pair.pair_exists(pair2[0], pair2[1]))
-        self.assertTrue(pair.pair_exists(pair1[0], pair1[1]) in result)
-        self.assertTrue(pair.pair_exists(pair2[0], pair2[1]) in result)
+        self.assertTrue(pair.pair_exists(
+            get.make_key(pap, pair1[0]), pair1[1]))
+        self.assertTrue(pair.pair_exists(
+            get.make_key(pap, pair2[0]), pair2[1]))
+        self.assertTrue(pair.pair_exists(
+            get.make_key(pap, pair1[0]), pair1[1]) in result)
+        self.assertTrue(pair.pair_exists(
+            get.make_key(pap, pair2[0]), pair2[1]) in result)
 
     def test_key_value_pairs(self):
         """Testing method / function key_value_pairs."""
@@ -88,13 +95,20 @@ class TestBasicFunctions(unittest.TestCase):
 
         # Test
         expected = [
-            ('key1', 'value'), ('key2', 'value'), ('pattoo_key', '3')
+            ('pattoo_key', 'y_3'), ('y_key1', 'value'), ('y_key2', 'value')
         ]
         result = get.key_value_pairs(record)
         self.assertEqual(sorted(result), expected)
 
         # Test with a list
         result = get.key_value_pairs([record])
+        self.assertEqual(result, expected)
+
+    def test_make_key(self):
+        """Testing method / function make_key."""
+        # Test
+        expected = '7_8'
+        result = get.make_key(7, 8)
         self.assertEqual(result, expected)
 
 

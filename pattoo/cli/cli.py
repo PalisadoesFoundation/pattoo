@@ -416,7 +416,7 @@ class _Set(object):
         # Initialize key variables
         parser = subparsers.add_parser(
             'set',
-            help=textwrap.fill('Show contents of pattoo DB.', width=width)
+            help=textwrap.fill('Set contents of pattoo DB.', width=width)
         )
 
         # Add subparser
