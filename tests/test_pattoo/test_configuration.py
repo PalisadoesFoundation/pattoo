@@ -94,6 +94,71 @@ class TestConfiguration(unittest.TestCase):
         result = self.config.db_name()
         self.assertEqual(result, expected)
 
+    def test_daemon_directory(self):
+        """Test pattoo_shared.Config inherited method daemon_directory."""
+        # Nothing should happen. Directory exists in testing.
+        _ = self.config.daemon_directory()
+
+    def test_log_directory(self):
+        """Test pattoo_shared.Config inherited method log_directory."""
+        # Nothing should happen. Directory exists in testing.
+        _ = self.config.log_directory()
+
+    def test_log_file(self):
+        """Test pattoo_shared.Config inherited method log_file."""
+        # Initialize key values
+        expected = '{1}{0}pattoo.log'.format(
+            os.sep, self.config.log_directory())
+
+        # Test
+        result = self.config.log_file()
+        self.assertEqual(result, expected)
+
+    def test_log_file_api(self):
+        """Test pattoo_shared.Config inherited method log_file_api."""
+        # Initialize key values
+        expected = '{1}{0}pattoo-api.log'.format(
+            os.sep, self.config.log_directory())
+
+        # Test
+        result = self.config.log_file_api()
+        self.assertEqual(result, expected)
+
+    def test_log_level(self):
+        """Test pattoo_shared.Config inherited method log_level."""
+        # Initialize key values
+        expected = 'debug'
+
+        # Test
+        result = self.config.log_level()
+        self.assertEqual(result, expected)
+
+    def test_log_file_daemon(self):
+        """Test pattoo_shared.Config inherited method log_file_daemon."""
+        # Initialize key values
+        expected = '{1}{0}pattoo-daemon.log'.format(
+            os.sep, self.config.log_directory())
+
+        # Test
+        result = self.config.log_file_daemon()
+        self.assertEqual(result, expected)
+
+    def test_cache_directory(self):
+        """Test pattoo_shared.Config inherited method cache_directory."""
+        # Nothing should happen. Directory exists in testing.
+        _ = self.config.cache_directory()
+
+    def test_agent_cache_directory(self):
+        """Test pattoo_shared.Config inherited method agent_cache_directory."""
+        # Initialize key values
+        agent_id = 123
+        expected = '{1}{0}{2}'.format(
+            os.sep, self.config.cache_directory(), agent_id)
+
+        # Test
+        result = self.config.agent_cache_directory(agent_id)
+        self.assertEqual(result, expected)
+
 
 class TestConfigAgent(unittest.TestCase):
     """Checks all ConfigAgent methods."""
@@ -110,7 +175,7 @@ class TestConfigAgent(unittest.TestCase):
     def test_ip_listen_address(self):
         """Testing function ip_listen_address."""
         # Initialize key values
-        expected = '127.0.0.2'
+        expected = '127.0.0.1'
 
         # Test
         result = self.config.ip_listen_address()
@@ -125,8 +190,73 @@ class TestConfigAgent(unittest.TestCase):
         result = self.config.ip_bind_port()
         self.assertEqual(result, expected)
 
+    def test_daemon_directory(self):
+        """Test pattoo_shared.Config inherited method daemon_directory."""
+        # Nothing should happen. Directory exists in testing.
+        _ = self.config.daemon_directory()
 
-class TestConfigAgent(unittest.TestCase):
+    def test_log_directory(self):
+        """Test pattoo_shared.Config inherited method log_directory."""
+        # Nothing should happen. Directory exists in testing.
+        _ = self.config.log_directory()
+
+    def test_log_file(self):
+        """Test pattoo_shared.Config inherited method log_file."""
+        # Initialize key values
+        expected = '{1}{0}pattoo.log'.format(
+            os.sep, self.config.log_directory())
+
+        # Test
+        result = self.config.log_file()
+        self.assertEqual(result, expected)
+
+    def test_log_file_api(self):
+        """Test pattoo_shared.Config inherited method log_file_api."""
+        # Initialize key values
+        expected = '{1}{0}pattoo-api.log'.format(
+            os.sep, self.config.log_directory())
+
+        # Test
+        result = self.config.log_file_api()
+        self.assertEqual(result, expected)
+
+    def test_log_level(self):
+        """Test pattoo_shared.Config inherited method log_level."""
+        # Initialize key values
+        expected = 'debug'
+
+        # Test
+        result = self.config.log_level()
+        self.assertEqual(result, expected)
+
+    def test_log_file_daemon(self):
+        """Test pattoo_shared.Config inherited method log_file_daemon."""
+        # Initialize key values
+        expected = '{1}{0}pattoo-daemon.log'.format(
+            os.sep, self.config.log_directory())
+
+        # Test
+        result = self.config.log_file_daemon()
+        self.assertEqual(result, expected)
+
+    def test_cache_directory(self):
+        """Test pattoo_shared.Config inherited method cache_directory."""
+        # Nothing should happen. Directory exists in testing.
+        _ = self.config.cache_directory()
+
+    def test_agent_cache_directory(self):
+        """Test pattoo_shared.Config inherited method agent_cache_directory."""
+        # Initialize key values
+        agent_id = 123
+        expected = '{1}{0}{2}'.format(
+            os.sep, self.config.cache_directory(), agent_id)
+
+        # Test
+        result = self.config.agent_cache_directory(agent_id)
+        self.assertEqual(result, expected)
+
+
+class TestConfigIngester(unittest.TestCase):
     """Checks all ConfigIngester methods."""
 
     ##########################################################################
@@ -163,6 +293,71 @@ class TestConfigAgent(unittest.TestCase):
 
         # Test
         result = self.config.batch_size()
+        self.assertEqual(result, expected)
+
+    def test_daemon_directory(self):
+        """Test pattoo_shared.Config inherited method daemon_directory."""
+        # Nothing should happen. Directory exists in testing.
+        _ = self.config.daemon_directory()
+
+    def test_log_directory(self):
+        """Test pattoo_shared.Config inherited method log_directory."""
+        # Nothing should happen. Directory exists in testing.
+        _ = self.config.log_directory()
+
+    def test_log_file(self):
+        """Test pattoo_shared.Config inherited method log_file."""
+        # Initialize key values
+        expected = '{1}{0}pattoo.log'.format(
+            os.sep, self.config.log_directory())
+
+        # Test
+        result = self.config.log_file()
+        self.assertEqual(result, expected)
+
+    def test_log_file_api(self):
+        """Test pattoo_shared.Config inherited method log_file_api."""
+        # Initialize key values
+        expected = '{1}{0}pattoo-api.log'.format(
+            os.sep, self.config.log_directory())
+
+        # Test
+        result = self.config.log_file_api()
+        self.assertEqual(result, expected)
+
+    def test_log_level(self):
+        """Test pattoo_shared.Config inherited method log_level."""
+        # Initialize key values
+        expected = 'debug'
+
+        # Test
+        result = self.config.log_level()
+        self.assertEqual(result, expected)
+
+    def test_log_file_daemon(self):
+        """Test pattoo_shared.Config inherited method log_file_daemon."""
+        # Initialize key values
+        expected = '{1}{0}pattoo-daemon.log'.format(
+            os.sep, self.config.log_directory())
+
+        # Test
+        result = self.config.log_file_daemon()
+        self.assertEqual(result, expected)
+
+    def test_cache_directory(self):
+        """Test pattoo_shared.Config inherited method cache_directory."""
+        # Nothing should happen. Directory exists in testing.
+        _ = self.config.cache_directory()
+
+    def test_agent_cache_directory(self):
+        """Test pattoo_shared.Config inherited method agent_cache_directory."""
+        # Initialize key values
+        agent_id = 123
+        expected = '{1}{0}{2}'.format(
+            os.sep, self.config.cache_directory(), agent_id)
+
+        # Test
+        result = self.config.agent_cache_directory(agent_id)
         self.assertEqual(result, expected)
 
 
