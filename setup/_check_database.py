@@ -71,6 +71,7 @@ def insertions():
             ('en', 'pattoo_agent_snmpd_ifname', 'Interface Name'),
             ('en', 'pattoo_agent_snmpd_oid', 'SNMP OID')]),
         ('OS Agents', [
+            ('en', 'pattoo_agent_os_autonomousd_processor', 'Processor Type'),
             ('en', 'pattoo_agent_os_autonomousd_release', 'OS Release'),
             ('en', 'pattoo_agent_os_autonomousd_type', 'OS Type'),
             ('en', 'pattoo_agent_os_autonomousd_version', 'OS Version'),
@@ -145,6 +146,7 @@ def insertions():
             ('en', 'pattoo_agent_os_autonomousd_network_io_dropin', 'Network I/O (Drops Inbound)'),
             ('en', 'pattoo_agent_os_autonomousd_network_io_dropout', 'Network I/O (Drops Outbound)'),
             ('en', 'pattoo_agent_os_autonomousd_cpu_frequency', 'CPU Frequency'),
+            ('en', 'pattoo_agent_os_spoked_processor', 'Processor Type'),
             ('en', 'pattoo_agent_os_spoked_release', 'OS Release'),
             ('en', 'pattoo_agent_os_spoked_type', 'OS Type'),
             ('en', 'pattoo_agent_os_spoked_version', 'OS Version'),
