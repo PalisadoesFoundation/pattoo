@@ -8,7 +8,8 @@ from sqlalchemy import and_
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.models import PairXlateGroup, PairXlate, Language
+from pattoo.db.models import (
+    PairXlateGroup, PairXlate, Language, AgentGroup, Agent)
 
 
 def idx_exists(idx):
@@ -103,11 +104,11 @@ def update_description(idx, description):
                 )
 
 
-def cli_show_dump(idx=None):
+def cli_show_dump():
     """Get entire content of the table.
 
     Args:
-        idx: idx_pair_xlate_group to filter on
+        None
 
     Returns:
         result: List of NamedTuples
@@ -115,48 +116,38 @@ def cli_show_dump(idx=None):
     """
     # Initialize key variables
     result = []
-    rows = []
     Record = namedtuple(
         'Record',
-        '''idx_pair_xlate_group description language key translation \
-enabled''')
+        '''idx_pair_xlate_group translation_group_description idx_agent_group \
+agent_group_description enabled''')
 
     # Get the result
-    if bool(idx) is False:
-        with db.db_query(20071) as session:
-            rows = session.query(PairXlateGroup)
-    else:
-        with db.db_query(20062) as session:
-            rows = session.query(PairXlateGroup).filter(
-                PairXlateGroup.idx_pair_xlate_group == idx)
+    with db.db_query(20062) as session:
+        x_rows = session.query(PairXlateGroup)
 
     # Process
-    for row in rows:
+    for x_row in x_rows:
         first_agent = True
 
         # Get agents for group
         with db.db_query(20061) as session:
-            line_items = session.query(
-                Language.code,
-                PairXlate.key,
-                PairXlate.description).filter(and_(
-                    PairXlate.idx_pair_xlate_group == row.idx_pair_xlate_group,
-                    PairXlate.idx_language == Language.idx_language
-                    ))
+            a_rows = session.query(
+                AgentGroup.description,
+                AgentGroup.idx_agent_group).filter(
+                    AgentGroup.idx_pair_xlate_group == x_row.idx_pair_xlate_group)
 
-        if line_items.count() >= 1:
-            # PairXlates assigned to the group
-            for line_item in line_items:
+        if a_rows.count() >= 1:
+            # Agents assigned to the group
+            for a_row in a_rows:
                 if first_agent is True:
                     # Format first row for agent group
                     result.append(
                         Record(
-                            enabled=row.enabled,
-                            idx_pair_xlate_group=row.idx_pair_xlate_group,
-                            language=line_item.code.decode(),
-                            key=line_item.key.decode(),
-                            translation=line_item.description.decode(),
-                            description=row.description.decode()
+                            enabled=x_row.enabled,
+                            idx_pair_xlate_group=x_row.idx_pair_xlate_group,
+                            idx_agent_group=a_row.idx_agent_group,
+                            agent_group_description=a_row.description.decode(),
+                            translation_group_description=x_row.description.decode()
                         )
                     )
                     first_agent = False
@@ -166,10 +157,9 @@ enabled''')
                         Record(
                             enabled='',
                             idx_pair_xlate_group='',
-                            language=line_item.code.decode(),
-                            key=line_item.key.decode(),
-                            translation=line_item.description.decode(),
-                            description=''
+                            translation_group_description='',
+                            idx_agent_group=a_row.idx_agent_group,
+                            agent_group_description=a_row.description.decode()
                         )
                     )
 
@@ -177,18 +167,20 @@ enabled''')
             # Format only row for agent group
             result.append(
                 Record(
-                    enabled=row.enabled,
-                    idx_pair_xlate_group=row.idx_pair_xlate_group,
-                    language='',
-                    key='',
-                    translation='',
-                    description=row.description.decode()
+                    enabled=x_row.enabled,
+                    idx_pair_xlate_group=x_row.idx_pair_xlate_group,
+                    translation_group_description=x_row.description.decode(),
+                    idx_agent_group='',
+                    agent_group_description=''
                 )
             )
 
         # Add a spacer between agent groups
         result.append(Record(
-            enabled='', idx_pair_xlate_group='', language='',
-            key='', description='', translation=''))
+            enabled='',
+            idx_pair_xlate_group='',
+            idx_agent_group='',
+            agent_group_description='',
+            translation_group_description=''))
 
     return result

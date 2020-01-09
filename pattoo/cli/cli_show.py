@@ -93,7 +93,7 @@ def _process_pair_xlate_group(args):
 
     """
     # Initialize key variables
-    data = pair_xlate_group.cli_show_dump(args.idx_pair_xlate_group)
+    data = pair_xlate_group.cli_show_dump()
     _printer(data)
 
 
