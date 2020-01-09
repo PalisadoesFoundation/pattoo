@@ -162,7 +162,6 @@ class TestBasicFunctions(unittest.TestCase):
         for item in result:
             if item.idx_agent_group == idx_agent_group:
                 self.assertEqual(item.description, description)
-                self.assertEqual(item.idx_pair_xlate_group, 1)
                 break
 
 

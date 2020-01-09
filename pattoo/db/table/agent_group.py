@@ -133,7 +133,7 @@ def cli_show_dump():
     result = []
     Record = namedtuple(
         'Record',
-        '''idx_agent_group description idx_pair_xlate_group idx_agent \
+        '''idx_agent_group description idx_agent \
 agent_program agent_target enabled''')
 
     # Get the result
@@ -160,7 +160,6 @@ agent_program agent_target enabled''')
                     result.append(
                         Record(
                             enabled=row.enabled,
-                            idx_pair_xlate_group=row.idx_pair_xlate_group,
                             idx_agent_group=row.idx_agent_group,
                             idx_agent=a_row.idx_agent,
                             agent_program=a_row.agent_program.decode(),
@@ -175,7 +174,6 @@ agent_program agent_target enabled''')
                         Record(
                             enabled='',
                             idx_agent_group='',
-                            idx_pair_xlate_group='',
                             description='',
                             idx_agent=a_row.idx_agent,
                             agent_program=a_row.agent_program.decode(),
@@ -190,7 +188,6 @@ agent_program agent_target enabled''')
                     enabled=row.enabled,
                     idx_agent_group=row.idx_agent_group,
                     description=row.description.decode(),
-                    idx_pair_xlate_group=row.idx_pair_xlate_group,
                     idx_agent='',
                     agent_program='',
                     agent_target=''
@@ -204,7 +201,6 @@ agent_program agent_target enabled''')
             idx_agent='',
             agent_program='',
             agent_target='',
-            description='',
-            idx_pair_xlate_group=''))
+            description=''))
 
     return result
