@@ -155,9 +155,9 @@ def update_row(key, description, idx_language, idx_pair_xlate_group):
     # Insert and get the new agent value
     with db.db_modify(20080, die=False) as session:
         session.query(PairXlate).filter(and_(
-            key=key.encode(),
-            idx_language=idx_language,
-            idx_pair_xlate_group=idx_pair_xlate_group)).update(
+            PairXlate.key == key.encode(),
+            PairXlate.idx_language == idx_language,
+            PairXlate.idx_pair_xlate_group == idx_pair_xlate_group)).update(
                 {'description': description.strip().encode()}
             )
 

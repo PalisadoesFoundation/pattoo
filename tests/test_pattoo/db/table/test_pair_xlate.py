@@ -4,8 +4,10 @@
 import os
 import unittest
 import sys
-import time
 from random import random
+
+# PIP3
+from sqlalchemy import and_
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -80,7 +82,41 @@ class TestBasicFunctions(unittest.TestCase):
 
     def test_update_row(self):
         """Testing method / function update_row."""
-        pass
+        # Add a language and pair_xlate_group entry to the database
+        code = data.hashstring(str(random()))
+        _description = data.hashstring(str(random()))
+        language.insert_row(code, _description)
+        idx_language = language.exists(code)
+        pair_xlate_group.insert_row(_description)
+        idx_pair_xlate_group = pair_xlate_group.exists(_description)
+
+        # Make sure row does not exist
+        description = data.hashstring(str(random()))
+        key = data.hashstring(str(random()))
+        result = pair_xlate.pair_xlate_exists(
+            idx_pair_xlate_group, idx_language, key)
+        self.assertFalse(result)
+
+        # Add an entry to the database
+        pair_xlate.insert_row(
+            key, description, idx_language, idx_pair_xlate_group)
+
+        # Test existence
+        result = pair_xlate.pair_xlate_exists(
+            idx_pair_xlate_group, idx_language, key)
+        self.assertTrue(result)
+
+        # Test update
+        new_description = data.hashstring(str(random()))
+        pair_xlate.update_row(
+            key, new_description, idx_language, idx_pair_xlate_group)
+
+        with db.db_query(20071) as session:
+            row = session.query(PairXlate).filter(and_(
+                PairXlate.idx_pair_xlate_group == idx_pair_xlate_group,
+                PairXlate.key == key.encode(),
+                PairXlate.idx_language == idx_language)).one()
+        self.assertEqual(row.description.decode(), new_description)
 
     def test_update(self):
         """Testing method / function update."""
