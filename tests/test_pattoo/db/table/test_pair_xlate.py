@@ -43,13 +43,6 @@ class TestBasicFunctions(unittest.TestCase):
     #########################################################################
     # General object setup
     #########################################################################
-    def test_key_description(self):
-        """Testing method / function key_description."""
-        pass
-
-    def test_key_descriptions(self):
-        """Testing method / function key_descriptions."""
-        pass
 
     def test_pair_xlate_exists(self):
         """Testing method / function pair_xlate_exists."""
