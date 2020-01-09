@@ -23,6 +23,7 @@ from pattoo.db.models import (
         Language as LanguageModel,
         PairXlateGroup as PairXlateGroupModel,
         PairXlate as PairXlateModel,
+        AgentXlate as AgentXlateModel,
         AgentGroup as AgentGroupModel,
         Agent as AgentModel
     )
@@ -447,6 +448,51 @@ class AgentConnections(relay.Connection):
         node = Agent
 
 
+class AgentXlateAttribute(object):
+    """Descriptive attributes of the AgentXlate table.
+
+    A generic class to mutualize description of attributes for both queries
+    and mutations.
+
+    """
+
+    idx_agent_xlate = graphene.String(
+        description='AgentXlate table index.')
+
+    idx_language = graphene.String(
+        description='Language table index (ForeignKey).')
+
+    agent_program = graphene.String(
+        resolver=resolve_agent_program,
+        description=('Agent progam'))
+
+    description = graphene.String(
+        resolver=resolve_description,
+        description='Description for for the agent program.')
+
+    enabled = graphene.String(
+        description='"True" if enabled.')
+
+
+class AgentXlate(SQLAlchemyObjectType, AgentXlateAttribute):
+    """AgentXlate node."""
+
+    class Meta:
+        """Define the metadata."""
+
+        model = AgentXlateModel
+        interfaces = (graphene.relay.Node,)
+
+
+class AgentXlateConnections(relay.Connection):
+    """GraphQL / SQlAlchemy Connection to the AgentXlate table."""
+
+    class Meta:
+        """Define the metadata."""
+
+        node = AgentXlate
+
+
 class Query(graphene.ObjectType):
     """Define GraphQL queries."""
 
@@ -480,6 +526,10 @@ class Query(graphene.ObjectType):
     pair_xlate = graphene.relay.Node.Field(PairXlate)
     all_pair_xlate = SQLAlchemyConnectionField(PairXlateConnections)
 
+    # Results as a single entry filtered by 'id' and as a list
+    agent_xlate = graphene.relay.Node.Field(AgentXlate)
+    all_agent_xlate = SQLAlchemyConnectionField(AgentXlateConnections)
+    
     # Results as a single entry filtered by 'id' and as a list
     agent_group = graphene.relay.Node.Field(AgentGroup)
     all_agent_group = SQLAlchemyConnectionField(AgentGroupConnections)
