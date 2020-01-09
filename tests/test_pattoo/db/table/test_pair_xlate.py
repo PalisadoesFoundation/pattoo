@@ -7,6 +7,7 @@ import sys
 from random import random
 
 # PIP3
+import pandas as pd
 from sqlalchemy import and_
 
 # Try to create a working PYTHONPATH
@@ -52,7 +53,29 @@ class TestBasicFunctions(unittest.TestCase):
 
     def test_pair_xlate_exists(self):
         """Testing method / function pair_xlate_exists."""
-        pass
+        # Add a language and pair_xlate_group entry to the database
+        code = data.hashstring(str(random()))
+        _description = data.hashstring(str(random()))
+        language.insert_row(code, _description)
+        idx_language = language.exists(code)
+        pair_xlate_group.insert_row(_description)
+        idx_pair_xlate_group = pair_xlate_group.exists(_description)
+
+        # Make sure row does not exist
+        description = data.hashstring(str(random()))
+        key = data.hashstring(str(random()))
+        result = pair_xlate.pair_xlate_exists(
+            idx_pair_xlate_group, idx_language, key)
+        self.assertFalse(result)
+
+        # Add an entry to the database
+        pair_xlate.insert_row(
+            key, description, idx_language, idx_pair_xlate_group)
+
+        # Test
+        result = pair_xlate.pair_xlate_exists(
+            idx_pair_xlate_group, idx_language, key)
+        self.assertTrue(result)
 
     def test_insert_row(self):
         """Testing method / function insert_row."""
@@ -120,7 +143,45 @@ class TestBasicFunctions(unittest.TestCase):
 
     def test_update(self):
         """Testing method / function update."""
-        pass
+        # Add a language and pair_xlate_group entry to the database
+        code = data.hashstring(str(random()))
+        _description = data.hashstring(str(random()))
+        language.insert_row(code, _description)
+        idx_language = language.exists(code)
+        pair_xlate_group.insert_row(_description)
+        idx_pair_xlate_group = pair_xlate_group.exists(_description)
+
+        # Create data
+        _data = []
+        for key in range(0, 10):
+            _data.append([code, str(key), '_{}_'.format(key)])
+        _df0 = pd.DataFrame(_data, columns=['language', 'key', 'description'])
+        pair_xlate.update(_df0, idx_pair_xlate_group)
+
+        # Update data
+        _data = []
+        for key in range(0, 10):
+            _data.append([code, str(key), '|{}|'.format(key)])
+        _df = pd.DataFrame(_data, columns=['language', 'key', 'description'])
+        pair_xlate.update(_df, idx_pair_xlate_group)
+
+        # Test updated data
+        for key in range(0, 10):
+            with db.db_query(20125) as session:
+                row = session.query(PairXlate).filter(and_(
+                    PairXlate.idx_pair_xlate_group == idx_pair_xlate_group,
+                    PairXlate.key == str(key).encode(),
+                    PairXlate.idx_language == idx_language)).one()
+            self.assertEqual(row.description.decode(), _df['description'][key])
+
+        # Old descriptions should not exist
+        for description in _df0['description']:
+            with db.db_query(20126) as session:
+                row = session.query(PairXlate).filter(and_(
+                    PairXlate.idx_pair_xlate_group == idx_pair_xlate_group,
+                    PairXlate.description == description.encode(),
+                    PairXlate.idx_language == idx_language))
+            self.assertEqual(row.count(), 0)
 
     def test_cli_show_dump(self):
         """Testing method / function cli_show_dump."""
