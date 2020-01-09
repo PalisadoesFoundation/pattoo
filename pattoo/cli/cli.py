@@ -191,11 +191,19 @@ Show key-pair translation group parameters.''', width=width)
 
         """
         # Initialize key variables
-        self.subparsers.add_parser(
+        parser = self.subparsers.add_parser(
             'key_pair_translation',
             help=textwrap.fill(
                 'Show agent key-pair translations.', width=width)
         )
+
+        # Add arguments
+        parser.add_argument(
+            '--idx_pair_xlate_group',
+            help='Filter by this index for key-pair translation group.',
+            type=int,
+            default=None,
+            required=False)
 
     def language(self, width=80):
         """Process show language CLI commands.

@@ -86,6 +86,21 @@ class TestBasicFunctions(unittest.TestCase):
         """Testing method / function update."""
         pass
 
+    def test_cli_show_dump(self):
+        """Testing method / function cli_show_dump."""
+        # Add an entry to the database
+        description = data.hashstring(str(random()))
+        pair_xlate_group.insert_row(description)
+
+        # Make sure it exists
+        idx_pair_xlate_group = pair_xlate_group.exists(description)
+
+        result = pair_xlate.cli_show_dump()
+        for item in result:
+            if item.idx_pair_xlate_group == idx_pair_xlate_group:
+                self.assertEqual(item.description, description)
+                break
+
 
 if __name__ == '__main__':
     # Make sure the environment is OK to run unittests

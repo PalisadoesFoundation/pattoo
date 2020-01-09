@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """Administer the PairXlate database table."""
 
+from collections import namedtuple
+
+# PIP3
 from sqlalchemy import and_
 
-# PIP3 libraries
+# Pattoo PIP3 libraries
 from pattoo_shared import log
 from pattoo_shared.configuration import Config
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.models import PairXlate, Language
+from pattoo.db.models import PairXlate, Language, PairXlateGroup
 from pattoo.db.table import language, pair_xlate_group, agent
 
 
@@ -221,3 +224,94 @@ Language code "{}" not found during key-pair data importation'''.format(code))
         else:
             # Insert a new record
             insert_row(key, description, idx_language, idx_pair_xlate_group)
+
+
+def cli_show_dump(idx=None):
+    """Get entire content of the table.
+
+    Args:
+        idx: idx_pair_xlate_group to filter on
+
+    Returns:
+        result: List of NamedTuples
+
+    """
+    # Initialize key variables
+    result = []
+    rows = []
+    Record = namedtuple(
+        'Record',
+        '''idx_pair_xlate_group description language key translation \
+enabled''')
+
+    # Get the result
+    if bool(idx) is False:
+        with db.db_query(20122) as session:
+            rows = session.query(PairXlateGroup)
+    else:
+        with db.db_query(20123) as session:
+            rows = session.query(PairXlateGroup).filter(
+                PairXlateGroup.idx_pair_xlate_group == idx)
+
+    # Process
+    for row in rows:
+        first_agent = True
+
+        # Get agents for group
+        with db.db_query(20124) as session:
+            line_items = session.query(
+                Language.code,
+                PairXlate.key,
+                PairXlate.description).filter(and_(
+                    PairXlate.idx_pair_xlate_group == row.idx_pair_xlate_group,
+                    PairXlate.idx_language == Language.idx_language
+                    ))
+
+        if line_items.count() >= 1:
+            # PairXlates assigned to the group
+            for line_item in line_items:
+                if first_agent is True:
+                    # Format first row for agent group
+                    result.append(
+                        Record(
+                            enabled=row.enabled,
+                            idx_pair_xlate_group=row.idx_pair_xlate_group,
+                            language=line_item.code.decode(),
+                            key=line_item.key.decode(),
+                            translation=line_item.description.decode(),
+                            description=row.description.decode()
+                        )
+                    )
+                    first_agent = False
+                else:
+                    # Format subsequent rows
+                    result.append(
+                        Record(
+                            enabled='',
+                            idx_pair_xlate_group='',
+                            language=line_item.code.decode(),
+                            key=line_item.key.decode(),
+                            translation=line_item.description.decode(),
+                            description=''
+                        )
+                    )
+
+        else:
+            # Format only row for agent group
+            result.append(
+                Record(
+                    enabled=row.enabled,
+                    idx_pair_xlate_group=row.idx_pair_xlate_group,
+                    language='',
+                    key='',
+                    translation='',
+                    description=row.description.decode()
+                )
+            )
+
+        # Add a spacer between agent groups
+        result.append(Record(
+            enabled='', idx_pair_xlate_group='', language='',
+            key='', description='', translation=''))
+
+    return result

@@ -5,7 +5,8 @@ from __future__ import print_function
 import sys
 
 # Import project libraries
-from pattoo.db.table import agent, agent_group, language, pair_xlate_group
+from pattoo.db.table import (
+    agent, agent_group, language, pair_xlate_group, pair_xlate)
 
 
 def process(args):
@@ -30,6 +31,9 @@ def process(args):
         sys.exit(0)
     elif args.qualifier == 'key_pair_translation_group':
         _process_pair_xlate_group(args)
+        sys.exit(0)
+    elif args.qualifier == 'key_pair_translation':
+        _process_pair_xlate(args)
         sys.exit(0)
 
 
@@ -90,6 +94,21 @@ def _process_pair_xlate_group(args):
     """
     # Initialize key variables
     data = pair_xlate_group.cli_show_dump(args.idx_pair_xlate_group)
+    _printer(data)
+
+
+def _process_pair_xlate(args):
+    """Process pair_xlate cli arguments.
+
+    Args:
+        args: CLI argparse parser arguments
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    data = pair_xlate.cli_show_dump(args.idx_pair_xlate_group)
     _printer(data)
 
 
