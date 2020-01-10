@@ -8,12 +8,11 @@ from sqlalchemy import and_
 
 # Pattoo PIP3 libraries
 from pattoo_shared import log
-from pattoo_shared.configuration import Config
 
 # Import project libraries
 from pattoo.db import db
 from pattoo.db.models import PairXlate, Language, PairXlateGroup
-from pattoo.db.table import language, pair_xlate_group, agent
+from pattoo.db.table import language, pair_xlate_group
 
 
 def pair_xlate_exists(idx_pair_xlate_group, idx_language, key):

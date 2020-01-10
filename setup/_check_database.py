@@ -30,7 +30,8 @@ from pattoo_shared import log
 from pattoo.configuration import ConfigPattoo as Config
 from pattoo.db import URL
 from pattoo.db.models import BASE
-from pattoo.db.table import agent_group, language, pair_xlate_group, pair_xlate
+from pattoo.db.table import (
+    agent_group, language, pair_xlate_group, pair_xlate, agent_xlate)
 
 
 def insertions():
@@ -48,7 +49,15 @@ def insertions():
     idx_agent_groups = {}
     idx_pair_xlate_groups = {}
     languages = {}
-    xlate_data = [
+    agent_xlate_data = [
+        ('en', 'pattoo_agent_os_autonomousd', 'Pattoo Standard OS Autonomous Agent'),
+        ('en', 'pattoo_agent_os_spoked', 'Pattoo Standard OS Spoked Agent'),
+        ('en', 'pattoo_agent_snmpd', 'Pattoo Standard SNMP Agent'),
+        ('en', 'pattoo_agent_snmp_ifmibd', 'Pattoo Standard IfMIB SNMP Agent'),
+        ('en', 'pattoo_agent_modbustcpd', 'Pattoo Standard Modbus TCP Agent'),
+        ('en', 'pattoo_agent_bacnetipd', 'Pattoo Standard BACnet IP Agent')
+    ]
+    pair_xlate_data = [
         ('IfMIB Agents', [
             ('en', 'pattoo_agent_snmpd_.1.3.6.1.2.1.31.1.1.1.9', 'Interface Broadcast Packets (HC inbound)'),
             ('en', 'pattoo_agent_snmpd_.1.3.6.1.2.1.31.1.1.1.8', 'Interface Multicast Packets (HC inbound)'),
@@ -258,7 +267,7 @@ def insertions():
         pair_xlate_group.insert_row(default_description)
 
         # Create PairXlateGroup for some pattoo agents
-        for description, rows in xlate_data:
+        for description, rows in pair_xlate_data:
             # Get PairXlateGroup index value after creating an entry
             pair_xlate_group.insert_row(description)
             idx_pair_xlate_group = pair_xlate_group.exists(description)
@@ -278,7 +287,7 @@ def insertions():
     # Insert into AgentGroup
     if agent_group.idx_exists(1) is False:
         agent_group.insert_row(default_description)
-        for description, _ in xlate_data:
+        for description, _ in pair_xlate_data:
             agent_group.insert_row(description)
             index = agent_group.exists(description)
             idx_agent_groups[description] = index
@@ -289,6 +298,14 @@ def insertions():
         if bool(index) is True:
             agent_group.assign(idx_agent_group, index)
 
+    # Insert into AgentXlate
+    if agent_xlate.agent_xlate_exists(
+            1, 'pattoo_agent_os_autonomousd') is False:
+        for row in agent_xlate_data:
+            _key = row[1]
+            _value = row[2]
+            agent_xlate.insert_row(_key, _value, 1)
+            
     print('OK: Database table entries inserted.')
 
 
