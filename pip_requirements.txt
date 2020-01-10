@@ -4,7 +4,7 @@
 
 # Pattoo packages
 
-PattooShared>=0.0.75
+PattooShared>=0.0.76
 
 # Miscellaneous packages
 PyYAML
