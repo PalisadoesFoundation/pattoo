@@ -6,7 +6,7 @@ import sys
 
 # Import project libraries
 from pattoo.db.table import (
-    agent, agent_group, language, pair_xlate_group, pair_xlate)
+    agent, agent_group, language, pair_xlate_group, pair_xlate, agent_xlate)
 
 
 def process(args):
@@ -35,7 +35,9 @@ def process(args):
     elif args.qualifier == 'key_pair_translation':
         _process_pair_xlate(args)
         sys.exit(0)
-
+    elif args.qualifier == 'agent_translation':
+        _process_agent_xlate()
+        sys.exit(0)
 
 def _process_agent():
     """Process agent cli arguments.
@@ -109,6 +111,21 @@ def _process_pair_xlate(args):
     """
     # Initialize key variables
     data = pair_xlate.cli_show_dump(args.idx_pair_xlate_group)
+    _printer(data)
+
+
+def _process_agent_xlate():
+    """Process agent_xlate cli arguments.
+
+    Args:
+        args: CLI argparse parser arguments
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    data = agent_xlate.cli_show_dump()
     _printer(data)
 
 

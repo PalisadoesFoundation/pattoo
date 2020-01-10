@@ -105,6 +105,7 @@ def update(_df):
         'language', 'key', 'description']
     headings_actual = []
     valid = True
+    count = 0
 
     # Test columns
     for item in _df.columns:
@@ -120,6 +121,7 @@ def update(_df):
     # Process the DataFrame
     for _, row in _df.iterrows():
         # Initialize variables at the top of the loop
+        count += 1
         code = row['language'].lower()
         key = str(row['key'])
         description = str(row['description'])
@@ -132,8 +134,11 @@ def update(_df):
                 languages[code] = idx_language
             else:
                 log_message = ('''\
-Language code "{}" not found during key-pair data importation'''.format(code))
-                log.log2warning(20041, log_message)
+Language code "{}" on line {} of imported translation file not found during \
+key-pair data importation. Please correct and try again. All other valid \
+entries have been imported.\
+'''.format(code, count))
+                log.log2see(20041, log_message)
                 continue
 
         # Update the database
@@ -162,7 +167,7 @@ def cli_show_dump():
 
     # Get the result
     with db.db_query(20137) as session:
-        rows = session.query(AgentXlate)
+        rows = session.query(Language)
 
     # Process
     for row in rows:
@@ -172,9 +177,12 @@ def cli_show_dump():
         with db.db_query(20127) as session:
             line_items = session.query(
                 Language.code,
+                AgentXlate.enabled,
                 AgentXlate.agent_program,
-                AgentXlate.description).filter(
+                AgentXlate.description).filter(and_(
+                    AgentXlate.idx_language == row.idx_language,
                     AgentXlate.idx_language == Language.idx_language)
+                )
 
         if line_items.count() >= 1:
             # AgentXlates assigned to the group
@@ -183,7 +191,7 @@ def cli_show_dump():
                     # Format first row for agent group
                     result.append(
                         Record(
-                            enabled=row.enabled,
+                            enabled=line_item.enabled,
                             language=line_item.code.decode(),
                             agent_program=line_item.agent_program.decode(),
                             description=line_item.description.decode()
@@ -202,17 +210,17 @@ def cli_show_dump():
                     )
 
         else:
-            # Format only row for agent group
+            # Format only row for language
             result.append(
                 Record(
-                    enabled=row.enabled,
+                    enabled='',
                     language=row.code.decode(),
                     agent_program='',
-                    description=row.description.decode()
+                    description=''
                 )
             )
 
-        # Add a spacer between agent groups
+        # Add a spacer between language groups
         result.append(Record(
             enabled='', language='', agent_program='', description=''))
 

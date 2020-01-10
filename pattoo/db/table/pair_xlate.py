@@ -112,6 +112,7 @@ def update(_df, idx_pair_xlate_group):
         'language', 'key', 'description']
     headings_actual = []
     valid = True
+    count = 0
 
     # Check if group exists
     if pair_xlate_group.idx_exists(idx_pair_xlate_group) is False:
@@ -133,6 +134,7 @@ idx_pair_xlate_group {} does not exist'''.format(idx_pair_xlate_group))
     # Process the DataFrame
     for _, row in _df.iterrows():
         # Initialize variables at the top of the loop
+        count += 1
         code = row['language'].lower()
         key = str(row['key'])
         description = str(row['description'])
@@ -145,8 +147,11 @@ idx_pair_xlate_group {} does not exist'''.format(idx_pair_xlate_group))
                 languages[code] = idx_language
             else:
                 log_message = ('''\
-Language code "{}" not found during key-pair data importation'''.format(code))
-                log.log2warning(20078, log_message)
+Language code "{}" on line {} of imported translation file not found during \
+key-pair data importation. Please correct and try again. All other valid \
+entries have been imported.\
+'''.format(code, count))
+                log.log2see(20078, log_message)
                 continue
 
         # Update the database
