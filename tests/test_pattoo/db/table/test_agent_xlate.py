@@ -32,8 +32,8 @@ directory. Please fix.''')
 
 from pattoo_shared import data
 from tests.libraries.configuration import UnittestConfig
-from pattoo.db.table import pair_xlate, language, pair_xlate_group
-from pattoo.db.models import PairXlate
+from pattoo.db.table import agent_xlate, language
+from pattoo.db.models import AgentXlate
 from pattoo.db import db
 
 
@@ -44,150 +44,138 @@ class TestBasicFunctions(unittest.TestCase):
     # General object setup
     #########################################################################
 
-    def test_pair_xlate_exists(self):
-        """Testing method / function pair_xlate_exists."""
-        # Add a language and pair_xlate_group entry to the database
+    def test_agent_xlate_exists(self):
+        """Testing method / function agent_xlate_exists."""
+        # Add a language entry to the database
         code = data.hashstring(str(random()))
         _description = data.hashstring(str(random()))
         language.insert_row(code, _description)
         idx_language = language.exists(code)
-        pair_xlate_group.insert_row(_description)
-        idx_pair_xlate_group = pair_xlate_group.exists(_description)
 
         # Make sure row does not exist
         description = data.hashstring(str(random()))
         key = data.hashstring(str(random()))
-        result = pair_xlate.pair_xlate_exists(
-            idx_pair_xlate_group, idx_language, key)
+        result = agent_xlate.agent_xlate_exists(idx_language, key)
         self.assertFalse(result)
 
         # Add an entry to the database
-        pair_xlate.insert_row(
-            key, description, idx_language, idx_pair_xlate_group)
+        agent_xlate.insert_row(key, description, idx_language)
 
         # Test
-        result = pair_xlate.pair_xlate_exists(
-            idx_pair_xlate_group, idx_language, key)
+        result = agent_xlate.agent_xlate_exists(idx_language, key)
         self.assertTrue(result)
 
     def test_insert_row(self):
         """Testing method / function insert_row."""
-        # Add a language and pair_xlate_group entry to the database
+        # Add a language entry to the database
         code = data.hashstring(str(random()))
         _description = data.hashstring(str(random()))
         language.insert_row(code, _description)
         idx_language = language.exists(code)
-        pair_xlate_group.insert_row(_description)
-        idx_pair_xlate_group = pair_xlate_group.exists(_description)
 
         # Make sure row does not exist
         description = data.hashstring(str(random()))
         key = data.hashstring(str(random()))
-        result = pair_xlate.pair_xlate_exists(
-            idx_pair_xlate_group, idx_language, key)
+        result = agent_xlate.agent_xlate_exists(idx_language, key)
         self.assertFalse(result)
 
         # Add an entry to the database
-        pair_xlate.insert_row(
-            key, description, idx_language, idx_pair_xlate_group)
+        agent_xlate.insert_row(key, description, idx_language)
 
         # Test
-        result = pair_xlate.pair_xlate_exists(
-            idx_pair_xlate_group, idx_language, key)
+        result = agent_xlate.agent_xlate_exists(idx_language, key)
         self.assertTrue(result)
 
     def test_update_row(self):
         """Testing method / function update_row."""
-        # Add a language and pair_xlate_group entry to the database
+        # Add a language entry to the database
         code = data.hashstring(str(random()))
         _description = data.hashstring(str(random()))
         language.insert_row(code, _description)
         idx_language = language.exists(code)
-        pair_xlate_group.insert_row(_description)
-        idx_pair_xlate_group = pair_xlate_group.exists(_description)
 
         # Make sure row does not exist
         description = data.hashstring(str(random()))
         key = data.hashstring(str(random()))
-        result = pair_xlate.pair_xlate_exists(
-            idx_pair_xlate_group, idx_language, key)
+        result = agent_xlate.agent_xlate_exists(idx_language, key)
         self.assertFalse(result)
 
         # Add an entry to the database
-        pair_xlate.insert_row(
-            key, description, idx_language, idx_pair_xlate_group)
+        agent_xlate.insert_row(key, description, idx_language)
 
         # Test existence
-        result = pair_xlate.pair_xlate_exists(
-            idx_pair_xlate_group, idx_language, key)
+        result = agent_xlate.agent_xlate_exists(idx_language, key)
         self.assertTrue(result)
 
         # Test update
         new_description = data.hashstring(str(random()))
-        pair_xlate.update_row(
-            key, new_description, idx_language, idx_pair_xlate_group)
+        agent_xlate.update_row(key, new_description, idx_language)
 
-        with db.db_query(20071) as session:
-            row = session.query(PairXlate).filter(and_(
-                PairXlate.idx_pair_xlate_group == idx_pair_xlate_group,
-                PairXlate.key == key.encode(),
-                PairXlate.idx_language == idx_language)).one()
+        with db.db_query(20134) as session:
+            row = session.query(AgentXlate).filter(and_(
+                AgentXlate.agent_program == key.encode(),
+                AgentXlate.idx_language == idx_language)).one()
         self.assertEqual(row.description.decode(), new_description)
 
     def test_update(self):
         """Testing method / function update."""
-        # Add a language and pair_xlate_group entry to the database
+        # Add a language entry to the database
         code = data.hashstring(str(random()))
         _description = data.hashstring(str(random()))
         language.insert_row(code, _description)
         idx_language = language.exists(code)
-        pair_xlate_group.insert_row(_description)
-        idx_pair_xlate_group = pair_xlate_group.exists(_description)
 
         # Create data
         _data = []
         for key in range(0, 10):
             _data.append([code, str(key), '_{}_'.format(key)])
         _df0 = pd.DataFrame(_data, columns=['language', 'key', 'description'])
-        pair_xlate.update(_df0, idx_pair_xlate_group)
+        agent_xlate.update(_df0)
 
         # Update data
         _data = []
         for key in range(0, 10):
             _data.append([code, str(key), '|{}|'.format(key)])
         _df = pd.DataFrame(_data, columns=['language', 'key', 'description'])
-        pair_xlate.update(_df, idx_pair_xlate_group)
+        agent_xlate.update(_df)
 
         # Test updated data
         for key in range(0, 10):
-            with db.db_query(20125) as session:
-                row = session.query(PairXlate).filter(and_(
-                    PairXlate.idx_pair_xlate_group == idx_pair_xlate_group,
-                    PairXlate.key == str(key).encode(),
-                    PairXlate.idx_language == idx_language)).one()
+            with db.db_query(20135) as session:
+                row = session.query(AgentXlate).filter(and_(
+                    AgentXlate.agent_program == str(key).encode(),
+                    AgentXlate.idx_language == idx_language)).one()
             self.assertEqual(row.description.decode(), _df['description'][key])
 
         # Old descriptions should not exist
         for description in _df0['description']:
-            with db.db_query(20126) as session:
-                row = session.query(PairXlate).filter(and_(
-                    PairXlate.idx_pair_xlate_group == idx_pair_xlate_group,
-                    PairXlate.description == description.encode(),
-                    PairXlate.idx_language == idx_language))
+            with db.db_query(20136) as session:
+                row = session.query(AgentXlate).filter(and_(
+                    AgentXlate.description == description.encode(),
+                    AgentXlate.idx_language == idx_language))
             self.assertEqual(row.count(), 0)
 
     def test_cli_show_dump(self):
         """Testing method / function cli_show_dump."""
         # Add an entry to the database
+        # Add a language entry to the database
+        code = data.hashstring(str(random()))
+        _description = data.hashstring(str(random()))
+        language.insert_row(code, _description)
+        idx_language = language.exists(code)
+
+        # Make sure row does not exist
         description = data.hashstring(str(random()))
-        pair_xlate_group.insert_row(description)
+        key = data.hashstring(str(random()))
+        result = agent_xlate.agent_xlate_exists(idx_language, key)
+        self.assertFalse(result)
 
-        # Make sure it exists
-        idx_pair_xlate_group = pair_xlate_group.exists(description)
+        # Add an entry to the database
+        agent_xlate.insert_row(key, description, idx_language)
 
-        result = pair_xlate.cli_show_dump()
+        result = agent_xlate.cli_show_dump()
         for item in result:
-            if item.idx_pair_xlate_group == idx_pair_xlate_group:
+            if item.agent_program == key:
                 self.assertEqual(item.description, description)
                 break
 

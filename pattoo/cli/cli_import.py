@@ -10,7 +10,7 @@ import pandas as pd
 
 # Import project libraries
 from pattoo_shared import log
-from pattoo.db.table import pair_xlate
+from pattoo.db.table import pair_xlate, agent_xlate
 
 
 def process(args):
@@ -26,6 +26,9 @@ def process(args):
     # Process options
     if args.qualifier == 'key_pair_translation':
         _process_key_pair_translation(args)
+        sys.exit(0)
+    elif args.qualifier == 'agent_translation':
+        _process_agent_translation(args)
         sys.exit(0)
 
 
@@ -55,3 +58,31 @@ def _process_key_pair_translation(args):
 
     # Import the data
     pair_xlate.update(_df, args.idx_pair_xlate_group)
+
+
+def _process_agent_translation(args):
+    """Process import cli arguments.
+
+    Args:
+        args: CLI argparse parser arguments
+
+    Returns:
+        None
+
+    """
+    # Check if file exists
+    if os.path.isfile(args.filename) is False:
+        log_message = 'File {} does not exist'.format(args.filename)
+        log.log2die(20138, log_message)
+
+    # Import CSV
+    try:
+        _df = pd.read_csv(args.filename)
+    except:
+        (etype, evalue, etraceback) = sys.exc_info()
+        log_message = ('''File import failure: [{}, {}, {}]\
+'''.format(etype, evalue, etraceback))
+        log.log2die(20139, log_message)
+
+    # Import the data
+    agent_xlate.update(_df)

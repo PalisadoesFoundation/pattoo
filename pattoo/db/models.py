@@ -62,6 +62,48 @@ class Language(BASE):
         DATETIME, server_default=text('CURRENT_TIMESTAMP'))
 
 
+class AgentXlate(BASE):
+    """Class defining the pt_agent_xlate table of the database."""
+
+    __tablename__ = 'pt_agent_xlate'
+    __table_args__ = (
+        UniqueConstraint('idx_language', 'agent_program'),
+        {'mysql_engine': 'InnoDB'}
+    )
+
+    idx_agent_xlate = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    idx_language = Column(
+        BIGINT(unsigned=True),
+        ForeignKey('pt_language.idx_language'),
+        index=True, nullable=False, server_default='1')
+
+    agent_program = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+    description = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+    enabled = Column(
+        BIGINT(unsigned=True), nullable=False, server_default='1')
+
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+    # Use cascade='delete,all' to propagate the deletion of a
+    # Language onto its AgentXlate
+    language = relationship(
+        Language,
+        backref=backref(
+            'agent_xlate_language', uselist=True, cascade='delete,all'))
+
+
 class PairXlateGroup(BASE):
     """Class defining the pt_pair_xlate_group table of the database."""
 

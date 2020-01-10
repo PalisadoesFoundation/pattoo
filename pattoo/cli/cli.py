@@ -191,11 +191,19 @@ Show key-pair translation group parameters.''', width=width)
 
         """
         # Initialize key variables
-        self.subparsers.add_parser(
+        parser = self.subparsers.add_parser(
             'key_pair_translation',
             help=textwrap.fill(
                 'Show agent key-pair translations.', width=width)
         )
+
+        # Add arguments
+        parser.add_argument(
+            '--idx_pair_xlate_group',
+            help='Filter by this index for key-pair translation group.',
+            type=int,
+            default=None,
+            required=False)
 
     def language(self, width=80):
         """Process show language CLI commands.
@@ -211,6 +219,23 @@ Show key-pair translation group parameters.''', width=width)
         self.subparsers.add_parser(
             'language',
             help=textwrap.fill('Show language parameters.', width=width)
+        )
+
+    def agent_translation(self, width=80):
+        """Process show agent_translation CLI commands.
+
+        Args:
+            width: Width of the help text string to STDIO before wrapping
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        self.subparsers.add_parser(
+            'agent_translation',
+            help=textwrap.fill(
+                'Show agent key-pair translations.', width=width)
         )
 
 
@@ -566,8 +591,9 @@ class _Import(object):
         # Initialize key variables
         parser = self.subparsers.add_parser(
             'key_pair_translation',
-            help=textwrap.fill('Import key-pair translations from a CSV file',
-            width=width)
+            help=textwrap.fill(
+                'Import key-pair translations from a CSV file',
+                width=width)
         )
 
         # Add arguments
@@ -582,4 +608,29 @@ class _Import(object):
             '--idx_pair_xlate_group',
             help='Key-pair translation group index',
             type=int,
+            required=True)
+
+    def agent_translation(self, width=80):
+        """Process import agent_translation CLI commands.
+
+        Args:
+            width: Width of the help text string to STDIO before wrapping
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        parser = self.subparsers.add_parser(
+            'agent_translation',
+            help=textwrap.fill(
+                'Import key-pair translations from a CSV file',
+                width=width)
+        )
+
+        # Add arguments
+        parser.add_argument(
+            '--filename',
+            help='CSV filename',
+            type=str,
             required=True)

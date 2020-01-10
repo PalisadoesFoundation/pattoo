@@ -1,0 +1,7 @@
+language,key,description
+en,pattoo_agent_os_autonomousd,Pattoo Standard OS Autonomous Agent
+en,pattoo_agent_os_spoked,Pattoo Standard OS Spoked Agent
+en,pattoo_agent_snmpd,Pattoo Standard SNMP Agent
+en,pattoo_agent_snmp_ifmibd,Pattoo Standard IfMIB SNMP Agent
+en,pattoo_agent_modbustcpd,Pattoo Standard Modbus TCP Agent
+en,pattoo_agent_bacnetipd,Pattoo Standard BACnet IP Agent
