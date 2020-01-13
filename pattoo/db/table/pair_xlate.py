@@ -46,12 +46,13 @@ def pair_xlate_exists(idx_pair_xlate_group, idx_language, key):
     return result
 
 
-def insert_row(key, description, idx_language, idx_pair_xlate_group):
+def insert_row(key, description, units, idx_language, idx_pair_xlate_group):
     """Create a database PairXlate.agent row.
 
     Args:
         key: PairXlate key
         description: PairXlate description
+        units: PairXlate units of measure
         idx_language: Language table index
         idx_pair_xlate_group: PairXlateGroup table index
 
@@ -65,18 +66,20 @@ def insert_row(key, description, idx_language, idx_pair_xlate_group):
             PairXlate(
                 key=key.encode(),
                 description=description.encode(),
+                units=units.encode(),
                 idx_language=idx_language,
                 idx_pair_xlate_group=idx_pair_xlate_group
             )
         )
 
 
-def update_row(key, description, idx_language, idx_pair_xlate_group):
+def update_row(key, description, units, idx_language, idx_pair_xlate_group):
     """Update a database PairXlate.agent row.
 
     Args:
         key: PairXlate key
         description: PairXlate description
+        units: PairXlate units of measure
         idx_language: Language table index
         idx_pair_xlate_group: PairXlateGroup table index
 
@@ -90,7 +93,8 @@ def update_row(key, description, idx_language, idx_pair_xlate_group):
             PairXlate.key == key.encode(),
             PairXlate.idx_language == idx_language,
             PairXlate.idx_pair_xlate_group == idx_pair_xlate_group)).update(
-                {'description': description.strip().encode()}
+                {'description': description.strip().encode(),
+                 'units': units.strip().encode()}
             )
 
 
@@ -99,7 +103,7 @@ def update(_df, idx_pair_xlate_group):
 
     Args:
         _df: Pandas DataFrame with the following headings
-            ['language', 'idx_pair_xlate_group', 'key', 'description']
+            ['language', 'key', 'description', 'units']
         idx_pair_xlate_group: PairXlateGroup table index
 
     Returns:
@@ -109,7 +113,7 @@ def update(_df, idx_pair_xlate_group):
     # Initialize key variables
     languages = {}
     headings_expected = [
-        'language', 'key', 'description']
+        'language', 'key', 'description', 'units']
     headings_actual = []
     valid = True
     count = 0
@@ -138,6 +142,7 @@ idx_pair_xlate_group {} does not exist'''.format(idx_pair_xlate_group))
         code = row['language'].lower()
         key = str(row['key'])
         description = str(row['description'])
+        units = str(row['units'])
 
         # Store the idx_language value in a dictionary to improve speed
         idx_language = languages.get(code)
@@ -157,10 +162,12 @@ entries have been imported.\
         # Update the database
         if pair_xlate_exists(idx_pair_xlate_group, idx_language, key) is True:
             # Update the record
-            update_row(key, description, idx_language, idx_pair_xlate_group)
+            update_row(
+                key, description, units, idx_language, idx_pair_xlate_group)
         else:
             # Insert a new record
-            insert_row(key, description, idx_language, idx_pair_xlate_group)
+            insert_row(
+                key, description, units, idx_language, idx_pair_xlate_group)
 
 
 def cli_show_dump(idx=None):
@@ -178,7 +185,7 @@ def cli_show_dump(idx=None):
     rows = []
     Record = namedtuple(
         'Record',
-        '''idx_pair_xlate_group description language key translation \
+        '''idx_pair_xlate_group description language key translation units \
 enabled''')
 
     # Get the result
@@ -199,6 +206,7 @@ enabled''')
             line_items = session.query(
                 Language.code,
                 PairXlate.key,
+                PairXlate.units,
                 PairXlate.description).filter(and_(
                     PairXlate.idx_pair_xlate_group == row.idx_pair_xlate_group,
                     PairXlate.idx_language == Language.idx_language
@@ -215,6 +223,7 @@ enabled''')
                             idx_pair_xlate_group=row.idx_pair_xlate_group,
                             language=line_item.code.decode(),
                             key=line_item.key.decode(),
+                            units=line_item.units.decode(),
                             translation=line_item.description.decode(),
                             description=row.description.decode()
                         )
@@ -228,6 +237,7 @@ enabled''')
                             idx_pair_xlate_group='',
                             language=line_item.code.decode(),
                             key=line_item.key.decode(),
+                            units=line_item.units.decode(),
                             translation=line_item.description.decode(),
                             description=''
                         )
@@ -241,6 +251,7 @@ enabled''')
                     idx_pair_xlate_group=row.idx_pair_xlate_group,
                     language='',
                     key='',
+                    units='',
                     translation='',
                     description=row.description.decode()
                 )
@@ -248,7 +259,7 @@ enabled''')
 
         # Add a spacer between agent groups
         result.append(Record(
-            enabled='', idx_pair_xlate_group='', language='',
+            enabled='', idx_pair_xlate_group='', language='', units='',
             key='', description='', translation=''))
 
     return result

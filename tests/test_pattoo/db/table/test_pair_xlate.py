@@ -57,13 +57,14 @@ class TestBasicFunctions(unittest.TestCase):
         # Make sure row does not exist
         description = data.hashstring(str(random()))
         key = data.hashstring(str(random()))
+        units = data.hashstring(str(random()))
         result = pair_xlate.pair_xlate_exists(
             idx_pair_xlate_group, idx_language, key)
         self.assertFalse(result)
 
         # Add an entry to the database
         pair_xlate.insert_row(
-            key, description, idx_language, idx_pair_xlate_group)
+            key, description, units, idx_language, idx_pair_xlate_group)
 
         # Test
         result = pair_xlate.pair_xlate_exists(
@@ -83,13 +84,14 @@ class TestBasicFunctions(unittest.TestCase):
         # Make sure row does not exist
         description = data.hashstring(str(random()))
         key = data.hashstring(str(random()))
+        units = data.hashstring(str(random()))
         result = pair_xlate.pair_xlate_exists(
             idx_pair_xlate_group, idx_language, key)
         self.assertFalse(result)
 
         # Add an entry to the database
         pair_xlate.insert_row(
-            key, description, idx_language, idx_pair_xlate_group)
+            key, description, units, idx_language, idx_pair_xlate_group)
 
         # Test
         result = pair_xlate.pair_xlate_exists(
@@ -109,13 +111,14 @@ class TestBasicFunctions(unittest.TestCase):
         # Make sure row does not exist
         description = data.hashstring(str(random()))
         key = data.hashstring(str(random()))
+        units = data.hashstring(str(random()))
         result = pair_xlate.pair_xlate_exists(
             idx_pair_xlate_group, idx_language, key)
         self.assertFalse(result)
 
         # Add an entry to the database
         pair_xlate.insert_row(
-            key, description, idx_language, idx_pair_xlate_group)
+            key, description, units, idx_language, idx_pair_xlate_group)
 
         # Test existence
         result = pair_xlate.pair_xlate_exists(
@@ -125,7 +128,7 @@ class TestBasicFunctions(unittest.TestCase):
         # Test update
         new_description = data.hashstring(str(random()))
         pair_xlate.update_row(
-            key, new_description, idx_language, idx_pair_xlate_group)
+            key, new_description, units, idx_language, idx_pair_xlate_group)
 
         with db.db_query(20071) as session:
             row = session.query(PairXlate).filter(and_(
@@ -147,15 +150,19 @@ class TestBasicFunctions(unittest.TestCase):
         # Create data
         _data = []
         for key in range(0, 10):
-            _data.append([code, str(key), '_{}_'.format(key)])
-        _df0 = pd.DataFrame(_data, columns=['language', 'key', 'description'])
+            _data.append(
+                [code, str(key), '_{}_'.format(key), '0{}0'.format(key)])
+        _df0 = pd.DataFrame(_data, columns=[
+            'language', 'key', 'description', 'units'])
         pair_xlate.update(_df0, idx_pair_xlate_group)
 
         # Update data
         _data = []
         for key in range(0, 10):
-            _data.append([code, str(key), '|{}|'.format(key)])
-        _df = pd.DataFrame(_data, columns=['language', 'key', 'description'])
+            _data.append(
+                [code, str(key), '|{}|'.format(key), '1{}1'.format(key)])
+        _df = pd.DataFrame(_data, columns=[
+            'language', 'key', 'description', 'units'])
         pair_xlate.update(_df, idx_pair_xlate_group)
 
         # Test updated data
@@ -166,6 +173,7 @@ class TestBasicFunctions(unittest.TestCase):
                     PairXlate.key == str(key).encode(),
                     PairXlate.idx_language == idx_language)).one()
             self.assertEqual(row.description.decode(), _df['description'][key])
+            self.assertEqual(row.units.decode(), _df['units'][key])
 
         # Old descriptions should not exist
         for description in _df0['description']:

@@ -69,6 +69,12 @@ def resolve_code(obj, _):
     return obj.code.decode()
 
 
+def resolve_units(obj, _):
+    """Convert 'units' from bytes to string."""
+    return obj.units.decode()
+
+
+
 class DataAttribute(object):
     """Descriptive attributes of the Data table.
 
@@ -333,7 +339,11 @@ Key-pair key. Part of a composite primary key with "idx_language" and \
 
     description = graphene.String(
         resolver=resolve_description,
-        description='Description for for the Key-pair key.')
+        description='Description for the Key-pair key.')
+
+    units = graphene.String(
+        resolver=resolve_units,
+        description='Units of measure for the Key-pair key.')
 
     enabled = graphene.String(
         description='"True" if enabled.')
@@ -468,7 +478,7 @@ class AgentXlateAttribute(object):
 
     description = graphene.String(
         resolver=resolve_description,
-        description='Description for for the agent program.')
+        description='Description for the agent program.')
 
     enabled = graphene.String(
         description='"True" if enabled.')
@@ -529,7 +539,7 @@ class Query(graphene.ObjectType):
     # Results as a single entry filtered by 'id' and as a list
     agent_xlate = graphene.relay.Node.Field(AgentXlate)
     all_agent_xlate = SQLAlchemyConnectionField(AgentXlateConnections)
-    
+
     # Results as a single entry filtered by 'id' and as a list
     agent_group = graphene.relay.Node.Field(AgentGroup)
     all_agent_group = SQLAlchemyConnectionField(AgentGroupConnections)

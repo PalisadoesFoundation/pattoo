@@ -161,6 +161,10 @@ class PairXlate(BASE):
     description = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
+    units = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH),
+        index=True, nullable=False, default=None)
+
     enabled = Column(
         BIGINT(unsigned=True), nullable=False, server_default='1')
 
