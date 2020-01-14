@@ -60,8 +60,8 @@ def insert_row(key, description, idx_language):
     with db.db_modify(20130, die=True) as session:
         session.add(
             AgentXlate(
-                agent_program=key.encode(),
-                description=description.encode(),
+                agent_program=str(key).strip().encode(),
+                description=str(description).strip().encode(),
                 idx_language=idx_language
             )
         )
