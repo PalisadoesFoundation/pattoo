@@ -49,7 +49,7 @@ def _process_key_pair_translation(args):
 
     # Import CSV
     try:
-        _df = pd.read_csv(args.filename)
+        _df = pd.read_csv(args.filename, skipinitialspace=True)
     except:
         (etype, evalue, etraceback) = sys.exc_info()
         log_message = ('''File import failure: [{}, {}, {}]\
@@ -77,7 +77,7 @@ def _process_agent_translation(args):
 
     # Import CSV
     try:
-        _df = pd.read_csv(args.filename)
+        _df = pd.read_csv(args.filename, skipinitialspace=True)
     except:
         (etype, evalue, etraceback) = sys.exc_info()
         log_message = ('''File import failure: [{}, {}, {}]\

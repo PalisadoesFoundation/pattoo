@@ -65,8 +65,8 @@ def insert_row(key, description, units, idx_language, idx_pair_xlate_group):
         session.add(
             PairXlate(
                 key=key.encode(),
-                description=description.encode(),
-                units=units.encode(),
+                description=str(description).strip().encode(),
+                units=str(units).strip().encode(),
                 idx_language=idx_language,
                 idx_pair_xlate_group=idx_pair_xlate_group
             )
