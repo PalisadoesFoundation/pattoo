@@ -37,6 +37,7 @@ How to get the daemons running to collect data.
   cron
   pattoo_apid
   pattoo_api_agentd
+  pattoo_ingesterd
 
 Using the CLI
 -------------
