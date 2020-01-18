@@ -1,4 +1,4 @@
-language,key,description,units
+language,key,translation,units
 en,pattoo_agent_os_autonomousd_processor,Processor Type,
 en,pattoo_agent_os_autonomousd_release,OS Release,
 en,pattoo_agent_os_autonomousd_type,OS Type,
