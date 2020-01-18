@@ -25,7 +25,7 @@ def process(args):
     elif args.qualifier == 'agent_program':
         _process_agent_group(args)
         sys.exit(0)
-    elif args.qualifier == 'key_pair_translation_group':
+    elif args.qualifier == 'key_translation_group':
         _process_pair_xlate_group(args)
         sys.exit(0)
 

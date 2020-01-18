@@ -157,8 +157,8 @@ class _Show(object):
             help=textwrap.fill('Show agent_group parameters.', width=width)
         )
 
-    def key_pair_translation_group(self, width=80):
-        """Process show key_pair_translation_group CLI commands.
+    def key_translation_group(self, width=80):
+        """Process show key_translation_group CLI commands.
 
         Args:
             width: Width of the help text string to STDIO before wrapping
@@ -169,7 +169,7 @@ class _Show(object):
         """
         # Initialize key variables
         parser = self.subparsers.add_parser(
-            'key_pair_translation_group',
+            'key_translation_group',
             help=textwrap.fill('''\
 Show key-pair translation group parameters.''', width=width)
         )
@@ -180,8 +180,8 @@ Show key-pair translation group parameters.''', width=width)
             type=int,
             required=False)
 
-    def key_pair_translation(self, width=80):
-        """Process show key_pair_translation CLI commands.
+    def key_translation(self, width=80):
+        """Process show key_translation CLI commands.
 
         Args:
             width: Width of the help text string to STDIO before wrapping
@@ -192,7 +192,7 @@ Show key-pair translation group parameters.''', width=width)
         """
         # Initialize key variables
         parser = self.subparsers.add_parser(
-            'key_pair_translation',
+            'key_translation',
             help=textwrap.fill(
                 'Show agent key-pair translations.', width=width)
         )
@@ -408,8 +408,8 @@ class _Create(object):
             type=str,
             required=True)
 
-    def key_pair_translation_group(self, width=80):
-        """Process show key_pair_translation_group CLI commands.
+    def key_translation_group(self, width=80):
+        """Process show key_translation_group CLI commands.
 
         Args:
             width: Width of the help text string to STDIO before wrapping
@@ -420,7 +420,7 @@ class _Create(object):
         """
         # Initialize key variables
         parser = self.subparsers.add_parser(
-            'key_pair_translation_group',
+            'key_translation_group',
             help=textwrap.fill('''\
 Create key-pair translation group.''', width=width)
         )
@@ -531,7 +531,7 @@ class _Set(object):
         """
         # Initialize key variables
         parser = self.subparsers.add_parser(
-            'key_pair_translation_group',
+            'key_translation_group',
             help=textwrap.fill('''\
 Set key-pair translation group information.''', width=width)
         )
@@ -578,8 +578,8 @@ class _Import(object):
                 # Execute
                 attribute(width=width)
 
-    def key_pair_translation(self, width=80):
-        """Process import key_pair_translation CLI commands.
+    def key_translation(self, width=80):
+        """Process import key_translation CLI commands.
 
         Args:
             width: Width of the help text string to STDIO before wrapping
@@ -590,7 +590,7 @@ class _Import(object):
         """
         # Initialize key variables
         parser = self.subparsers.add_parser(
-            'key_pair_translation',
+            'key_translation',
             help=textwrap.fill(
                 'Import key-pair translations from a CSV file',
                 width=width)
