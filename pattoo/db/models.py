@@ -47,7 +47,7 @@ class Language(BASE):
     code = Column(VARBINARY(MAX_KEYPAIR_LENGTH),
                   index=True, nullable=False, default=None)
 
-    description = Column(
+    name = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH),
         index=True, nullable=False, default=None)
 
@@ -83,7 +83,7 @@ class AgentXlate(BASE):
     agent_program = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
-    description = Column(
+    translation = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
     enabled = Column(
@@ -109,7 +109,7 @@ class PairXlateGroup(BASE):
 
     __tablename__ = 'pt_pair_xlate_group'
     __table_args__ = (
-        UniqueConstraint('description'),
+        UniqueConstraint('name'),
         {'mysql_engine': 'InnoDB'}
     )
 
@@ -117,7 +117,7 @@ class PairXlateGroup(BASE):
         BIGINT(unsigned=True), primary_key=True,
         autoincrement=True, nullable=False)
 
-    description = Column(
+    name = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH),
         index=True, nullable=False, default=None)
 
@@ -158,7 +158,7 @@ class PairXlate(BASE):
     key = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
-    description = Column(
+    translation = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
     units = Column(
@@ -195,7 +195,7 @@ class AgentGroup(BASE):
 
     __tablename__ = 'pt_agent_group'
     __table_args__ = (
-        UniqueConstraint('description'),
+        UniqueConstraint('name'),
         {'mysql_engine': 'InnoDB'}
     )
 
@@ -208,7 +208,7 @@ class AgentGroup(BASE):
         ForeignKey('pt_pair_xlate_group.idx_pair_xlate_group'),
         index=True, nullable=False, server_default='1')
 
-    description = Column(
+    name = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH),
         index=True, nullable=False, default=None)
 

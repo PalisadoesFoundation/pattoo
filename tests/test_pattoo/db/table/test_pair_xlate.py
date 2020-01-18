@@ -48,14 +48,14 @@ class TestBasicFunctions(unittest.TestCase):
         """Testing method / function pair_xlate_exists."""
         # Add a language and pair_xlate_group entry to the database
         code = data.hashstring(str(random()))
-        _description = data.hashstring(str(random()))
-        language.insert_row(code, _description)
+        _translation = data.hashstring(str(random()))
+        language.insert_row(code, _translation)
         idx_language = language.exists(code)
-        pair_xlate_group.insert_row(_description)
-        idx_pair_xlate_group = pair_xlate_group.exists(_description)
+        pair_xlate_group.insert_row(_translation)
+        idx_pair_xlate_group = pair_xlate_group.exists(_translation)
 
         # Make sure row does not exist
-        description = data.hashstring(str(random()))
+        translation = data.hashstring(str(random()))
         key = data.hashstring(str(random()))
         units = data.hashstring(str(random()))
         result = pair_xlate.pair_xlate_exists(
@@ -64,7 +64,7 @@ class TestBasicFunctions(unittest.TestCase):
 
         # Add an entry to the database
         pair_xlate.insert_row(
-            key, description, units, idx_language, idx_pair_xlate_group)
+            key, translation, units, idx_language, idx_pair_xlate_group)
 
         # Test
         result = pair_xlate.pair_xlate_exists(
@@ -75,14 +75,14 @@ class TestBasicFunctions(unittest.TestCase):
         """Testing method / function insert_row."""
         # Add a language and pair_xlate_group entry to the database
         code = data.hashstring(str(random()))
-        _description = data.hashstring(str(random()))
-        language.insert_row(code, _description)
+        _translation = data.hashstring(str(random()))
+        language.insert_row(code, _translation)
         idx_language = language.exists(code)
-        pair_xlate_group.insert_row(_description)
-        idx_pair_xlate_group = pair_xlate_group.exists(_description)
+        pair_xlate_group.insert_row(_translation)
+        idx_pair_xlate_group = pair_xlate_group.exists(_translation)
 
         # Make sure row does not exist
-        description = data.hashstring(str(random()))
+        translation = data.hashstring(str(random()))
         key = data.hashstring(str(random()))
         units = data.hashstring(str(random()))
         result = pair_xlate.pair_xlate_exists(
@@ -91,7 +91,7 @@ class TestBasicFunctions(unittest.TestCase):
 
         # Add an entry to the database
         pair_xlate.insert_row(
-            key, description, units, idx_language, idx_pair_xlate_group)
+            key, translation, units, idx_language, idx_pair_xlate_group)
 
         # Test
         result = pair_xlate.pair_xlate_exists(
@@ -102,14 +102,14 @@ class TestBasicFunctions(unittest.TestCase):
         """Testing method / function update_row."""
         # Add a language and pair_xlate_group entry to the database
         code = data.hashstring(str(random()))
-        _description = data.hashstring(str(random()))
-        language.insert_row(code, _description)
+        _translation = data.hashstring(str(random()))
+        language.insert_row(code, _translation)
         idx_language = language.exists(code)
-        pair_xlate_group.insert_row(_description)
-        idx_pair_xlate_group = pair_xlate_group.exists(_description)
+        pair_xlate_group.insert_row(_translation)
+        idx_pair_xlate_group = pair_xlate_group.exists(_translation)
 
         # Make sure row does not exist
-        description = data.hashstring(str(random()))
+        translation = data.hashstring(str(random()))
         key = data.hashstring(str(random()))
         units = data.hashstring(str(random()))
         result = pair_xlate.pair_xlate_exists(
@@ -118,7 +118,7 @@ class TestBasicFunctions(unittest.TestCase):
 
         # Add an entry to the database
         pair_xlate.insert_row(
-            key, description, units, idx_language, idx_pair_xlate_group)
+            key, translation, units, idx_language, idx_pair_xlate_group)
 
         # Test existence
         result = pair_xlate.pair_xlate_exists(
@@ -126,26 +126,26 @@ class TestBasicFunctions(unittest.TestCase):
         self.assertTrue(result)
 
         # Test update
-        new_description = data.hashstring(str(random()))
+        new_translation = data.hashstring(str(random()))
         pair_xlate.update_row(
-            key, new_description, units, idx_language, idx_pair_xlate_group)
+            key, new_translation, units, idx_language, idx_pair_xlate_group)
 
         with db.db_query(20071) as session:
             row = session.query(PairXlate).filter(and_(
                 PairXlate.idx_pair_xlate_group == idx_pair_xlate_group,
                 PairXlate.key == key.encode(),
                 PairXlate.idx_language == idx_language)).one()
-        self.assertEqual(row.description.decode(), new_description)
+        self.assertEqual(row.translation.decode(), new_translation)
 
     def test_update(self):
         """Testing method / function update."""
         # Add a language and pair_xlate_group entry to the database
         code = data.hashstring(str(random()))
-        _description = data.hashstring(str(random()))
-        language.insert_row(code, _description)
+        _translation = data.hashstring(str(random()))
+        language.insert_row(code, _translation)
         idx_language = language.exists(code)
-        pair_xlate_group.insert_row(_description)
-        idx_pair_xlate_group = pair_xlate_group.exists(_description)
+        pair_xlate_group.insert_row(_translation)
+        idx_pair_xlate_group = pair_xlate_group.exists(_translation)
 
         # Create data
         _data = []
@@ -153,7 +153,7 @@ class TestBasicFunctions(unittest.TestCase):
             _data.append(
                 [code, str(key), '_{}_'.format(key), '0{}0'.format(key)])
         _df0 = pd.DataFrame(_data, columns=[
-            'language', 'key', 'description', 'units'])
+            'language', 'key', 'translation', 'units'])
         pair_xlate.update(_df0, idx_pair_xlate_group)
 
         # Update data
@@ -162,7 +162,7 @@ class TestBasicFunctions(unittest.TestCase):
             _data.append(
                 [code, str(key), '|{}|'.format(key), '1{}1'.format(key)])
         _df = pd.DataFrame(_data, columns=[
-            'language', 'key', 'description', 'units'])
+            'language', 'key', 'translation', 'units'])
         pair_xlate.update(_df, idx_pair_xlate_group)
 
         # Test updated data
@@ -172,31 +172,31 @@ class TestBasicFunctions(unittest.TestCase):
                     PairXlate.idx_pair_xlate_group == idx_pair_xlate_group,
                     PairXlate.key == str(key).encode(),
                     PairXlate.idx_language == idx_language)).one()
-            self.assertEqual(row.description.decode(), _df['description'][key])
+            self.assertEqual(row.translation.decode(), _df['translation'][key])
             self.assertEqual(row.units.decode(), _df['units'][key])
 
-        # Old descriptions should not exist
-        for description in _df0['description']:
+        # Old translations should not exist
+        for translation in _df0['translation']:
             with db.db_query(20126) as session:
                 row = session.query(PairXlate).filter(and_(
                     PairXlate.idx_pair_xlate_group == idx_pair_xlate_group,
-                    PairXlate.description == description.encode(),
+                    PairXlate.translation == translation.encode(),
                     PairXlate.idx_language == idx_language))
             self.assertEqual(row.count(), 0)
 
     def test_cli_show_dump(self):
         """Testing method / function cli_show_dump."""
         # Add an entry to the database
-        description = data.hashstring(str(random()))
-        pair_xlate_group.insert_row(description)
+        translation = data.hashstring(str(random()))
+        pair_xlate_group.insert_row(translation)
 
         # Make sure it exists
-        idx_pair_xlate_group = pair_xlate_group.exists(description)
+        idx_pair_xlate_group = pair_xlate_group.exists(translation)
 
         result = pair_xlate.cli_show_dump()
         for item in result:
             if item.idx_pair_xlate_group == idx_pair_xlate_group:
-                self.assertEqual(item.description, description)
+                self.assertEqual(item.name, translation)
                 break
 
 

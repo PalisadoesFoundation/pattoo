@@ -48,18 +48,18 @@ class TestBasicFunctions(unittest.TestCase):
         """Testing method / function agent_xlate_exists."""
         # Add a language entry to the database
         code = data.hashstring(str(random()))
-        _description = data.hashstring(str(random()))
-        language.insert_row(code, _description)
+        _translation = data.hashstring(str(random()))
+        language.insert_row(code, _translation)
         idx_language = language.exists(code)
 
         # Make sure row does not exist
-        description = data.hashstring(str(random()))
+        translation = data.hashstring(str(random()))
         key = data.hashstring(str(random()))
         result = agent_xlate.agent_xlate_exists(idx_language, key)
         self.assertFalse(result)
 
         # Add an entry to the database
-        agent_xlate.insert_row(key, description, idx_language)
+        agent_xlate.insert_row(key, translation, idx_language)
 
         # Test
         result = agent_xlate.agent_xlate_exists(idx_language, key)
@@ -69,18 +69,18 @@ class TestBasicFunctions(unittest.TestCase):
         """Testing method / function insert_row."""
         # Add a language entry to the database
         code = data.hashstring(str(random()))
-        _description = data.hashstring(str(random()))
-        language.insert_row(code, _description)
+        _translation = data.hashstring(str(random()))
+        language.insert_row(code, _translation)
         idx_language = language.exists(code)
 
         # Make sure row does not exist
-        description = data.hashstring(str(random()))
+        translation = data.hashstring(str(random()))
         key = data.hashstring(str(random()))
         result = agent_xlate.agent_xlate_exists(idx_language, key)
         self.assertFalse(result)
 
         # Add an entry to the database
-        agent_xlate.insert_row(key, description, idx_language)
+        agent_xlate.insert_row(key, translation, idx_language)
 
         # Test
         result = agent_xlate.agent_xlate_exists(idx_language, key)
@@ -90,53 +90,53 @@ class TestBasicFunctions(unittest.TestCase):
         """Testing method / function update_row."""
         # Add a language entry to the database
         code = data.hashstring(str(random()))
-        _description = data.hashstring(str(random()))
-        language.insert_row(code, _description)
+        _translation = data.hashstring(str(random()))
+        language.insert_row(code, _translation)
         idx_language = language.exists(code)
 
         # Make sure row does not exist
-        description = data.hashstring(str(random()))
+        translation = data.hashstring(str(random()))
         key = data.hashstring(str(random()))
         result = agent_xlate.agent_xlate_exists(idx_language, key)
         self.assertFalse(result)
 
         # Add an entry to the database
-        agent_xlate.insert_row(key, description, idx_language)
+        agent_xlate.insert_row(key, translation, idx_language)
 
         # Test existence
         result = agent_xlate.agent_xlate_exists(idx_language, key)
         self.assertTrue(result)
 
         # Test update
-        new_description = data.hashstring(str(random()))
-        agent_xlate.update_row(key, new_description, idx_language)
+        new_translation = data.hashstring(str(random()))
+        agent_xlate.update_row(key, new_translation, idx_language)
 
         with db.db_query(20134) as session:
             row = session.query(AgentXlate).filter(and_(
                 AgentXlate.agent_program == key.encode(),
                 AgentXlate.idx_language == idx_language)).one()
-        self.assertEqual(row.description.decode(), new_description)
+        self.assertEqual(row.translation.decode(), new_translation)
 
     def test_update(self):
         """Testing method / function update."""
         # Add a language entry to the database
         code = data.hashstring(str(random()))
-        _description = data.hashstring(str(random()))
-        language.insert_row(code, _description)
+        _translation = data.hashstring(str(random()))
+        language.insert_row(code, _translation)
         idx_language = language.exists(code)
 
         # Create data
         _data = []
         for key in range(0, 10):
             _data.append([code, str(key), '_{}_'.format(key)])
-        _df0 = pd.DataFrame(_data, columns=['language', 'key', 'description'])
+        _df0 = pd.DataFrame(_data, columns=['language', 'key', 'translation'])
         agent_xlate.update(_df0)
 
         # Update data
         _data = []
         for key in range(0, 10):
             _data.append([code, str(key), '|{}|'.format(key)])
-        _df = pd.DataFrame(_data, columns=['language', 'key', 'description'])
+        _df = pd.DataFrame(_data, columns=['language', 'key', 'translation'])
         agent_xlate.update(_df)
 
         # Test updated data
@@ -145,13 +145,13 @@ class TestBasicFunctions(unittest.TestCase):
                 row = session.query(AgentXlate).filter(and_(
                     AgentXlate.agent_program == str(key).encode(),
                     AgentXlate.idx_language == idx_language)).one()
-            self.assertEqual(row.description.decode(), _df['description'][key])
+            self.assertEqual(row.translation.decode(), _df['translation'][key])
 
-        # Old descriptions should not exist
-        for description in _df0['description']:
+        # Old translations should not exist
+        for translation in _df0['translation']:
             with db.db_query(20136) as session:
                 row = session.query(AgentXlate).filter(and_(
-                    AgentXlate.description == description.encode(),
+                    AgentXlate.translation == translation.encode(),
                     AgentXlate.idx_language == idx_language))
             self.assertEqual(row.count(), 0)
 
@@ -160,23 +160,23 @@ class TestBasicFunctions(unittest.TestCase):
         # Add an entry to the database
         # Add a language entry to the database
         code = data.hashstring(str(random()))
-        _description = data.hashstring(str(random()))
-        language.insert_row(code, _description)
+        _translation = data.hashstring(str(random()))
+        language.insert_row(code, _translation)
         idx_language = language.exists(code)
 
         # Make sure row does not exist
-        description = data.hashstring(str(random()))
+        translation = data.hashstring(str(random()))
         key = data.hashstring(str(random()))
         result = agent_xlate.agent_xlate_exists(idx_language, key)
         self.assertFalse(result)
 
         # Add an entry to the database
-        agent_xlate.insert_row(key, description, idx_language)
+        agent_xlate.insert_row(key, translation, idx_language)
 
         result = agent_xlate.cli_show_dump()
         for item in result:
             if item.agent_program == key:
-                self.assertEqual(item.description, description)
+                self.assertEqual(item.translation, translation)
                 break
 
 

@@ -1,4 +1,4 @@
-language,key,description
+language,key,translation
 en,pattoo_agent_os_autonomousd,Pattoo Standard OS Autonomous Agent
 en,pattoo_agent_os_spoked,Pattoo Standard OS Spoked Agent
 en,pattoo_agent_snmpd,Pattoo Standard SNMP Agent

@@ -24,15 +24,15 @@ def process(args):
 
     """
     # Process options
-    if args.qualifier == 'key_pair_translation':
-        _process_key_pair_translation(args)
+    if args.qualifier == 'key_translation':
+        _process_key_translation(args)
         sys.exit(0)
     elif args.qualifier == 'agent_translation':
         _process_agent_translation(args)
         sys.exit(0)
 
 
-def _process_key_pair_translation(args):
+def _process_key_translation(args):
     """Process import cli arguments.
 
     Args:

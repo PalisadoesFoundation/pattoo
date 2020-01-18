@@ -32,7 +32,7 @@ def agent_xlate_exists(idx_language, key):
 
     # Get the result
     with db.db_query(20128) as session:
-        rows = session.query(AgentXlate.description).filter(and_(
+        rows = session.query(AgentXlate.translation).filter(and_(
             AgentXlate.idx_language == idx_language,
             AgentXlate.agent_program == key.encode()
         ))
@@ -44,12 +44,12 @@ def agent_xlate_exists(idx_language, key):
     return result
 
 
-def insert_row(key, description, idx_language):
+def insert_row(key, translation, idx_language):
     """Create a database AgentXlate.agent row.
 
     Args:
         key: AgentXlate key
-        description: AgentXlate description
+        translation: AgentXlate translation
         idx_language: Language table index
 
     Returns:
@@ -61,18 +61,18 @@ def insert_row(key, description, idx_language):
         session.add(
             AgentXlate(
                 agent_program=str(key).strip().encode(),
-                description=str(description).strip().encode(),
+                translation=str(translation).strip().encode(),
                 idx_language=idx_language
             )
         )
 
 
-def update_row(key, description, idx_language):
+def update_row(key, translation, idx_language):
     """Update a database AgentXlate.agent row.
 
     Args:
         key: AgentXlate key
-        description: AgentXlate description
+        translation: AgentXlate translation
         idx_language: Language table index
 
     Returns:
@@ -84,7 +84,7 @@ def update_row(key, description, idx_language):
         session.query(AgentXlate).filter(and_(
             AgentXlate.agent_program == key.encode(),
             AgentXlate.idx_language == idx_language)).update(
-                {'description': description.strip().encode()}
+                {'translation': translation.strip().encode()}
             )
 
 
@@ -93,7 +93,7 @@ def update(_df):
 
     Args:
         _df: Pandas DataFrame with the following headings
-            ['language', 'key', 'description']
+            ['language', 'key', 'translation']
 
     Returns:
         None
@@ -102,7 +102,7 @@ def update(_df):
     # Initialize key variables
     languages = {}
     headings_expected = [
-        'language', 'key', 'description']
+        'language', 'key', 'translation']
     headings_actual = []
     valid = True
     count = 0
@@ -124,7 +124,7 @@ def update(_df):
         count += 1
         code = row['language'].lower()
         key = str(row['key'])
-        description = str(row['description'])
+        translation = str(row['translation'])
 
         # Store the idx_language value in a dictionary to improve speed
         idx_language = languages.get(code)
@@ -144,10 +144,10 @@ entries have been imported.\
         # Update the database
         if agent_xlate_exists(idx_language, key) is True:
             # Update the record
-            update_row(key, description, idx_language)
+            update_row(key, translation, idx_language)
         else:
             # Insert a new record
-            insert_row(key, description, idx_language)
+            insert_row(key, translation, idx_language)
 
 
 def cli_show_dump():
@@ -163,7 +163,7 @@ def cli_show_dump():
     # Initialize key variables
     result = []
     rows = []
-    Record = namedtuple('Record', 'language agent_program description enabled')
+    Record = namedtuple('Record', 'language agent_program translation enabled')
 
     # Get the result
     with db.db_query(20137) as session:
@@ -179,7 +179,7 @@ def cli_show_dump():
                 Language.code,
                 AgentXlate.enabled,
                 AgentXlate.agent_program,
-                AgentXlate.description).filter(and_(
+                AgentXlate.translation).filter(and_(
                     AgentXlate.idx_language == row.idx_language,
                     AgentXlate.idx_language == Language.idx_language)
                 )
@@ -194,7 +194,7 @@ def cli_show_dump():
                             enabled=line_item.enabled,
                             language=line_item.code.decode(),
                             agent_program=line_item.agent_program.decode(),
-                            description=line_item.description.decode()
+                            translation=line_item.translation.decode()
                         )
                     )
                     first_agent = False
@@ -205,7 +205,7 @@ def cli_show_dump():
                             enabled='',
                             language='',
                             agent_program=line_item.agent_program.decode(),
-                            description=line_item.description.decode()
+                            translation=line_item.translation.decode()
                         )
                     )
 
@@ -216,12 +216,12 @@ def cli_show_dump():
                     enabled='',
                     language=row.code.decode(),
                     agent_program='',
-                    description=''
+                    translation=''
                 )
             )
 
         # Add a spacer between language groups
         result.append(Record(
-            enabled='', language='', agent_program='', description=''))
+            enabled='', language='', agent_program='', translation=''))
 
     return result

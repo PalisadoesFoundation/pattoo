@@ -29,10 +29,10 @@ def process(args):
     elif args.qualifier == 'language':
         _process_language()
         sys.exit(0)
-    elif args.qualifier == 'key_pair_translation_group':
+    elif args.qualifier == 'key_translation_group':
         _process_pair_xlate_group(args)
         sys.exit(0)
-    elif args.qualifier == 'key_pair_translation':
+    elif args.qualifier == 'key_translation':
         _process_pair_xlate(args)
         sys.exit(0)
     elif args.qualifier == 'agent_translation':

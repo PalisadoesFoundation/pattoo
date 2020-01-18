@@ -25,7 +25,7 @@ def process(args):
     elif args.qualifier == 'agent_group':
         _process_agent_group(args)
         sys.exit(0)
-    elif args.qualifier == 'key_pair_translation_group':
+    elif args.qualifier == 'key_translation_group':
         _process_pair_xlate_group(args)
         sys.exit(0)
 
@@ -44,7 +44,7 @@ def _process_language(args):
         log_message = 'Language code "{}" already exists.'.format(args.code)
         log.log2die(20044, log_message)
     else:
-        language.insert_row(args.code, args.description)
+        language.insert_row(args.code, args.name)
 
 
 def _process_agent_group(args):
@@ -58,12 +58,12 @@ def _process_agent_group(args):
 
     """
     # Initialize key variables
-    if bool(agent_group.exists(args.description)) is True:
+    if bool(agent_group.exists(args.name)) is True:
         log_message = ('''\
-Agent group description "{}" already exists.'''.format(args.description))
+Agent group name "{}" already exists.'''.format(args.name))
         log.log2die(20069, log_message)
     else:
-        agent_group.insert_row(args.description)
+        agent_group.insert_row(args.name)
 
 
 def _process_pair_xlate_group(args):
@@ -77,9 +77,9 @@ def _process_pair_xlate_group(args):
 
     """
     # Initialize key variables
-    if bool(pair_xlate_group.exists(args.description)) is True:
+    if bool(pair_xlate_group.exists(args.name)) is True:
         log_message = ('''\
-Agent group description "{}" already exists.'''.format(args.description))
+Agent group name "{}" already exists.'''.format(args.name))
         log.log2die(20057, log_message)
     else:
-        pair_xlate_group.insert_row(args.description)
+        pair_xlate_group.insert_row(args.name)
