@@ -44,6 +44,11 @@ def resolve_value(obj, _):
     return obj.value.decode()
 
 
+def resolve_translation(obj, _):
+    """Convert 'translation' from bytes to string."""
+    return obj.translation.decode()
+    
+
 def resolve_name(obj, _):
     """Convert 'name' from bytes to string."""
     return obj.name.decode()
@@ -481,9 +486,9 @@ class AgentXlateAttribute(object):
         resolver=resolve_agent_program,
         description=('Agent progam'))
 
-    description = graphene.String(
+    translation = graphene.String(
         resolver=resolve_description,
-        description='Description for the agent program.')
+        description='Translation of the agent program name.')
 
     enabled = graphene.String(
         description='"True" if enabled.')

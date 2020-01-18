@@ -241,17 +241,17 @@ Creating a CSV agent translation file is easy. Follow these steps.
 
         .. code-block:: text
 
-            language,key,description
+            language,key,translation
 
 1. Each subsequent row must have values that correspond to the headings. Each value must be separated by a comma.
 
     1. The ``language`` must correspond to the language configured in your ``pattoo.yaml`` configuration file. ``pattoo-web`` will only evaluate translation entries that match to the configured language.
     1. The ``key`` value must correspond to the name of an agent.
-    1. The ``description`` must correspond to the brief text you want to use to describe the ``key``
+    1. The ``translation`` must correspond to the brief text you want to use to describe the ``key``
 
 .. code-block:: text
 
-  language,key,description
+  language,key,translation
   en,pattoo_agent_os_autonomousd,Pattoo Standard OS Autonomous Agent
   en,pattoo_agent_os_spoked,Pattoo Standard OS Spoked Agent
   en,pattoo_agent_snmpd,Pattoo Standard SNMP Agent

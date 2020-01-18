@@ -61,6 +61,15 @@ class TestBasicFunctions(unittest.TestCase):
         result = schemas.resolve_value(obj, None)
         self.assertEqual(result, expected.decode())
 
+    def test_resolve_translation(self):
+        """Testing method / function resolve_translation."""
+        # Test
+        Tester = collections.namedtuple('Tester', 'translation')
+        expected = 'test'.encode()
+        obj = Tester(translation=expected)
+        result = schemas.resolve_translation(obj, None)
+        self.assertEqual(result, expected.decode())
+
     def test_resolve_name(self):
         """Testing method / function resolve_name."""
         # Test

@@ -58,7 +58,7 @@ class TestBasicFunctions(unittest.TestCase):
 
     def test_exists(self):
         """Testing method / function exists."""
-        # Create a description
+        # Create a translation
         agent_id = data.hashstring(str(random()))
         agent_target = data.hashstring(str(random()))
         agent_program = data.hashstring(str(random()))
@@ -92,9 +92,9 @@ class TestBasicFunctions(unittest.TestCase):
     def test_assign(self):
         """Testing method / function assign."""
         # Create a new AgentGroup entry
-        description = data.hashstring(str(random()))
-        agent_group.insert_row(description)
-        idx_agent_group = agent_group.exists(description)
+        translation = data.hashstring(str(random()))
+        agent_group.insert_row(translation)
+        idx_agent_group = agent_group.exists(translation)
 
         # Prepare for adding an entry to the database
         agent_id = data.hashstring(str(random()))
@@ -129,16 +129,16 @@ class TestBasicFunctions(unittest.TestCase):
     def test_idx_pair_xlate_group(self):
         """Testing method / function idx_pair_xlate_group."""
         # Create a new PairXlateGroup entry
-        description = data.hashstring(str(random()))
-        pair_xlate_group.insert_row(description)
-        idx_pair_xlate_group = pair_xlate_group.exists(description)
+        translation = data.hashstring(str(random()))
+        pair_xlate_group.insert_row(translation)
+        idx_pair_xlate_group = pair_xlate_group.exists(translation)
 
         # Add an entry to the database
-        description = data.hashstring(str(random()))
-        agent_group.insert_row(description)
+        translation = data.hashstring(str(random()))
+        agent_group.insert_row(translation)
 
         # Make sure it exists
-        idx_agent_group = agent_group.exists(description)
+        idx_agent_group = agent_group.exists(translation)
 
         # Assign AgentGroup
         agent_group.assign(idx_agent_group, idx_pair_xlate_group)
