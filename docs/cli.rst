@@ -74,7 +74,7 @@ To create a new ``agent`` group use the ``bin/pattoo_cli.py create agent_group``
 
 .. code-block:: text
 
-  $ bin/pattoo_cli.py create agent_group --description "Stock Market Agents"
+  $ bin/pattoo_cli.py create agent_group --name "Stock Market Agents"
 
 In this case we create a new ``agent`` group with the name "Stock Market Agents"
 
@@ -155,7 +155,7 @@ To create a new translation group use the ``bin/pattoo_cli.py create key_transla
 
 .. code-block:: text
 
-  $ bin/pattoo_cli.py create key_translation --description "Stock Market Symbol Translations"
+  $ bin/pattoo_cli.py create key_translation --name "Stock Market Symbol Translations"
 
 In this case we create a new translation group with the name "Stock Market Symbol Translations"
 
