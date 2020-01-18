@@ -67,6 +67,18 @@ To view the groups to which the agents belong use the ``bin/pattoo_cli.py show a
 
     3                OS Agents       1          pattoo_agent_os_autonomousd  swim          1
 
+Creating Agent Groups
+^^^^^^^^^^^^^^^^^^^^^
+
+To create a new ``agent`` group use the ``bin/pattoo_cli.py create agent_group`` command.
+
+.. code-block:: text
+
+  $ bin/pattoo_cli.py create agent_group --description "Stock Market Agents"
+
+In this case we create a new ``agent`` group with the name "Stock Market Agents"
+
+
 Assigning Agents to Agent Groups
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 There are some important things to know first.
@@ -136,11 +148,21 @@ To view translation groups use the ``bin/pattoo_cli.py show key_pair_translation
                                           en        pattoo_agent_os_autonomousd_cpu_stats_soft_interrupts   CPU (Soft Interrupts)                      Events / Second
                                           en        pattoo_agent_os_autonomousd_cpu_stats_syscalls          CPU (System Calls)                         Events / Second
 
+Creating Translation Groups
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To create a new translation group use the ``bin/pattoo_cli.py create key_pair_translation`` command.
+
+.. code-block:: text
+
+  $ bin/pattoo_cli.py create key_pair_translation --description "Stock Market Symbol Translations"
+
+In this case we create a new translation group with the name "Stock Market Symbol Translations"
 
 Creating Agent Key-Pair Translation Group CSV Files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Creating a CSV translation file is easy. Follow these steps.
+Creating a CSV key-pair translation file is easy. Follow these steps.
 
 1. Make sure the first row has the following headings separated by commas.
 
@@ -183,14 +205,69 @@ To import a translation file's data and assign it to a ``translation group`` use
 
 In this case we have imported translations from a file named ``agent_name_1_english.csv`` and assigned it to a ``translation group``  with an ``idx_pair_xlate_group`` number of ``7``.
 
+You only need to import translations for the key-pairs you require. Any previously existing translation for an key-pair configured in the file will be updated. key-pairs not in the file will not be updated.
+
 Agent Translations
 ------------------
+
+Not only do an agent's key-pairs need translations, but the agents themselves need translations too. This is because an ``agent`` only reports its name when posting which, through translations, allows ``pattoo`` to be more flexible in supporting many different spoken languages.
+
+Without translations, all references to a ``pattoo`` agent will just be by its name, which could be confusing.
 
 Viewing Agent Translations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+To view agent translations use the ``bin/pattoo_cli.py show agent_translation`` command.
+
+.. code-block:: text
+
+  $ bin/pattoo_cli.py show agent_translation
+
+  language  agent_program                description                          enabled
+
+  en        pattoo_agent_os_autonomousd  Pattoo Standard OS Autonomous Agent  1
+            pattoo_agent_os_spoked       Pattoo Standard OS Spoked Agent
+            pattoo_agent_snmpd           Pattoo Standard SNMP Agent
+            pattoo_agent_snmp_ifmibd     Pattoo Standard IfMIB SNMP Agent
+            pattoo_agent_modbustcpd      Pattoo Standard Modbus TCP Agent
+            pattoo_agent_bacnetipd       Pattoo Standard BACnet IP Agent
+
 Creating Agent Translation CSV Files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Creating a CSV agent translation file is easy. Follow these steps.
+
+1. Make sure the first row has the following headings separated by commas.
+
+        .. code-block:: text
+
+            language,key,description
+
+1. Each subsequent row must have values that correspond to the headings. Each value must be separated by a comma.
+
+    1. The ``language`` must correspond to the language configured in your ``pattoo.yaml`` configuration file. ``pattoo-web`` will only evaluate translation entries that match to the configured language.
+    1. The ``key`` value must correspond to the name of an agent.
+    1. The ``description`` must correspond to the brief text you want to use to describe the ``key``
+
+.. code-block:: text
+
+  language,key,description
+  en,pattoo_agent_os_autonomousd,Pattoo Standard OS Autonomous Agent
+  en,pattoo_agent_os_spoked,Pattoo Standard OS Spoked Agent
+  en,pattoo_agent_snmpd,Pattoo Standard SNMP Agent
+  en,pattoo_agent_snmp_ifmibd,Pattoo Standard IfMIB SNMP Agent
+  en,pattoo_agent_modbustcpd,Pattoo Standard Modbus TCP Agent
+  en,pattoo_agent_bacnetipd,Pattoo Standard BACnet IP Agent
+
 Importing Agent Translation Files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To import an agent translation file's data use the ``bin/pattoo_cli.py import agent_translation`` command.
+
+.. code-block:: text
+
+    $ bin/pattoo_cli.py import agent_translation --filename agent_name_translation_english.csv
+
+In this case we have imported translations from a file named ``agent_name_translation_english.csv``.
+
+You only need to import translations for the ``agents`` you require. Any previously existing translation for an ``agent`` configured in the file will be updated. ``agents`` not in the file will not be updated.
