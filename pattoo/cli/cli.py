@@ -380,8 +380,8 @@ class _Create(object):
             required=True)
 
         parser.add_argument(
-            '--description',
-            help='Language description',
+            '--name',
+            help='Language name',
             type=str,
             required=True)
 
@@ -403,8 +403,8 @@ class _Create(object):
 
         # Add arguments
         parser.add_argument(
-            '--description',
-            help='Agent group description',
+            '--name',
+            help='Agent group name',
             type=str,
             required=True)
 
@@ -427,8 +427,8 @@ Create key-pair translation group.''', width=width)
 
         # Add arguments
         parser.add_argument(
-            '--description',
-            help='Key-pair translation group description',
+            '--name',
+            help='Key-pair translation group name',
             type=str,
             required=True)
 
@@ -485,8 +485,8 @@ class _Set(object):
             required=True)
 
         parser.add_argument(
-            '--description',
-            help='Agent group description',
+            '--name',
+            help='Agent group name',
             type=str,
             required=True)
 
@@ -514,8 +514,8 @@ class _Set(object):
             required=True)
 
         parser.add_argument(
-            '--description',
-            help='Language description',
+            '--name',
+            help='Language name',
             type=str,
             required=True)
 
@@ -544,8 +544,8 @@ Set key-pair translation group information.''', width=width)
             required=True)
 
         parser.add_argument(
-            '--description',
-            help='Agent group description',
+            '--name',
+            help='Agent group name',
             type=str,
             required=True)
 

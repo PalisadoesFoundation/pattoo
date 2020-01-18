@@ -28,6 +28,48 @@ Running the CLI script without any parameters will display the usage options as 
   optional arguments:
     -h, --help            show this help message and exit
 
+Language
+--------
+
+``pattoo`` is meant to support multiple languages. The default language is English with a language code of ``en``. Agents do not post language specific data, but the keys used to define the data will need to be translated to descriptions that are meaningful to the end user.
+
+Language translation files should be provided with any pattoo agent you install. You may have to create your own translation files for agents that poll data from non-standard data sources.
+
+Viewing Languages
+^^^^^^^^^^^^^^^^^
+
+To view languages configured in the ``pattoo`` database use the ``bin/pattoo_cli.py show language`` command.
+
+.. code-block:: text
+
+  $ bin/pattoo_cli.py show language
+
+  idx_language  code  name
+
+  1             en    English
+
+Upadating Language Names
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can update the name of a language using the ``bin/pattoo_cli.py set language`` command. You must specify the language code and provide a name using the ``--name`` qualifier
+
+.. code-block:: text
+
+  $ bin/pattoo_cli.py set language --code 'en' --name 'English (Jamaican)'
+
+In this example we have changed the name to 'English (Jamaican)'
+
+Creating Languages
+^^^^^^^^^^^^^^^^^^
+
+To create a new language use the ``bin/pattoo_cli.py create language`` command.
+
+.. code-block:: text
+
+  $ bin/pattoo_cli.py create language --code 'es' --name 'Spanish'
+
+In this case we create a new language with the name "Spanish" and identifying code "es"
+
 Agents
 ------
 
@@ -78,6 +120,16 @@ To create a new ``agent`` group use the ``bin/pattoo_cli.py create agent_group``
 
 In this case we create a new ``agent`` group with the name "Stock Market Agents"
 
+Upadating Agent Group Names
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can update the name of an ``agent`` group using the ``bin/pattoo_cli.py set agent_group`` command. You must specify the group's ``idx_agent_group`` value and a name.
+
+.. code-block:: text
+
+  $ bin/pattoo_cli.py set agent_group --idx_agent_group 7 --name 'New Agent Group Name'
+
+In this example we have changed the name to 'New Agent Group Name' for ``idx_agent_group`` 7.
 
 Assigning Agents to Agent Groups
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -120,6 +172,27 @@ You can view these ``agent group`` to ``translation group`` assignments using th
 
     3                     OS Agents                      3                OS Agents                1
 
+Creating Translation Groups
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To create a new translation group use the ``bin/pattoo_cli.py create key_translation`` command.
+
+.. code-block:: text
+
+  $ bin/pattoo_cli.py create key_translation --name "Stock Market Symbol Translations"
+
+In this case we create a new translation group with the name "Stock Market Symbol Translations"
+
+Upadating Translation Group Names
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can update the name of a translation group using the ``bin/pattoo_cli.py set key_translation_group`` command. You must specify the group's ``idx_pair_xlate_group`` value and a name.
+
+.. code-block:: text
+
+  $ bin/pattoo_cli.py set key_translation_group --idx_pair_xlate_group 20 --name 'New Translation Group Name'
+
+In this example we have changed the name to 'New Translation Group Name' for ``idx_pair_xlate_group`` 20.
 
 Viewing Agent Key-Pair Translation Groups
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -147,17 +220,6 @@ To view translation groups use the ``bin/pattoo_cli.py show key_translation`` co
                                           en        pattoo_agent_os_autonomousd_cpu_stats_interrupts        CPU (Context Switches)                     Events / Second
                                           en        pattoo_agent_os_autonomousd_cpu_stats_soft_interrupts   CPU (Soft Interrupts)                      Events / Second
                                           en        pattoo_agent_os_autonomousd_cpu_stats_syscalls          CPU (System Calls)                         Events / Second
-
-Creating Translation Groups
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-To create a new translation group use the ``bin/pattoo_cli.py create key_translation`` command.
-
-.. code-block:: text
-
-  $ bin/pattoo_cli.py create key_translation --name "Stock Market Symbol Translations"
-
-In this case we create a new translation group with the name "Stock Market Symbol Translations"
 
 Creating Agent Key-Pair Translation Group CSV Files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
