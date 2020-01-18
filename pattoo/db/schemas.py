@@ -387,9 +387,9 @@ class AgentGroupAttribute(object):
     idx_pair_xlate_group = graphene.String(
         description='PairXlateGroup table index (ForeignKey).')
 
-    description = graphene.String(
+    name = graphene.String(
         resolver=resolve_description,
-        description='Description of the AgentGroup.')
+        description='Name of the AgentGroup.')
 
     enabled = graphene.String(
         description='"True" if the group is enabled.')

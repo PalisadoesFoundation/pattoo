@@ -42,7 +42,7 @@ def _process_language(args):
     """
     # Initialize key variables
     if bool(language.exists(args.code)) is True:
-        language.update_description(args.code, args.description)
+        language.update_name(args.code, args.name)
     else:
         log_message = 'Language code "{}" not found.'.format(args.code)
         log.log2die(20005, log_message)
@@ -62,8 +62,8 @@ def _process_agent_group(args):
     exists = agent_group.idx_exists(args.idx_agent_group)
     if bool(exists) is True:
         if args.idx_agent_group != 1:
-            agent_group.update_description(
-                args.idx_agent_group, args.description)
+            agent_group.update_name(
+                args.idx_agent_group, args.name)
         else:
             log_message = 'Cannot change Agent group 1'
             log.log2die(20054, log_message)

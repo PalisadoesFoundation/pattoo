@@ -33,11 +33,11 @@ def idx_exists(idx):
     return result
 
 
-def exists(description):
-    """Determine whether description exists in the AgentGroup table.
+def exists(name):
+    """Determine whether name exists in the AgentGroup table.
 
     Args:
-        description: Agent group description
+        name: Agent group name
 
     Returns:
         result: AgentGroup.idx_agent_group value
@@ -50,7 +50,7 @@ def exists(description):
     # Ignore certain restricted keys
     with db.db_query(20056) as session:
         rows = session.query(AgentGroup.idx_agent_group).filter(
-            AgentGroup.description == description.encode())
+            AgentGroup.name == name.encode())
 
     # Return
     for row in rows:
@@ -59,44 +59,44 @@ def exists(description):
     return result
 
 
-def insert_row(description):
+def insert_row(name):
     """Create the database AgentGroup row.
 
     Args:
-        description: AgentGroup description
+        name: AgentGroup name
 
     Returns:
         None
 
     """
     # Filter invalid data
-    if isinstance(description, str) is True:
+    if isinstance(name, str) is True:
         # Insert and get the new agent value
         with db.db_modify(20037, die=True) as session:
             session.add(
                 AgentGroup(
-                    description=description.encode()
+                    name=name.encode()
                 )
             )
 
 
-def update_description(idx_agent_group, description):
+def update_name(idx_agent_group, name):
     """Upadate a AgentGroup table entry.
 
     Args:
         idx_agent_group: AgentGroup idx_agent_group
-        description: AgentGroup idx_agent_group description
+        name: AgentGroup idx_agent_group name
 
     Returns:
         None
 
     """
     # Filter invalid data
-    if isinstance(description, str) is True:
+    if isinstance(name, str) is True:
         with db.db_modify(20010, die=False) as session:
             session.query(AgentGroup).filter(
                 AgentGroup.idx_agent_group == idx_agent_group).update(
-                    {'description': description.encode()}
+                    {'name': name.encode()}
                 )
 
 
@@ -133,7 +133,7 @@ def cli_show_dump():
     result = []
     Record = namedtuple(
         'Record',
-        '''idx_agent_group description idx_agent \
+        '''idx_agent_group name idx_agent \
 agent_program agent_target enabled''')
 
     # Get the result
@@ -164,7 +164,7 @@ agent_program agent_target enabled''')
                             idx_agent=a_row.idx_agent,
                             agent_program=a_row.agent_program.decode(),
                             agent_target=a_row.agent_polled_target.decode(),
-                            description=row.description.decode()
+                            name=row.name.decode()
                         )
                     )
                     first_agent = False
@@ -174,7 +174,7 @@ agent_program agent_target enabled''')
                         Record(
                             enabled='',
                             idx_agent_group='',
-                            description='',
+                            name='',
                             idx_agent=a_row.idx_agent,
                             agent_program=a_row.agent_program.decode(),
                             agent_target=a_row.agent_polled_target.decode()
@@ -187,7 +187,7 @@ agent_program agent_target enabled''')
                 Record(
                     enabled=row.enabled,
                     idx_agent_group=row.idx_agent_group,
-                    description=row.description.decode(),
+                    name=row.name.decode(),
                     idx_agent='',
                     agent_program='',
                     agent_target=''
@@ -201,6 +201,6 @@ agent_program agent_target enabled''')
             idx_agent='',
             agent_program='',
             agent_target='',
-            description=''))
+            name=''))
 
     return result

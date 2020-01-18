@@ -195,7 +195,7 @@ class AgentGroup(BASE):
 
     __tablename__ = 'pt_agent_group'
     __table_args__ = (
-        UniqueConstraint('description'),
+        UniqueConstraint('name'),
         {'mysql_engine': 'InnoDB'}
     )
 
@@ -208,7 +208,7 @@ class AgentGroup(BASE):
         ForeignKey('pt_pair_xlate_group.idx_pair_xlate_group'),
         index=True, nullable=False, server_default='1')
 
-    description = Column(
+    name = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH),
         index=True, nullable=False, default=None)
 
