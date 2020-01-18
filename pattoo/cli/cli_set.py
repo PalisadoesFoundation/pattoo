@@ -87,16 +87,16 @@ def _process_pair_xlate_group(args):
     exists = pair_xlate_group.idx_exists(args.idx_pair_xlate_group)
     if bool(exists) is True:
         # Check for duplicates
-        duplicate = pair_xlate_group.exists(args.description)
+        duplicate = pair_xlate_group.exists(args.name)
         if bool(duplicate) is True:
             log_message = ('''\
-Translation group  "{}" already exists.'''.format(args.description))
+Translation group  "{}" already exists.'''.format(args.name))
             log.log2die(20075, log_message)
 
         # Update
         if args.idx_pair_xlate_group != 1:
-            pair_xlate_group.update_description(
-                args.idx_pair_xlate_group, args.description)
+            pair_xlate_group.update_name(
+                args.idx_pair_xlate_group, args.name)
         else:
             log_message = 'Cannot change Translation group "1".'
             log.log2die(20072, log_message)

@@ -77,9 +77,9 @@ def _process_pair_xlate_group(args):
 
     """
     # Initialize key variables
-    if bool(pair_xlate_group.exists(args.description)) is True:
+    if bool(pair_xlate_group.exists(args.name)) is True:
         log_message = ('''\
-Agent group description "{}" already exists.'''.format(args.description))
+Agent group name "{}" already exists.'''.format(args.name))
         log.log2die(20057, log_message)
     else:
-        pair_xlate_group.insert_row(args.description)
+        pair_xlate_group.insert_row(args.name)

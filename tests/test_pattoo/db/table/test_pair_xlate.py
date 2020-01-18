@@ -196,7 +196,7 @@ class TestBasicFunctions(unittest.TestCase):
         result = pair_xlate.cli_show_dump()
         for item in result:
             if item.idx_pair_xlate_group == idx_pair_xlate_group:
-                self.assertEqual(item.description, description)
+                self.assertEqual(item.name, description)
                 break
 
 

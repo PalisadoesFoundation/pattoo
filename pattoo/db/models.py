@@ -109,7 +109,7 @@ class PairXlateGroup(BASE):
 
     __tablename__ = 'pt_pair_xlate_group'
     __table_args__ = (
-        UniqueConstraint('description'),
+        UniqueConstraint('name'),
         {'mysql_engine': 'InnoDB'}
     )
 
@@ -117,7 +117,7 @@ class PairXlateGroup(BASE):
         BIGINT(unsigned=True), primary_key=True,
         autoincrement=True, nullable=False)
 
-    description = Column(
+    name = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH),
         index=True, nullable=False, default=None)
 

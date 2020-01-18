@@ -43,11 +43,11 @@ class TestBasicFunctions(unittest.TestCase):
     def test_idx_exists(self):
         """Testing method / function idx_exists."""
         # Add an entry to the database
-        description = data.hashstring(str(random()))
-        pair_xlate_group.insert_row(description)
+        name = data.hashstring(str(random()))
+        pair_xlate_group.insert_row(name)
 
         # Make sure it exists
-        idx_pair_xlate_group = pair_xlate_group.exists(description)
+        idx_pair_xlate_group = pair_xlate_group.exists(name)
 
         # Verify the index exists
         result = pair_xlate_group.idx_exists(idx_pair_xlate_group)
@@ -55,82 +55,82 @@ class TestBasicFunctions(unittest.TestCase):
 
     def test_exists(self):
         """Testing method / function exists."""
-        # Create a description
-        description = data.hashstring(str(random()))
+        # Create a name
+        name = data.hashstring(str(random()))
 
         # Make sure it does not exist
-        result = pair_xlate_group.exists(description)
+        result = pair_xlate_group.exists(name)
         self.assertFalse(bool(result))
 
         # Add an entry to the database
-        pair_xlate_group.insert_row(description)
+        pair_xlate_group.insert_row(name)
 
         # Make sure it exists
-        result = pair_xlate_group.exists(description)
+        result = pair_xlate_group.exists(name)
         self.assertTrue(bool(result))
 
     def test_insert_row(self):
         """Testing method / function insert_row."""
         # Add an entry to the database
-        description = data.hashstring(str(random()))
-        pair_xlate_group.insert_row(description)
+        name = data.hashstring(str(random()))
+        pair_xlate_group.insert_row(name)
 
         # Make sure it exists
-        idx_pair_xlate_group = pair_xlate_group.exists(description)
+        idx_pair_xlate_group = pair_xlate_group.exists(name)
 
         # Verify the index exists
         result = pair_xlate_group.idx_exists(idx_pair_xlate_group)
         self.assertTrue(result)
 
-    def test_update_description(self):
-        """Testing method / function update_description."""
+    def test_update_name(self):
+        """Testing method / function update_name."""
         # Add an entry to the database
-        description = data.hashstring(str(random()))
+        name = data.hashstring(str(random()))
 
         # Make sure it does not exist
-        result = pair_xlate_group.exists(description)
+        result = pair_xlate_group.exists(name)
         self.assertFalse(bool(result))
 
         # Add row to database
-        pair_xlate_group.insert_row(description)
+        pair_xlate_group.insert_row(name)
 
         # Make sure it exists
-        idx = pair_xlate_group.exists(description)
+        idx = pair_xlate_group.exists(name)
 
-        # Get current description
+        # Get current name
         with db.db_query(20093) as session:
-            result = session.query(PairXlateGroup.description).filter(
+            result = session.query(PairXlateGroup.name).filter(
                 PairXlateGroup.idx_pair_xlate_group == idx).one()
 
         # Test
-        self.assertEqual(description, result.description.decode())
+        self.assertEqual(name, result.name.decode())
 
-        # Update the description
-        new_description = data.hashstring(str(random()))
-        pair_xlate_group.update_description(idx, new_description)
+        # Update the name
+        new_name = data.hashstring(str(random()))
+        pair_xlate_group.update_name(idx, new_name)
 
-        # Get current description
+        # Get current name
         with db.db_query(20094) as session:
-            result = session.query(PairXlateGroup.description).filter(
+            result = session.query(PairXlateGroup.name).filter(
                 PairXlateGroup.idx_pair_xlate_group == idx).one()
 
         # Test
-        self.assertEqual(new_description, result.description.decode())
+        self.assertEqual(new_name, result.name.decode())
 
     def test_cli_show_dump(self):
         """Testing method / function cli_show_dump."""
         # Add an entry to the database
-        description = data.hashstring(str(random()))
-        pair_xlate_group.insert_row(description)
+        name = data.hashstring(str(random()))
+        pair_xlate_group.insert_row(name)
 
         # Make sure it exists
-        idx_pair_xlate_group = pair_xlate_group.exists(description)
+        idx_pair_xlate_group = pair_xlate_group.exists(name)
 
         result = pair_xlate_group.cli_show_dump()
         for item in result:
             if item.idx_pair_xlate_group == idx_pair_xlate_group:
                 self.assertEqual(
-                    item.translation_group_description, description)
+                    item.translation_group_name, name)
                 break
 
 

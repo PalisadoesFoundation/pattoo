@@ -292,9 +292,9 @@ class PairXlateGroupAttribute(object):
     idx_pair_xlate_group = graphene.String(
         description='PairXlateGroup table index.')
 
-    description = graphene.String(
+    name = graphene.String(
         resolver=resolve_description,
-        description='Description for language code.')
+        description='Name of translation group.')
 
     enabled = graphene.String(
         description='"True" if the group is enabled.')

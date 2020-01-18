@@ -37,11 +37,11 @@ def idx_exists(idx):
     return result
 
 
-def exists(description):
-    """Determine whether description exists in the PairXlateGroup table.
+def exists(name):
+    """Determine whether name exists in the PairXlateGroup table.
 
     Args:
-        description: PairXlate group description
+        name: PairXlate group name
 
     Returns:
         result: PairXlateGroup.idx_pair_xlate_group value
@@ -54,7 +54,7 @@ def exists(description):
     # Ignore certain restricted keys
     with db.db_query(20066) as session:
         rows = session.query(PairXlateGroup.idx_pair_xlate_group).filter(
-            PairXlateGroup.description == description.strip().encode())
+            PairXlateGroup.name == name.strip().encode())
 
     # Return
     for row in rows:
@@ -63,44 +63,44 @@ def exists(description):
     return result
 
 
-def insert_row(description):
+def insert_row(name):
     """Create the database PairXlateGroup row.
 
     Args:
-        description: PairXlateGroup description
+        name: PairXlateGroup name
 
     Returns:
         None
 
     """
     # Filter invalid data
-    if isinstance(description, str) is True:
+    if isinstance(name, str) is True:
         # Insert and get the new pair_xlate value
         with db.db_modify(20063, die=True) as session:
             session.add(
                 PairXlateGroup(
-                    description=description.strip().encode()
+                    name=name.strip().encode()
                 )
             )
 
 
-def update_description(idx, description):
+def update_name(idx, name):
     """Upadate a PairXlateGroup table entry.
 
     Args:
         idx: PairXlateGroup idx_pair_xlate_group
-        description: PairXlateGroup idx_pair_xlate_group description
+        name: PairXlateGroup idx_pair_xlate_group name
 
     Returns:
         None
 
     """
     # Filter invalid data
-    if isinstance(description, str) is True:
+    if isinstance(name, str) is True:
         with db.db_modify(20065, die=False) as session:
             session.query(PairXlateGroup).filter(
                 PairXlateGroup.idx_pair_xlate_group == int(idx)).update(
-                    {'description': description.strip().encode()}
+                    {'name': name.strip().encode()}
                 )
 
 
@@ -118,7 +118,7 @@ def cli_show_dump():
     result = []
     Record = namedtuple(
         'Record',
-        '''idx_pair_xlate_group translation_group_description idx_agent_group \
+        '''idx_pair_xlate_group translation_group_name idx_agent_group \
 agent_group_name enabled''')
 
     # Get the result
@@ -147,7 +147,7 @@ agent_group_name enabled''')
                             idx_pair_xlate_group=x_row.idx_pair_xlate_group,
                             idx_agent_group=a_row.idx_agent_group,
                             agent_group_name=a_row.name.decode(),
-                            translation_group_description=x_row.description.decode()
+                            translation_group_name=x_row.name.decode()
                         )
                     )
                     first_agent = False
@@ -157,7 +157,7 @@ agent_group_name enabled''')
                         Record(
                             enabled='',
                             idx_pair_xlate_group='',
-                            translation_group_description='',
+                            translation_group_name='',
                             idx_agent_group=a_row.idx_agent_group,
                             agent_group_name=a_row.name.decode()
                         )
@@ -169,7 +169,7 @@ agent_group_name enabled''')
                 Record(
                     enabled=x_row.enabled,
                     idx_pair_xlate_group=x_row.idx_pair_xlate_group,
-                    translation_group_description=x_row.description.decode(),
+                    translation_group_name=x_row.name.decode(),
                     idx_agent_group='',
                     agent_group_name=''
                 )
@@ -181,6 +181,6 @@ agent_group_name enabled''')
             idx_pair_xlate_group='',
             idx_agent_group='',
             agent_group_name='',
-            translation_group_description=''))
+            translation_group_name=''))
 
     return result

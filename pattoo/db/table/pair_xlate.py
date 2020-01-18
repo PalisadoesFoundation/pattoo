@@ -185,7 +185,7 @@ def cli_show_dump(idx=None):
     rows = []
     Record = namedtuple(
         'Record',
-        '''idx_pair_xlate_group description language key translation units \
+        '''idx_pair_xlate_group name language key translation units \
 enabled''')
 
     # Get the result
@@ -225,7 +225,7 @@ enabled''')
                             key=line_item.key.decode(),
                             units=line_item.units.decode(),
                             translation=line_item.description.decode(),
-                            description=row.description.decode()
+                            name=row.name.decode()
                         )
                     )
                     first_agent = False
@@ -239,7 +239,7 @@ enabled''')
                             key=line_item.key.decode(),
                             units=line_item.units.decode(),
                             translation=line_item.description.decode(),
-                            description=''
+                            name=''
                         )
                     )
 
@@ -253,13 +253,13 @@ enabled''')
                     key='',
                     units='',
                     translation='',
-                    description=row.description.decode()
+                    name=row.name.decode()
                 )
             )
 
         # Add a spacer between agent groups
         result.append(Record(
             enabled='', idx_pair_xlate_group='', language='', units='',
-            key='', description='', translation=''))
+            key='', name='', translation=''))
 
     return result
