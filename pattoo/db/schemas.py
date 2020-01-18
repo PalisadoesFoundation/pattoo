@@ -47,16 +47,11 @@ def resolve_value(obj, _):
 def resolve_translation(obj, _):
     """Convert 'translation' from bytes to string."""
     return obj.translation.decode()
-    
+
 
 def resolve_name(obj, _):
     """Convert 'name' from bytes to string."""
     return obj.name.decode()
-
-
-def resolve_description(obj, _):
-    """Convert 'description' from bytes to string."""
-    return obj.description.decode()
 
 
 def resolve_agent_id(obj, _):
@@ -298,7 +293,7 @@ class PairXlateGroupAttribute(object):
         description='PairXlateGroup table index.')
 
     name = graphene.String(
-        resolver=resolve_description,
+        resolver=resolve_name,
         description='Name of translation group.')
 
     enabled = graphene.String(
@@ -347,9 +342,9 @@ class PairXlateAttribute(object):
 Key-pair key. Part of a composite primary key with "idx_language" and \
 "idx_pair_xlate_group"'''))
 
-    description = graphene.String(
-        resolver=resolve_description,
-        description='Description for the Key-pair key.')
+    translation = graphene.String(
+        resolver=resolve_translation,
+        description='Translation for the Key-pair key.')
 
     units = graphene.String(
         resolver=resolve_units,
@@ -393,7 +388,7 @@ class AgentGroupAttribute(object):
         description='PairXlateGroup table index (ForeignKey).')
 
     name = graphene.String(
-        resolver=resolve_description,
+        resolver=resolve_name,
         description='Name of the AgentGroup.')
 
     enabled = graphene.String(
@@ -487,7 +482,7 @@ class AgentXlateAttribute(object):
         description=('Agent progam'))
 
     translation = graphene.String(
-        resolver=resolve_description,
+        resolver=resolve_translation,
         description='Translation of the agent program name.')
 
     enabled = graphene.String(

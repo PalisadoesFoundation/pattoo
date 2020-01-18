@@ -158,7 +158,7 @@ class PairXlate(BASE):
     key = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
-    description = Column(
+    translation = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
     units = Column(

@@ -58,7 +58,7 @@ To view the groups to which the agents belong use the ``bin/pattoo_cli.py show a
 
     $ bin/pattoo_cli.py show agent_group
 
-    idx_agent_group  description     idx_agent  agent_program                agent_target  enabled
+    idx_agent_group  name            idx_agent  agent_program                agent_target  enabled
 
     1                Pattoo Default                                                        1
 
@@ -112,7 +112,7 @@ You can view these ``agent group`` to ``translation group`` assignments using th
 
     $ bin/pattoo_cli.py show key_translation_group
 
-    idx_pair_xlate_group  translation_group_description  idx_agent_group  agent_group_description  enabled
+    idx_pair_xlate_group  translation_group_name         idx_agent_group  agent_group_name  enabled
 
     1                     Pattoo Default                 1                Pattoo Default           1
 
@@ -130,7 +130,7 @@ To view translation groups use the ``bin/pattoo_cli.py show key_translation`` co
 
     $ bin/pattoo_cli.py show key_translation
 
-    idx_pair_xlate_group  description     language  key                                                     translation                                units                   enabled
+    idx_pair_xlate_group  name            language  key                                                     translation                                units                   enabled
 
     1                     Pattoo Default                                                                                                                                              1
 
@@ -168,18 +168,18 @@ Creating a CSV key-pair translation file is easy. Follow these steps.
 
         .. code-block:: text
 
-            language,key,description,units
+            language,key,translation,units
 
 1. Each subsequent row must have values that correspond to the headings. Each value must be separated by a comma.
 
     1. The ``language`` must correspond to the language configured in your ``pattoo.yaml`` configuration file. ``pattoo-web`` will only evaluate translation entries that match to the configured language.
     1. The ``key`` value must correspond to any expected keys from key-value pairs reported by an agent.
-    1. The ``description`` must correspond to the brief text you want to use to describe the ``key``
+    1. The ``translation`` must correspond to the brief text you want to use to describe the ``key``
     1. The ``units`` value is used to let users know the unit of measure to be used for the data being tracked by the ``key``
 
         .. code-block:: text
 
-            language,key,description,units
+            language,key,translation,units
             en,pattoo_agent_os_spoked_disk_io_write_bytes,Disk I/O (Bytes Written),Bytes / Second
             en,pattoo_agent_os_spoked_disk_io_write_count,Disk I/O (Write Count),Writes / Second
             en,pattoo_agent_os_spoked_disk_io_write_merged_count,Disk I/O (Write Merged Count),Writes / Second
@@ -223,7 +223,7 @@ To view agent translations use the ``bin/pattoo_cli.py show agent_translation`` 
 
   $ bin/pattoo_cli.py show agent_translation
 
-  language  agent_program                description                          enabled
+  language  agent_program                translation                          enabled
 
   en        pattoo_agent_os_autonomousd  Pattoo Standard OS Autonomous Agent  1
             pattoo_agent_os_spoked       Pattoo Standard OS Spoked Agent
