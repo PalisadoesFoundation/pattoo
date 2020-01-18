@@ -119,7 +119,7 @@ def cli_show_dump():
     Record = namedtuple(
         'Record',
         '''idx_pair_xlate_group translation_group_description idx_agent_group \
-agent_group_description enabled''')
+agent_group_name enabled''')
 
     # Get the result
     with db.db_query(20062) as session:
@@ -132,7 +132,7 @@ agent_group_description enabled''')
         # Get agents for group
         with db.db_query(20061) as session:
             a_rows = session.query(
-                AgentGroup.description,
+                AgentGroup.name,
                 AgentGroup.idx_agent_group).filter(
                     AgentGroup.idx_pair_xlate_group == x_row.idx_pair_xlate_group)
 
@@ -146,7 +146,7 @@ agent_group_description enabled''')
                             enabled=x_row.enabled,
                             idx_pair_xlate_group=x_row.idx_pair_xlate_group,
                             idx_agent_group=a_row.idx_agent_group,
-                            agent_group_description=a_row.description.decode(),
+                            agent_group_name=a_row.name.decode(),
                             translation_group_description=x_row.description.decode()
                         )
                     )
@@ -159,7 +159,7 @@ agent_group_description enabled''')
                             idx_pair_xlate_group='',
                             translation_group_description='',
                             idx_agent_group=a_row.idx_agent_group,
-                            agent_group_description=a_row.description.decode()
+                            agent_group_name=a_row.name.decode()
                         )
                     )
 
@@ -171,7 +171,7 @@ agent_group_description enabled''')
                     idx_pair_xlate_group=x_row.idx_pair_xlate_group,
                     translation_group_description=x_row.description.decode(),
                     idx_agent_group='',
-                    agent_group_description=''
+                    agent_group_name=''
                 )
             )
 
@@ -180,7 +180,7 @@ agent_group_description enabled''')
             enabled='',
             idx_pair_xlate_group='',
             idx_agent_group='',
-            agent_group_description='',
+            agent_group_name='',
             translation_group_description=''))
 
     return result

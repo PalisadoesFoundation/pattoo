@@ -45,7 +45,7 @@ def insertions():
 
     """
     # Initialize key variables
-    default_description = 'Pattoo Default'
+    default_name = 'Pattoo Default'
     idx_agent_groups = {}
     idx_pair_xlate_groups = {}
     language_dict = {}
@@ -264,14 +264,14 @@ def insertions():
     # Insert into PairXlateGroup
     if pair_xlate_group.idx_exists(1) is False:
         # Create the default PairXlateGroup
-        pair_xlate_group.insert_row(default_description)
+        pair_xlate_group.insert_row(default_name)
 
         # Create PairXlateGroup for some pattoo agents
-        for description, rows in pair_xlate_data:
+        for name, rows in pair_xlate_data:
             # Get PairXlateGroup index value after creating an entry
-            pair_xlate_group.insert_row(description)
-            idx_pair_xlate_group = pair_xlate_group.exists(description)
-            idx_pair_xlate_groups[description] = idx_pair_xlate_group
+            pair_xlate_group.insert_row(name)
+            idx_pair_xlate_group = pair_xlate_group.exists(name)
+            idx_pair_xlate_groups[name] = idx_pair_xlate_group
 
             # Insert values into the PairXlate table for PairXlateGroup
             for row in rows:
@@ -289,15 +289,15 @@ def insertions():
 
     # Insert into AgentGroup
     if agent_group.idx_exists(1) is False:
-        agent_group.insert_row(default_description)
-        for description, _ in pair_xlate_data:
-            agent_group.insert_row(description)
-            index = agent_group.exists(description)
-            idx_agent_groups[description] = index
+        agent_group.insert_row(default_name)
+        for name, _ in pair_xlate_data:
+            agent_group.insert_row(name)
+            index = agent_group.exists(name)
+            idx_agent_groups[name] = index
 
     # Assign agent groups to pair_xlate_groups
-    for description, idx_agent_group in idx_agent_groups.items():
-        index = idx_pair_xlate_groups.get(description)
+    for name, idx_agent_group in idx_agent_groups.items():
+        index = idx_pair_xlate_groups.get(name)
         if bool(index) is True:
             agent_group.assign(idx_agent_group, index)
 
