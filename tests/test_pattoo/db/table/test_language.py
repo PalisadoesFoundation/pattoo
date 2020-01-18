@@ -46,8 +46,8 @@ class TestBasicFunctions(unittest.TestCase):
         """Testing method / function idx_exists."""
         # Add an entry to the database
         code = data.hashstring(str(random()))
-        description = data.hashstring(str(random()))
-        language.insert_row(code, description)
+        name = data.hashstring(str(random()))
+        language.insert_row(code, name)
 
         # Make sure it exists
         idx_language = language.exists(code)
@@ -60,8 +60,8 @@ class TestBasicFunctions(unittest.TestCase):
         """Testing method / function exists."""
         # Add an entry to the database
         code = data.hashstring(str(random()))
-        description = data.hashstring(str(random()))
-        language.insert_row(code, description)
+        name = data.hashstring(str(random()))
+        language.insert_row(code, name)
 
         # Make sure it exists
         result = language.exists(code)
@@ -71,8 +71,8 @@ class TestBasicFunctions(unittest.TestCase):
         """Testing method / function insert_row."""
         # Add an entry to the database
         code = data.hashstring(str(random()))
-        description = data.hashstring(str(random()))
-        language.insert_row(code, description)
+        name = data.hashstring(str(random()))
+        language.insert_row(code, name)
 
         # Make sure it exists
         idx_language = language.exists(code)
@@ -81,39 +81,39 @@ class TestBasicFunctions(unittest.TestCase):
         result = language.idx_exists(idx_language)
         self.assertTrue(result)
 
-    def test_update_description(self):
-        """Testing method / function update_description."""
+    def test_update_name(self):
+        """Testing method / function update_name."""
         # Add an entry to the database
         code = data.hashstring(str(random()))
-        description = data.hashstring(str(random()))
-        language.insert_row(code, description)
+        name = data.hashstring(str(random()))
+        language.insert_row(code, name)
 
-        # Get current description
+        # Get current name
         with db.db_query(20003) as session:
-            result = session.query(Language.description).filter(
+            result = session.query(Language.name).filter(
                 Language.code == code.encode()).one()
 
         # Test
-        self.assertEqual(description, result.description.decode())
+        self.assertEqual(name, result.name.decode())
 
-        # Update the description
-        new_description = data.hashstring(str(random()))
-        language.update_description(code, new_description)
+        # Update the name
+        new_name = data.hashstring(str(random()))
+        language.update_name(code, new_name)
 
-        # Get current description
+        # Get current name
         with db.db_query(20045) as session:
-            result = session.query(Language.description).filter(
+            result = session.query(Language.name).filter(
                 Language.code == code.encode()).one()
 
         # Test
-        self.assertEqual(new_description, result.description.decode())
+        self.assertEqual(new_name, result.name.decode())
 
     def test_cli_show_dump(self):
         """Testing method / function cli_show_dump."""
         # Add an entry to the database
         code = data.hashstring(str(random()))
-        description = data.hashstring(str(random()))
-        language.insert_row(code, description)
+        name = data.hashstring(str(random()))
+        language.insert_row(code, name)
 
         # Make sure it exists
         idx_language = language.exists(code)
@@ -121,7 +121,7 @@ class TestBasicFunctions(unittest.TestCase):
         result = language.cli_show_dump()
         for item in result:
             if item.idx_language == idx_language:
-                self.assertEqual(item.description, description)
+                self.assertEqual(item.name, name)
                 self.assertEqual(item.code, code)
                 break
 

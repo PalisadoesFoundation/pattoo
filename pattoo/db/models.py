@@ -47,7 +47,7 @@ class Language(BASE):
     code = Column(VARBINARY(MAX_KEYPAIR_LENGTH),
                   index=True, nullable=False, default=None)
 
-    description = Column(
+    name = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH),
         index=True, nullable=False, default=None)
 

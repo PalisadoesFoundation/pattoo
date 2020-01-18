@@ -44,6 +44,11 @@ def resolve_value(obj, _):
     return obj.value.decode()
 
 
+def resolve_name(obj, _):
+    """Convert 'name' from bytes to string."""
+    return obj.name.decode()
+
+
 def resolve_description(obj, _):
     """Convert 'description' from bytes to string."""
     return obj.description.decode()
@@ -252,9 +257,9 @@ class LanguageAttribute(object):
         resolver=resolve_code,
         description='Language code.')
 
-    description = graphene.String(
-        resolver=resolve_description,
-        description='Description for language code.')
+    name = graphene.String(
+        resolver=resolve_name,
+        description='Name associated to language code.')
 
 
 class Language(SQLAlchemyObjectType, LanguageAttribute):

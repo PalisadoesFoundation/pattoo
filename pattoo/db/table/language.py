@@ -65,40 +65,40 @@ def exists(code):
     return result
 
 
-def insert_row(code, description=''):
+def insert_row(code, name=''):
     """Create a Language table entry.
 
     Args:
         code: Language code
-        description: Language code description
+        name: Language code name
 
     Returns:
         None
 
     """
     # Verify values
-    if bool(description) is False or isinstance(description, str) is False:
-        description = 'Change me. Language name not provided.'
+    if bool(name) is False or isinstance(name, str) is False:
+        name = 'Change me. Language name not provided.'
     if bool(code) is False or isinstance(code, str) is False:
         log_message = 'Language code "{}" is invalid'.format(code)
         log.log2die(20033, log_message)
 
     # Lowercase the code
     code = code.strip().lower()[:MAX_KEYPAIR_LENGTH]
-    description = description.strip()[:MAX_KEYPAIR_LENGTH]
+    name = name.strip()[:MAX_KEYPAIR_LENGTH]
 
     # Insert
-    row = Language(code=code.encode(), description=description.encode())
+    row = Language(code=code.encode(), name=name.encode())
     with db.db_modify(20032, die=True) as session:
         session.add(row)
 
 
-def update_description(code, description):
+def update_name(code, name):
     """Upadate a Language table entry.
 
     Args:
         code: Language code
-        description: Language code description
+        name: Language code name
 
     Returns:
         None
@@ -109,7 +109,7 @@ def update_description(code, description):
     with db.db_modify(20048, die=False) as session:
         session.query(Language).filter(
             Language.code == code.encode()).update(
-                {'description': description.strip().encode()}
+                {'name': name.strip().encode()}
             )
 
 
@@ -132,10 +132,10 @@ def cli_show_dump():
 
     # Process
     for row in rows:
-        Record = namedtuple('Record', 'idx_language code description')
+        Record = namedtuple('Record', 'idx_language code name')
         result.append(
             Record(
                 idx_language=row.idx_language,
-                description=row.description.decode(),
+                name=row.name.decode(),
                 code=row.code.decode()))
     return result
