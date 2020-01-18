@@ -73,6 +73,7 @@ Technical background information on the project.
    :maxdepth: 2
    :caption: Miscellaneous Information:
 
+   agents
    troubleshooting
    data
    glossary
