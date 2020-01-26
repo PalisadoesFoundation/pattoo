@@ -12,8 +12,8 @@ Data can be collected from a number of sources. The ``pattoo-agents`` repository
 
 * Linux
 * SNMP
-* Modbus
-* BACnet
+* Modbus TCP
+* BACnet/IP
 * OPC UA
 
 ``pattoo`` was originally created to assist DevOps and building facilities management teams to monitor the performance of servers, applications and electro-mechanical systems. It is flexible enough to chart a wide variety of data that changes over time by creating custom agents.
