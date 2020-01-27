@@ -66,8 +66,8 @@ Follow these steps.
 #. Start the ``bin/pattoo_apid.py`` daemon to provide ``pattoo`` agent data to web applications. :doc:`pattoo_apid`
 
 
-Configuring Agents as systemd Daemons
--------------------------------------
+Configuring systemd Daemons
+---------------------------
 
 You can also setup all the ``pattoo`` daemons as system daemons by executing the ``setup/systemd/bin/install_systemd.py`` script.
 
