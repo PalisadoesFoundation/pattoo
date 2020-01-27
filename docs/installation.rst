@@ -4,6 +4,16 @@ Basic Installation
 
 This section covers some key steps to get you started.
 
+Prerequisites
+-------------
+
+There are some software components that need to be installed prior to starting.
+
+#. ``pattoo`` requires the installation of a MySQL or MariaDB database. Make sure this software is installed beforehand.
+#. ``pattoo`` only runs on Python 3.6 or higher
+
+Let's install the software.
+
 Installation
 ------------
 
@@ -21,7 +31,6 @@ Follow these steps.
 
     .. code-block:: bash
 
-       $ mkdir -p /installation/parent/directory
        $ cd /installation/parent/directory
        $ git clone https://github.com/PalisadoesFoundation/pattoo.git
 
