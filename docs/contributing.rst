@@ -1,12 +1,6 @@
 How To Contribute
 =================
 
-PLACEHOLDER THIS DOES NOT WORK YET
-PLACEHOLDER THIS DOES NOT WORK YET
-PLACEHOLDER THIS DOES NOT WORK YET
-PLACEHOLDER THIS DOES NOT WORK YET
-PLACEHOLDER THIS DOES NOT WORK YET
-
 Below is the workflow for having your contribution accepted into the ``pattoo`` repository.
 
 #. Create an Issue or comment on an existing issue to discuss the feature
@@ -17,29 +11,30 @@ Below is the workflow for having your contribution accepted into the ``pattoo`` 
 #. Add the original project as a remote (git remote add upstream https://github.com/PalisadoesFoundation/pattoo, check with: git remote -v)
 #. Create a topic branch for your change (git checkout -b ``BranchName``\ )
 #. you may create additional branches if modifying multiple parts of the code
-#. Write code and Commit your changes locally. Example proper git commit message below:
+#. Write code and Commit your changes locally. An example of a proper ``git commit`` message can be seen below:
 
-.. code-block::
+    .. code-block::
 
-    Make the example in CONTRIBUTING imperative and concrete ...
+        Make the example in CONTRIBUTING imperative and concrete ...
 
-    Without this patch applied the example commit message in the CONTRIBUTING
-    document is not a concrete example.  This is a problem because the
-    contributor is left to imagine what the commit message should look like
-    based on a description rather than an example.  This patch fixes the
-    problem by making the example concrete and imperative.
+        Without this patch applied the example commit message in the CONTRIBUTING
+        document is not a concrete example.  This is a problem because the
+        contributor is left to imagine what the commit message should look like
+        based on a description rather than an example.  This patch fixes the
+        problem by making the example concrete and imperative.
 
-    The first line is a real life imperative statement with a ticket number
-    from our issue tracker.  The body describes the behavior without the patch,
-    why this is a problem, and how the patch fixes the problem when applied.
+        The first line is a real life imperative statement with a ticket number
+        from our issue tracker.  The body describes the behavior without the patch,
+        why this is a problem, and how the patch fixes the problem when applied.
 
-    Resolves Issue: #123
-    See also: #456, #789
-
+        Resolves Issue: #123
+        See also: #456, #789
 
 #. When you need to synch with upstream (pull the latest changes from main repo into your current branch), do:
-   #. ``git fetch upstream``
-   #. ``git merge upstream/master`` (or run ``make synch`` to let the projects makefile handle synching)
+
+     #. ``git fetch upstream``
+     #. ``git merge upstream/master`` (or run ``make synch`` to let the projects makefile handle synching)
+
 #. Check for unnecessary white space with ``git diff --check``.
 #. Write the necessary unit tests for your changes.
 #. Run all the tests to assure nothing else was accidentally broken (run: ``make test``\ )
