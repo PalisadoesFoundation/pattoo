@@ -19,9 +19,8 @@ General information about the project, including the the prerequisite steps to g
    :maxdepth: 2
    :caption: Introduction:
 
-   palisadoes
+   about
    contributing
-   introduction
    installation
    configuration
    backup
