@@ -36,7 +36,7 @@ directory. Please fix.''')
 from pattoo_shared import data, converter, files
 from pattoo_shared.constants import DATA_INT
 from pattoo_shared.phttp import PostAgent
-from pattoo_shared.configuration import Config
+from pattoo_shared.configuration import Config, ServerConfig
 from pattoo_shared.variables import (
     DataPoint, TargetDataPoints, AgentPolledData)
 from pattoo.api.agents import PATTOO_API_AGENT as APP
@@ -79,7 +79,7 @@ class TestBasicFunctions(LiveServerTestCase):
     def test_receive(self):
         """Testing method / function receive."""
         # Initialize key variables
-        config = Config()
+        config = ServerConfig()
         apd = _create_apd()
         expected = converter.posting_data_points(
             converter.agentdata_to_post(apd))

@@ -30,7 +30,7 @@ from pattoo_shared import converter, files, data, times
 from pattoo_shared.variables import (
     DataPoint, TargetDataPoints, AgentPolledData)
 from pattoo_shared.constants import DATA_INT
-from pattoo_shared.configuration import Config
+from pattoo_shared.configuration import ServerConfig
 from pattoo.constants import PATTOO_API_AGENT_NAME, PATTOO_INGESTER_NAME
 from pattoo.db.table import datapoint
 from pattoo.ingest.files import Cache
@@ -97,7 +97,7 @@ class TestCache(unittest.TestCase):
     def test_purge(self):
         """Testing method / function purge."""
         # Initialize key variables
-        config = Config()
+        config = ServerConfig()
         cache_directory = config.agent_cache_directory(PATTOO_API_AGENT_NAME)
 
         # Initialize key variables
@@ -205,7 +205,7 @@ class TestBasicFunctions(unittest.TestCase):
     def test__lock(self):
         """Testing method / function _lock."""
         # Initialize key variables
-        config = Config()
+        config = ServerConfig()
         lockfile = files.lock_file(PATTOO_INGESTER_NAME, config)
 
         # Test
@@ -234,7 +234,7 @@ class TestBasicFunctions(unittest.TestCase):
 def create_cache():
     """Testing method / function records."""
     # Initialize key variables
-    config = Config()
+    config = ServerConfig()
     polling_interval = 20
     cache_directory = config.agent_cache_directory(PATTOO_API_AGENT_NAME)
     result = {

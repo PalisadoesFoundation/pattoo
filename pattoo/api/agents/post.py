@@ -12,7 +12,7 @@ from flask import Blueprint, request, abort
 # pattoo imports
 from pattoo_shared import log
 from pattoo_shared.constants import CACHE_KEYS
-from pattoo_shared import configuration
+from pattoo_shared.configuration import ServerConfig as Config
 from pattoo.constants import PATTOO_API_AGENT_NAME
 
 
@@ -35,7 +35,7 @@ def receive(source):
     prefix = 'Invalid posted data.'
 
     # Read configuration
-    config = configuration.Config()
+    config = Config()
     cache_dir = config.agent_cache_directory(PATTOO_API_AGENT_NAME)
 
     # Get JSON from incoming agent POST
