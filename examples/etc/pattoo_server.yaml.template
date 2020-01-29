@@ -1,4 +1,4 @@
-main:
+pattoo:
 
     log_level: debug
     log_directory: PATTOO_LOG_DIRECTORY
@@ -19,7 +19,7 @@ pattoo_apid:
     ip_listen_address: 0.0.0.0
     ip_bind_port: 20202
 
-db:
+pattoo_db:
   db_hostname: PATTOO_DB_HOSTNAME
   db_name: PATTOO_DB_NAME
   db_password: PATTOO_DB_PASSWORD
