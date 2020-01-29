@@ -36,18 +36,19 @@ from pattoo.db.db import connectivity
 class PollingAgent(Agent):
     """Agent that gathers data."""
 
-    def __init__(self, parent):
+    def __init__(self, parent, config=None):
         """Initialize the class.
 
         Args:
-            config_dir: Configuration directory
+            parent: Name of agent parent process
+            config: Config object
 
         Returns:
             None
 
         """
         # Initialize key variables
-        Agent.__init__(self, parent)
+        Agent.__init__(self, parent, config=config)
 
     def query(self):
         """Query all remote targets for data.
@@ -62,7 +63,7 @@ class PollingAgent(Agent):
         # Initialize key variables
         use_script = False
         _running = False
-        config = Config()
+        config = self.config
         interval = config.ingester_interval()
         script = '{}{}{}'.format(
             _BIN_DIRECTORY, os.sep, PATTOO_INGESTER_SCRIPT)
@@ -151,11 +152,14 @@ def main():
         None
 
     """
+    # Initialize key variables
+    config = Config()
+
     # Make sure we have a database
     _ = connectivity()
 
     # Poll
-    agent_poller = PollingAgent(PATTOO_INGESTERD_NAME)
+    agent_poller = PollingAgent(PATTOO_INGESTERD_NAME, config=config)
 
     # Do control
     cli = AgentCLI()
