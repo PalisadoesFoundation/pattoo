@@ -22,7 +22,7 @@ else:
     sys.exit(2)
 
 # Pattoo libraries
-from pattoo_shared.configuration import Config
+from pattoo_shared.configuration import ServerConfig as Config
 from pattoo_shared import files
 from pattoo_shared import log
 from pattoo_shared import converter

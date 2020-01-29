@@ -33,13 +33,12 @@ def check():
         None
 
     """
-    # Initialize key variables
-    config_directory = os.environ['PATTOO_CONFIGDIR']
-
     # Print Status
     print('??: Checking configuration parameters.')
 
-    # Check config
+    ###########################################################################
+    # Check server config
+    ###########################################################################
     config_file = configuration.agent_config_filename('pattoo_server')
     config = files.read_yaml_file(config_file)
 

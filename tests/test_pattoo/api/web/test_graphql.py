@@ -36,7 +36,7 @@ directory. Please fix.''')
 
 from pattoo_shared import data, log, converter
 from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
-from pattoo_shared.configuration import Config
+from pattoo_shared.configuration import Config, ServerConfig
 
 from tests.libraries.configuration import UnittestConfig
 from pattoo.api.web import PATTOO_API_WEB as APP
