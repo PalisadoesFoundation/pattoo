@@ -41,7 +41,7 @@ The ``pattoo_server.yaml`` file created from the template will have sections tha
 
 .. code-block:: yaml
 
-   main:
+   pattoo:
        log_level: debug
        log_directory: PATTOO_LOG_DIRECTORY
        cache_directory: PATTOO_CACHE_DIRECTORY
@@ -62,7 +62,7 @@ The ``pattoo_server.yaml`` file created from the template will have sections tha
        ingester_interval: 3600
        batch_size: 500
 
-   db:
+   pattoo_db:
        db_pool_size: 10
        db_max_overflow: 10
        db_hostname: PATTOO_DB_HOSTNAME
@@ -81,7 +81,7 @@ This table outlines the purpose of each configuration parameter.
    * - Section
      - Config Options
      - Description
-   * - ``main``
+   * - ``pattoo``
      -
      -
    * -
@@ -123,7 +123,7 @@ This table outlines the purpose of each configuration parameter.
    * -
      - ``batch_size``
      - The number of files to read per processing batch until all files are processed.
-   * - ``db``
+   * - ``pattoo_db``
      -
      -
    * -
