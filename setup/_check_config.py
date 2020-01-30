@@ -23,8 +23,8 @@ from pattoo_shared import files, configuration
 from pattoo_shared import log
 
 
-def check():
-    """Ensure PIP3 packages are installed correctly.
+def check_pattoo_server():
+    """Ensure server configuration exists.
 
     Args:
         None
@@ -34,7 +34,7 @@ def check():
 
     """
     # Print Status
-    print('??: Checking configuration parameters.')
+    print('??: Checking server configuration parameters.')
 
     ###########################################################################
     # Check server config
@@ -44,19 +44,13 @@ def check():
 
     # Check main keys
     keys = [
-        'pattoo', 'pattoo_db', 'pattoo_api_agentd', 'pattoo_apid',
-        'pattoo_ingesterd']
+        'pattoo_db', 'pattoo_api_agentd', 'pattoo_apid', 'pattoo_ingesterd']
     for key in keys:
         if key not in config:
             log_message = ('''\
 Section "{}" not found in {} configuration file. Please fix.\
 '''.format(key, config_file))
-            log.log2die_safe(20090, log_message)
-
-    # Check secondary keys for 'pattoo'
-    secondaries = [
-        'log_level', 'log_directory', 'cache_directory', 'daemon_directory']
-    secondary_key_check(config, 'pattoo', secondaries)
+            log.log2die_safe(20141, log_message)
 
     # Check secondary keys for 'pattoo_db'
     secondaries = [
@@ -73,7 +67,44 @@ Section "{}" not found in {} configuration file. Please fix.\
     secondary_key_check(config, 'pattoo_apid', secondaries)
 
     # Print Status
-    print('OK: Configuration parameter check passed.')
+    print('OK: Server configuration parameter check passed.')
+
+
+def check_pattoo_client():
+    """Ensure client configuration exists.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Print Status
+    print('??: Checking client configuration parameters.')
+
+    ###########################################################################
+    # Check client config
+    ###########################################################################
+    config_file = configuration.agent_config_filename('pattoo')
+    config = files.read_yaml_file(config_file)
+
+    # Check main keys
+    keys = ['pattoo']
+    for key in keys:
+        if key not in config:
+            log_message = ('''\
+Section "{}" not found in {} configuration file. Please fix.\
+'''.format(key, config_file))
+            log.log2die_safe(20090, log_message)
+
+    # Check secondary keys for 'pattoo'
+    secondaries = [
+        'log_level', 'log_directory', 'cache_directory', 'daemon_directory']
+    secondary_key_check(config, 'pattoo', secondaries)
+
+    # Print Status
+    print('OK: Client configuration parameter check passed.')
 
 
 def secondary_key_check(config, primary, secondaries):
@@ -108,7 +139,8 @@ def main():
 
     """
     # Check configuration
-    check()
+    check_pattoo_server()
+    check_pattoo_client()
 
 
 if __name__ == '__main__':

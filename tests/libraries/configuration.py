@@ -42,12 +42,6 @@ class UnittestConfig(object):
 
         self._config = {
             'pattoo_server': {
-                'pattoo': {
-                    'log_directory': self._log_directory,
-                    'log_level': 'debug',
-                    'cache_directory': self._cache_directory,
-                    'daemon_directory': self._daemon_directory,
-                },
                 'pattoo_db': {
                     'db_pool_size': 10,
                     'db_max_overflow': 20,
