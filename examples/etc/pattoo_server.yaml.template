@@ -1,10 +1,3 @@
-pattoo:
-
-    log_level: debug
-    log_directory: PATTOO_LOG_DIRECTORY
-    cache_directory: PATTOO_CACHE_DIRECTORY
-    daemon_directory: PATTOO_DAEMON_DIRECTORY
-
 pattoo_ingesterd:
 
     ingester_interval: 3600

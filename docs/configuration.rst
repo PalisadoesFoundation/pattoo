@@ -3,37 +3,54 @@ Configuration
 
 After installation, you will need to create a configuration file in a directory dedicated to ``pattoo``.
 
-Set the  Configuration Directory Location
------------------------------------------
+Setting the  Configuration Directory Location
+---------------------------------------------
 
-You must set the location of the configuration directory by using the ``PATTOO_CONFIGDIR`` environmental variable. Here is how to do this:
+You must first set the location of the configuration directory by using the ``PATTOO_CONFIGDIR`` environmental variable. Here is how to do this from the Linux command line:
 
 .. code-block:: bash
 
     $ export PATTOO_CONFIGDIR=/path/to/configuration/directory
 
-``pattoo`` will only read the configuration placed in a file named ``pattoo_server.yaml`` in this directory.
+``pattoo`` applications will read the configuration files located in this directory when ``PATTOO_CONFIGDIR`` is set.
 
-Make sure that files in this directory are readable by the user that will be running ``pattoo`` daemons or scripts.
-
-Copy the Template to Your Configuration Directory
--------------------------------------------------
-
-Copy the template file in the ``examples/etc`` directory to the ``PATTOO_CONFIGDIR`` location.
-
-**NOTE:** If a ``/path/to/configuration/directory/pattoo_server.yaml`` file already exists in the directory then skip this step and edit the file according to the steps in following sections.
+You can automatically set this variable each time you log in by adding these lines to your ``~/.bash_profile`` file.
 
 .. code-block:: bash
 
-    $ cp examples/etc/pattoo_server.yaml.template \
-      /path/to/configuration/directory/pattoo_server.yaml
+    export PATTOO_CONFIGDIR=/path/to/configuration/directory
 
-The next step is to edit the contents of ``pattoo_server.yaml``
+Make sure that files in this directory are readable by the user that will be running ``pattoo`` agent daemons or scripts.
 
-Edit Your Configuration
------------------------
+Copy the Templates to Your Configuration Directory
+--------------------------------------------------
+
+Copy the template files in the ``examples/etc`` directory to the ``PATTOO_CONFIGDIR`` location.
+
+**NOTE:** If a ``/path/to/configuration/directory/pattoo_server.yaml`` or ``/path/to/configuration/directory/pattoo.yaml`` file already exists in the directory then skip this step and edit the file according to the steps in following sections.
+
+.. code-block:: bash
+
+        $ cp examples/etc/pattoo_server.yaml.template \
+            /path/to/configuration/directory/pattoo_server.yaml
+
+        $ cp examples/etc/pattoo.yaml.template \
+            /path/to/configuration/directory/pattoo.yaml
+
+The next step is to edit the contents of both files.
+
+Edit Your Configuration Files
+-----------------------------
+
+The ``pattoo`` server uses two configuration files:
+
+#. ``pattoo.yaml``: Provides general configuration information for all ``pattoo`` related applications. ``pattoo.yaml`` also defines how ``pattoo`` agents should connect to the ``pattoo`` server APIs.
+#. ``pattoo_server.yaml``: Provides configuration details for all the ``pattoo`` server's API daemons. These APIs accept data from ``pattoo`` agents and also provide data to ``pattoo`` related applications through your browser.
 
 Take some time to read up on ``YAML`` formatted files if you are not familiar with them. A background knowledge is always helpful.
+
+Server Configuration File
+.........................
 
 The ``pattoo_server.yaml`` file created from the template will have sections that you will need to edit with custom values. Don't worry, these sections are easily identifiable as they all start with ``PATTOO_``
 
@@ -41,21 +58,15 @@ The ``pattoo_server.yaml`` file created from the template will have sections tha
 
 .. code-block:: yaml
 
-   pattoo:
-       log_level: debug
-       log_directory: PATTOO_LOG_DIRECTORY
-       cache_directory: PATTOO_CACHE_DIRECTORY
-       daemon_directory: PATTOO_DAEMON_DIRECTORY
-
    pattoo_api_agentd:
 
        ip_bind_port: 20201
-       ip_listen_address: 127.0.0.1
+       ip_listen_address: 0.0.0.0
 
    pattoo_apid:
 
        ip_bind_port: 20202
-       ip_listen_address: 127.0.0.1
+       ip_listen_address: 0.0.0.0
 
    pattoo_ingesterd:
 
@@ -70,8 +81,8 @@ The ``pattoo_server.yaml`` file created from the template will have sections tha
        db_password: PATTOO_DB_PASSWORD
        db_username: PATTOO_DB_USERNAME
 
-Configuration Explanation
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Server Configuration Explanation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This table outlines the purpose of each configuration parameter.
 
@@ -79,29 +90,14 @@ This table outlines the purpose of each configuration parameter.
    :header-rows: 1
 
    * - Section
-     - Config Options
+     - Configuration Parameters
      - Description
-   * - ``pattoo``
-     -
-     -
-   * -
-     - ``log_directory``
-     - Path to logging directory. Make sure the username running the daemons have RW access to files there.
-   * -
-     - ``log_level``
-     - Default level of logging. ``debug`` is best for troubleshooting.
-   * -
-     - ``cache_directory``
-     - Directory that will temporarily store data data from agents prior to be added to the ``pattoo`` database.
-   * -
-     - ``daemon_directory``
-     - Directory used to store daemon related data that needs to be maintained between reboots
    * - ``pattoo_api_agentd``
      -
      -
    * -
      - ``ip_listen_address``
-     - IP address used by the ``pattoo_api_agentd`` daemon for accepting data from remote ``pattoo`` agents. Default of '0.0.0.0' which indicates listening on all available network interfaces.
+     - IP address used by the ``pattoo_api_agentd`` daemon for accepting data from remote ``pattoo`` agents. Default of '0.0.0.0' which indicates listening on all available network interfaces. You can also use IPv6 nomenclature such as ``::``. The ``pattoo`` APIs don't support IPv6 and IPv4 at the same time.
    * -
      - ``ip_bind_port``
      - TCP port of used by the ``pattoo_api_agentd`` daemon for accepting data from remote ``pattoo`` agents. Default of 20201.
@@ -110,7 +106,7 @@ This table outlines the purpose of each configuration parameter.
      -
    * -
      - ``ip_listen_address``
-     - IP address used by the ``pattoo_apid`` daemon for providing data to remote clients.
+     - IP address used by the ``pattoo_apid`` daemon for providing data to remote clients. Default of '0.0.0.0' which indicates listening on all available network interfaces. You can also use IPv6 nomenclature such as ``::``. The ``pattoo`` APIs don't support IPv6 and IPv4 at the same time.
    * -
      - ``ip_bind_port``
      - TCP port of used by the ``pattoo_apid`` daemon for providing data to remote clients. Default of 20202.
@@ -144,3 +140,47 @@ This table outlines the purpose of each configuration parameter.
    * -
      - ``db_max_overflow``
      - Maximum overflow size. When the number of connections reaches the size set in ``db_pool_size``, additional connections will be returned up to this limit. This is the floating number of additional database connections to be made available.
+
+
+Client Configuration File
+.........................
+
+The ``pattoo.yaml`` file created from the template will have sections that you will need to edit with custom values. Don't worry, these sections are easily identifiable as they all start with ``PATTOO_``
+
+**NOTE:** The indentations in the YAML configuration are important. Make sure indentations line up. Dashes '-' indicate one item in a list of items (if applicable).
+
+.. code-block:: yaml
+
+   pattoo:
+       log_level: debug
+       log_directory: PATTOO_LOG_DIRECTORY
+       cache_directory: PATTOO_CACHE_DIRECTORY
+       daemon_directory: PATTOO_DAEMON_DIRECTORY
+
+
+Client Configuration Explanation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This table outlines the purpose of each configuration parameter.
+
+.. list-table::
+   :header-rows: 1
+
+   * - Section
+     - Configuration Parameters
+     - Description
+   * - ``pattoo``
+     -
+     -
+   * -
+     - ``log_directory``
+     - Path to logging directory. Make sure the username running the daemons have RW access to files there.
+   * -
+     - ``log_level``
+     - Default level of logging. ``debug`` is best for troubleshooting.
+   * -
+     - ``cache_directory``
+     - Directory that will temporarily store data data from agents prior to be added to the ``pattoo`` database.
+   * -
+     - ``daemon_directory``
+     - Directory used to store daemon related data that needs to be maintained between reboots
