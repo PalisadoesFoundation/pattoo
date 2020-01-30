@@ -50,7 +50,7 @@ class ConfigPattoo(ServerConfig):
 
         # Process configuration
         result = configuration.search(
-            key, sub_key, self._pattoo_yaml_configuration)
+            key, sub_key, self._server_yaml_configuration)
 
         # Get result
         return result
@@ -71,7 +71,7 @@ class ConfigPattoo(ServerConfig):
 
         # Process configuration
         result = configuration.search(
-            key, sub_key, self._pattoo_yaml_configuration)
+            key, sub_key, self._server_yaml_configuration)
 
         # Get result
         return result
@@ -95,7 +95,7 @@ class ConfigPattoo(ServerConfig):
             result = ''
         else:
             result = configuration.search(
-                key, sub_key, self._pattoo_yaml_configuration)
+                key, sub_key, self._server_yaml_configuration)
 
         # Get result
         return result
@@ -116,7 +116,7 @@ class ConfigPattoo(ServerConfig):
 
         # Process configuration
         result = configuration.search(
-            key, sub_key, self._pattoo_yaml_configuration)
+            key, sub_key, self._server_yaml_configuration)
 
         # Get result
         return result
@@ -135,7 +135,7 @@ class ConfigPattoo(ServerConfig):
         key = 'pattoo_db'
         sub_key = 'db_pool_size'
         intermediate = configuration.search(
-            key, sub_key, self._pattoo_yaml_configuration, die=False)
+            key, sub_key, self._server_yaml_configuration, die=False)
 
         # Set default
         if intermediate is None:
@@ -158,7 +158,7 @@ class ConfigPattoo(ServerConfig):
         key = 'pattoo_db'
         sub_key = 'db_max_overflow'
         intermediate = configuration.search(
-            key, sub_key, self._pattoo_yaml_configuration, die=False)
+            key, sub_key, self._server_yaml_configuration, die=False)
 
         # Set default
         if intermediate is None:
@@ -181,7 +181,7 @@ class ConfigPattoo(ServerConfig):
         key = PATTOO_API_WEB_NAME
         sub_key = 'ip_listen_address'
         result = search(
-            key, sub_key, self._pattoo_yaml_configuration, die=False)
+            key, sub_key, self._server_yaml_configuration, die=False)
 
         # Default to 0.0.0.0
         if result is None:
@@ -204,7 +204,7 @@ class ConfigPattoo(ServerConfig):
 
         # Get result
         intermediate = search(
-            key, sub_key, self._pattoo_yaml_configuration, die=False)
+            key, sub_key, self._server_yaml_configuration, die=False)
         if intermediate is None:
             result = 20202
         else:
@@ -248,7 +248,7 @@ class ConfigAgent(ServerConfig):
         key = PATTOO_API_AGENT_NAME
         sub_key = 'ip_listen_address'
         result = search(
-            key, sub_key, self._pattoo_yaml_configuration, die=False)
+            key, sub_key, self._server_yaml_configuration, die=False)
 
         # Default to 0.0.0.0
         if result is None:
@@ -271,7 +271,7 @@ class ConfigAgent(ServerConfig):
 
         # Get result
         intermediate = search(
-            key, sub_key, self._pattoo_yaml_configuration, die=False)
+            key, sub_key, self._server_yaml_configuration, die=False)
         if intermediate is None:
             result = 20202
         else:
@@ -315,7 +315,7 @@ class ConfigIngester(ServerConfig):
         key = PATTOO_INGESTERD_NAME
         sub_key = 'ingester_interval'
         result = search(
-            key, sub_key, self._pattoo_yaml_configuration, die=False)
+            key, sub_key, self._server_yaml_configuration, die=False)
 
         # Make sure we have an integer
         try:
@@ -342,7 +342,7 @@ class ConfigIngester(ServerConfig):
         key = PATTOO_INGESTERD_NAME
         sub_key = 'multiprocessing'
         _result = search(
-            key, sub_key, self._pattoo_yaml_configuration, die=False)
+            key, sub_key, self._server_yaml_configuration, die=False)
 
         # Return
         if _result is None:
@@ -368,7 +368,7 @@ class ConfigIngester(ServerConfig):
         key = PATTOO_INGESTERD_NAME
         sub_key = 'batch_size'
         _result = search(
-            key, sub_key, self._pattoo_yaml_configuration, die=False)
+            key, sub_key, self._server_yaml_configuration, die=False)
 
         # Return
         if _result is None:
