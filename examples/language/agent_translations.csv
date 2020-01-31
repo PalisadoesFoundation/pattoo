@@ -5,3 +5,4 @@ en,pattoo_agent_snmpd,Pattoo Standard SNMP Agent
 en,pattoo_agent_snmp_ifmibd,Pattoo Standard IfMIB SNMP Agent
 en,pattoo_agent_modbustcpd,Pattoo Standard Modbus TCP Agent
 en,pattoo_agent_bacnetipd,Pattoo Standard BACnet IP Agent
+en,pattoo_agent_opcuad,Pattoo Standard OPC UA Agent
