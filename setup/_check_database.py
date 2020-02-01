@@ -55,9 +55,12 @@ def insertions():
         ('en', 'pattoo_agent_snmpd', 'Pattoo Standard SNMP Agent'),
         ('en', 'pattoo_agent_snmp_ifmibd', 'Pattoo Standard IfMIB SNMP Agent'),
         ('en', 'pattoo_agent_modbustcpd', 'Pattoo Standard Modbus TCP Agent'),
+        ('en', 'pattoo_agent_opcuad', 'Pattoo Standard OPC UA Agent'),
         ('en', 'pattoo_agent_bacnetipd', 'Pattoo Standard BACnet IP Agent')
     ]
     pair_xlate_data = [
+        ('OPC UA Agents', [
+            ('en', 'pattoo_agent_opcuad_opcua_server', 'OPC UA Server', '')]),    
         ('IfMIB Agents', [
             ('en', 'pattoo_agent_snmpd_.1.3.6.1.2.1.31.1.1.1.9', 'Interface Broadcast Packets (HC inbound)', 'Packets / Second'),
             ('en', 'pattoo_agent_snmpd_.1.3.6.1.2.1.31.1.1.1.8', 'Interface Multicast Packets (HC inbound)', 'Packets / Second'),
