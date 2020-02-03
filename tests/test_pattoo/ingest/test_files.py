@@ -248,13 +248,11 @@ def create_cache():
     # We want to make sure we get a different AgentID each time
     filename = files.agent_id_file(
         result['pattoo_agent_program'],
-        result['pattoo_agent_hostname'],
         config)
     if os.path.isfile(filename) is True:
         os.remove(filename)
     result['pattoo_agent_id'] = files.get_agent_id(
         result['pattoo_agent_program'],
-        result['pattoo_agent_hostname'],
         config)
 
     # Setup AgentPolledData

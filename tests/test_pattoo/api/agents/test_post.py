@@ -131,11 +131,9 @@ def _create_apd():
     pattoo_agent_polled_target = 2
     pattoo_key = '3'
     pattoo_value = 4
-    pattoo_agent_hostname = 5
 
     # We want to make sure we get a different AgentID each time
-    filename = files.agent_id_file(
-        pattoo_agent_program, pattoo_agent_hostname, config)
+    filename = files.agent_id_file(pattoo_agent_program, config)
     if os.path.isfile(filename) is True:
         os.remove(filename)
 
