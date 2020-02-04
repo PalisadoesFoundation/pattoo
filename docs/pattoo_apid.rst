@@ -48,3 +48,8 @@ There are a number of steps you can take to make sure everything is OK.
 #. The daemon should be running on the port configured with the ``ip_bind_port`` parameter. Use the ``netstat`` command to verify this.
 #. Visit the URL ``http://localhost:20202/pattoo/api/v1/web/status`` to get the status page.
 #. Use the :doc:`troubleshooting` for further steps to take
+
+Making ``pattoo_apid`` Start Automatically After Reboot
+------------------------------------------------------------
+
+The easiest way to do this is to consider :doc:`systemd`. Otherwise you will need to manually restart the daemon after a reboot.

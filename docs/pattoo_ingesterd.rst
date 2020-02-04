@@ -46,3 +46,18 @@ There are a number of steps you can take to make sure everything is OK.
 
 #. If you have setup the daemon for ``systemd`` then you can use the ``systemctl`` command to get the status of the daemon.
 #. Use the :doc:`troubleshooting` for further steps to take
+
+The ``pattoo_ingester``
+^^^^^^^^^^^^^^^^^^^^^^^
+
+There is also a ``bin/pattoo_ingester.py`` script that can be used as needed for troubleshooting. Here's how to use it:
+
+#. Edit your ``PATTOO_CONFIGDIR`` path accordingly.
+#. Stop the ``pattoo_ingesterd`` daemon.
+#. Edit your ``PATTOO_CONFIGDIR`` path accordingly.
+#. Check your log files for any possible errors.
+
+Making ``pattoo_ingesterd`` Start Automatically After Reboot
+------------------------------------------------------------
+
+The easiest way to do this is to consider :doc:`systemd`. Otherwise you will need to manually restart the daemon after a reboot.
