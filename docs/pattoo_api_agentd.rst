@@ -50,3 +50,8 @@ There are a number of steps you can take to make sure everything is OK.
 #. The ``pattoo_api_agentd`` temporarily stores all the data it receives from ``pattoo`` agents in the ``cache/`` directory. Check there for recent ``.json`` files.
 #. Visit the URL ``http://localhost:20201/pattoo/api/v1/agent/status`` to get the status page.
 #. Use the :doc:`troubleshooting` for further steps to take
+
+Making ``pattoo_api_agentd`` Start Automatically After Reboot
+-------------------------------------------------------------
+
+The easiest way to do this is to consider :doc:`systemd`. Otherwise you will need to manually restart the daemon after a reboot.
