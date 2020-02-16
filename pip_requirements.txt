@@ -21,7 +21,7 @@ graphene-sqlalchemy
 Flask
 Flask-GraphQL
 Flask-Caching
-Flask-Testing
+Flask-Testing==0.7.1
 gunicorn
 requests
 
