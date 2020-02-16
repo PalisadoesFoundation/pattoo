@@ -14,7 +14,7 @@ import os
 # Try to create a working PYTHONPATH
 _BIN_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _ROOT_DIRECTORY = os.path.abspath(os.path.join(_BIN_DIRECTORY, os.pardir))
-_EXPECTED = '{0}pattoo{0}bin'.format(os.sep).format(os.sep)
+_EXPECTED = '{0}pattoo{0}bin'.format(os.sep)
 if _BIN_DIRECTORY.endswith(_EXPECTED) is True:
     sys.path.append(_ROOT_DIRECTORY)
 else:
