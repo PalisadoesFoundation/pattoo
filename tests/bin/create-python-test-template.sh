@@ -5,4 +5,4 @@
 #
 # It is helpful in getting things started.
 #
-grep 'def ' $1 | awk '{print $2}' | awk -F\( '{print "    def test_" $1 "(self):\n        \"\"\"Testing method / function " $1 ".\"\"\"\n        pass\n"}'
+grep 'def ' $1 | awk '{print $2}' | awk -F\( '{print "    def test_" $1 "(self):\n        \"\"\"Testing method or function named \"" $1 "\".\"\"\"\n        pass\n"}'
