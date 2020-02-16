@@ -24,7 +24,7 @@ Flask-Caching
 Flask-Testing
 gunicorn
 requests
-Werkzeug=0.16.0
+Werkzeug==0.16.0
 
 # Mathematical libraries
 numpy
