@@ -13,12 +13,12 @@ import argparse
 # Try to create a working PYTHONPATH
 _BIN_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 _ROOT_DIRECTORY = os.path.abspath(os.path.join(_BIN_DIRECTORY, os.pardir))
-if _BIN_DIRECTORY.endswith('/pattoo/bin') is True:
+_EXPECTED = '{0}pattoo{0}bin'.format(os.sep).format(os.sep)
+if _BIN_DIRECTORY.endswith(_EXPECTED) is True:
     sys.path.append(_ROOT_DIRECTORY)
 else:
-    print(
-        'This script is not installed in the "pattoo/bin" directory. '
-        'Please fix.')
+    print('''This script is not installed in the "{0}" directory. Please fix.\
+'''.format(_EXPECTED))
     sys.exit(2)
 
 # Pattoo libraries

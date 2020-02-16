@@ -6,7 +6,6 @@ import unittest
 import sys
 import time
 from random import random, uniform
-from pprint import pprint
 
 # PIP3 imports
 import requests
@@ -22,16 +21,14 @@ ROOT_DIR = os.path.abspath(os.path.join(
             os.path.abspath(os.path.join(
                 EXEC_DIR,
                 os.pardir)), os.pardir)), os.pardir)), os.pardir))
-
-if EXEC_DIR.endswith(
-        '/pattoo/tests/test_pattoo/api/web') is True:
-    # We need to prepend the path in case PattooShared has been installed
+_EXPECTED = '{0}pattoo{0}tests{0}test_pattoo{0}api{0}web'.format(os.sep)
+if EXEC_DIR.endswith(_EXPECTED) is True:
+    # We need to prepend the path in case the repo has been installed
     # elsewhere on the system using PIP. This could corrupt expected results
     sys.path.insert(0, ROOT_DIR)
 else:
-    print('''\
-This script is not installed in the "pattoo/tests/test_pattoo/api/web" \
-directory. Please fix.''')
+    print('''This script is not installed in the "{0}" directory. Please fix.\
+'''.format(_EXPECTED))
     sys.exit(2)
 
 from pattoo_shared import data, log, converter
