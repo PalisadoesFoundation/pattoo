@@ -4,7 +4,7 @@
 
 # Pattoo packages
 
-PattooShared==0.0.81
+PattooShared==0.0.83
 
 # Miscellaneous packages
 PyYAML
@@ -24,6 +24,7 @@ Flask-Caching
 Flask-Testing
 gunicorn
 requests
+Werkzeug==0.16.0
 
 # Mathematical libraries
 numpy

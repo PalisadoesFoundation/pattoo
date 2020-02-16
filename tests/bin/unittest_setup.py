@@ -17,12 +17,12 @@ import sys
 DEV_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(
     os.path.abspath(os.path.join(DEV_DIR, os.pardir)), os.pardir))
-if DEV_DIR.endswith('/pattoo/tests/bin') is True:
+_EXPECTED = '{0}pattoo{0}tests{0}bin'.format(os.sep)
+if DEV_DIR.endswith(_EXPECTED) is True:
     sys.path.insert(0, ROOT_DIR)
 else:
-    print('''\
-This script is not installed in the "pattoo/tests/bin" directory. \
-Please fix.''')
+    print('''This script is not installed in the "{0}" directory. Please fix.\
+'''.format(_EXPECTED))
     sys.exit(2)
 
 # Pattoo imports

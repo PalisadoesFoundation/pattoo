@@ -24,9 +24,9 @@ class UnittestConfig(object):
     def __init__(self):
         """Initialize the class."""
         # Initialize GLOBAL variables
-        config_suffix = '.pattoo-unittests/config'
+        config_suffix = '.pattoo-unittests{}config'.format(os.sep)
         self._config_directory = (
-            '{}/{}'.format(os.environ['HOME'], config_suffix))
+            '{}{}{}'.format(os.environ['HOME'], os.sep, config_suffix))
 
         # Make sure the environmental variables are OK
         _environment(self._config_directory)
@@ -93,7 +93,8 @@ class UnittestConfig(object):
         """
         # Write good_config to file
         for key, value in sorted(self._config.items()):
-            config_file = '{}/{}.yaml'.format(self._config_directory, key)
+            config_file = (
+                '{}{}{}.yaml'.format(self._config_directory, os.sep, key))
             with open(config_file, 'w') as f_handle:
                 yaml.dump(value, f_handle, default_flow_style=False)
 

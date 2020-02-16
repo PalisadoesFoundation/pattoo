@@ -22,12 +22,12 @@ import argparse
 DEV_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(
     os.path.abspath(os.path.join(DEV_DIR, os.pardir)), os.pardir))
-if DEV_DIR.endswith('/pattoo/tests/bin') is True:
+_EXPECTED = '{0}pattoo{0}tests{0}bin'.format(os.sep)
+if DEV_DIR.endswith(_EXPECTED) is True:
     sys.path.insert(0, ROOT_DIR)
 else:
-    print('''\
-This script is not installed in the "pattoo/tests/bin" directory. \
-Please fix.''')
+    print('''This script is not installed in the "{0}" directory. Please fix.\
+'''.format(_EXPECTED))
     sys.exit(2)
 
 # pattoo libraries
@@ -53,10 +53,10 @@ def main():
 
     # Determine unittest directory
     root_dir = ROOT_DIR
-    test_dir = '{}/tests'.format(root_dir)
+    test_dir = '{}{}tests'.format(root_dir, os.sep)
 
     # Create database tables if necessary
-    command = '{}/setup/install.py'.format(root_dir)
+    command = '{1}{0}setup{0}install.py'.format(os.sep, root_dir)
     run_script(command)
 
     # Run the test
@@ -66,7 +66,8 @@ def main():
     run_script(command)
 
     # Check error codes
-    command = '{}/tests/bin/error_code_report.py'.format(root_dir)
+    command = (
+        '{1}{0}tests{0}bin{0}error_code_report.py'.format(os.sep, root_dir))
     run_script(command)
 
     # Print
