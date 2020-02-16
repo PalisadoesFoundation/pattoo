@@ -18,12 +18,13 @@ graphene
 graphene-sqlalchemy
 
 # Web server packages
-Flask==1.1.1
+Flask
 Flask-GraphQL
 Flask-Caching
-Flask-Testing==0.7.1
+Flask-Testing
 gunicorn
 requests
+Werkzeug=0.16.0
 
 # Mathematical libraries
 numpy
