@@ -54,7 +54,7 @@ Follow these steps.
         FLUSH PRIVILEGES;
         exit;
 
-#. Populate the mandatory sections of the :doc:`configuration`
+#. Use the :doc:`configuration` to create a working configuration.
 #. Run the installation script
 
    .. code-block:: bash

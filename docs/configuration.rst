@@ -1,10 +1,12 @@
-Configuration
-=============
+###################
+Configuration Guide
+###################
 
 After installation, you will need to create a configuration file in a directory dedicated to ``pattoo``.
 
+*********************************************
 Setting the  Configuration Directory Location
----------------------------------------------
+*********************************************
 
 You must first set the location of the configuration directory by using the ``PATTOO_CONFIGDIR`` environmental variable. Here is how to do this from the Linux command line:
 
@@ -22,8 +24,46 @@ You can automatically set this variable each time you log in by adding these lin
 
 Make sure that files in this directory are readable by the user that will be running ``pattoo`` agent daemons or scripts.
 
+*********************
+Configuration Options
+*********************
+
+There are two ways to configure ``pattoo``. These are the:
+
+#. Quick Method
+#. Expert Method
+
+Quick Method
+============
+
+Use the quick method if you are new to ``pattoo``.
+
+Run the ``setup/configure.py`` script. It will prompt you for all configuration parameters. The defaults should be sufficient in most cases.
+
+To guarantee success you will need to know the following beforehand.
+
+#. ``db_name``: Database name
+#. ``db_username``: Database username
+#. ``db_password``: Database password
+#. ``db_hostname``: Database hostname
+
+Here's the command to run:
+
+.. code-block:: bash
+
+    setup/configure.py
+
+Run the installation script next as outlined in the :doc:`installation` guide.
+
+Expert Method
+=============
+
+This section goes into configuration parameters in great detail.
+
 Copy the Templates to Your Configuration Directory
 --------------------------------------------------
+
+Follow the steps in this section if you don't already have a valid configuration files in your ``PATTOO_CONFIGDIR`` directory.
 
 Copy the template files in the ``examples/etc`` directory to the ``PATTOO_CONFIGDIR`` location.
 

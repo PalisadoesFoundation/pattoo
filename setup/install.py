@@ -6,17 +6,17 @@ import sys
 import os
 import subprocess
 import traceback
-import textwrap
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
-if EXEC_DIR.endswith('/pattoo/setup') is True:
+_EXPECTED = '{0}pattoo{0}setup'.format(os.sep)
+if EXEC_DIR.endswith(_EXPECTED) is True:
     sys.path.append(ROOT_DIR)
 else:
-    print(
-        'This script is not installed in the "pattoo/bin" directory. '
-        'Please fix.')
+    print('''\
+This script is not installed in the "{}" directory. Please fix.\
+'''.format(_EXPECTED))
     sys.exit(2)
 
 
@@ -30,7 +30,7 @@ def check_pip3():
         None
 
     """
-    # Initialze key variables
+    # Initialize key variables
     lines = []
 
     # Read pip_requirements file
