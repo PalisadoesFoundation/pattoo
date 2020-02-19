@@ -39,7 +39,7 @@ Follow these steps.
 
    .. code-block:: bash
 
-      $ pip3 install -r pip_requirements.txt
+      $ pip3 install --user --requirement pip_requirements.txt
 
 #. Create the ``MySQL`` or ``MariaDB`` database for ``pattoo`` with the correct authentication parameters provided in the :doc:`configuration` In this example adjust the name of your database and the password accordingly.
 
@@ -59,7 +59,7 @@ Follow these steps.
 
    .. code-block:: bash
 
-      $ sudo setup/install.py
+      $ setup/install.py
 
 #. Start the ``bin/pattoo_api_agentd.py`` daemon to accept data sent by ``pattoo`` agents. :doc:`pattoo_api_agentd`
 #. Start the ``bin/pattoo_ingesterd.py`` daemon to process data sent by ``pattoo`` agents. :doc:`pattoo_ingesterd`
