@@ -33,7 +33,7 @@ class _Parser(argparse.ArgumentParser):
         sys.exit(2)
 
 
-class Parser(object):
+class Parser():
     """Class gathers all CLI information."""
 
     def __init__(self, additional_help=None):
@@ -97,7 +97,7 @@ class Parser(object):
         return (_args, parser)
 
 
-class _Show(object):
+class _Show():
     """Class gathers all CLI 'show' information."""
 
     def __init__(self, subparsers, width=80):
@@ -239,7 +239,7 @@ Show key-pair translation group parameters.''', width=width)
         )
 
 
-class _Assign(object):
+class _Assign():
     """Class gathers all CLI 'assign' information."""
 
     def __init__(self, subparsers, width=80):
@@ -328,7 +328,7 @@ Assign agent_group to a key-pair "translation group".''', width=width)
             required=True)
 
 
-class _Create(object):
+class _Create():
     """Class gathers all CLI 'create' information."""
 
     def __init__(self, subparsers, width=80):
@@ -433,7 +433,7 @@ Create key-pair translation group.''', width=width)
             required=True)
 
 
-class _Set(object):
+class _Set():
     """Class gathers all CLI 'set' information."""
 
     def __init__(self, subparsers, width=80):
@@ -550,7 +550,7 @@ Set key-pair translation group information.''', width=width)
             required=True)
 
 
-class _Import(object):
+class _Import():
     """Class gathers all CLI 'import' information."""
 
     def __init__(self, subparsers, width=80):

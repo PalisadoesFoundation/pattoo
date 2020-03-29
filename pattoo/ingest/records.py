@@ -22,7 +22,7 @@ from pattoo.db.table import pair, glue, data, datapoint
 from pattoo.configuration import ConfigIngester as Config
 
 
-class ExceptionWrapper(object):
+class ExceptionWrapper():
     """Class to handle unexpected exceptions with multiprocessing.
 
     Based on:
@@ -64,7 +64,7 @@ class ExceptionWrapper(object):
         raise self._error_exception.with_traceback(self._etraceback)
 
 
-class Records(object):
+class Records():
     """Process data using multiprocessing."""
 
     def __init__(self, pattoo_db_records_lists):

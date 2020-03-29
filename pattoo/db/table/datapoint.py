@@ -18,7 +18,7 @@ from pattoo.db.models import Data
 from pattoo.db.table import agent
 
 
-class DataPoint(object):
+class DataPoint():
     """Get data relevant to a DataPoint entry in the database."""
 
     def __init__(self, _idx_datapoint):

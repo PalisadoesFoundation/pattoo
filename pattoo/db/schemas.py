@@ -80,7 +80,7 @@ def resolve_units(obj, _):
 
 
 
-class DataAttribute(object):
+class DataAttribute():
     """Descriptive attributes of the Data table.
 
     A generic class to mutualize description of attributes for both queries
@@ -117,7 +117,7 @@ class DataConnections(relay.Connection):
         node = Data
 
 
-class PairAttribute(object):
+class PairAttribute():
     """Descriptive attributes of the Pair table.
 
     A generic class to mutualize description of attributes for both queries
@@ -156,7 +156,7 @@ class PairConnections(relay.Connection):
         node = Pair
 
 
-class DataPointAttribute(object):
+class DataPointAttribute():
     """Descriptive attributes of the DataPoint table.
 
     A generic class to mutualize description of attributes for both queries
@@ -208,7 +208,7 @@ class DataPointConnections(relay.Connection):
         node = DataPoint
 
 
-class GlueAttribute(object):
+class GlueAttribute():
     """Descriptive attributes of the Glue table.
 
     A generic class to mutualize description of attributes for both queries
@@ -242,7 +242,7 @@ class GlueConnections(relay.Connection):
         node = Glue
 
 
-class LanguageAttribute(object):
+class LanguageAttribute():
     """Descriptive attributes of the Language table.
 
     A generic class to mutualize description of attributes for both queries
@@ -281,7 +281,7 @@ class LanguageConnections(relay.Connection):
         node = Language
 
 
-class PairXlateGroupAttribute(object):
+class PairXlateGroupAttribute():
     """Descriptive attributes of the PairXlateGroup table.
 
     A generic class to mutualize description of attributes for both queries
@@ -319,7 +319,7 @@ class PairXlateGroupConnections(relay.Connection):
         node = PairXlateGroup
 
 
-class PairXlateAttribute(object):
+class PairXlateAttribute():
     """Descriptive attributes of the PairXlate table.
 
     A generic class to mutualize description of attributes for both queries
@@ -373,7 +373,7 @@ class PairXlateConnections(relay.Connection):
         node = PairXlate
 
 
-class AgentGroupAttribute(object):
+class AgentGroupAttribute():
     """Descriptive attributes of the AgentGroup table.
 
     A generic class to mutualize description of attributes for both queries
@@ -414,7 +414,7 @@ class AgentGroupConnections(relay.Connection):
         node = AgentGroup
 
 
-class AgentAttribute(object):
+class AgentAttribute():
     """Descriptive attributes of the Agent table.
 
     A generic class to mutualize description of attributes for both queries
@@ -463,7 +463,7 @@ class AgentConnections(relay.Connection):
         node = Agent
 
 
-class AgentXlateAttribute(object):
+class AgentXlateAttribute():
     """Descriptive attributes of the AgentXlate table.
 
     A generic class to mutualize description of attributes for both queries

@@ -18,7 +18,7 @@ import yaml
 from pattoo_shared import log
 
 
-class UnittestConfig(object):
+class UnittestConfig():
     """Creates configuration for testing."""
 
     def __init__(self):
