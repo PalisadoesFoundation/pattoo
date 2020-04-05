@@ -2,7 +2,8 @@
 """Pattoo classes that manage various data."""
 
 # Standard imports
-import multiprocessing
+from multiprocessing import get_context, cpu_count
+
 import sys
 import time
 import random
@@ -86,7 +87,7 @@ class Records():
         self._arguments = [
             (_, ) for _ in pattoo_db_records_lists if bool(_) is True]
         self._multiprocess = config.multiprocessing()
-        self._pool_size = multiprocessing.cpu_count()
+        self._pool_size = cpu_count()
 
     def multiprocess_pairs(self):
         """Update rows in the Pair database table if necessary.
@@ -106,7 +107,7 @@ class Records():
         pool_size = self._pool_size
 
         # Create a pool of sub process resources
-        with multiprocessing.Pool(processes=pool_size) as pool:
+        with get_context('spawn').Pool(processes=pool_size) as pool:
 
             # Create sub processes from the pool
             per_process_key_value_pairs = pool.starmap(
@@ -146,7 +147,7 @@ class Records():
         log.log2debug(20009, log_message)
 
         # Create a pool of sub process resources
-        with multiprocessing.Pool(processes=pool_size) as pool:
+        with get_context('spawn').Pool(processes=pool_size) as pool:
 
             # Create sub processes from the pool
             results = pool.starmap(
