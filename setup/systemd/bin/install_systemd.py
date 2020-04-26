@@ -241,8 +241,8 @@ def _get_runtime_directory(config_directory):
 "system_daemon_directory" parameter not found in the {} configuration file\
 '''.format(filepath))
 
-    result = result.replace('/var/run', 'run')
-    result = result.replace('/run', 'run')
+    result = result.replace('/var/run', '')
+    result = result.replace('/run', '')
     return result
 
 
