@@ -1,7 +1,7 @@
 Configuring systemd Daemons
 ===========================
 
-You can also setup all the ``pattoo`` daemons as system daemons by executing the ``setup/systemd/bin/install_systemd.py`` script.
+You can also setup all the ``pattoo`` related daemons located in this GitHub repository as system daemons by executing the ``setup/systemd/bin/install_systemd.py`` script.
 
 The script requires you to specify the following parameters. Make sure you have a username and group created for running your ``pattoo`` services.
 
@@ -17,6 +17,7 @@ The script requires you to specify the following parameters. Make sure you have 
                             Username that will run the daemon
       -g GROUP, --group GROUP
                             User group to which username belongs
+
 
 **Note** The daemons are not enabled or started by default. You will have to do this separately using the ``systemctl`` command after running the script.
 
