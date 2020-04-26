@@ -340,6 +340,8 @@ def main():
         args.username,
         args.group)
 
+    print(ROOT_DIR)
+
 
 if __name__ == '__main__':
     main()
