@@ -221,7 +221,7 @@ def _update_environment_strings(filepaths, username, group):
             _fp.writelines('{}\n'.format(line) for line in lines)
 
 
-def preflight(etc_dir, install_dir):
+def preflight(etc_dir):
     """Make sure the environment is OK.
 
     Args:
@@ -233,11 +233,6 @@ def preflight(etc_dir, install_dir):
 
 
     """
-    # Make sure install_dir exists
-    if os.path.isdir(install_dir) is False:
-        log('''Expected pattoo installation directory "{}" does not exist.\
-'''.format(install_dir))
-
     # Verify whether the script is being run by root or sudo user
     if bool(os.getuid()) is True:
         log('This script must be run as the "root" user '
@@ -293,11 +288,10 @@ def main():
     # Initialize key variables
     etc_dir = '/etc/systemd/system/multi-user.target.wants'
     args = arguments()
-    install_dir = os.path.expanduser(args.installation_dir)
 
     # Make sure this system supports systemd and that
     # the required directories exist
-    preflight(etc_dir, install_dir)
+    preflight(etc_dir)
 
     # Check symlink location of files in that directory
     target_directory = _symlink_dir(etc_dir)
