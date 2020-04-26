@@ -20,6 +20,7 @@ import argparse
 from subprocess import check_output, call
 from shutil import copyfile
 from pathlib import Path
+import yaml
 
 # Try to create a working PYTHONPATH
 _EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -158,13 +159,12 @@ def _symlink_dir(directory):
 
 
 def _update_environment_strings(
-        filepaths, config_dir, var_run_dir, username, group):
+        filepaths, config_dir, username, group):
     """Update the environment variables in the filepaths files.
 
     Args:
         filepaths: List of filepaths
         config_dir: Directory where configurations will be stored
-        var_run_dir: Installation directory
         username: Username to run daemon
         group: Group of user to run daemon
 
@@ -199,7 +199,8 @@ def _update_environment_strings(
 
                 # Add RuntimeDirectory
                 if bool(re.search(env_run, line)) is True:
-                    _line = 'RuntimeDirectory={}'.format(var_run_dir)
+                    _line = 'RuntimeDirectory={}'.format(
+                        _get_runtime_directory(config_dir))
 
                 # Add user
                 if bool(re.search(env_user, line)) is True:
@@ -217,13 +218,40 @@ def _update_environment_strings(
             _fp.writelines('{}\n'.format(line) for line in lines)
 
 
-def preflight(config_dir, etc_dir, var_run_dir):
+def _get_runtime_directory(config_directory):
+    """Get the RuntimeDirectory.
+
+    Args:
+        config_dir: Configuration directory
+
+    Returns:
+        result: Var run directorye
+
+    """
+    result = None
+    filepath = '{}{}pattoo.yaml'.format(config_directory, os.sep)
+    with open(filepath, 'r') as file_handle:
+        yaml_from_file = file_handle.read()
+    config = yaml.safe_load(yaml_from_file)
+    pattoo = config.get('pattoo')
+    if bool(pattoo) is True:
+        result = pattoo.get('system_daemon_directory')
+    if result is None:
+        log('''\
+"system_daemon_directory" parameter not found in the {} configuration file\
+'''.format(filepath))
+
+    result = result.replace('/var/run', 'run')
+    result = result.replace('/run', 'run')
+    return result
+
+
+def preflight(config_dir, etc_dir):
     """Make sure the environment is OK.
 
     Args:
         config_dir: Location of the configuratiion directory
         etc_dir: Location of the systemd files
-        var_run_dir: Location of the pattoo files
 
     Returns:
         None
@@ -234,11 +262,6 @@ def preflight(config_dir, etc_dir, var_run_dir):
     if os.path.isdir(config_dir) is False:
         log('''\
 Expected configuration directory "{}" does not exist.'''.format(config_dir))
-
-    # Make sure var_run_dir exists
-    if os.path.isdir(var_run_dir) is False:
-        log('''\
-Expected pattoo directory "{}" does not exist.'''.format(var_run_dir))
 
     # Verify whether the script is being run by root or sudo user
     if bool(os.getuid()) is True:
@@ -260,12 +283,10 @@ def arguments():
     """Get the CLI arguments.
 
     Args:
-        config:
-            Config object
+        None
 
     Returns:
         args: NamedTuple of argument values
-
 
     """
     # Get config_dir value
@@ -274,11 +295,6 @@ def arguments():
         '-f', '--config_dir',
         help=('''\
 Directory where the pattoo configuration files will be located'''),
-        required=True)
-    parser.add_argument(
-        '-r', '--var_run_dir',
-        help=('''\
-Directory where the pattoo will store temporary daemon files.'''),
         required=True)
     parser.add_argument(
         '-u', '--username',
@@ -306,11 +322,10 @@ def main():
     etc_dir = '/etc/systemd/system/multi-user.target.wants'
     args = arguments()
     config_dir = os.path.expanduser(args.config_dir)
-    var_run_dir = os.path.expanduser(args.installation_dir)
 
     # Make sure this system supports systemd and that
     # the required directories exist
-    preflight(config_dir, etc_dir, var_run_dir)
+    preflight(config_dir, etc_dir)
 
     # Check symlink location of files in that directory
     target_directory = _symlink_dir(etc_dir)
@@ -322,7 +337,6 @@ def main():
     _update_environment_strings(
         destination_filepaths,
         config_dir,
-        var_run_dir,
         args.username,
         args.group)
 
