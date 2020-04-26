@@ -7,17 +7,12 @@ The script requires you to specify the following parameters. Make sure you have 
 
 .. code-block:: bash
 
-    usage: install_systemd.py [-h] -f CONFIG_DIR -i INSTALLATION_DIR -u USERNAME
-                              -g GROUP
+    usage: install_systemd.py [-h] -f CONFIG_DIR -u USERNAME -g GROUP
 
     optional arguments:
       -h, --help            show this help message and exit
       -f CONFIG_DIR, --config_dir CONFIG_DIR
-                            Directory where the pattoo configuration files will be
-                            located
-      -i INSTALLATION_DIR, --installation_dir INSTALLATION_DIR
-                            Directory where the pattoo is installed. (Must end
-                            with ``/pattoo``)
+                            Directory where the pattoo configuration files will be located
       -u USERNAME, --username USERNAME
                             Username that will run the daemon
       -g GROUP, --group GROUP
@@ -28,7 +23,7 @@ The script requires you to specify the following parameters. Make sure you have 
 
 .. code-block:: bash
 
-   $ sudo setup/systemd/bin/install_systemd.py --config_dir=~/GitHub/pattoo/etc --user pattoo --group pattoo --install ~/GitHub/pattoo
+   $ sudo setup/systemd/bin/install_systemd.py --user pattoo --group pattoo --config_dir /etc/pattoo
 
    SUCCESS! You are now able to start/stop and enable/disable the following systemd services:
 
