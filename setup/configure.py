@@ -44,7 +44,7 @@ def pattoo_config(config_directory):
         '/var/run/pattoo' if getpass.getuser() == 'root' else home_directory)
     default_config = {
         'pattoo': {
-            'languate': 'en',
+            'language': 'en',
             'log_directory': (
                 '{1}{0}pattoo{0}log'.format(os.sep, home_directory)),
             'log_level': 'debug',
