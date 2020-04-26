@@ -24,10 +24,11 @@ import yaml
 
 # Try to create a working PYTHONPATH
 _EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(os.path.abspath(
-    os.path.join(os.path.abspath(os.path.join(os.path.abspath(
-        os.path.join(
-            _EXEC_DIR, os.pardir)), os.pardir)), os.pardir)), os.pardir))
+ROOT_DIR = os.path.abspath(os.path.join(
+    os.path.abspath(os.path.join(
+        os.path.abspath(os.path.join(
+            _EXEC_DIR,
+            os.pardir)), os.pardir)), os.pardir))
 if _EXEC_DIR.endswith('/setup/systemd/bin') is True:
     sys.path.append(ROOT_DIR)
 else:
