@@ -5,6 +5,7 @@
 import sys
 import os
 from pathlib import Path
+import getpass
 
 try:
     import yaml
@@ -39,6 +40,8 @@ def pattoo_config(config_directory):
     # Initialize key variables
     home_directory = str(Path.home())
     filepath = '{}{}pattoo.yaml'.format(config_directory, os.sep)
+    run_dir = (
+        '/var/run/pattoo' if getpass.getuser() == 'root' else home_directory)
     default_config = {
         'pattoo': {
             'languate': 'en',
@@ -48,7 +51,10 @@ def pattoo_config(config_directory):
             'cache_directory': (
                 '{1}{0}pattoo{0}cache'.format(os.sep, home_directory)),
             'daemon_directory': (
-                '{1}{0}pattoo{0}daemon'.format(os.sep, home_directory))
+                '{1}{0}pattoo{0}daemon'.format(os.sep, home_directory)),
+            'system_daemon_directory': ('''\
+/var/run/pattoo''' if getpass.getuser() == 'root' else (
+    '{1}{0}pattoo{0}daemon'.format(os.sep, run_dir)))
         },
         'pattoo_agent_api': {
             'ip_address': '127.0.0.1',
