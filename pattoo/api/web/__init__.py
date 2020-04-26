@@ -35,13 +35,30 @@ PATTOO_API_WEB.register_blueprint(
 
 @PATTOO_API_WEB.teardown_appcontext
 def shutdown_session(exception=None):
-    """Support the home route.
+    """Remove any unused POOL sessions after flask query.
+
+    This is really important. Repeated requests to a URI after a database
+    update could return current and previous depending on whether a previously
+    cached connection is reused. This prevents this possibility.
+
+    https://flask.palletsprojects.com/en/1.1.x/patterns/sqlalchemy/
+
+    Which states:
+
+    'To use SQLAlchemy in a declarative way with your application, you just
+    have to put the following code into your application module. Flask will
+    automatically remove database sessions at the end of the request or when
+    the application shuts down.'
+
+    Overrides shutdown_session() method found in:
+
+    https://github.com/pallets/flask-sqlalchemy/blob/master/flask_sqlalchemy/__init__.py
 
     Args:
-        None
+        exception: Unused override value for exception.
 
     Returns:
-        GraphQL goodness
+        None
 
     """
     POOL.remove()
