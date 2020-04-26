@@ -196,6 +196,7 @@ The ``pattoo.yaml`` file created from the template will have sections that you w
        log_directory: PATTOO_LOG_DIRECTORY
        cache_directory: PATTOO_CACHE_DIRECTORY
        daemon_directory: PATTOO_DAEMON_DIRECTORY
+       system_daemon_directory: PATTOO_SYSTEM_DAEMON_DIRECTORY
 
 
 Client Configuration Explanation
@@ -224,3 +225,6 @@ This table outlines the purpose of each configuration parameter.
    * -
      - ``daemon_directory``
      - Directory used to store daemon related data that needs to be maintained between reboots
+   * -
+     - ``system_daemon_directory``
+     - Directory used to store daemon related data that should be deleted between reboots. This should only be configured if you are running ``pattoo`` daemons as ``systemd`` daemons. The ``systemd`` daemon installation procedure automatically adjusts this configuration. This parameter defaults to the ``daemon_directory`` value if it is not configured. 
