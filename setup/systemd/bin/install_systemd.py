@@ -35,9 +35,6 @@ This script is not installed in the "setup/systemd/bin" \
 directory. Please fix.''')
     sys.exit(2)
 
-# Use the pattoo
-from pattoo_shared import configuration
-
 
 def log(msg):
     """Log messages to STDIO and exit.
@@ -160,22 +157,22 @@ def _symlink_dir(directory):
     return result
 
 
-def _update_environment_strings(filepaths, username, group):
+def _update_environment_strings(
+        filepaths, config_dir, var_run_dir, username, group):
     """Update the environment variables in the filepaths files.
 
     Args:
         filepaths: List of filepaths
         config_dir: Directory where configurations will be stored
+        var_run_dir: Installation directory
         username: Username to run daemon
         group: Group of user to run daemon
-        run_dir: RuntimeDirectory
 
     Returns:
         None
 
     """
     # Initialize key variables
-    config = configuration.BaseConfig()
     env_path = '^Environment="PATTOO_CONFIGDIR=(.*?)"$'
     env_user = '^User=(.*?)$'
     env_group = '^Group=(.*?)$'
@@ -198,7 +195,11 @@ def _update_environment_strings(filepaths, username, group):
                 # Test PATTOO_CONFIGDIR
                 if bool(re.search(env_path, line)) is True:
                     _line = 'Environment="PATTOO_CONFIGDIR={}"'.format(
-                        config.config_directory())
+                        config_dir)
+
+                # Add RuntimeDirectory
+                if bool(re.search(env_run, line)) is True:
+                    _line = 'RuntimeDirectory={}'.format(var_run_dir)
 
                 # Add user
                 if bool(re.search(env_user, line)) is True:
@@ -208,11 +209,6 @@ def _update_environment_strings(filepaths, username, group):
                 if bool(re.search(env_group, line)) is True:
                     _line = 'Group={}'.format(group)
 
-                # Add RuntimeDirectory
-                if bool(re.search(env_run, line)) is True:
-                    _line = 'RuntimeDirectory={}'.format(
-                        config.system_daemon_directory())
-
                 lines.append(_line)
                 line = _fp.readline()
 
@@ -221,18 +217,29 @@ def _update_environment_strings(filepaths, username, group):
             _fp.writelines('{}\n'.format(line) for line in lines)
 
 
-def preflight(etc_dir):
+def preflight(config_dir, etc_dir, var_run_dir):
     """Make sure the environment is OK.
 
     Args:
+        config_dir: Location of the configuratiion directory
         etc_dir: Location of the systemd files
-        install_dir: Location of the pattoo files
+        var_run_dir: Location of the pattoo files
 
     Returns:
         None
 
 
     """
+    # Make sure config_dir exists
+    if os.path.isdir(config_dir) is False:
+        log('''\
+Expected configuration directory "{}" does not exist.'''.format(config_dir))
+
+    # Make sure var_run_dir exists
+    if os.path.isdir(var_run_dir) is False:
+        log('''\
+Expected pattoo directory "{}" does not exist.'''.format(var_run_dir))
+
     # Verify whether the script is being run by root or sudo user
     if bool(os.getuid()) is True:
         log('This script must be run as the "root" user '
@@ -264,6 +271,16 @@ def arguments():
     # Get config_dir value
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '-f', '--config_dir',
+        help=('''\
+Directory where the pattoo configuration files will be located'''),
+        required=True)
+    parser.add_argument(
+        '-r', '--var_run_dir',
+        help=('''\
+Directory where the pattoo will store temporary daemon files.'''),
+        required=True)
+    parser.add_argument(
         '-u', '--username',
         help=('Username that will run the daemon'),
         required=True)
@@ -288,10 +305,12 @@ def main():
     # Initialize key variables
     etc_dir = '/etc/systemd/system/multi-user.target.wants'
     args = arguments()
+    config_dir = os.path.expanduser(args.config_dir)
+    var_run_dir = os.path.expanduser(args.installation_dir)
 
     # Make sure this system supports systemd and that
     # the required directories exist
-    preflight(etc_dir)
+    preflight(config_dir, etc_dir, var_run_dir)
 
     # Check symlink location of files in that directory
     target_directory = _symlink_dir(etc_dir)
@@ -302,6 +321,8 @@ def main():
     # Update the environment strings
     _update_environment_strings(
         destination_filepaths,
+        config_dir,
+        var_run_dir,
         args.username,
         args.group)
 
