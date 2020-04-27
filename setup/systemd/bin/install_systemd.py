@@ -15,10 +15,10 @@ Logic:
 from __future__ import print_function
 import sys
 import os
+import shutil
 import re
 import argparse
 from subprocess import check_output, call
-from shutil import copyfile
 from pathlib import Path
 import yaml
 
@@ -105,7 +105,7 @@ def _copy_service_files(target_directory):
 
     # Copy files
     for source_filepath, destination_filepath in sorted(src_dst.items()):
-        copyfile(source_filepath, destination_filepath)
+        shutil.copyfile(source_filepath, destination_filepath)
         destination_filepaths.append(destination_filepath)
 
     # Make systemd aware of the new services
@@ -198,10 +198,13 @@ def _update_environment_strings(
                     _line = 'Environment="PATTOO_CONFIGDIR={}"'.format(
                         config_dir)
 
-                # Add RuntimeDirectory
+                # Add RuntimeDirectory and create
                 if bool(re.search(env_run, line)) is True:
-                    _line = 'RuntimeDirectory={}'.format(
-                        _get_runtime_directory(config_dir))
+                    (run_path,
+                     relative_run_path) = _get_runtime_directory(config_dir)
+                    _line = 'RuntimeDirectory={}'.format(relative_run_path)
+                    os.makedirs(run_path, 0o750, exist_ok=True)
+                    shutil.chown(run_path, user=username, group=group)
 
                 # Add user
                 if bool(re.search(env_user, line)) is True:
@@ -226,7 +229,7 @@ def _get_runtime_directory(config_directory):
         config_dir: Configuration directory
 
     Returns:
-        result: Var run directorye
+        tuple: (Path, Relative Path to /var/run)
 
     """
     result = None
@@ -242,9 +245,9 @@ def _get_runtime_directory(config_directory):
 "system_daemon_directory" parameter not found in the {} configuration file\
 '''.format(filepath))
 
-    result = result.replace('/var/run/', '')
-    result = result.replace('/run/', '')
-    return result
+    _result = result.replace('/var/run/', '')
+    _result = _result.replace('/run/', '')
+    return (result, _result)
 
 
 def preflight(config_dir, etc_dir):
