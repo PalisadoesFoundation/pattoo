@@ -6,6 +6,7 @@ import sys
 import os
 from pathlib import Path
 import getpass
+import shutil
 
 try:
     import yaml
@@ -73,8 +74,7 @@ def pattoo_config(config_directory):
     config = read_config(filepath, default_config)
     for section, item in sorted(config.items()):
         for key, value in sorted(item.items()):
-            new_value = prompt(
-                '{}: {}'.format(section, key), value)
+            new_value = prompt(section, key, value)
             config[section][key] = new_value
 
     # Check validity of directories
@@ -138,8 +138,7 @@ def pattoo_server_config(config_directory):
     config = read_config(filepath, default_config)
     for section, item in sorted(config.items()):
         for key, value in sorted(item.items()):
-            new_value = prompt(
-                '{}: {}'.format(section, key), value)
+            new_value = prompt(section, key, value)
             config[section][key] = new_value
 
     # Write file
@@ -173,7 +172,7 @@ def read_config(filepath, default_config):
     return config
 
 
-def prompt(key, default_value):
+def prompt(section, key, default_value):
     """Log messages and exit abnormally.
 
     Args:
@@ -185,10 +184,20 @@ def prompt(key, default_value):
 
     """
     # Get input from user
-    result = input('''Enter "{}" value (Hit <enter> for: "{}"):\
-'''.format(key, default_value))
+    result = input('''Enter "{}: {}" value (Hit <enter> for: "{}"): \
+'''.format(section, key, default_value))
     if bool(result) is False:
         result = default_value
+
+        # Try to create necessary directories
+        if 'directory' in key:
+            try:
+                os.makedirs(result, mode=0o750, exist_ok=True)
+            except:
+                _log('''\
+Cannot create directory {} in configuration file. Check parent directory \
+permissions and typos'''.format(result))
+
     return result
 
 
