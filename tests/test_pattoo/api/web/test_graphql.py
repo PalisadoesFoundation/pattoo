@@ -115,15 +115,19 @@ class TestBasicFunctions(LiveServerTestCase):
         # Test
         query = ('''\
 {
-  filterIdxDatapoint(idxDatapoint: "IDX") {
-    checksum
+  allDatapoints(idxDatapoint: "IDX") {
+    edges {
+      node {
+        checksum
+      }
+    }
   }
 }
 '''.replace('IDX', str(idx_datapoint)))
 
         # Test
         graphql_result = _get(query)
-        result = graphql_result['data']['filterIdxDatapoint'][0]
+        result = graphql_result['data']['allDatapoints']['edges'][0]['node']
         self.assertEqual(result['checksum'], pattoo_checksum)
 
 
