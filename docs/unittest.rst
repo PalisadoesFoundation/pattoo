@@ -41,6 +41,7 @@ Setting up Syslog Error Codes
     Available Codes            : [20141, 20142, 20143, 20144, 20145]
     $
 
+Everything is OK if there are no `Duplicate Codes to Resolve`.
 
 Running Tests
 -------------
