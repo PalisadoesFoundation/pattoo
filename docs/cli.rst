@@ -91,60 +91,21 @@ To view the agents posting data to the ``pattoo`` server use the ``bin/pattoo_cl
   3          pattoo_agent_os_autonomousd  nada          1
   4          pattoo_agent_os_spoked       nada          1
 
-Viewing Agent Groups
-^^^^^^^^^^^^^^^^^^^^
 
-To view the groups to which the agents belong use the ``bin/pattoo_cli.py show agent_group`` command.
-
-.. code-block:: text
-
-    $ bin/pattoo_cli.py show agent_group
-
-    idx_agent_group  name            idx_agent  agent_program                agent_target  enabled
-
-    1                Pattoo Default                                                        1
-
-    2                IfMIB Agents    2          pattoo_agent_snmpd           localhost     1
-                                     3          pattoo_agent_snmp_ifmibd     localhost
-
-    3                OS Agents       1          pattoo_agent_os_autonomousd  swim          1
-
-Creating Agent Groups
-^^^^^^^^^^^^^^^^^^^^^
-
-To create a new ``agent`` group use the ``bin/pattoo_cli.py create agent_group`` command.
-
-.. code-block:: text
-
-  $ bin/pattoo_cli.py create agent_group --name "Stock Market Agents"
-
-In this case we create a new ``agent`` group with the name "Stock Market Agents"
-
-Upadating Agent Group Names
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-You can update the name of an ``agent`` group using the ``bin/pattoo_cli.py set agent_group`` command. You must specify the group's ``idx_agent_group`` value and a name.
-
-.. code-block:: text
-
-  $ bin/pattoo_cli.py set agent_group --idx_agent_group 7 --name 'New Agent Group Name'
-
-In this example we have changed the name to 'New Agent Group Name' for ``idx_agent_group`` 7.
-
-Assigning Agents to Agent Groups
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Assigning Agents to Key-Pair Translations Groups
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 There are some important things to know first.
 
 1. Each agent has an ``idx_agent`` number that can be seen in the first column of the ``bin/pattoo_cli.py show agent`` command.
-1. Each agent group has an ``idx_agent_group`` number that can be seen in the first column of the ``bin/pattoo_cli.py show agent_group`` command.
+1. Each agent group has an ``idx_pair_xlate_group`` number that can be seen in the first column of the ``bin/pattoo_cli.py show key_translation`` command.
 
 To assign an ``agent`` to an ``agent group`` use the ``bin/pattoo_cli.py assign agent`` command.
 
 .. code-block:: text
 
-    $ bin/pattoo_cli.py assign agent --idx_agent 2 --idx_agent_group 4
+    $ bin/pattoo_cli.py assign agent --idx_agent 2 --idx_pair_xlate_group 4
 
-In this case we have assigned agent with an ``idx_agent`` agent number of ``2`` to the ``idx_agent_group`` group number ``4``
+In this case we have assigned agent with an ``idx_agent`` agent number of ``2`` to the ``idx_pair_xlate_group`` group number ``4``
 
 Key-Pair Translations
 ---------------------
@@ -164,13 +125,13 @@ You can view these ``agent group`` to ``translation group`` assignments using th
 
     $ bin/pattoo_cli.py show key_translation_group
 
-    idx_pair_xlate_group  translation_group_name         idx_agent_group  agent_group_name  enabled
+    idx_pair_xlate_group  translation_group_name         enabled
 
-    1                     Pattoo Default                 1                Pattoo Default           1
+    1                     Pattoo Default                 1
 
-    2                     IfMIB Agents                   2                IfMIB Agents             1
+    2                     IfMIB Agents                   1
 
-    3                     OS Agents                      3                OS Agents                1
+    3                     OS Agents                      1
 
 Creating Translation Groups
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

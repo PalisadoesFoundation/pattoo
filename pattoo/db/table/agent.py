@@ -8,8 +8,7 @@ from sqlalchemy import and_
 
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.models import Agent, AgentGroup
-from pattoo.db.models import PairXlateGroup as PXG
+from pattoo.db.models import Agent
 
 
 def idx_exists(idx):
@@ -90,14 +89,13 @@ def exists(agent_id, agent_target):
     return result
 
 
-def insert_row(agent_id, agent_target, agent_program, idx_agent_group=1):
+def insert_row(agent_id, agent_target, agent_program):
     """Create the database Agent.agent value.
 
     Args:
         agent_id: Agent ID value (pattoo_agent_id)
         agent_target: Agent target (pattoo_agent_polled_target)
         agent_program: Agent program (pattoo_agent_program)
-        idx_agent_group: AgentGroup table ForeignKey
 
     Returns:
         None
@@ -109,16 +107,15 @@ def insert_row(agent_id, agent_target, agent_program, idx_agent_group=1):
         with db.db_modify(20036, die=True) as session:
             session.add(Agent(agent_id=agent_id.encode(),
                               agent_polled_target=agent_target.encode(),
-                              agent_program=agent_program.encode(),
-                              idx_agent_group=idx_agent_group))
+                              agent_program=agent_program.encode()))
 
 
-def assign(_idx_agent, idx_agent_group):
+def assign(_idx_agent, _idx_pair_xlate_group):
     """Assign an agent to an agent group.
 
     Args:
         idx_agent: Agent index
-        idx_agent_group: Agent group index
+        _idx_pair_xlate_group: idx_pair_xlate_group for the agent
 
     Returns:
         None
@@ -128,7 +125,7 @@ def assign(_idx_agent, idx_agent_group):
     with db.db_modify(20059, die=False) as session:
         session.query(Agent).filter(
             Agent.idx_agent == _idx_agent).update(
-                {'idx_agent_group': idx_agent_group}
+                {'idx_pair_xlate_group': _idx_pair_xlate_group}
             )
 
 
@@ -148,10 +145,8 @@ def idx_pair_xlate_group(agent_id):
 
     # Get the result
     with db.db_query(20079) as session:
-        rows = session.query(PXG.idx_pair_xlate_group).filter(and_(
-            Agent.agent_id == str(agent_id).encode(),
-            PXG.idx_pair_xlate_group == AgentGroup.idx_pair_xlate_group,
-            Agent.idx_agent_group == AgentGroup.idx_agent_group))
+        rows = session.query(Agent.idx_pair_xlate_group).filter(
+            Agent.agent_id == str(agent_id).encode())
 
     # Return
     for row in rows:

@@ -5,7 +5,7 @@ import sys
 
 # Import project libraries
 from pattoo_shared import log
-from pattoo.db.table import language, agent_group, pair_xlate_group
+from pattoo.db.table import language, pair_xlate_group
 
 
 def process(args):
@@ -21,9 +21,6 @@ def process(args):
     # Process options
     if args.qualifier == 'language':
         _process_language(args)
-        sys.exit(0)
-    elif args.qualifier == 'agent_program':
-        _process_agent_group(args)
         sys.exit(0)
     elif args.qualifier == 'key_translation_group':
         _process_pair_xlate_group(args)
@@ -46,31 +43,6 @@ def _process_language(args):
     else:
         log_message = 'Language code "{}" not found.'.format(args.code)
         log.log2die(20005, log_message)
-
-
-def _process_agent_group(args):
-    """Process agent_group cli arguments.
-
-    Args:
-        args: CLI argparse parser arguments
-
-    Returns:
-        None
-
-    """
-    # Initialize key variables
-    exists = agent_group.idx_exists(args.idx_agent_group)
-    if bool(exists) is True:
-        if args.idx_agent_group != 1:
-            agent_group.update_name(
-                args.idx_agent_group, args.name)
-        else:
-            log_message = 'Cannot change Agent group 1'
-            log.log2die(20054, log_message)
-    else:
-        log_message = (
-            'Agent group  "{}" not found.'.format(args.idx_agent_group))
-        log.log2die(20038, log_message)
 
 
 def _process_pair_xlate_group(args):

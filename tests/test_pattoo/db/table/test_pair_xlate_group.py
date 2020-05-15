@@ -27,7 +27,7 @@ else:
 from pattoo_shared import data
 from tests.libraries.configuration import UnittestConfig
 from pattoo.db.table import pair_xlate_group
-from pattoo.db.models import PairXlateGroup, Language
+from pattoo.db.models import PairXlateGroup
 from pattoo.db import db
 
 
