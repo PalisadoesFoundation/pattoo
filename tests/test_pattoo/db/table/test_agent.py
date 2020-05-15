@@ -26,7 +26,7 @@ else:
 
 from pattoo_shared import data
 from tests.libraries.configuration import UnittestConfig
-from pattoo.db.table import agent, agent_group, pair_xlate_group
+from pattoo.db.table import agent, pair_xlate_group
 from pattoo.db.models import Agent
 from pattoo.db import db
 
@@ -88,10 +88,16 @@ class TestBasicFunctions(unittest.TestCase):
 
     def test_assign(self):
         """Testing method / function assign."""
-        # Create a new AgentGroup entry
-        translation = data.hashstring(str(random()))
-        agent_group.insert_row(translation)
-        idx_agent_group = agent_group.exists(translation)
+        # Add an entry to the database
+        name = data.hashstring(str(random()))
+        pair_xlate_group.insert_row(name)
+
+        # Make sure it exists
+        idx_pair_xlate_group = pair_xlate_group.exists(name)
+
+        # Verify the index exists
+        result = pair_xlate_group.idx_exists(idx_pair_xlate_group)
+        self.assertTrue(result)
 
         # Prepare for adding an entry to the database
         agent_id = data.hashstring(str(random()))
@@ -106,22 +112,15 @@ class TestBasicFunctions(unittest.TestCase):
         agent.insert_row(agent_id, agent_target, agent_program)
         idx_agent = agent.exists(agent_id, agent_target)
 
-        # Get current idx_agent for the agent
-        with db.db_query(20001) as session:
-            result = session.query(Agent.idx_agent_group).filter(
-                Agent.idx_agent == idx_agent).one()
-        idx_original = result.idx_agent_group
-        self.assertNotEqual(idx_agent_group, idx_original)
-
         # Assign
-        agent.assign(idx_agent, idx_agent_group)
+        agent.assign(idx_agent, idx_pair_xlate_group)
 
-        # Get current idx_agent_group for the agent group
+        # Get assigned idx_pair_xlate_group for the agent group
         with db.db_query(20099) as session:
-            result = session.query(Agent.idx_agent_group).filter(
+            result = session.query(Agent.idx_pair_xlate_group).filter(
                 Agent.idx_agent == idx_agent).one()
-        idx_new = result.idx_agent_group
-        self.assertEqual(idx_agent_group, idx_new)
+        idx_new = result.idx_pair_xlate_group
+        self.assertEqual(idx_pair_xlate_group, idx_new)
 
     def test_idx_pair_xlate_group(self):
         """Testing method / function idx_pair_xlate_group."""
@@ -131,24 +130,14 @@ class TestBasicFunctions(unittest.TestCase):
         idx_pair_xlate_group = pair_xlate_group.exists(translation)
 
         # Add an entry to the database
-        translation = data.hashstring(str(random()))
-        agent_group.insert_row(translation)
-
-        # Make sure it exists
-        idx_agent_group = agent_group.exists(translation)
-
-        # Assign AgentGroup
-        agent_group.assign(idx_agent_group, idx_pair_xlate_group)
-
-        # Add an entry to the database
         agent_id = data.hashstring(str(random()))
         agent_target = data.hashstring(str(random()))
         agent_program = data.hashstring(str(random()))
         agent.insert_row(agent_id, agent_target, agent_program)
         idx_agent = agent.exists(agent_id, agent_target)
 
-        # Assign Agent got AgentGroup
-        agent.assign(idx_agent, idx_agent_group)
+        # Assign Agent got PairXlateGroup
+        agent.assign(idx_agent, idx_pair_xlate_group)
 
         # Test
         result = agent.idx_pair_xlate_group(agent_id)

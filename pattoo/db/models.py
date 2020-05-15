@@ -190,47 +190,6 @@ class PairXlate(BASE):
             'pair_xlate_language', uselist=True, cascade='delete,all'))
 
 
-class AgentGroup(BASE):
-    """Class defining the pt_agent_group table of the database."""
-
-    __tablename__ = 'pt_agent_group'
-    __table_args__ = (
-        UniqueConstraint('name'),
-        {'mysql_engine': 'InnoDB'}
-    )
-
-    idx_agent_group = Column(
-        BIGINT(unsigned=True), primary_key=True,
-        autoincrement=True, nullable=False)
-
-    idx_pair_xlate_group = Column(
-        BIGINT(unsigned=True),
-        ForeignKey('pt_pair_xlate_group.idx_pair_xlate_group'),
-        index=True, nullable=False, server_default='1')
-
-    name = Column(
-        VARBINARY(MAX_KEYPAIR_LENGTH),
-        index=True, nullable=False, default=None)
-
-    enabled = Column(
-        BIGINT(unsigned=True), nullable=False, server_default='1')
-
-    ts_modified = Column(
-        DATETIME, server_default=text(
-            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
-
-    ts_created = Column(
-        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
-
-    # Use cascade='delete,all' to propagate the deletion of a
-    # PairXlateGroup onto its PairXlate
-    pair_xlate_group = relationship(
-        PairXlateGroup,
-        backref=backref(
-            'agent_group_pair_xlate_group',
-            uselist=True, cascade='delete,all'))
-
-
 class Agent(BASE):
     """Class defining the pt_agent table of the database."""
 
@@ -244,9 +203,9 @@ class Agent(BASE):
         BIGINT(unsigned=True), primary_key=True,
         autoincrement=True, nullable=False)
 
-    idx_agent_group = Column(
+    idx_pair_xlate_group = Column(
         BIGINT(unsigned=True),
-        ForeignKey('pt_agent_group.idx_agent_group'),
+        ForeignKey('pt_pair_xlate_group.idx_pair_xlate_group'),
         index=True, nullable=False, server_default='1')
 
     agent_id = Column(
@@ -269,11 +228,11 @@ class Agent(BASE):
         DATETIME, server_default=text('CURRENT_TIMESTAMP'))
 
     # Use cascade='delete,all' to propagate the deletion of a
-    # PairXlateGroup onto its PairXlate
-    agent_group = relationship(
-        AgentGroup,
+    # PairXlateGroup onto its Agent
+    pair_xlate_group = relationship(
+        PairXlateGroup,
         backref=backref(
-            'agent_agent_group', uselist=True, cascade='delete,all'))
+            'agent_pair_xlate_group', uselist=True, cascade='delete,all'))
 
 
 class DataPoint(BASE):
