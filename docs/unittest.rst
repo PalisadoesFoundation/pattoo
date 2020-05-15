@@ -15,7 +15,7 @@ The unittests assume that a MySQL / MariaDB testing database has been created wi
 
 Create a database and grant full privileges to the `travis` user.
 
-.. code-block::
+.. code-block:: mysql
 
       # mysql
       MariaDB [(none)]> CREATE DATABASE pattoo_unittest;
@@ -29,7 +29,7 @@ Setting up Syslog Error Codes
 
 `pattoo` uses unique error code numbers for syslog messages to make troubleshooting easier. Run the `tests/bin/error_code_report.py` script before the unittests to make there are no duplicates. The unittests will fail if there are duplicates.
 
-.. code-block::
+.. code-block:: text
 
     $ tests/bin/error_code_report.py
 
