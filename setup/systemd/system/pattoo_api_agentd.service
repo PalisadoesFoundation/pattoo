@@ -5,6 +5,7 @@ After=network.target mysql.service mysqld.service mariadb.service mariadb@.servi
 
 [Service]
 Environment="PATTOO_CONFIGDIR=x"
+RuntimeDirectoryPreserve=yes
 RuntimeDirectory=PATTOO_SYSTEM_DAEMON_DIRECTORY
 User=pattoo
 Group=pattoo
