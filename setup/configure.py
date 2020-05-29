@@ -6,6 +6,7 @@ import sys
 import os
 from pathlib import Path
 import getpass
+import subprocess
 
 try:
     import yaml
@@ -26,6 +27,27 @@ This script is not installed in the "{}" directory. Please fix.\
 '''.format(_EXPECTED))
     sys.exit(2)
 
+def already_written(file_path,env_export):
+    with open(file_path,'r') as file:
+        for line in file:
+            if line == env_export:
+                return True
+        return False
+def set_configdir():
+    """
+    Automatically sets the configuration directory
+    Args:
+        None
+    Returns:
+        None
+    """
+    path = os.path.join(os.path.join(os.path.expanduser('~')), '.bash_profile')
+    config_path = '/opt/Calico/config'
+    env_export = 'export PATTOO_CONFIGDIR={}'.format(config_path)
+    with open(path,'a') as file:
+        if not (already_written(path,env_export)):
+            file.write(env_export)
+    os.environ['PATTOO_CONFIGDIR'] = config_path
 
 def pattoo_config(config_directory):
     """Create pattoo.yaml file.
@@ -39,19 +61,20 @@ def pattoo_config(config_directory):
     """
     # Initialize key variables
     home_directory = str(Path.home())
+    opt_directory = '{0}opt{0}pattoo'.format(os.sep)
     filepath = '{}{}pattoo.yaml'.format(config_directory, os.sep)
     run_dir = (
-        '/var/run/pattoo' if getpass.getuser() == 'root' else home_directory)
+        '/var/run/pattoo' if getpass.getuser() == 'root' else opt_directory)
     default_config = {
         'pattoo': {
             'language': 'en',
             'log_directory': (
-                '{1}{0}pattoo{0}log'.format(os.sep, home_directory)),
+                '{1}{0}pattoo{0}log'.format(os.sep, opt_directory)),
             'log_level': 'debug',
             'cache_directory': (
-                '{1}{0}pattoo{0}cache'.format(os.sep, home_directory)),
+                '{1}{0}pattoo{0}cache'.format(os.sep, opt_directory)),
             'daemon_directory': (
-                '{1}{0}pattoo{0}daemon'.format(os.sep, home_directory)),
+                '{1}{0}pattoo{0}daemon'.format(os.sep, opt_directory)),
             'system_daemon_directory': ('''\
 /var/run/pattoo''' if getpass.getuser() == 'root' else (
     '{1}{0}pattoo{0}daemon'.format(os.sep, run_dir)))
@@ -167,7 +190,6 @@ def read_config(filepath, default_config):
             config = yaml.safe_load(yaml_string)
     else:
         config = default_config
-
     return config
 
 
@@ -244,6 +266,8 @@ def main():
 
     """
     # Initialize key variables
+    if os.environ.get('PATTOO_CONFIGDIR') == None:
+        set_configdir()
     config_directory = os.environ.get('PATTOO_CONFIGDIR')
 
     # Make sure the PATTOO_CONFIGDIR environment variable is set
