@@ -5,7 +5,7 @@
 import sys
 import os
 from pathlib import Path
-
+import getpass
 try:
     import yaml
 except:
@@ -16,7 +16,7 @@ except:
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
-_EXPECTED = '{0}pattoo{0}setup'.format(os.sep)
+_EXPECTED = '{0}pattoo{0}setup{0}configure'.format(os.sep)
 if EXEC_DIR.endswith(_EXPECTED) is True:
     sys.path.append(ROOT_DIR)
 else:
@@ -24,6 +24,45 @@ else:
 This script is not installed in the "{}" directory. Please fix.\
 '''.format(_EXPECTED))
     sys.exit(2)
+
+
+def already_written(file_path, env_export):
+    """
+    Check if the CONFIG_DIR had already been exported.
+
+    Args:
+        file_path: The path to bash_profile
+        env_export: The line being exported to bash_profile
+
+    Returns:
+        True: if the line that exports the PATTOO CONFIGDIR is already in
+        bash profile
+        False: if the line that exports the PATTOO CONFIGDIR had not been
+        written to bash profile
+    """
+    with open(file_path, 'r') as file:
+        for line in file:
+            if line == env_export:
+                return True
+        return False
+
+
+def set_configdir(filepath):
+    """
+    Automatically sets the configuration directory.
+
+    Args:
+        The file path for bash_profile
+
+    Returns:
+        None
+    """
+    config_path = '/opt/pattoo/config'
+    env_export = 'export PATTOO_CONFIGDIR={}'.format(config_path)
+    with open(filepath, 'a') as file:
+        if not (already_written(filepath, env_export)):
+            file.write(env_export)
+    os.environ['PATTOO_CONFIGDIR'] = config_path
 
 
 def pattoo_config(config_directory):
@@ -34,21 +73,25 @@ def pattoo_config(config_directory):
 
     Returns:
         None
-
     """
     # Initialize key variables
-    home_directory = str(Path.home())
+    opt_directory = '{0}opt{0}pattoo'.format(os.sep)
     filepath = '{}{}pattoo.yaml'.format(config_directory, os.sep)
+    run_dir = (
+        '/var/run/pattoo' if getpass.getuser() == 'root' else opt_directory)
     default_config = {
         'pattoo': {
-            'languate': 'en',
+            'language': 'en',
             'log_directory': (
-                '{1}{0}pattoo{0}log'.format(os.sep, home_directory)),
+                '{1}{0}pattoo{0}log'.format(os.sep, opt_directory)),
             'log_level': 'debug',
             'cache_directory': (
-                '{1}{0}pattoo{0}cache'.format(os.sep, home_directory)),
+                '{1}{0}pattoo{0}cache'.format(os.sep, opt_directory)),
             'daemon_directory': (
-                '{1}{0}pattoo{0}daemon'.format(os.sep, home_directory))
+                '{1}{0}pattoo{0}daemon'.format(os.sep, opt_directory)),
+            'system_daemon_directory': ('''\
+/var/run/pattoo''' if getpass.getuser() == 'root' else (
+                '{1}{0}pattoo{0}daemon'.format(os.sep, run_dir)))
         },
         'pattoo_agent_api': {
             'ip_address': '127.0.0.1',
@@ -67,8 +110,7 @@ def pattoo_config(config_directory):
     config = read_config(filepath, default_config)
     for section, item in sorted(config.items()):
         for key, value in sorted(item.items()):
-            new_value = prompt(
-                '{}: {}'.format(section, key), value)
+            new_value = prompt(section, key, value)
             config[section][key] = new_value
 
     # Check validity of directories
@@ -132,8 +174,7 @@ def pattoo_server_config(config_directory):
     config = read_config(filepath, default_config)
     for section, item in sorted(config.items()):
         for key, value in sorted(item.items()):
-            new_value = prompt(
-                '{}: {}'.format(section, key), value)
+            new_value = prompt(section, key, value)
             config[section][key] = new_value
 
     # Write file
@@ -163,11 +204,10 @@ def read_config(filepath, default_config):
             config = yaml.safe_load(yaml_string)
     else:
         config = default_config
-
     return config
 
 
-def prompt(key, default_value):
+def prompt(section, key, default_value):
     """Log messages and exit abnormally.
 
     Args:
@@ -179,10 +219,20 @@ def prompt(key, default_value):
 
     """
     # Get input from user
-    result = input('''Enter "{}" value (Hit <enter> for: "{}"):\
-'''.format(key, default_value))
+    result = input('''Enter "{}: {}" value (Hit <enter> for: "{}"): \
+'''.format(section, key, default_value))
     if bool(result) is False:
         result = default_value
+
+        # Try to create necessary directories
+        if 'directory' in key:
+            try:
+                os.makedirs(result, mode=0o750, exist_ok=True)
+            except:
+                _log('''\
+Cannot create directory {} in configuration file. Check parent directory \
+permissions and typos'''.format(result))
+
     return result
 
 
@@ -230,6 +280,10 @@ def main():
 
     """
     # Initialize key variables
+    if os.environ.get('PATTOO_CONFIGDIR') is None:
+        path = os.path.join(os.path.join(os.path.expanduser('~')),
+                            '.bash_profile')
+        set_configdir(path)
     config_directory = os.environ.get('PATTOO_CONFIGDIR')
 
     # Make sure the PATTOO_CONFIGDIR environment variable is set

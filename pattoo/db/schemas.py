@@ -5,14 +5,27 @@ Used for defining GraphQL interaction
 
 Based on the pages at:
 
+    Basic Setup
+    ===========
+
     https://github.com/alexisrolland/flask-graphene-sqlalchemy/wiki/Flask-Graphene-SQLAlchemy-Tutorial
     https://docs.graphene-python.org/projects/sqlalchemy/en/latest/tutorial/
+
+    Filtering based on DB column values
+    ===================================
+    https://github.com/graphql-python/graphene-sqlalchemy/issues/27#issuecomment-361978832
 
 """
 # PIP3 imports
 import graphene
 from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
+
+# Required for InstrumentedQuery
+from graphene.utils.str_converters import to_snake_case
+from graphene.relay.connection import PageInfo
+from graphql_relay.connection.arrayconnection import connection_from_list_slice
+from sqlalchemy import desc, asc
 
 # pattoo imports
 from pattoo.db.models import (
@@ -27,6 +40,8 @@ from pattoo.db.models import (
         AgentGroup as AgentGroupModel,
         Agent as AgentModel
     )
+
+from pattoo_shared import log
 
 
 def resolve_checksum(obj, _):
@@ -79,8 +94,79 @@ def resolve_units(obj, _):
     return obj.units.decode()
 
 
+###############################################################################
+# Add filtering support:
+#
+# https://github.com/graphql-python/graphene-sqlalchemy/issues/27#issuecomment-361978832
+#
+# Simpler solution with less functionality:
+# https://github.com/graphql-python/graphene-sqlalchemy/issues/27#issuecomment-341824371
+#
+###############################################################################
 
-class DataAttribute(object):
+class InstrumentedQuery(SQLAlchemyConnectionField):
+    """Class to allow GraphQL filtering by SQlAlchemycolumn name.
+
+        Add filtering support:
+        https://github.com/graphql-python/graphene-sqlalchemy/issues/27#issuecomment-361978832
+
+    """
+
+    def __init__(self, type_, **kwargs):
+        self.query_args = {}
+        for key, value in type_._meta.fields.items():
+            if isinstance(value, graphene.Field):
+                # Test
+                field_type = value.type
+                if isinstance(field_type, graphene.NonNull):
+                    field_type = field_type.of_type
+                self.query_args[key] = field_type()
+        args = kwargs.pop('args', dict())
+        args.update(self.query_args)
+        args['sort_by'] = graphene.List(graphene.String, required=False)
+        SQLAlchemyConnectionField.__init__(self, type_, args=args, **kwargs)
+
+    def get_query(self, model, info, **args):
+        """Replace the get_query method."""
+        query_filters = {k: v for k, v in args.items() if k in self.query_args}
+        query = model.query.filter_by(**query_filters)
+        if 'sort_by' in args:
+            criteria = [self.get_order_by_criterion(
+                model, *arg.split(' ')) for arg in args['sort_by']]
+            query = query.order_by(*criteria)
+        return query
+
+    def connection_resolver(
+            self, resolver, connection, model, root, info, **args):
+        query = resolver(
+            root, info, **args) or self.get_query(model, info, **args)
+        count = query.count()
+        connection = connection_from_list_slice(
+            query,
+            args,
+            slice_start=0,
+            list_length=count,
+            list_slice_length=count,
+            connection_type=connection,
+            pageinfo_type=PageInfo,
+            edge_type=connection.Edge,
+        )
+        connection.iterable = query
+        connection.length = count
+        return connection
+
+    @staticmethod
+    def get_order_by_criterion(model, name, direction='asc'):
+        order_functions = {'asc': asc, 'desc': desc}
+        return order_functions[
+            direction.lower()](getattr(model, to_snake_case(name)))
+
+###############################################################################
+# Map database table columns to igraphql attributes
+###############################################################################
+
+
+class DataAttribute():
     """Descriptive attributes of the Data table.
 
     A generic class to mutualize description of attributes for both queries
@@ -108,16 +194,7 @@ class Data(SQLAlchemyObjectType, DataAttribute):
         interfaces = (graphene.relay.Node,)
 
 
-class DataConnections(relay.Connection):
-    """GraphQL / SQlAlchemy Connection to the Data table."""
-
-    class Meta:
-        """Define the metadata."""
-
-        node = Data
-
-
-class PairAttribute(object):
+class PairAttribute():
     """Descriptive attributes of the Pair table.
 
     A generic class to mutualize description of attributes for both queries
@@ -147,16 +224,7 @@ class Pair(SQLAlchemyObjectType, PairAttribute):
         interfaces = (graphene.relay.Node,)
 
 
-class PairConnections(relay.Connection):
-    """GraphQL / SQlAlchemy Connection to the Pair table."""
-
-    class Meta:
-        """Define the metadata."""
-
-        node = Pair
-
-
-class DataPointAttribute(object):
+class DataPointAttribute():
     """Descriptive attributes of the DataPoint table.
 
     A generic class to mutualize description of attributes for both queries
@@ -199,16 +267,7 @@ class DataPoint(SQLAlchemyObjectType, DataPointAttribute):
         interfaces = (graphene.relay.Node,)
 
 
-class DataPointConnections(relay.Connection):
-    """GraphQL / SQlAlchemy Connection to the DataPoint table."""
-
-    class Meta:
-        """Define the metadata."""
-
-        node = DataPoint
-
-
-class GlueAttribute(object):
+class GlueAttribute():
     """Descriptive attributes of the Glue table.
 
     A generic class to mutualize description of attributes for both queries
@@ -233,16 +292,7 @@ class Glue(SQLAlchemyObjectType, GlueAttribute):
         interfaces = (graphene.relay.Node,)
 
 
-class GlueConnections(relay.Connection):
-    """GraphQL / SQlAlchemy Connection to the Glue table."""
-
-    class Meta:
-        """Define the metadata."""
-
-        node = Glue
-
-
-class LanguageAttribute(object):
+class LanguageAttribute():
     """Descriptive attributes of the Language table.
 
     A generic class to mutualize description of attributes for both queries
@@ -272,16 +322,7 @@ class Language(SQLAlchemyObjectType, LanguageAttribute):
         interfaces = (graphene.relay.Node,)
 
 
-class LanguageConnections(relay.Connection):
-    """GraphQL / SQlAlchemy Connection to the Language table."""
-
-    class Meta:
-        """Define the metadata."""
-
-        node = Language
-
-
-class PairXlateGroupAttribute(object):
+class PairXlateGroupAttribute():
     """Descriptive attributes of the PairXlateGroup table.
 
     A generic class to mutualize description of attributes for both queries
@@ -310,16 +351,7 @@ class PairXlateGroup(SQLAlchemyObjectType, PairXlateGroupAttribute):
         interfaces = (graphene.relay.Node,)
 
 
-class PairXlateGroupConnections(relay.Connection):
-    """GraphQL / SQlAlchemy Connection to the PairXlateGroup table."""
-
-    class Meta:
-        """Define the metadata."""
-
-        node = PairXlateGroup
-
-
-class PairXlateAttribute(object):
+class PairXlateAttribute():
     """Descriptive attributes of the PairXlate table.
 
     A generic class to mutualize description of attributes for both queries
@@ -364,16 +396,7 @@ class PairXlate(SQLAlchemyObjectType, PairXlateAttribute):
         interfaces = (graphene.relay.Node,)
 
 
-class PairXlateConnections(relay.Connection):
-    """GraphQL / SQlAlchemy Connection to the PairXlate table."""
-
-    class Meta:
-        """Define the metadata."""
-
-        node = PairXlate
-
-
-class AgentGroupAttribute(object):
+class AgentGroupAttribute():
     """Descriptive attributes of the AgentGroup table.
 
     A generic class to mutualize description of attributes for both queries
@@ -405,16 +428,7 @@ class AgentGroup(SQLAlchemyObjectType, AgentGroupAttribute):
         interfaces = (graphene.relay.Node,)
 
 
-class AgentGroupConnections(relay.Connection):
-    """GraphQL / SQlAlchemy Connection to the AgentGroup table."""
-
-    class Meta:
-        """Define the metadata."""
-
-        node = AgentGroup
-
-
-class AgentAttribute(object):
+class AgentAttribute():
     """Descriptive attributes of the Agent table.
 
     A generic class to mutualize description of attributes for both queries
@@ -454,16 +468,7 @@ class Agent(SQLAlchemyObjectType, AgentAttribute):
         interfaces = (graphene.relay.Node,)
 
 
-class AgentConnections(relay.Connection):
-    """GraphQL / SQlAlchemy Connection to the Agent table."""
-
-    class Meta:
-        """Define the metadata."""
-
-        node = Agent
-
-
-class AgentXlateAttribute(object):
+class AgentXlateAttribute():
     """Descriptive attributes of the AgentXlate table.
 
     A generic class to mutualize description of attributes for both queries
@@ -499,15 +504,6 @@ class AgentXlate(SQLAlchemyObjectType, AgentXlateAttribute):
         interfaces = (graphene.relay.Node,)
 
 
-class AgentXlateConnections(relay.Connection):
-    """GraphQL / SQlAlchemy Connection to the AgentXlate table."""
-
-    class Meta:
-        """Define the metadata."""
-
-        node = AgentXlate
-
-
 class Query(graphene.ObjectType):
     """Define GraphQL queries."""
 
@@ -515,80 +511,43 @@ class Query(graphene.ObjectType):
 
     # Results as a single entry filtered by 'id' and as a list
     glue = graphene.relay.Node.Field(Glue)
-    all_glues = SQLAlchemyConnectionField(GlueConnections)
+    all_glues = InstrumentedQuery(Glue)
 
     # Results as a single entry filtered by 'id' and as a list
     datapoint = graphene.relay.Node.Field(DataPoint)
-    all_datapoints = SQLAlchemyConnectionField(DataPointConnections)
+    all_datapoints = InstrumentedQuery(DataPoint)
 
     # Results as a single entry filtered by 'id' and as a list
     pair = graphene.relay.Node.Field(Pair)
-    all_pairs = SQLAlchemyConnectionField(PairConnections)
+    all_pairs = InstrumentedQuery(Pair)
 
     # Results as a single entry filtered by 'id' and as a list
     data = graphene.relay.Node.Field(Data)
-    all_data = SQLAlchemyConnectionField(DataConnections)
+    all_data = InstrumentedQuery(Data)
 
     # Results as a single entry filtered by 'id' and as a list
     language = graphene.relay.Node.Field(Language)
-    all_language = SQLAlchemyConnectionField(LanguageConnections)
+    all_language = InstrumentedQuery(Language)
 
     # Results as a single entry filtered by 'id' and as a list
     pair_xlate_group = graphene.relay.Node.Field(PairXlateGroup)
-    all_pair_xlate_group = SQLAlchemyConnectionField(PairXlateGroupConnections)
+    all_pair_xlate_group = InstrumentedQuery(PairXlateGroup)
 
     # Results as a single entry filtered by 'id' and as a list
     pair_xlate = graphene.relay.Node.Field(PairXlate)
-    all_pair_xlate = SQLAlchemyConnectionField(PairXlateConnections)
+    all_pair_xlate = InstrumentedQuery(PairXlate)
 
     # Results as a single entry filtered by 'id' and as a list
     agent_xlate = graphene.relay.Node.Field(AgentXlate)
-    all_agent_xlate = SQLAlchemyConnectionField(AgentXlateConnections)
+    all_agent_xlate = InstrumentedQuery(AgentXlate)
 
     # Results as a single entry filtered by 'id' and as a list
     agent_group = graphene.relay.Node.Field(AgentGroup)
-    all_agent_group = SQLAlchemyConnectionField(AgentGroupConnections)
+    all_agent_group = InstrumentedQuery(AgentGroup)
 
     # Results as a single entry filtered by 'id' and as a list
     agent = graphene.relay.Node.Field(Agent)
-    all_agent = SQLAlchemyConnectionField(AgentConnections)
-
-    ###########################################################################
-    # Example: filterPairXlateKey
-    ###########################################################################
-    filter_pair_xlate_key = graphene.Field(
-        lambda: graphene.List(PairXlate),
-        key=graphene.String())
-
-    def resolve_filter_pair_xlate_key(self, info, key):
-        """Filter by column PairXlate.key."""
-        query = PairXlate.get_query(info)
-        return query.filter(PairXlateModel.key == key.encode())
-
-    ###########################################################################
-    # Example: Filter "keys"
-    ###########################################################################
-    keys = graphene.Field(
-        lambda: graphene.List(PairXlate),
-        idx_pair_xlate_group=graphene.Float())
-
-    def resolve_keys(self, info, idx_pair_xlate_group):
-        """Filter by column PairXlate.idx_pair_xlate_group."""
-        query = PairXlate.get_query(info)
-        return query.filter(
-            PairXlateModel.idx_pair_xlate_group == idx_pair_xlate_group)
-
-    ###########################################################################
-    # Example: filterIdxDataPoint
-    ###########################################################################
-    filter_idx_datapoint = graphene.Field(
-        lambda: graphene.List(DataPoint),
-        idx_datapoint=graphene.String())
-
-    def resolve_filter_idx_datapoint(self, info, idx_datapoint):
-        """Filter by column DataPoint.idx_datapoint."""
-        query = DataPoint.get_query(info)
-        return query.filter(DataPointModel.idx_datapoint == idx_datapoint)
+    all_agent = InstrumentedQuery(Agent)
 
 
 # Make the schema global

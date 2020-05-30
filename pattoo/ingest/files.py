@@ -13,7 +13,7 @@ from pattoo.constants import PATTOO_API_AGENT_NAME, PATTOO_INGESTER_NAME
 from .records import Records
 
 
-class Cache(object):
+class Cache():
     """Process ingest cache data."""
 
     def __init__(self, batch_size=500, age=0):

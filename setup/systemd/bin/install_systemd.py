@@ -15,18 +15,20 @@ Logic:
 from __future__ import print_function
 import sys
 import os
+import shutil
 import re
 import argparse
 from subprocess import check_output, call
-from shutil import copyfile
 from pathlib import Path
+import yaml
 
 # Try to create a working PYTHONPATH
 _EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(os.path.abspath(
-    os.path.join(os.path.abspath(os.path.join(os.path.abspath(
-        os.path.join(
-            _EXEC_DIR, os.pardir)), os.pardir)), os.pardir)), os.pardir))
+ROOT_DIR = os.path.abspath(os.path.join(
+    os.path.abspath(os.path.join(
+        os.path.abspath(os.path.join(
+            _EXEC_DIR,
+            os.pardir)), os.pardir)), os.pardir))
 if _EXEC_DIR.endswith('/setup/systemd/bin') is True:
     sys.path.append(ROOT_DIR)
 else:
@@ -103,7 +105,7 @@ def _copy_service_files(target_directory):
 
     # Copy files
     for source_filepath, destination_filepath in sorted(src_dst.items()):
-        copyfile(source_filepath, destination_filepath)
+        shutil.copyfile(source_filepath, destination_filepath)
         destination_filepaths.append(destination_filepath)
 
     # Make systemd aware of the new services
@@ -158,13 +160,12 @@ def _symlink_dir(directory):
 
 
 def _update_environment_strings(
-        filepaths, config_dir, install_dir, username, group):
+        filepaths, config_dir, username, group):
     """Update the environment variables in the filepaths files.
 
     Args:
         filepaths: List of filepaths
         config_dir: Directory where configurations will be stored
-        install_dir: Installation directory
         username: Username to run daemon
         group: Group of user to run daemon
 
@@ -176,6 +177,7 @@ def _update_environment_strings(
     env_path = '^Environment="PATTOO_CONFIGDIR=(.*?)"$'
     env_user = '^User=(.*?)$'
     env_group = '^Group=(.*?)$'
+    env_run = '^RuntimeDirectory=(.*?)$'
 
     # Do the needful
     for filepath in filepaths:
@@ -189,12 +191,20 @@ def _update_environment_strings(
                 _line = line.strip()
 
                 # Fix the binary directory
-                _line = _line.replace('INSTALLATION_DIRECTORY', install_dir)
+                _line = _line.replace('INSTALLATION_DIRECTORY', ROOT_DIR)
 
                 # Test PATTOO_CONFIGDIR
                 if bool(re.search(env_path, line)) is True:
                     _line = 'Environment="PATTOO_CONFIGDIR={}"'.format(
                         config_dir)
+
+                # Add RuntimeDirectory and create
+                if bool(re.search(env_run, line)) is True:
+                    (run_path,
+                     relative_run_path) = _get_runtime_directory(config_dir)
+                    _line = 'RuntimeDirectory={}'.format(relative_run_path)
+                    os.makedirs(run_path, 0o750, exist_ok=True)
+                    shutil.chown(run_path, user=username, group=group)
 
                 # Add user
                 if bool(re.search(env_user, line)) is True:
@@ -212,13 +222,40 @@ def _update_environment_strings(
             _fp.writelines('{}\n'.format(line) for line in lines)
 
 
-def preflight(config_dir, etc_dir, install_dir):
+def _get_runtime_directory(config_directory):
+    """Get the RuntimeDirectory.
+
+    Args:
+        config_dir: Configuration directory
+
+    Returns:
+        tuple: (Path, Relative Path to /var/run)
+
+    """
+    result = None
+    filepath = '{}{}pattoo.yaml'.format(config_directory, os.sep)
+    with open(filepath, 'r') as file_handle:
+        yaml_from_file = file_handle.read()
+    config = yaml.safe_load(yaml_from_file)
+    pattoo = config.get('pattoo')
+    if bool(pattoo) is True:
+        result = pattoo.get('system_daemon_directory')
+    if result is None:
+        log('''\
+"system_daemon_directory" parameter not found in the {} configuration file\
+'''.format(filepath))
+
+    _result = result.replace('/var/run/', '')
+    _result = _result.replace('/run/', '')
+    return (result, _result)
+
+
+def preflight(config_dir, etc_dir):
     """Make sure the environment is OK.
 
     Args:
         config_dir: Location of the configuratiion directory
         etc_dir: Location of the systemd files
-        install_dir: Location of the pattoo files
 
     Returns:
         None
@@ -229,11 +266,6 @@ def preflight(config_dir, etc_dir, install_dir):
     if os.path.isdir(config_dir) is False:
         log('''\
 Expected configuration directory "{}" does not exist.'''.format(config_dir))
-
-    # Make sure install_dir exists
-    if os.path.isdir(install_dir) is False:
-        log('''\
-Expected pattoo directory "{}" does not exist.'''.format(install_dir))
 
     # Verify whether the script is being run by root or sudo user
     if bool(os.getuid()) is True:
@@ -255,12 +287,10 @@ def arguments():
     """Get the CLI arguments.
 
     Args:
-        config:
-            Config object
+        None
 
     Returns:
         args: NamedTuple of argument values
-
 
     """
     # Get config_dir value
@@ -269,11 +299,6 @@ def arguments():
         '-f', '--config_dir',
         help=('''\
 Directory where the pattoo configuration files will be located'''),
-        required=True)
-    parser.add_argument(
-        '-i', '--installation_dir',
-        help=('''\
-Directory where the pattoo is installed. (Must end with '/pattoo')'''),
         required=True)
     parser.add_argument(
         '-u', '--username',
@@ -301,11 +326,10 @@ def main():
     etc_dir = '/etc/systemd/system/multi-user.target.wants'
     args = arguments()
     config_dir = os.path.expanduser(args.config_dir)
-    install_dir = os.path.expanduser(args.installation_dir)
 
     # Make sure this system supports systemd and that
     # the required directories exist
-    preflight(config_dir, etc_dir, install_dir)
+    preflight(config_dir, etc_dir)
 
     # Check symlink location of files in that directory
     target_directory = _symlink_dir(etc_dir)
@@ -317,7 +341,6 @@ def main():
     _update_environment_strings(
         destination_filepaths,
         config_dir,
-        install_dir,
         args.username,
         args.group)
 

@@ -6,6 +6,7 @@ import sys
 import os
 import subprocess
 import traceback
+import getpass
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -19,6 +20,10 @@ This script is not installed in the "{}" directory. Please fix.\
 '''.format(_EXPECTED))
     sys.exit(2)
 
+
+def install_missing(package):
+    _run_script('pip3 install --user {}'.format(package))
+    # subprocess.check_call([sys.executable,'-m','pip3','install',str(package)])
 
 def check_pip3():
     """Ensure PIP3 packages are installed correctly.
@@ -60,10 +65,9 @@ def check_pip3():
         command = 'pip3 show {}'.format(package)
         (returncode, _, _) = _run_script(command, die=False)
         if bool(returncode) is True:
-            log_message = ('''\
-Python3 "{}" package not installed or pip3 command not found. Please fix.\
-'''.format(package))
-            _log(log_message)
+            # If the pack
+            install_missing(package)
+            # Insert pip3 install function
         print('OK: package {}'.format(line))
 
 
@@ -79,9 +83,10 @@ def check_config():
     """
     # Print Status
     print('??: Checking configuration')
-
     # Make sure the PATTOO_CONFIGDIR environment variable is set
+    
     if 'PATTOO_CONFIGDIR' not in os.environ:
+
         log_message = ('''\
 Set your PATTOO_CONFIGDIR to point to your configuration directory like this:
 
@@ -166,7 +171,7 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
         messages.append(traceback.format_exc())
 
     # Crash if the return code is not 0
-    if bool(returncode) is True:
+    if bool(returncode) is True :
         # Print the Return Code header
         messages.append(
             'Return code:{}'.format(returncode)
@@ -185,12 +190,14 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
             )
 
         # Log message
-        for log_message in messages:
-            print(log_message)
+        print("messages: {})".format(messages))
+        if messages != []:
+            for log_message in messages:
+                print(log_message)
 
-        if bool(die) is True:
-            # All done
-            sys.exit(2)
+            if bool(die) is True:
+                # All done
+                sys.exit(2)
 
     # Return
     return (returncode, stdoutdata, stderrdata)

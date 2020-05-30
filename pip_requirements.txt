@@ -4,7 +4,7 @@
 
 # Pattoo packages
 
-PattooShared==0.0.83
+PattooShared==0.0.84
 
 # Miscellaneous packages
 PyYAML
@@ -14,7 +14,6 @@ PyMySQL
 SQLAlchemy
 
 # GraphQL packages
-graphene
 graphene-sqlalchemy
 
 # Web server packages
@@ -24,7 +23,7 @@ Flask-Caching
 Flask-Testing
 gunicorn
 requests
-Werkzeug==0.16.0
+Werkzeug
 
 # Mathematical libraries
 numpy
