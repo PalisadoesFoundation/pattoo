@@ -1,9 +1,8 @@
 import setuptools
 
 
-
 setuptools.setup(
-    name="Pattoo-Installation-Jason-Gayle", # Replace with your own username
+    name="Pattoo-Installation-Jason-Gayle",  # Replace with your own username
     version="0.0.1",
     author="Jason Gayle",
     author_email="jasonblue1626@gmail.com",
