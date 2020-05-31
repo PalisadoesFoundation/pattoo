@@ -6,12 +6,14 @@ import sys
 import os
 import subprocess
 import traceback
-import getpass
+
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
-_EXPECTED = '{0}pattoo{0}setup'.format(os.sep)
+print(ROOT_DIR)
+print(os.pardir)
+_EXPECTED = '{0}pattoo{0}setup{0}install'.format(os.sep)
 if EXEC_DIR.endswith(_EXPECTED) is True:
     sys.path.append(ROOT_DIR)
 else:
@@ -22,8 +24,9 @@ This script is not installed in the "{}" directory. Please fix.\
 
 
 def install_missing(package):
+    """Install missing pip3 packages."""
     _run_script('pip3 install --user {}'.format(package))
-    # subprocess.check_call([sys.executable,'-m','pip3','install',str(package)])
+
 
 def check_pip3():
     """Ensure PIP3 packages are installed correctly.
@@ -32,7 +35,7 @@ def check_pip3():
         None
 
     Returns:
-        None
+        True if pip3 packages are installed successfully
 
     """
     # Initialize key variables
@@ -40,15 +43,14 @@ def check_pip3():
 
     # Read pip_requirements file
     filepath = '{}{}pip_requirements.txt'.format(ROOT_DIR, os.sep)
+
     if os.path.isfile(filepath) is False:
         _log('Cannot find PIP3 requirements file {}'.format(filepath))
-
     with open(filepath, 'r') as _fp:
         line = _fp.readline()
         while line:
             # Strip line
             _line = line.strip()
-
             # Read line
             if True in [_line.startswith('#'), bool(_line) is False]:
                 pass
@@ -57,6 +59,7 @@ def check_pip3():
             line = _fp.readline()
 
     # Try to import the modules listed in the file
+    # Add conditional to check if verbose option is selected
     for line in lines:
         # Determine the package
         package = line.split('=', 1)[0]
@@ -69,6 +72,7 @@ def check_pip3():
             install_missing(package)
             # Insert pip3 install function
         print('OK: package {}'.format(line))
+    return True
 
 
 def check_config():
@@ -78,40 +82,33 @@ def check_config():
         None
 
     Returns:
-        None
+        True to represet a sucessful configuration
 
     """
     # Print Status
     print('??: Checking configuration')
     # Make sure the PATTOO_CONFIGDIR environment variable is set
-    
+
     if 'PATTOO_CONFIGDIR' not in os.environ:
-
-        log_message = ('''\
-Set your PATTOO_CONFIGDIR to point to your configuration directory like this:
-
-$ export PATTOO_CONFIGDIR=/path/to/configuration/directory
-
-Then run this command again.
-''')
-        _log(log_message)
+        # Sets the default if the pattoo config dir is not in os.environ
+        os.environ['PATTOO_CONFIGDIR'] = '/opt/pattoo/config'
 
     # Make sure the PATTOO_CONFIGDIR environment variable is set
     if os.path.isdir(os.environ['PATTOO_CONFIGDIR']) is False:
         log_message = ('''\
-Set your PATTOO_CONFIGDIR cannot be found. Set the variable to point to an \
-existing directory:
+    Set your PATTOO_CONFIGDIR cannot be found. Set the variable to point to an \
+    existing directory:
 
-$ export PATTOO_CONFIGDIR=/path/to/configuration/directory
+    $ export PATTOO_CONFIGDIR=/path/to/configuration/directory
 
-Then run this command again.
-''')
+    Then run this command again.
+    ''')
         _log(log_message)
-
-    #  Check parameters in the configuration
-    filepath = '{}{}setup/_check_config.py'.format(ROOT_DIR, os.sep)
-    _run_script(filepath)
+        #  Check parameters in the configuration
+        filepath = '{}{}setup/_check_config.py'.format(ROOT_DIR, os.sep)
+        _run_script(filepath)
     print('OK: Configuration check passed')
+    return True
 
 
 def check_database():
@@ -121,7 +118,7 @@ def check_database():
         None
 
     Returns:
-        None
+        True to represent the databaase being successfully configured
 
     """
     #  Check database
@@ -129,6 +126,7 @@ def check_database():
     filepath = '{}{}setup/_check_database.py'.format(ROOT_DIR, os.sep)
     _run_script(filepath)
     print('OK: Database setup complete.')
+    return True
 
 
 def _run_script(cli_string, die=True):
@@ -171,7 +169,7 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
         messages.append(traceback.format_exc())
 
     # Crash if the return code is not 0
-    if bool(returncode) is True :
+    if bool(returncode) is True:
         # Print the Return Code header
         messages.append(
             'Return code:{}'.format(returncode)
@@ -254,7 +252,7 @@ def _log(message):
 
 
 def main():
-    """Setup pattoo.
+    """Main driver for pattoo setup.
 
     Args:
         None
