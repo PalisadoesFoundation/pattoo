@@ -56,7 +56,8 @@ def main():
     test_dir = '{}{}tests'.format(root_dir, os.sep)
 
     # Create database tables if necessary
-    command = '{1}{0}setup{0}install.py'.format(os.sep, root_dir)
+    command = (
+        '{1}{0}setup{0}installation_lib{0}install.py'.format(os.sep, root_dir))
     run_script(command)
 
     # Run the test

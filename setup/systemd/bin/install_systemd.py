@@ -284,7 +284,8 @@ Expected configuration directory "{}" does not exist.'''.format(config_dir))
 
 
 def arguments():
-    """Get the CLI arguments.
+    """
+    Get the CLI arguments.
 
     Args:
         None
