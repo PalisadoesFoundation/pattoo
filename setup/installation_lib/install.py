@@ -7,6 +7,7 @@ import sys
 import subprocess
 import traceback
 # from shared import _log, _run_script
+from setup.shared import _mkdir
 
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
@@ -88,6 +89,7 @@ def check_config():
 
     # Make sure the PATTOO_CONFIGDIR environment variable is set
     if os.path.isdir(os.environ['PATTOO_CONFIGDIR']) is False:
+        _mkdir(os.environ['PATTOO_CONFIGDIR'])
         log_message = ('''\
     Set your PATTOO_CONFIGDIR cannot be found. Set the variable to point to an\
     existing directory:

@@ -91,6 +91,25 @@ def _log(message):
     print('\nPATTOO Error: {}'.format(message))
     sys.exit(3)
 
+
+def _mkdir(directory):
+    """Recursively creates directory and its parents.
+
+    Args:
+        directory: Directory to create
+
+    Returns:
+        None
+
+    """
+    if os.path.isdir(directory) is False:
+        try:
+            Path(directory).mkdir(parents=True, mode=0o750, exist_ok=True)
+        except OSError:
+            _log('''Cannot create directory {}. Please try again.\
+'''.format(directory))
+
+
 if __name__ == '__main__':
     codes = []
     test =_run_script('echo test')

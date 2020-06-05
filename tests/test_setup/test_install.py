@@ -59,11 +59,11 @@ class Test_Install(unittest.TestCase):
 
     def test_check_database(self):
         """Unittest to test the check_database function."""
-       # dir_path = os.environ['PATTOO_CONFIGDIR']
-       # file_path = os.path.join(dir_path, "pattoo_server.yaml")
-        #with open(file_path, 'w+') as temp_config:
-         #   yaml.dump(self.default_config, temp_config,
-             #         default_flow_style=False)
+        dir_path = os.environ['PATTOO_CONFIGDIR']
+        file_path = os.path.join(dir_path, "pattoo_server.yaml")
+        with open(file_path, 'w+') as temp_config:
+            yaml.dump(self.default_config, temp_config,
+                      default_flow_style=False)
 
         expected = True
         result = check_database()
