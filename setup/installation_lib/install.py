@@ -90,6 +90,7 @@ def check_config():
     # Make sure the PATTOO_CONFIGDIR environment variable is set
     if os.path.isdir(os.environ['PATTOO_CONFIGDIR']) is False:
         _mkdir(os.environ['PATTOO_CONFIGDIR'])
+    if os.path.isdir(os.environ['PATTOO_CONFIGDIR']) is False:
         log_message = ('''\
     Set your PATTOO_CONFIGDIR cannot be found. Set the variable to point to an\
     existing directory:

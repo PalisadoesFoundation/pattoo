@@ -3,6 +3,7 @@
 import sys
 import subprocess
 import traceback
+import os
 
 
 def _run_script(cli_string, die=True):
