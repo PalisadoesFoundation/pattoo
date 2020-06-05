@@ -4,25 +4,16 @@
 # Main python libraries
 import sys
 import os
+import shutil
+import subprocess
+import traceback
 from pathlib import Path
+# from shared import _log, _run_script
 import getpass
 try:
     import yaml
 except:
     print('Install the Python3 "pyyaml" package, then run this script again')
-    sys.exit(2)
-
-
-# Try to create a working PYTHONPATH
-EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
-_EXPECTED = '{0}pattoo{0}setup{0}configure'.format(os.sep)
-if EXEC_DIR.endswith(_EXPECTED) is True:
-    sys.path.append(ROOT_DIR)
-else:
-    print('''\
-This script is not installed in the "{}" directory. Please fix.\
-'''.format(_EXPECTED))
     sys.exit(2)
 
 
@@ -47,6 +38,93 @@ def already_written(file_path, env_export):
         return False
 
 
+def _run_script(cli_string, die=True):
+    """Run the cli_string UNIX CLI command and record output.
+
+    Args:
+        cli_string: String of command to run
+        die: Exit with error if True
+
+    Returns:
+        (returncode, stdoutdata, stderrdata):
+            Execution code, STDOUT output and STDERR output.
+
+    """
+    # Initialize key variables
+    messages = []
+    stdoutdata = ''.encode()
+    stderrdata = ''.encode()
+    returncode = 1
+
+    # Say what we are doing
+    print('Running Command: "{}"'.format(cli_string))
+
+    # Run update_targets script
+    do_command_list = list(cli_string.split(' '))
+
+    # Create the subprocess object
+    try:
+        process = subprocess.Popen(
+            do_command_list,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        stdoutdata, stderrdata = process.communicate()
+        returncode = process.returncode
+    except:
+        (exc_type, exc_value, exc_traceback) = sys.exc_info()
+        messages.append('''\
+Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
+    '''.format(exc_type, exc_value, exc_traceback))
+        messages.append(traceback.format_exc())
+
+    # Crash if the return code is not 0
+    if bool(returncode) is True:
+        # Print the Return Code header
+        messages.append(
+            'Return code:{}'.format(returncode)
+        )
+
+        # Print the STDOUT
+        for line in stdoutdata.decode().split('\n'):
+            messages.append(
+                'STDOUT: {}'.format(line)
+            )
+
+        # Print the STDERR
+        for line in stderrdata.decode().split('\n'):
+            messages.append(
+                'STDERR: {}'.format(line)
+            )
+
+        # Log message
+        print("messages: {})".format(messages))
+        if messages != []:
+            for log_message in messages:
+                print(log_message)
+
+            if bool(die) is True:
+                # All done
+                sys.exit(2)
+
+    # Return
+    return (returncode, stdoutdata, stderrdata)
+
+
+def _log(message):
+    """Log messages and exit abnormally.
+
+    Args:
+        message: Message to print
+
+    Returns:
+        None
+
+    """
+    # exit
+    print('\nPATTOO Error: {}'.format(message))
+    sys.exit(3)
+
+
 def set_configdir(filepath):
     """
     Automatically sets the configuration directory.
@@ -57,7 +135,7 @@ def set_configdir(filepath):
     Returns:
         None
     """
-    config_path = '/opt/pattoo/config'
+    config_path = '{0}etc{0}pattoo'.format(os.sep)
     env_export = 'export PATTOO_CONFIGDIR={}'.format(config_path)
     with open(filepath, 'a') as file:
         if not (already_written(filepath, env_export)):
@@ -65,7 +143,20 @@ def set_configdir(filepath):
     os.environ['PATTOO_CONFIGDIR'] = config_path
 
 
-def pattoo_config(config_directory):
+def get_configdir():
+    """
+    Retrieve the configuration directory.
+
+    Args:
+        None
+
+    Returns:
+        The file path for the configuration directory
+    """
+    return os.environ['PATTOO_CONFIGDIR']
+
+
+def pattoo_config(config_directory, prompt_value):
     """Create pattoo.yaml file.
 
     Args:
@@ -75,23 +166,18 @@ def pattoo_config(config_directory):
         None
     """
     # Initialize key variables
-    opt_directory = '{0}opt{0}pattoo'.format(os.sep)
     filepath = '{}{}pattoo.yaml'.format(config_directory, os.sep)
-    run_dir = (
-        '/var/run/pattoo' if getpass.getuser() == 'root' else opt_directory)
     default_config = {
         'pattoo': {
             'language': 'en',
             'log_directory': (
-                '{1}{0}pattoo{0}log'.format(os.sep, opt_directory)),
+                '/var/log/pattoo'),
             'log_level': 'debug',
             'cache_directory': (
-                '{1}{0}pattoo{0}cache'.format(os.sep, opt_directory)),
+                '/opt/pattoo-cache'),
             'daemon_directory': (
-                '{1}{0}pattoo{0}daemon'.format(os.sep, opt_directory)),
-            'system_daemon_directory': ('''\
-/var/run/pattoo''' if getpass.getuser() == 'root' else (
-                '{1}{0}pattoo{0}daemon'.format(os.sep, run_dir)))
+                '/opt/pattoo-daemon'),
+            'system_daemon_directory': '/var/run/pattoo'
         },
         'pattoo_agent_api': {
             'ip_address': '127.0.0.1',
@@ -106,13 +192,18 @@ def pattoo_config(config_directory):
     # Say what we are doing
     print('\nConfiguring {} file.\n'.format(filepath))
 
+    # Directories that will be excluded from prompt
+    directories = [
+        'system_daemon_directory', 'log_directory', 'cache_directory',
+        'system_daemon_directory']
     # Get configuration
+    
     config = read_config(filepath, default_config)
     for section, item in sorted(config.items()):
-        for key, value in sorted(item.items()):
-            new_value = prompt(section, key, value)
-            config[section][key] = new_value
-
+        for key, value in sorted(item.items()):                
+            if prompt_value:
+                new_value = prompt(section, key, value)
+                config[section][key] = new_value
     # Check validity of directories
     for key, value in sorted(config['pattoo'].items()):
         if 'directory' in key:
@@ -126,21 +217,52 @@ Please try again.\
             full_directory = os.path.expanduser(value)
             if os.path.isdir(full_directory) is False:
                 _mkdir(full_directory)
+                initialize_ownership(key, full_directory)
 
     # Write file
     with open(filepath, 'w') as f_handle:
         yaml.dump(config, f_handle, default_flow_style=False)
 
 
-def pattoo_server_config(config_directory):
-    """Create pattoo_server.yaml file.
+def create_user():
+    """
+    Create pattoo user and pattoo group.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    print('\nCreating pattoo group')
+    _run_script('groupadd pattoo')
+    print('\nCreating pattoo user')
+    _run_script('useradd -d /nonexistent -s /bin/false -g pattoo pattoo')
+
+
+def initialize_ownership(dir_name, dir_path):
+    """
+    Changes the ownership of the directories to the pattoo user and group.
+
+    Args:
+        dir_name: The name of the directory
+        dir_path: The path to the directory
+    Returns:
+        None
+    """
+    print('\nSetting ownership of the {} directory to pattoo'.format(dir_name))
+    shutil.chown(dir_path, 'pattoo', 'pattoo')
+    
+
+def pattoo_server_config(config_directory, prompt_value):
+    """
+    Create pattoo_server.yaml file.
 
     Args:
         config_directory: Configuration directory
 
     Returns:
         None
-
     """
     # Initialize key variables
     filepath = '{}{}pattoo_server.yaml'.format(config_directory, os.sep)
@@ -169,14 +291,16 @@ def pattoo_server_config(config_directory):
 
     # Say what we are doing
     print('\nConfiguring {} file.\n'.format(filepath))
-
+   
     # Get configuration
     config = read_config(filepath, default_config)
-    for section, item in sorted(config.items()):
-        for key, value in sorted(item.items()):
-            new_value = prompt(section, key, value)
-            config[section][key] = new_value
-
+    if prompt_value:
+        for section, item in sorted(config.items()):
+            for key, value in sorted(item.items()):
+                new_value = prompt(section, key, value)
+                config[section][key] = new_value
+    else:
+        print('Using default values')
     # Write file
     with open(filepath, 'w') as f_handle:
         yaml.dump(config, f_handle, default_flow_style=False)
@@ -236,21 +360,6 @@ permissions and typos'''.format(result))
     return result
 
 
-def _log(message):
-    """Log messages and exit abnormally.
-
-    Args:
-        message: Message to print
-
-    Returns:
-        None
-
-    """
-    # exit
-    print('\nPATTOO Error: {}'.format(message))
-    sys.exit(3)
-
-
 def _mkdir(directory):
     """Recursively creates directory and its parents.
 
@@ -269,11 +378,11 @@ def _mkdir(directory):
 '''.format(directory))
 
 
-def main():
+def configure_installation(prompt_value):
     """Start configuration process.
 
     Args:
-        None
+        prompt_value: A boolean value to toggle the script's verbose mode
 
     Returns:
         None
@@ -299,13 +408,14 @@ Then run this command again.
 
     # Prompt for configuration directory
     print('\nPattoo configuration utility.')
-
+    # Create the pattoo user and group
+    create_user()
     # Attempt to create configuration directory
     _mkdir(config_directory)
 
     # Create configuration
-    pattoo_config(config_directory)
-    pattoo_server_config(config_directory)
+    pattoo_config(config_directory, prompt_value)
+    pattoo_server_config(config_directory, prompt_value)
 
     # All done
     output = '''
@@ -317,11 +427,10 @@ Successfully created configuration files:
 Next Steps
 ==========
 
-1) Run the installation script.
+Running Installation Script
 '''.format(config_directory, os.sep)
     print(output)
+    #if prompt_value:
+        #print(output)
 
-
-if __name__ == '__main__':
-    # Run setup
-    main()
+    

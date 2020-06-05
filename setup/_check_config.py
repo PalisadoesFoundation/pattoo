@@ -1,23 +1,6 @@
 #!/usr/bin/env python3
 """Install pattoo."""
 
-# Main python libraries
-import sys
-import os
-
-
-# Try to create a working PYTHONPATH
-EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
-if EXEC_DIR.endswith('/pattoo/setup') is True:
-    sys.path.append(ROOT_DIR)
-else:
-    print(
-        'This script is not installed in the "pattoo/bin" directory. '
-        'Please fix.')
-    sys.exit(2)
-
-
 # Pattoo imports
 from pattoo_shared import files, configuration
 from pattoo_shared import log

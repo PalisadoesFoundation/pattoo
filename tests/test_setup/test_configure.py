@@ -2,6 +2,7 @@
 """Test pattoo configuration script."""
 
 from tests.libraries.configuration import UnittestConfig
+from unittest.mock import patch
 import os
 import getpass
 import unittest
@@ -22,9 +23,9 @@ else:
 '''.format(_EXPECTED))
     sys.exit(2)
 
-from setup.configure.configure import already_written, set_configdir
-from setup.configure.configure import read_config
-from setup.configure.configure import _mkdir, _log
+from setup.installation_lib.configure import already_written, set_configdir
+from setup.installation_lib.configure import read_config, prompt
+from setup.installation_lib.configure import _mkdir
 
 
 class Test_Configure(unittest.TestCase):
@@ -90,9 +91,9 @@ class Test_Configure(unittest.TestCase):
             # Dumps default configuration to file in temp directory
             with open(file_path, 'w+') as temp_config:
                 yaml.dump(expected, temp_config, default_flow_style=False)
-            result = read_config(file_path, expected)
-            result == expected
-            self.assertEqual(result == expected, True)
+            config = read_config(file_path, expected)
+            result = config == expected
+            self.assertEqual(result, True)
 
     def test_already_written(self):
         """Unittest to test the already_written function."""
@@ -103,7 +104,7 @@ class Test_Configure(unittest.TestCase):
                 file.write(line)
             expected = True
             result = already_written(file_path, line)
-            self.assertEqual(expected, result)
+            self.assertEqual(result, expected)
 
     def test_mkdir(self):
         """Unitttest to test the _mkdir function."""
@@ -112,18 +113,32 @@ class Test_Configure(unittest.TestCase):
             _mkdir(directory)
             expected = True
             result = os.path.isdir(directory)
-            self.assertEqual(expected, result)
+            self.assertEqual(result, expected)
 
-    def test_log(self):
-        """Unittest to test the _log function."""
-        with self.assertRaises(SystemExit) as cm:
-            _log("Test Error Message")
-        self.assertEqual(cm.exception.code, 3)
+    @patch('builtins.input', return_value='')
+    def test_prompt_default(self, mock_patch):
+        """Unittest to test the prompt function with no data."""
+        
+        result = prompt('test', 't', 'test')
+        expected = 'test'
+        self.assertEqual(result, expected)
 
-    def test_promt(self):
-        """Unittest to test the prompt function."""
-        pass
+    @patch('builtins.input', return_value='somedata')
+    def test_prompt_data(self, mock_patch):
+        """Unittest to test the prompt function with data."""
+        result = prompt('test', 't', 'testo')
+        expected = 'somedata'
+        self.assertEqual(result, expected)
 
+    @patch('builtins.input', return_value='')
+    def test_prompt_dir(self, mock_patch):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            directory = os.path.join(temp_dir, 'test_dir')
+            prompt('test', 'test_directory', directory)
+            result = os.path.isdir(directory)
+            expected = True
+            self.assertEqual(result, expected)
+            
 
 if __name__ == '__main__':
     # Make sure the environment is OK to run unittests

@@ -2,53 +2,48 @@
 """Install pattoo."""
 
 # Main python libraries
-import sys
 import os
+import sys
 import subprocess
 import traceback
-import getpass
+# from shared import _log, _run_script
 
-# Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
-_EXPECTED = '{0}pattoo{0}setup'.format(os.sep)
-if EXEC_DIR.endswith(_EXPECTED) is True:
-    sys.path.append(ROOT_DIR)
-else:
-    print('''\
-This script is not installed in the "{}" directory. Please fix.\
-'''.format(_EXPECTED))
-    sys.exit(2)
 
 
 def install_missing(package):
+    """Install missing pip3 packages."""
+    # pip3 install to --target
+    # or pip3 install --root
+    # You want this to be installed in the home directory
+    # Consider installing pattoo as the username pattoo
     _run_script('pip3 install --user {}'.format(package))
-    # subprocess.check_call([sys.executable,'-m','pip3','install',str(package)])
+
 
 def check_pip3():
     """Ensure PIP3 packages are installed correctly.
 
     Args:
-        None
+        The file path for the requirements document
 
     Returns:
-        None
+        True if pip3 packages are installed successfully
 
     """
     # Initialize key variables
     lines = []
-
+    requirements_dir = os.path.abspath(os.path.join(ROOT_DIR, os.pardir))
     # Read pip_requirements file
-    filepath = '{}{}pip_requirements.txt'.format(ROOT_DIR, os.sep)
+    filepath = '{}{}pip_requirements.txt'.format(requirements_dir, os.sep)
+
     if os.path.isfile(filepath) is False:
         _log('Cannot find PIP3 requirements file {}'.format(filepath))
-
     with open(filepath, 'r') as _fp:
         line = _fp.readline()
         while line:
             # Strip line
             _line = line.strip()
-
             # Read line
             if True in [_line.startswith('#'), bool(_line) is False]:
                 pass
@@ -57,6 +52,7 @@ def check_pip3():
             line = _fp.readline()
 
     # Try to import the modules listed in the file
+    # Add conditional to check if verbose option is selected
     for line in lines:
         # Determine the package
         package = line.split('=', 1)[0]
@@ -69,6 +65,7 @@ def check_pip3():
             install_missing(package)
             # Insert pip3 install function
         print('OK: package {}'.format(line))
+    return True
 
 
 def check_config():
@@ -78,40 +75,52 @@ def check_config():
         None
 
     Returns:
-        None
+        True to represet a sucessful configuration
 
     """
     # Print Status
     print('??: Checking configuration')
     # Make sure the PATTOO_CONFIGDIR environment variable is set
-    
+
     if 'PATTOO_CONFIGDIR' not in os.environ:
-
-        log_message = ('''\
-Set your PATTOO_CONFIGDIR to point to your configuration directory like this:
-
-$ export PATTOO_CONFIGDIR=/path/to/configuration/directory
-
-Then run this command again.
-''')
-        _log(log_message)
+        # Sets the default if the pattoo config dir is not in os.environ
+        os.environ['PATTOO_CONFIGDIR'] = '{0}etc{0}pattoo'.format(os.sep)
 
     # Make sure the PATTOO_CONFIGDIR environment variable is set
     if os.path.isdir(os.environ['PATTOO_CONFIGDIR']) is False:
         log_message = ('''\
-Set your PATTOO_CONFIGDIR cannot be found. Set the variable to point to an \
-existing directory:
+    Set your PATTOO_CONFIGDIR cannot be found. Set the variable to point to an\
+    existing directory:
 
-$ export PATTOO_CONFIGDIR=/path/to/configuration/directory
+    $ export PATTOO_CONFIGDIR=/path/to/configuration/directory
 
-Then run this command again.
-''')
+    Then run this command again.
+    ''')
         _log(log_message)
+        #  Check parameters in the configuration
+    filepath = ' {0}{1}_check_config.py'.format(ROOT_DIR, os.sep)
+    print('\n{}\n'.format(filepath))
 
-    #  Check parameters in the configuration
-    filepath = '{}{}setup/_check_config.py'.format(ROOT_DIR, os.sep)
-    _run_script(filepath)
     print('OK: Configuration check passed')
+    return True
+
+
+def install_systemd():
+    """
+    Automatically install system daemons.
+
+    Args:
+        None
+
+    Returns:
+        True for a successful of installation the system daemons
+    """
+    print('??:Attempting to install system daemons')
+    systemd_dir = 'systemd{0}bin{0}install_systemd.py'.format(os.sep)
+    filepath = os.path.join(ROOT_DIR, systemd_dir)
+    config = os.environ['PATTOO_CONFIGDIR']
+    _run_script('sudo {0} \
+--config_dir {1} --username pattoo --group pattoo'.format(filepath, config))
 
 
 def check_database():
@@ -121,14 +130,16 @@ def check_database():
         None
 
     Returns:
-        None
+        True to represent the databaase being successfully configured
 
     """
     #  Check database
     print('??: Setting up database.')
-    filepath = '{}{}setup/_check_database.py'.format(ROOT_DIR, os.sep)
+    filepath = '{0}{1}_check_database.py'.format(ROOT_DIR, os.sep)
+    print(filepath)
     _run_script(filepath)
     print('OK: Database setup complete.')
+    return True
 
 
 def _run_script(cli_string, die=True):
@@ -171,7 +182,7 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
         messages.append(traceback.format_exc())
 
     # Crash if the return code is not 0
-    if bool(returncode) is True :
+    if bool(returncode) is True:
         # Print the Return Code header
         messages.append(
             'Return code:{}'.format(returncode)
@@ -192,6 +203,7 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
         # Log message
         print("messages: {})".format(messages))
         if messages != []:
+            print(messages)
             for log_message in messages:
                 print(log_message)
 
@@ -201,41 +213,6 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
 
     # Return
     return (returncode, stdoutdata, stderrdata)
-
-
-def next_steps():
-    """Print what needs to be done after successful installation.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    """
-    # Print
-    message = ('''
-Hooray successful installation! Panna Cotta Time!
-
-Next Steps:
-    1) Start the 'bin/pattoo_api_agentd.py' script to accept and cache agent \
-data .
-    2) Start the 'bin/pattoo_ingesterd.py' script to agent cache data into \
-the database.
-    3) Start the 'bin/pattoo_apid.py' script to provide data to the pattoo \
-web API.
-    4) Configure your agents to post data to this server.
-
-Other steps:
-    1) You can make 'pattoo_api_agentd.py', 'pattoo_ingesterd.py' and \
-'pattoo_apid.py' scripts into system daemons so they will automatically \
-restart on booting by running the scripts in the 'setup/systemd' directory. \
-Visit this link for details:
-
-       https://github.com/PalisadoesFoundation/pattoo/tree/master/setup/systemd
-
-''')
-    print(message)
 
 
 def _log(message):
@@ -253,8 +230,41 @@ def _log(message):
     sys.exit(3)
 
 
-def main():
-    """Setup pattoo.
+def next_steps():
+    """Print what needs to be done after successful installation.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Don't display this
+    # Just run it
+    message = ('''
+Hooray successful installation! Panna Cotta Time!
+
+We'll now run the pattoo daemons
+Other steps:
+    1) You can make 'pattoo_api_agentd.py', 'pattoo_ingesterd.py' and \
+'pattoo_apid.py' scripts into system daemons so they will automatically \
+restart on booting by running the scripts in the 'setup/systemd' directory. \
+Visit this link for details:
+
+       https://github.com/PalisadoesFoundation/pattoo/tree/master/setup/systemd
+
+''')
+    print(message)
+    # Run system daemons
+    _run_script('sudo systemctl daemon-reload')
+    _run_script('sudo systemctl enable pattoo_apid')
+    _run_script('sudo systemctl enable pattoo_api_agentd')
+    _run_script('sudo systemctl enable pattoo_ingesterd')
+    
+
+def install():
+    """Driver for pattoo setup.
 
     Args:
         None
@@ -264,6 +274,7 @@ def main():
 
     """
     # Check PIP3 packages
+
     check_pip3()
 
     # Check configuration
@@ -272,10 +283,11 @@ def main():
     # Check database
     check_database()
 
+    # Install System Daemons
+    install_systemd()
+
     # Print next steps
     next_steps()
 
-
-if __name__ == '__main__':
-    # Run setup
-    main()
+if __name__=='__main__':
+    install()

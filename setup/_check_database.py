@@ -14,15 +14,11 @@ import os
 from sqlalchemy import create_engine
 
 # Try to create a working PYTHONPATH
+
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
 if EXEC_DIR.endswith('/pattoo/setup') is True:
     sys.path.append(ROOT_DIR)
-else:
-    print(
-        'This script is not installed in the "pattoo/bin" directory. '
-        'Please fix.')
-    sys.exit(2)
 
 
 # Pattoo libraries
@@ -60,7 +56,7 @@ def insertions():
     ]
     pair_xlate_data = [
         ('OPC UA Agents', [
-            ('en', 'pattoo_agent_opcuad_opcua_server', 'OPC UA Server', '')]),    
+            ('en', 'pattoo_agent_opcuad_opcua_server', 'OPC UA Server', '')]),   
         ('IfMIB Agents', [
             ('en', 'pattoo_agent_snmpd_.1.3.6.1.2.1.31.1.1.1.9', 'Interface Broadcast Packets (HC inbound)', 'Packets / Second'),
             ('en', 'pattoo_agent_snmpd_.1.3.6.1.2.1.31.1.1.1.8', 'Interface Multicast Packets (HC inbound)', 'Packets / Second'),
