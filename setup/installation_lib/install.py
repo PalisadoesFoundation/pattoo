@@ -18,7 +18,9 @@ def install_missing(package):
     # or pip3 install --root
     # You want this to be installed in the home directory
     # Consider installing pattoo as the username pattoo
-    _run_script('pip3 install --user {}'.format(package))
+    pip_path = '.local{0}lib{0}python3.6{0}site-packages'.format(os.sep)
+    directory = os.path.join(os.path.expanduser('~'), pip_path)
+    _run_script('pip3 install --target {0} {1}'.format(directory, package))
 
 
 def check_pip3():
@@ -289,5 +291,6 @@ def install():
     # Print next steps
     next_steps()
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     install()
