@@ -5,7 +5,7 @@ import getpass
 
 from installation_lib.install import install
 from installation_lib.configure import configure_installation
-from installation_lib.db import configure_database
+# from installation_lib.db import configure_database
 from shared import _run_script, _log
 
 
@@ -45,7 +45,7 @@ Run as root to continue')
     args = prompt_args()
     configure_installation(args.prompt)
     # configure_database()
-    install()
+    install(args.prompt)
 
 
 if __name__ == '__main__':

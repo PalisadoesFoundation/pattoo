@@ -11,6 +11,12 @@ import traceback
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
 
+prompt_value = False
+
+def set_global_prompt(new_val):
+    global prompt_value
+    prompt_value = new_val
+
 
 def install_missing(package):
     """Install missing pip3 packages."""
@@ -23,7 +29,7 @@ def install_missing(package):
     _run_script('pip3 install --target {0} {1}'.format(directory, package))
 
 
-def check_pip3():
+def check_pip3(prompt_value):
     """Ensure PIP3 packages are installed correctly.
 
     Args:
@@ -38,7 +44,7 @@ def check_pip3():
     requirements_dir = os.path.abspath(os.path.join(ROOT_DIR, os.pardir))
     # Read pip_requirements file
     filepath = '{}{}pip_requirements.txt'.format(requirements_dir, os.sep)
-
+    print('??:Checking pip3 packages')
     if os.path.isfile(filepath) is False:
         _log('Cannot find PIP3 requirements file {}'.format(filepath))
     with open(filepath, 'r') as _fp:
@@ -59,14 +65,17 @@ def check_pip3():
         # Determine the package
         package = line.split('=', 1)[0]
         package = package.split('>', 1)[0]
-        print('??: Checking package {}'.format(package))
+        if prompt_value:
+            print('??: Checking package {}'.format(package))
         command = 'pip3 show {}'.format(package)
         (returncode, _, _) = _run_script(command, die=False)
         if bool(returncode) is True:
             # If the pack
             install_missing(package)
             # Insert pip3 install function
-        print('OK: package {}'.format(line))
+        if prompt_value:
+            print('OK: package {}'.format(line))
+    print('OK:Pip3 packages successfully installed')
     return True
 
 
@@ -123,6 +132,7 @@ def install_systemd():
     config = os.environ['PATTOO_CONFIGDIR']
     _run_script('sudo {0} \
 --config_dir {1} --username pattoo --group pattoo'.format(filepath, config))
+    print('OK: System daemons successfully installed')
 
 
 def check_database():
@@ -163,7 +173,8 @@ def _run_script(cli_string, die=True):
     returncode = 1
 
     # Say what we are doing
-    print('Running Command: "{}"'.format(cli_string))
+    if prompt_value:
+        print('Running Command: "{}"'.format(cli_string))
 
     # Run update_targets script
     do_command_list = list(cli_string.split(' '))
@@ -203,8 +214,7 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
             )
 
         # Log message
-        print("messages: {})".format(messages))
-        if messages != []:
+        if messages != [] and prompt_value:
             print(messages)
             for log_message in messages:
                 print(log_message)
@@ -248,13 +258,6 @@ def next_steps():
 Hooray successful installation! Panna Cotta Time!
 
 We'll now run the pattoo daemons
-Other steps:
-    1) You can make 'pattoo_api_agentd.py', 'pattoo_ingesterd.py' and \
-'pattoo_apid.py' scripts into system daemons so they will automatically \
-restart on booting by running the scripts in the 'setup/systemd' directory. \
-Visit this link for details:
-
-       https://github.com/PalisadoesFoundation/pattoo/tree/master/setup/systemd
 
 ''')
     print(message)
@@ -263,9 +266,9 @@ Visit this link for details:
     _run_script('sudo systemctl enable pattoo_apid')
     _run_script('sudo systemctl enable pattoo_api_agentd')
     _run_script('sudo systemctl enable pattoo_ingesterd')
-    
 
-def install():
+
+def install(prompt_value):
     """Driver for pattoo setup.
 
     Args:
@@ -276,8 +279,9 @@ def install():
 
     """
     # Check PIP3 packages
+    set_global_prompt(prompt_value)
 
-    check_pip3()
+    check_pip3(prompt_value)
 
     # Check configuration
     check_config()
@@ -293,4 +297,4 @@ def install():
 
 
 if __name__ == '__main__':
-    install()
+    install(False)
