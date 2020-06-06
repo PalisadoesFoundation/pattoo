@@ -3,7 +3,8 @@
 import sys
 import subprocess
 import traceback
-
+import os
+from pathlib import Path
 
 def _run_script(cli_string, die=True):
     """Run the cli_string UNIX CLI command and record output.
@@ -90,6 +91,25 @@ def _log(message):
     # exit
     print('\nPATTOO Error: {}'.format(message))
     sys.exit(3)
+
+
+def _mkdir(directory):
+    """Recursively creates directory and its parents.
+
+    Args:
+        directory: Directory to create
+
+    Returns:
+        None
+
+    """
+    if os.path.isdir(directory) is False:
+        try:
+            Path(directory).mkdir(parents=True, mode=0o750, exist_ok=True)
+        except OSError:
+            _log('''Cannot create directory {}. Please try again.\
+'''.format(directory))
+
 
 if __name__ == '__main__':
     codes = []

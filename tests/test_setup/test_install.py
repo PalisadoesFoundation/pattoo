@@ -26,28 +26,6 @@ from tests.libraries.configuration import UnittestConfig
 
 class Test_Install(unittest.TestCase):
     """Checks all functions for the Pattoo install script."""
-    default_config = {
-        'pattoo_db': {
-            'db_pool_size': 10,
-            'db_max_overflow': 20,
-            'db_hostname': 'localhost',
-            'db_username': 'pattoo',
-            'db_password': 'password',
-            'db_name': 'pattoo'
-        },
-        'pattoo_api_agentd': {
-            'ip_listen_address': '0.0.0.0',
-            'ip_bind_port': 20201,
-        },
-        'pattoo_apid': {
-            'ip_listen_address': '0.0.0.0',
-            'ip_bind_port': 20202,
-        },
-        'pattoo_ingesterd': {
-            'ingester_interval': 3600,
-            'batch_size': 500
-        }
-    }
 
     def test__init__(self):
         """Unnittest to test the __init__ function."""
@@ -55,9 +33,7 @@ class Test_Install(unittest.TestCase):
 
     def test_install_missing(self):
         """Unittest to test the install_missing function."""
-        pass
-
-
+        
     def test_check_pip3(self):
         """Unittest to test the check_pip3 function."""
         expected = True
