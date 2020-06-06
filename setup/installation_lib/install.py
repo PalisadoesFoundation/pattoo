@@ -276,6 +276,7 @@ Enabling and running system daemons
     _run_script('sudo systemctl start pattoo_ingesterd')
     print('OK: System daemons successfully started')
 
+
 def install(prompt_value):
     """Driver for pattoo setup.
 
