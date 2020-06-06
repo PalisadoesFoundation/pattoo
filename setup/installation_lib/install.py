@@ -7,7 +7,6 @@ import sys
 import subprocess
 import traceback
 # from shared import _log, _run_script
-from setup.shared import _mkdir
 
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
@@ -89,8 +88,6 @@ def check_config():
 
     # Make sure the PATTOO_CONFIGDIR environment variable is set
     if os.path.isdir(os.environ['PATTOO_CONFIGDIR']) is False:
-        _mkdir(os.environ['PATTOO_CONFIGDIR'])
-    if os.path.isdir(os.environ['PATTOO_CONFIGDIR']) is False:
         log_message = ('''\
     Set your PATTOO_CONFIGDIR cannot be found. Set the variable to point to an\
     existing directory:
@@ -101,7 +98,7 @@ def check_config():
     ''')
         _log(log_message)
         #  Check parameters in the configuration
-    filepath = 'sudo {0}{1}_check_config.py'.format(ROOT_DIR, os.sep)
+    filepath = '{0}{1}_check_config.py'.format(ROOT_DIR, os.sep)
     print('\n{}\n'.format(filepath))
     _run_script(filepath)
     print('OK: Configuration check passed')
