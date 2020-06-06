@@ -29,7 +29,7 @@ def install_missing(package):
     _run_script('pip3 install --target {0} {1}'.format(directory, package))
 
 
-def check_pip3(prompt_value):
+def check_pip3():
     """Ensure PIP3 packages are installed correctly.
 
     Args:
