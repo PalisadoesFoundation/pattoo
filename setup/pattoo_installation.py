@@ -2,7 +2,7 @@ import argparse
 import os
 import sys
 import getpass
-
+import pattoo_shared
 from installation_lib.install import install
 from installation_lib.configure import configure_installation
 # from installation_lib.db import configure_database

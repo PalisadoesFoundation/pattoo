@@ -13,13 +13,32 @@ ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
 
 prompt_value = False
 
+
 def set_global_prompt(new_val):
+    """
+    Set the value for the global prompt value.
+
+    Args:
+        new_val: A boolean value to enable or disable a verbose installation
+
+    Returns:
+        None
+    """
+
     global prompt_value
     prompt_value = new_val
 
 
 def install_missing(package):
-    """Install missing pip3 packages."""
+    """
+    Install missing pip3 packages.
+
+    Args:
+        package: The pip3 package to be installed
+
+    Returns:
+        None
+    """
     # pip3 install to --target
     # or pip3 install --root
     # You want this to be installed in the home directory
@@ -37,7 +56,6 @@ def check_pip3():
 
     Returns:
         True if pip3 packages are installed successfully
-
     """
     # Initialize key variables
     lines = []
@@ -87,7 +105,6 @@ def check_config():
 
     Returns:
         True to represet a sucessful configuration
-
     """
     # Print Status
     print('??: Checking configuration')
@@ -253,7 +270,7 @@ def next_steps():
     # Don't display this
     # Just run it
     message = ('''
-    
+
 Hooray successful installation! Panna Cotta Time!
 
 
