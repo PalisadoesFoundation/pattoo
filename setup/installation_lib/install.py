@@ -101,7 +101,7 @@ def check_config():
     ''')
         _log(log_message)
         #  Check parameters in the configuration
-    filepath = '{0}{1}_check_config.py'.format(ROOT_DIR, os.sep)
+    filepath = 'sudo {0}{1}_check_config.py'.format(ROOT_DIR, os.sep)
     print('\n{}\n'.format(filepath))
     _run_script(filepath)
     print('OK: Configuration check passed')
