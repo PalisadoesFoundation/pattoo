@@ -44,7 +44,7 @@ def check_pip3():
     requirements_dir = os.path.abspath(os.path.join(ROOT_DIR, os.pardir))
     # Read pip_requirements file
     filepath = '{}{}pip_requirements.txt'.format(requirements_dir, os.sep)
-    print('??:Checking pip3 packages')
+    print('??: Checking pip3 packages')
     if os.path.isfile(filepath) is False:
         _log('Cannot find PIP3 requirements file {}'.format(filepath))
     with open(filepath, 'r') as _fp:
@@ -75,7 +75,7 @@ def check_pip3():
             # Insert pip3 install function
         if prompt_value:
             print('OK: package {}'.format(line))
-    print('OK:Pip3 packages successfully installed')
+    print('OK: pip3 packages successfully installed')
     return True
 
 
@@ -110,7 +110,6 @@ def check_config():
         _log(log_message)
         #  Check parameters in the configuration
     filepath = '{0}{1}_check_config.py'.format(ROOT_DIR, os.sep)
-    print('\n{}\n'.format(filepath))
     _run_script(filepath)
     print('OK: Configuration check passed')
     return True
@@ -126,7 +125,7 @@ def install_systemd():
     Returns:
         True for a successful of installation the system daemons
     """
-    print('??:Attempting to install system daemons')
+    print('??: Attempting to install system daemons')
     systemd_dir = 'systemd{0}bin{0}install_systemd.py'.format(os.sep)
     filepath = os.path.join(ROOT_DIR, systemd_dir)
     config = os.environ['PATTOO_CONFIGDIR']
@@ -148,7 +147,6 @@ def check_database():
     #  Check database
     print('??: Setting up database.')
     filepath = '{0}{1}_check_database.py'.format(ROOT_DIR, os.sep)
-    print(filepath)
     _run_script(filepath)
     print('OK: Database setup complete.')
     return True
@@ -255,18 +253,28 @@ def next_steps():
     # Don't display this
     # Just run it
     message = ('''
+    
 Hooray successful installation! Panna Cotta Time!
 
-We'll now run the pattoo daemons
 
+Next Steps
+==========
+
+Enabling and running system daemons
 ''')
     print(message)
     # Run system daemons
+    print('??: Enabling system daemons')
     _run_script('sudo systemctl daemon-reload')
     _run_script('sudo systemctl enable pattoo_apid')
     _run_script('sudo systemctl enable pattoo_api_agentd')
     _run_script('sudo systemctl enable pattoo_ingesterd')
-
+    print('OK: System daemons enabled')
+    print('??: Starting system daemons')
+    _run_script('sudo systemctl start pattoo_apid')
+    _run_script('sudo systemctl start pattoo_api_agentd')
+    _run_script('sudo systemctl start pattoo_ingesterd')
+    print('OK: System daemons successfully started')
 
 def install(prompt_value):
     """Driver for pattoo setup.
@@ -281,7 +289,7 @@ def install(prompt_value):
     # Check PIP3 packages
     set_global_prompt(prompt_value)
 
-    check_pip3(prompt_value)
+    check_pip3()
 
     # Check configuration
     check_config()
