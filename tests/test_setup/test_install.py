@@ -34,7 +34,7 @@ class Test_Install(unittest.TestCase):
     def test_install_missing(self):
         """Unittest to test the install_missing function."""
         
-    def test_check_pip3(self, prompt_value):
+    def test_check_pip3(self):
         """Unittest to test the check_pip3 function."""
         expected = True
         result = check_pip3()
