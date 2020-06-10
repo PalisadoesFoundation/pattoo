@@ -150,25 +150,6 @@ def install_systemd():
 --config_dir {1} --username pattoo --group pattoo'.format(filepath, config))
     print('OK: System daemons successfully installed')
 
-
-def check_database():
-    """Ensure database is installed correctly.
-
-    Args:
-        None
-
-    Returns:
-        True to represent the databaase being successfully configured
-
-    """
-    #  Check database
-    print('??: Setting up database.')
-    filepath = '{0}{1}_check_database.py'.format(ROOT_DIR, os.sep)
-    _run_script(filepath)
-    print('OK: Database setup complete.')
-    return True
-
-
 def _run_script(cli_string, die=True):
     """Run the cli_string UNIX CLI command and record output.
 
@@ -311,9 +292,6 @@ def install(prompt_value):
 
     # Check configuration
     check_config()
-
-    # Check database
-    check_database()
 
     # Install System Daemons
     install_systemd()

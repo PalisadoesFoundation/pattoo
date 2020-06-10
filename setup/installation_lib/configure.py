@@ -199,10 +199,10 @@ def pattoo_config(config_directory, prompt_value):
         'system_daemon_directory', 'log_directory', 'cache_directory',
         'system_daemon_directory']
     # Get configuration
-    
+
     config = read_config(filepath, default_config)
     for section, item in sorted(config.items()):
-        for key, value in sorted(item.items()):                
+        for key, value in sorted(item.items()):
             if prompt_value:
                 new_value = prompt(section, key, value)
                 config[section][key] = new_value
