@@ -29,7 +29,7 @@ def set_global_prompt(new_val):
     prompt_value = new_val
 
 
-def install_missing(package):
+def install_missing(package, pip3_dir):
     """
     Install missing pip3 packages.
 
@@ -39,13 +39,8 @@ def install_missing(package):
     Returns:
         None
     """
-    # pip3 install to --target
-    # or pip3 install --root
-    # You want this to be installed in the home directory
-    # Consider installing pattoo as the username pattoo
-    default_directory = '{0}opt{0}pattoo-daemon{0}.python'.format(os.sep)
     _run_script('pip3 install --upgrade -r pip_requirements.txt \
---target {0}'.format(default_directory))
+--target {0}'.format(pip3_dir))
 
 
 def check_pip3():
@@ -60,6 +55,8 @@ def check_pip3():
     # Initialize key variables
     lines = []
     requirements_dir = os.path.abspath(os.path.join(ROOT_DIR, os.pardir))
+    default_directory = '{0}opt{0}pattoo-daemon{0}.python'.format(os.sep)
+    sys.path.append(default_directory)
     # Read pip_requirements file
     filepath = '{}{}pip_requirements.txt'.format(requirements_dir, os.sep)
     print('??: Checking pip3 packages')

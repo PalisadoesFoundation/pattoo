@@ -21,7 +21,6 @@ This script is not installed in the "{}" directory. Please fix.\
 from installation_lib.install import install
 from installation_lib.configure import configure_installation
 
-
 def prompt_args():
     """
     Get CLI arguments for enabling the verbose mode of the installation.
