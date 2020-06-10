@@ -57,7 +57,7 @@ def main():
 
     # Create database tables if necessary
     command = (
-        '{1}{0}setup{0}pattoo_installation.py'.format(os.sep, root_dir))
+        'sudo python3 {1}{0}setup{0}pattoo_installation.py'.format(os.sep, root_dir))
     run_script(command)
 
     # Run the test
