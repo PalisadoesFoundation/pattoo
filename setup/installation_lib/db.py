@@ -12,10 +12,7 @@ import yaml
 # pip3 imports
 from sqlalchemy import create_engine
 
-EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
-if EXEC_DIR.endswith('/pattoo/setup/installation_lib') is True:
-    sys.path.append(ROOT_DIR)
+
 
 # Pattoo libraries
 from pattoo_shared import log
