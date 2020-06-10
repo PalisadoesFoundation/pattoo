@@ -7,6 +7,8 @@ import os
 import shutil
 import subprocess
 import traceback
+import grp
+import pwd
 from pathlib import Path
 # from shared import _log, _run_script
 import getpass
@@ -234,19 +236,56 @@ def create_user():
     Returns:
         None
     """
-    print('\nCreating pattoo group')
-    _run_script('groupadd pattoo')
-    print('\nCreating pattoo user')
-    _run_script('useradd -d /nonexistent -s /bin/false -g pattoo pattoo')
+    if not group_exists('pattoo'):
+        print('\nCreating pattoo group')
+        _run_script('groupadd pattoo')
+    if not user_exists('pattoo'):
+        print('\nCreating pattoo user')
+        _run_script('useradd -d /nonexistent -s /bin/false -g pattoo pattoo')
+
+
+def group_exists(group_name):
+    """
+    Check if the group already exists.
+
+    Args:
+        group_name: The name of the group
+
+    Returns
+        True if the group exists and False if it does not
+    """
+    try:
+        grp.getgrnam(group_name)
+        return True
+    except KeyError:
+        return False
+
+
+def user_exists(user_name):
+    """
+    Check if the user already exists.
+
+    Args:
+        user_name: The name of the user
+
+    Returns
+        True if the user exists and False if it does not
+    """
+    try:
+        pwd.getpwnam(user_name)
+        return True
+    except KeyError:
+        return False
 
 
 def initialize_ownership(dir_name, dir_path):
     """
-    Changes the ownership of the directories to the pattoo user and group.
+    Change the ownership of the directories to the pattoo user and group.
 
     Args:
         dir_name: The name of the directory
         dir_path: The path to the directory
+
     Returns:
         None
     """
@@ -430,7 +469,5 @@ Next Steps
 Running Installation Script
 '''.format(config_directory, os.sep)
     print(output)
-    #if prompt_value:
-        #print(output)
 
     
