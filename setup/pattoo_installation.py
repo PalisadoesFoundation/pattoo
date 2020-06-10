@@ -48,7 +48,7 @@ Run as root to continue')
     args = prompt_args()
     print(ROOT_DIR)
     configure_installation(args.prompt)
-    install_db()
+   # install_db()
     install(args.prompt)
 
 
