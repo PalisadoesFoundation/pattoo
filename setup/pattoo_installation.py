@@ -2,9 +2,7 @@ import argparse
 import os
 import sys
 import getpass
-from shared import _run_script,_log
-
-
+from shared import _run_script, _log
 
 EXEC_DIR = os.path.dirname(os.path.realpath(sys.argv[0]))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
@@ -49,7 +47,7 @@ Run as root to continue')
     args = prompt_args()
     print(ROOT_DIR)
     configure_installation(args.prompt)
-    print('test pymysql')
+    _run_script('pip3 install PyMySQL')
     install_db()
     install(args.prompt)
 

@@ -147,6 +147,7 @@ def install_systemd():
 --config_dir {1} --username pattoo --group pattoo'.format(filepath, config))
     print('OK: System daemons successfully installed')
 
+
 def _run_script(cli_string, die=True):
     """Run the cli_string UNIX CLI command and record output.
 

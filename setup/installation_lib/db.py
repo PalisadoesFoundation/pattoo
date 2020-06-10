@@ -12,8 +12,6 @@ import yaml
 # pip3 imports
 from sqlalchemy import create_engine
 
-
-
 # Pattoo libraries
 from pattoo_shared import log
 from pattoo.configuration import ConfigPattoo as Config
