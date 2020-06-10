@@ -39,9 +39,10 @@ def prompt_args():
 
 
 def install_db():
-    from installation_lib.db import create_pattoo_db
     _run_script('pip3 install --user pymysql')
+    from installation_lib.db import create_pattoo_db
     create_pattoo_db()
+
 def install_pattoo():
     if getpass.getuser() != 'root':
         _log('You are currently not running the script as root.\
