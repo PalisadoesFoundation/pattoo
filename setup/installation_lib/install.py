@@ -86,7 +86,7 @@ def check_pip3():
         (returncode, _, _) = _run_script(command, die=False)
         if bool(returncode) is True:
             # If the pack
-            install_missing(package)
+            install_missing(package, default_directory)
             # Insert pip3 install function
         if prompt_value:
             print('OK: package {}'.format(line))
