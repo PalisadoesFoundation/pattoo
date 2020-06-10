@@ -39,7 +39,6 @@ def prompt_args():
 
 
 def install_db():
-    _run_script('pip3 install --user pymysql')
     from installation_lib.db import create_pattoo_db
     create_pattoo_db()
 
@@ -50,6 +49,8 @@ Run as root to continue')
     args = prompt_args()
     print(ROOT_DIR)
     configure_installation(args.prompt)
+    _run_script('pip3 show pymysql')
+    print('test pymysql')
     install_db()
     install(args.prompt)
 
