@@ -3,7 +3,7 @@ import os
 import sys
 import getpass
 from shared import _run_script,_log
-import pattoo_shared
+
 
 
 EXEC_DIR = os.path.dirname(os.path.realpath(sys.argv[0]))
@@ -17,7 +17,7 @@ This script is not installed in the "{}" directory. Please fix.\
 '''.format(_EXPECTED))
     sys.exit(2)
   
-# Importing installation related packages 
+# Importing installation related packages
 from installation_lib.install import install
 from installation_lib.configure import configure_installation
 
