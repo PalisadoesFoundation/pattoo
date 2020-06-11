@@ -38,4 +38,5 @@ About The Palisadoes Foundation
 
 Build Status
 =============
-[![Build Status](https://travis-ci.org/DangaRanga/pattoo.svg?branch=master)](https://travis-ci.org/DangaRanga/pattoo)
+.. image:: https://travis-ci.org/DangaRanga/pattoo.svg?branch=master
+    :target: https://travis-ci.org/DangaRanga/pattoo
