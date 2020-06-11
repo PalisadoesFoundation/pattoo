@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/DangaRanga/pattoo.svg?branch=master)](https://travis-ci.org/DangaRanga/pattoo)  
 .. image:: docs/_static/pattoo-rtd.png
    :alt: Pattoo Logo
 ``pattoo`` servers store timeseries data sent to it from various IoT data collection agents.
