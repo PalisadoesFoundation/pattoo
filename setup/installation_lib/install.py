@@ -29,7 +29,7 @@ def set_global_prompt(new_val):
     prompt_value = new_val
 
 
-def install_missing(package, pip3_dir):
+def install_missing(package):
     """
     Install missing pip3 packages.
 
@@ -39,7 +39,7 @@ def install_missing(package, pip3_dir):
     Returns:
         None
     """
-    _run_script('pip3 install {0}'.format(package))
+    _run_script('pip3 install {0} --user'.format(package))
 
 
 def check_pip3():
@@ -84,7 +84,7 @@ def check_pip3():
         (returncode, _, _) = _run_script(command, die=False)
         if bool(returncode) is True:
             # If the pack
-            install_missing(package, default_directory)
+            install_missing(package)
         if prompt_value:
             print('OK: package {}'.format(line))
     print('OK: pip3 packages successfully installed')
