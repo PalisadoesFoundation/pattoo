@@ -6,6 +6,8 @@ import os
 import sys
 import subprocess
 import traceback
+import getpass
+
 # from shared import _log, _run_script
 
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -29,13 +31,12 @@ def set_global_prompt(new_val):
     prompt_value = new_val
 
 
+
 def install_missing(package):
     """
     Install missing pip3 packages.
-
     Args:
         package: The pip3 package to be installed
-
     Returns:
         None
     """
@@ -44,8 +45,8 @@ def install_missing(package):
     # You want this to be installed in the home directory
     # Consider installing pattoo as the username pattoo
     pip_path = '.local{0}lib{0}python3.6{0}site-packages'.format(os.sep)
-    directory = os.path.join(os.path.expanduser('~'), pip_path)
-    _run_script('pip3 install --target {0} {1}'.format(directory, package))
+    # directory = os.path.join(os.path.expanduser('~'), pip_path)
+    _run_script('pip3 install {0} --user'.format(package))
 
 
 def check_pip3():
@@ -53,7 +54,6 @@ def check_pip3():
 
     Args:
         The file path for the requirements document
-
     Returns:
         True if pip3 packages are installed successfully
     """
@@ -61,7 +61,7 @@ def check_pip3():
     lines = []
     requirements_dir = os.path.abspath(os.path.join(ROOT_DIR, os.pardir))
     # Read pip_requirements file
-    filepath = '{}{}pip_requirements.txt'.format(requirements_dir, os.sep)
+    filepath = '{}{}requirements.txt'.format(requirements_dir, os.sep)
     print('??: Checking pip3 packages')
     if os.path.isfile(filepath) is False:
         _log('Cannot find PIP3 requirements file {}'.format(filepath))
@@ -151,24 +151,6 @@ def install_systemd():
     print('OK: System daemons successfully installed')
 
 
-def check_database():
-    """Ensure database is installed correctly.
-
-    Args:
-        None
-
-    Returns:
-        True to represent the databaase being successfully configured
-
-    """
-    #  Check database
-    print('??: Setting up database.')
-    filepath = '{0}{1}_check_database.py'.format(ROOT_DIR, os.sep)
-    _run_script(filepath)
-    print('OK: Database setup complete.')
-    return True
-
-
 def _run_script(cli_string, die=True):
     """Run the cli_string UNIX CLI command and record output.
 
@@ -188,8 +170,8 @@ def _run_script(cli_string, die=True):
     returncode = 1
 
     # Say what we are doing
-    if prompt_value:
-        print('Running Command: "{}"'.format(cli_string))
+    #if prompt_value:
+    print('Running Command: "{}"'.format(cli_string))
 
     # Run update_targets script
     do_command_list = list(cli_string.split(' '))
@@ -229,7 +211,7 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
             )
 
         # Log message
-        if messages != [] and prompt_value:
+        if messages != []: #and prompt_value:
             print(messages)
             for log_message in messages:
                 print(log_message)
@@ -280,18 +262,19 @@ Next Steps
 Enabling and running system daemons
 ''')
     print(message)
+    if getpass.getuser() != 'travis':
     # Run system daemons
-    print('??: Enabling system daemons')
-    _run_script('sudo systemctl daemon-reload')
-    _run_script('sudo systemctl enable pattoo_apid')
-    _run_script('sudo systemctl enable pattoo_api_agentd')
-    _run_script('sudo systemctl enable pattoo_ingesterd')
-    print('OK: System daemons enabled')
-    print('??: Starting system daemons')
-    _run_script('sudo systemctl start pattoo_apid')
-    _run_script('sudo systemctl start pattoo_api_agentd')
-    _run_script('sudo systemctl start pattoo_ingesterd')
-    print('OK: System daemons successfully started')
+        print('??: Enabling system daemons')
+        _run_script('sudo systemctl daemon-reload')
+        _run_script('sudo systemctl enable pattoo_apid')
+        _run_script('sudo systemctl enable pattoo_api_agentd')
+        _run_script('sudo systemctl enable pattoo_ingesterd')
+        print('OK: System daemons enabled')
+        print('??: Starting system daemons')
+        _run_script('sudo systemctl start pattoo_apid')
+        _run_script('sudo systemctl start pattoo_api_agentd')
+        _run_script('sudo systemctl start pattoo_ingesterd')
+        print('OK: System daemons successfully started')
 
 
 def install(prompt_value):
@@ -305,15 +288,15 @@ def install(prompt_value):
 
     """
     # Check PIP3 packages
+    
     set_global_prompt(prompt_value)
 
     check_pip3()
+    from installation_lib.db import create_pattoo_db
 
+    create_pattoo_db()
     # Check configuration
     check_config()
-
-    # Check database
-    check_database()
 
     # Install System Daemons
     install_systemd()

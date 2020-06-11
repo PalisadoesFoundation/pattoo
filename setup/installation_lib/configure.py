@@ -19,6 +19,7 @@ except:
     sys.exit(2)
 
 
+
 def already_written(file_path, env_export):
     """
     Check if the CONFIG_DIR had already been exported.
@@ -199,10 +200,10 @@ def pattoo_config(config_directory, prompt_value):
         'system_daemon_directory', 'log_directory', 'cache_directory',
         'system_daemon_directory']
     # Get configuration
-    
+
     config = read_config(filepath, default_config)
     for section, item in sorted(config.items()):
-        for key, value in sorted(item.items()):                
+        for key, value in sorted(item.items()):
             if prompt_value:
                 new_value = prompt(section, key, value)
                 config[section][key] = new_value
@@ -290,8 +291,9 @@ def initialize_ownership(dir_name, dir_path):
         None
     """
     print('\nSetting ownership of the {} directory to pattoo'.format(dir_name))
-    shutil.chown(dir_path, 'pattoo', 'pattoo')
-    
+    if getpass.get_user() != 'travis':
+        shutil.chown(dir_path, 'pattoo', 'pattoo')
+
 
 def pattoo_server_config(config_directory, prompt_value):
     """
@@ -448,7 +450,8 @@ Then run this command again.
     # Prompt for configuration directory
     print('\nPattoo configuration utility.')
     # Create the pattoo user and group
-    create_user()
+    if getpass.getuser() != 'travis':
+        create_user()
     # Attempt to create configuration directory
     _mkdir(config_directory)
 

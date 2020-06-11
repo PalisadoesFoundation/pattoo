@@ -24,7 +24,7 @@ env:
 
 # Install PIP packages and create a temporary config file before installing
 before_install:
-    - pip install -r pip_requirements.txt
+    - pip3 install -r requirements.txt
     - tests/bin/unittest_setup.py
     - mysql -e 'CREATE DATABASE pattoo_unittest;'
 
