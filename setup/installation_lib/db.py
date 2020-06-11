@@ -8,6 +8,7 @@
 from __future__ import print_function
 import sys
 import pymysql
+import getpass
 import os
 import yaml
 
@@ -474,7 +475,8 @@ def create_pattoo_db():
         True for a successful creation
     """
     print('??: Setting up database.')
-    configure_database()
+    if getpass.getuser() != 'travis':
+        configure_database()
     # Initialize key variables
     use_mysql = True
 
