@@ -86,8 +86,8 @@ def check_pip3():
         if bool(returncode) is True:
             # If the pack
             install_missing(package)
-        if prompt_value:
-            print('OK: package {}'.format(line))
+        #if prompt_value:
+        print('OK: package {}'.format(line))
     print('OK: pip3 packages successfully installed')
     return True
 
@@ -165,8 +165,8 @@ def _run_script(cli_string, die=True):
     returncode = 1
 
     # Say what we are doing
-    if prompt_value:
-        print('Running Command: "{}"'.format(cli_string))
+    #if prompt_value:
+    print('Running Command: "{}"'.format(cli_string))
 
     # Run update_targets script
     do_command_list = list(cli_string.split(' '))
@@ -206,7 +206,7 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
             )
 
         # Log message
-        if messages != [] and prompt_value:
+        if messages != []: #and prompt_value:
             print(messages)
             for log_message in messages:
                 print(log_message)
