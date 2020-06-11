@@ -29,34 +29,36 @@ def set_global_prompt(new_val):
     prompt_value = new_val
 
 
+
 def install_missing(package):
     """
     Install missing pip3 packages.
-
     Args:
         package: The pip3 package to be installed
-
     Returns:
         None
     """
+    # pip3 install to --target
+    # or pip3 install --root
+    # You want this to be installed in the home directory
+    # Consider installing pattoo as the username pattoo
+    pip_path = '.local{0}lib{0}python3.6{0}site-packages'.format(os.sep)
+    # directory = os.path.join(os.path.expanduser('~'), pip_path)
     _run_script('pip3 install {0} --user'.format(package))
 
 
 def check_pip3():
     """Ensure PIP3 packages are installed correctly.
-
     Args:
         The file path for the requirements document
-
     Returns:
         True if pip3 packages are installed successfully
     """
     # Initialize key variables
     lines = []
     requirements_dir = os.path.abspath(os.path.join(ROOT_DIR, os.pardir))
-    default_directory = '{0}opt{0}pattoo-daemon{0}.python'.format(os.sep)
     # Read pip_requirements file
-    filepath = '{}{}requirements.txt'.format(requirements_dir, os.sep)
+    filepath = '{}{}pip_requirements.txt'.format(requirements_dir, os.sep)
     print('??: Checking pip3 packages')
     if os.path.isfile(filepath) is False:
         _log('Cannot find PIP3 requirements file {}'.format(filepath))
@@ -71,23 +73,23 @@ def check_pip3():
             else:
                 lines.append(_line)
             line = _fp.readline()
+
     # Try to import the modules listed in the file
     # Add conditional to check if verbose option is selected
     for line in lines:
-
         # Determine the package
         package = line.split('=', 1)[0]
         package = package.split('>', 1)[0]
-        #if prompt_value is True:
-        print('??: Checking package {}'.format(package))
+        if prompt_value:
+            print('??: Checking package {}'.format(package))
         command = 'pip3 show {}'.format(package)
         (returncode, _, _) = _run_script(command, die=False)
-        print(returncode)
         if bool(returncode) is True:
             # If the pack
             install_missing(package)
-        #if prompt_value:
-        print('OK: package {}'.format(line))
+            # Insert pip3 install function
+        if prompt_value:
+            print('OK: package {}'.format(line))
     print('OK: pip3 packages successfully installed')
     return True
 
