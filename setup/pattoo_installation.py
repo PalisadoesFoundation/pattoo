@@ -44,9 +44,10 @@ def prompt_args():
 
 
 def install_pattoo():
-    if getpass.getuser() != 'root' or getpass.getuser() != 'travis':
-        _log('You are currently not running the script as root.\
-Run as root to continue')
+    if getpass.getuser() != 'travis':
+        if getpass.getuser() != 'root':
+            _log('You are currently not running the script as root.\
+    Run as root to continue')
     args = prompt_args()
     print(ROOT_DIR)
     configure_installation(args.prompt)
