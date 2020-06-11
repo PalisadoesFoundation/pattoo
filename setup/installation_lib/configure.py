@@ -19,6 +19,25 @@ except:
     sys.exit(2)
 
 
+def make_venv(venv_name):
+    """
+    Create venv for pattoo installation
+
+    Args:
+        venv_name: The name of the virtual environment
+
+    Returns:
+        None
+    """
+    venv_dir = os.path.join(os.path.expanduser('~'), venv_name)
+    venv_activate = '{0}{1}bin{1}activate'.format(venv_dir, os.sep)
+    print('??: Create virtual environment')
+    _run_script('python3 -m venv {0}'.format(venv_dir))
+    print('OK: Virtual environment created')
+    print('??: Activate virtual environment')
+    os.system('/bin/bash --rcfile {}'.format(venv_activate))
+
+
 def already_written(file_path, env_export):
     """
     Check if the CONFIG_DIR had already been exported.

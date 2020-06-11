@@ -19,6 +19,11 @@ This script is not installed in the "{}" directory. Please fix.\
 from installation_lib.install import install
 from installation_lib.configure import configure_installation
 
+# Setup pip directories
+pip3_directory = '{0}opt{0}pattoo-daemon{0}.python'.format(os.sep)
+sys.path.append(pip3_directory)
+
+
 def prompt_args():
     """
     Get CLI arguments for enabling the verbose mode of the installation.
@@ -36,10 +41,6 @@ def prompt_args():
     return args
 
 
-def install_db():
-    from installation_lib.db import create_pattoo_db
-    create_pattoo_db()
-
 def install_pattoo():
     if getpass.getuser() != 'root':
         _log('You are currently not running the script as root.\
@@ -47,8 +48,6 @@ Run as root to continue')
     args = prompt_args()
     print(ROOT_DIR)
     configure_installation(args.prompt)
-    _run_script('pip3 install PyMySQL')
-    install_db()
     install(args.prompt)
 
 

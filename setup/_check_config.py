@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Install pattoo."""
-
+import os
+import sys
 # Pattoo imports
 from pattoo_shared import files, configuration
 from pattoo_shared import log
-
+pip3_directory = '{0}opt{0}pattoo-daemon{0}.python'.format(os.sep)
+sys.path.append(pip3_directory)
 
 def check_pattoo_server():
     """Ensure server configuration exists.

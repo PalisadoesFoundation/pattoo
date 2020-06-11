@@ -39,8 +39,7 @@ def install_missing(package, pip3_dir):
     Returns:
         None
     """
-    _run_script('pip3 install --upgrade -r pip_requirements.txt \
---target {0}'.format(pip3_dir))
+    _run_script('pip3 install {0}'.format(package))
 
 
 def check_pip3():
@@ -56,7 +55,6 @@ def check_pip3():
     lines = []
     requirements_dir = os.path.abspath(os.path.join(ROOT_DIR, os.pardir))
     default_directory = '{0}opt{0}pattoo-daemon{0}.python'.format(os.sep)
-    sys.path.append(default_directory)
     # Read pip_requirements file
     filepath = '{}{}pip_requirements.txt'.format(requirements_dir, os.sep)
     print('??: Checking pip3 packages')
@@ -73,21 +71,20 @@ def check_pip3():
             else:
                 lines.append(_line)
             line = _fp.readline()
-
     # Try to import the modules listed in the file
     # Add conditional to check if verbose option is selected
     for line in lines:
+
         # Determine the package
         package = line.split('=', 1)[0]
         package = package.split('>', 1)[0]
-        if prompt_value:
-            print('??: Checking package {}'.format(package))
+        #if prompt_value is True:
+        print('??: Checking package {}'.format(package))
         command = 'pip3 show {}'.format(package)
         (returncode, _, _) = _run_script(command, die=False)
         if bool(returncode) is True:
             # If the pack
             install_missing(package, default_directory)
-            # Insert pip3 install function
         if prompt_value:
             print('OK: package {}'.format(line))
     print('OK: pip3 packages successfully installed')
@@ -284,10 +281,13 @@ def install(prompt_value):
 
     """
     # Check PIP3 packages
+    
     set_global_prompt(prompt_value)
 
     check_pip3()
+    from installation_lib.db import create_pattoo_db
 
+    create_pattoo_db()
     # Check configuration
     check_config()
 
