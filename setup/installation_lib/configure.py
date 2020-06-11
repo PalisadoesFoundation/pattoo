@@ -291,8 +291,9 @@ def initialize_ownership(dir_name, dir_path):
         None
     """
     print('\nSetting ownership of the {} directory to pattoo'.format(dir_name))
-    shutil.chown(dir_path, 'pattoo', 'pattoo')
-    
+    if getpass.get_user() != 'travis':
+        shutil.chown(dir_path, 'pattoo', 'pattoo')
+
 
 def pattoo_server_config(config_directory, prompt_value):
     """
@@ -449,7 +450,8 @@ Then run this command again.
     # Prompt for configuration directory
     print('\nPattoo configuration utility.')
     # Create the pattoo user and group
-    create_user()
+    if getpass.getuser() != 'travis':
+        create_user()
     # Attempt to create configuration directory
     _mkdir(config_directory)
 
