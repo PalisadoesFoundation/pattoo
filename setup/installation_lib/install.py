@@ -6,6 +6,8 @@ import os
 import sys
 import subprocess
 import traceback
+import getpass
+
 # from shared import _log, _run_script
 
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -49,7 +51,7 @@ def install_missing(package):
 
 def check_pip3():
     """Ensure PIP3 packages are installed correctly.
-    
+
     Args:
         The file path for the requirements document
     Returns:
@@ -260,18 +262,19 @@ Next Steps
 Enabling and running system daemons
 ''')
     print(message)
+    if getpass.getuser() != 'travis':
     # Run system daemons
-    print('??: Enabling system daemons')
-    _run_script('sudo systemctl daemon-reload')
-    _run_script('sudo systemctl enable pattoo_apid')
-    _run_script('sudo systemctl enable pattoo_api_agentd')
-    _run_script('sudo systemctl enable pattoo_ingesterd')
-    print('OK: System daemons enabled')
-    print('??: Starting system daemons')
-    _run_script('sudo systemctl start pattoo_apid')
-    _run_script('sudo systemctl start pattoo_api_agentd')
-    _run_script('sudo systemctl start pattoo_ingesterd')
-    print('OK: System daemons successfully started')
+        print('??: Enabling system daemons')
+        _run_script('sudo systemctl daemon-reload')
+        _run_script('sudo systemctl enable pattoo_apid')
+        _run_script('sudo systemctl enable pattoo_api_agentd')
+        _run_script('sudo systemctl enable pattoo_ingesterd')
+        print('OK: System daemons enabled')
+        print('??: Starting system daemons')
+        _run_script('sudo systemctl start pattoo_apid')
+        _run_script('sudo systemctl start pattoo_api_agentd')
+        _run_script('sudo systemctl start pattoo_ingesterd')
+        print('OK: System daemons successfully started')
 
 
 def install(prompt_value):
