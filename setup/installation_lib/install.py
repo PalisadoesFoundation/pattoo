@@ -56,7 +56,7 @@ def check_pip3():
     requirements_dir = os.path.abspath(os.path.join(ROOT_DIR, os.pardir))
     default_directory = '{0}opt{0}pattoo-daemon{0}.python'.format(os.sep)
     # Read pip_requirements file
-    filepath = '{}{}pip_requirements.txt'.format(requirements_dir, os.sep)
+    filepath = '{}{}requirements.txt'.format(requirements_dir, os.sep)
     print('??: Checking pip3 packages')
     if os.path.isfile(filepath) is False:
         _log('Cannot find PIP3 requirements file {}'.format(filepath))
