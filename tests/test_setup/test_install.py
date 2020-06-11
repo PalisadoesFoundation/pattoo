@@ -19,7 +19,7 @@ else:
 '''.format(_EXPECTED))
     sys.exit(2)
 from setup.installation_lib.install import _log, check_config
-from setup.installation_lib.install import check_pip3, check_database
+from setup.installation_lib.install import check_pip3
 from tests.libraries.configuration import UnittestConfig
 #from setup.install import _log
 
