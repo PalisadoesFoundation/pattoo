@@ -1,8 +1,10 @@
+#!/usr/bin/env python3
 """Set up pattoo database."""
 
 
 
 # Main python libraries
+
 from __future__ import print_function
 import sys
 import pymysql

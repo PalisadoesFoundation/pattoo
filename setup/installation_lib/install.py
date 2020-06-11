@@ -82,6 +82,7 @@ def check_pip3():
         print('??: Checking package {}'.format(package))
         command = 'pip3 show {}'.format(package)
         (returncode, _, _) = _run_script(command, die=False)
+        print(returncode)
         if bool(returncode) is True:
             # If the pack
             install_missing(package)
