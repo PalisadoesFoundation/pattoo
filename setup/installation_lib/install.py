@@ -254,19 +254,18 @@ Next Steps
 Enabling and running system daemons
 ''')
     print(message)
-    if getpass.getuser() != 'travis':
     # Run system daemons
-        print('??: Enabling system daemons')
-        _run_script('sudo systemctl daemon-reload')
-        _run_script('sudo systemctl enable pattoo_apid')
-        _run_script('sudo systemctl enable pattoo_api_agentd')
-        _run_script('sudo systemctl enable pattoo_ingesterd')
-        print('OK: System daemons enabled')
-        print('??: Starting system daemons')
-        _run_script('sudo systemctl start pattoo_apid')
-        _run_script('sudo systemctl start pattoo_api_agentd')
-        _run_script('sudo systemctl start pattoo_ingesterd')
-        print('OK: System daemons successfully started')
+    print('??: Enabling system daemons')
+    _run_script('sudo systemctl daemon-reload')
+    _run_script('sudo systemctl enable pattoo_apid')
+    _run_script('sudo systemctl enable pattoo_api_agentd')
+    _run_script('sudo systemctl enable pattoo_ingesterd')
+    print('OK: System daemons enabled')
+    print('??: Starting system daemons')
+    _run_script('sudo systemctl start pattoo_apid')
+    _run_script('sudo systemctl start pattoo_api_agentd')
+    _run_script('sudo systemctl start pattoo_ingesterd')
+    print('OK: System daemons successfully started')
     return True
 
 
