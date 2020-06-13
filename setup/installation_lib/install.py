@@ -40,12 +40,6 @@ def install_missing(package):
     Returns:
         None
     """
-    # pip3 install to --target
-    # or pip3 install --root
-    # You want this to be installed in the home directory
-    # Consider installing pattoo as the username pattoo
-    pip_path = '.local{0}lib{0}python3.6{0}site-packages'.format(os.sep)
-    # directory = os.path.join(os.path.expanduser('~'), pip_path)
     _run_script('pip3 install {0} --user'.format(package))
 
 

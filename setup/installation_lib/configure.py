@@ -19,7 +19,6 @@ except:
     sys.exit(2)
 
 
-
 def already_written(file_path, env_export):
     """
     Check if the CONFIG_DIR had already been exported.

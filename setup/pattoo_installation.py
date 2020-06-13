@@ -26,6 +26,24 @@ pip3_directory = '{0}opt{0}pattoo-daemon{0}.python'.format(os.sep)
 sys.path.append(pip3_directory)
 
 
+def running_venv():
+    """
+    Check if a venv is currently activated.
+
+    Args:
+        None
+
+    Returns:
+        True: If a virtual environment is currently activated
+        False: If a virtual environment is not activated
+    """
+    try:
+        os.environ['VIRTUAL_ENV']
+        return True
+    except KeyError:
+        return False
+
+
 def prompt_args():
     """
     Get CLI arguments for enabling the verbose mode of the installation.
