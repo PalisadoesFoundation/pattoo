@@ -210,9 +210,9 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
             for log_message in messages:
                 print(log_message)
 
-        if bool(die) is True:
+            if bool(die) is True:
             # All done
-            sys.exit(2)
+                sys.exit(2)
 
     # Return
     return (returncode, stdoutdata, stderrdata)
