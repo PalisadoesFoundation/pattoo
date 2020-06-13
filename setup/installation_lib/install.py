@@ -7,6 +7,7 @@ import sys
 import subprocess
 import traceback
 import getpass
+from urllib.error import HTTPError
 
 # from shared import _log, _run_script
 
@@ -38,16 +39,18 @@ def install_missing(package):
     Args:
         package: The pip3 package to be installed
     Returns:
-        None
+        True: if the package could be successfully installed
+        False: if the package could not be installed
     """
     _run_script('pip3 install {0} --user'.format(package))
+    return True
 
 
 def check_pip3():
     """Ensure PIP3 packages are installed correctly.
 
     Args:
-        The file path for the requirements document
+        The file path export PATTOO_CONFIGDIR=/home/jason/.pattoo-unittests/configfor the requirements document
     Returns:
         True if pip3 packages are installed successfully
     """
@@ -155,7 +158,6 @@ def _run_script(cli_string, die=True):
     Returns:
         (returncode, stdoutdata, stderrdata):
             Execution code, STDOUT output and STDERR output.
-
     """
     # Initialize key variables
     messages = []
@@ -205,14 +207,13 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
             )
 
         # Log message
-        if messages != []: #and prompt_value:
-            print(messages)
+        if messages != [] and prompt_value:
             for log_message in messages:
                 print(log_message)
 
-            if bool(die) is True:
-                # All done
-                sys.exit(2)
+        if bool(die) is True:
+            # All done
+            sys.exit(2)
 
     # Return
     return (returncode, stdoutdata, stderrdata)
@@ -240,11 +241,8 @@ def next_steps():
         None
 
     Returns:
-        None
-
+        True: if system daemons are successfully run
     """
-    # Don't display this
-    # Just run it
     message = ('''
 
 Hooray successful installation! Panna Cotta Time!
@@ -269,6 +267,7 @@ Enabling and running system daemons
         _run_script('sudo systemctl start pattoo_api_agentd')
         _run_script('sudo systemctl start pattoo_ingesterd')
         print('OK: System daemons successfully started')
+    return True
 
 
 def install(prompt_value):
