@@ -32,7 +32,6 @@ def set_global_prompt(new_val):
     prompt_value = new_val
 
 
-
 def install_missing(package):
     """
     Install missing pip3 packages.
@@ -166,8 +165,8 @@ def _run_script(cli_string, die=True):
     returncode = 1
 
     # Say what we are doing
-    #if prompt_value:
-    print('Running Command: "{}"'.format(cli_string))
+    if prompt_value:
+        print('Running Command: "{}"'.format(cli_string))
 
     # Run update_targets script
     do_command_list = list(cli_string.split(' '))
@@ -207,7 +206,7 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
             )
 
         # Log message
-        if messages != [] and prompt_value:
+        if messages != []:
             for log_message in messages:
                 print(log_message)
 
@@ -281,7 +280,7 @@ def install(prompt_value):
 
     """
     # Check PIP3 packages
-    
+
     set_global_prompt(prompt_value)
 
     check_pip3()
