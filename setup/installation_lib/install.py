@@ -50,7 +50,7 @@ def check_pip3():
     """Ensure PIP3 packages are installed correctly.
 
     Args:
-        The file path export PATTOO_CONFIGDIR=/home/jason/.pattoo-unittests/configfor the requirements document
+        None
     Returns:
         True if pip3 packages are installed successfully
     """
