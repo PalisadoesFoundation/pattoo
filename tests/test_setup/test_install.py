@@ -34,7 +34,7 @@ class Test_Install(unittest.TestCase):
     def test_install_missing(self):
         """Unittest to test the install_missing function."""
         expected = True
-        result = install_missing('matplotlib')
+        result = install_missing('Flask')
         self.assertEqual(result, expected)
     
     def test_install_missing_fail(self):
