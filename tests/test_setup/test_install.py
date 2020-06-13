@@ -34,9 +34,9 @@ class Test_Install(unittest.TestCase):
     def test_install_missing(self):
         """Unittest to test the install_missing function."""
         expected = True
-        result = install_missing('Flask')
+        result = install_missing('numpy')
         self.assertEqual(result, expected)
-    
+
     def test_install_missing_fail(self):
         """Test case that would cause the install_missing function to fail."""
         with self.assertRaises(SystemExit) as cm:
