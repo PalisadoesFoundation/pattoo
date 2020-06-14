@@ -41,7 +41,7 @@ def install_missing(package):
         True: if the package could be successfully installed
         False: if the package could not be installed
     """
-    _run_script('pip3 install {0} --user'.format(package))
+    _run_script('pip3 install {0}'.format(package))
     return True
 
 
