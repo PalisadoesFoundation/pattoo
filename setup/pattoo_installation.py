@@ -31,8 +31,6 @@ from installation_lib.install import check_pip3
 from installation_lib.configure import configure_installation
 
 # Setup pip directories
-pip3_directory = '{0}opt{0}pattoo-daemon{0}.python'.format(os.sep)
-sys.path.append(pip3_directory)
 
 
 def running_venv():
