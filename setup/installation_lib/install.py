@@ -7,8 +7,9 @@ import sys
 import subprocess
 import traceback
 import getpass
+from pattoo_shared import files, configuration
+from pattoo_shared import log
 
-# from shared import _log, _run_script
 
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
@@ -31,23 +32,24 @@ def set_global_prompt(new_val):
     prompt_value = new_val
 
 
-
 def install_missing(package):
     """
     Install missing pip3 packages.
     Args:
         package: The pip3 package to be installed
     Returns:
-        None
+        True: if the package could be successfully installed
+        False: if the package could not be installed
     """
-    _run_script('pip3 install {0} --user'.format(package))
+    _run_script('pip3 install {0}'.format(package))
+    return True
 
 
 def check_pip3():
     """Ensure PIP3 packages are installed correctly.
 
     Args:
-        The file path for the requirements document
+        None
     Returns:
         True if pip3 packages are installed successfully
     """
@@ -91,6 +93,125 @@ def check_pip3():
     return True
 
 
+def check_pattoo_server():
+    """Ensure server configuration exists.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Print Status
+    print('??: Checking server configuration parameters.')
+
+    ###########################################################################
+    # Check server config
+    ###########################################################################
+    config_file = configuration.agent_config_filename('pattoo_server')
+    config = files.read_yaml_file(config_file)
+
+    # Check main keys
+    keys = [
+        'pattoo_db', 'pattoo_api_agentd', 'pattoo_apid', 'pattoo_ingesterd']
+    for key in keys:
+        if key not in config:
+            log_message = ('''\
+Section "{}" not found in {} configuration file. Please fix.\
+'''.format(key, config_file))
+            log.log2die_safe(20141, log_message)
+
+    # Check secondary keys for 'pattoo_db'
+    secondaries = [
+        'db_pool_size', 'db_max_overflow', 'db_hostname', 'db_username',
+        'db_password', 'db_name']
+    secondary_key_check(config, 'pattoo_db', secondaries)
+
+    # Check secondary keys for 'pattoo_api_agentd'
+    secondaries = ['ip_listen_address', 'ip_bind_port']
+    secondary_key_check(config, 'pattoo_api_agentd', secondaries)
+
+    # Check secondary keys for 'pattoo_apid'
+    secondaries = ['ip_listen_address', 'ip_bind_port']
+    secondary_key_check(config, 'pattoo_apid', secondaries)
+
+    # Print Status
+    print('OK: Server configuration parameter check passed.')
+
+
+def check_pattoo_client():
+    """Ensure client configuration exists.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Print Status
+    print('??: Checking client configuration parameters.')
+
+    ###########################################################################
+    # Check client config
+    ###########################################################################
+    config_file = configuration.agent_config_filename('pattoo')
+    config = files.read_yaml_file(config_file)
+
+    # Check main keys
+    keys = ['pattoo']
+    for key in keys:
+        if key not in config:
+            log_message = ('''\
+Section "{}" not found in {} configuration file. Please fix.\
+'''.format(key, config_file))
+            log.log2die_safe(20090, log_message)
+
+    # Check secondary keys for 'pattoo'
+    secondaries = [
+        'log_level', 'log_directory', 'cache_directory', 'daemon_directory']
+    secondary_key_check(config, 'pattoo', secondaries)
+
+    # Print Status
+    print('OK: Client configuration parameter check passed.')
+
+
+def secondary_key_check(config, primary, secondaries):
+    """Check secondary keys.
+
+    Args:
+        config: Configuration dict
+        primary: Primary key
+        secondaries: List of secondary keys
+
+    Returns:
+        None
+
+    """
+    # Check keys
+    for key in secondaries:
+        if key not in config[primary]:
+            log_message = ('''\
+Configuration file's "{}" section does not have a "{}" sub-section. \
+Please fix.'''.format(primary, key))
+            log.log2die_safe(20091, log_message)
+
+
+def run_configuration_checks():
+    """Setup pattoo.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Check configuration
+    check_pattoo_server()
+    check_pattoo_client()
+
 def check_config():
     """Ensure configuration is correct.
 
@@ -121,7 +242,7 @@ def check_config():
         _log(log_message)
         #  Check parameters in the configuration
     filepath = '{0}{1}_check_config.py'.format(ROOT_DIR, os.sep)
-    _run_script(filepath)
+    run_configuration_checks()
     print('OK: Configuration check passed')
     return True
 
@@ -155,7 +276,6 @@ def _run_script(cli_string, die=True):
     Returns:
         (returncode, stdoutdata, stderrdata):
             Execution code, STDOUT output and STDERR output.
-
     """
     # Initialize key variables
     messages = []
@@ -164,8 +284,8 @@ def _run_script(cli_string, die=True):
     returncode = 1
 
     # Say what we are doing
-    #if prompt_value:
-    print('Running Command: "{}"'.format(cli_string))
+    if prompt_value:
+        print('Running Command: "{}"'.format(cli_string))
 
     # Run update_targets script
     do_command_list = list(cli_string.split(' '))
@@ -205,13 +325,12 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
             )
 
         # Log message
-        if messages != []: #and prompt_value:
-            print(messages)
+        if messages != []:
             for log_message in messages:
                 print(log_message)
 
             if bool(die) is True:
-                # All done
+            # All done
                 sys.exit(2)
 
     # Return
@@ -240,11 +359,8 @@ def next_steps():
         None
 
     Returns:
-        None
-
+        True: if system daemons are successfully run
     """
-    # Don't display this
-    # Just run it
     message = ('''
 
 Hooray successful installation! Panna Cotta Time!
@@ -269,6 +385,7 @@ Enabling and running system daemons
         _run_script('sudo systemctl start pattoo_api_agentd')
         _run_script('sudo systemctl start pattoo_ingesterd')
         print('OK: System daemons successfully started')
+    return True
 
 
 def install(prompt_value):
@@ -282,7 +399,7 @@ def install(prompt_value):
 
     """
     # Check PIP3 packages
-    
+
     set_global_prompt(prompt_value)
 
     check_pip3()

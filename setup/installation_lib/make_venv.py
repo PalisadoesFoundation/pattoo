@@ -31,6 +31,8 @@ def make_venv(venv_name):
         pass
     else:
         venv_dir = os.path.join(os.path.expanduser('~'), venv_name)
+        with open('temp_venv_file.txt', 'w+') as venv_config:
+            venv_config.write(venv_dir)
         venv_activate = '{0}{1}bin{1}activate'.format(venv_dir, os.sep)
         print('??: Create virtual environment')
         _run_script('python3 -m venv {0}'.format(venv_dir))

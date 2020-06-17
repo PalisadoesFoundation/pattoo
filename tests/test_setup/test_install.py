@@ -18,8 +18,8 @@ else:
     print('''This script is not installed in the "{0}" directory. Please fix.\
 '''.format(_EXPECTED))
     sys.exit(2)
-from setup.installation_lib.install import _log, check_config
-from setup.installation_lib.install import check_pip3
+from setup.installation_lib.install import _log, check_config, next_steps
+from setup.installation_lib.install import check_pip3, install_missing
 from tests.libraries.configuration import UnittestConfig
 #from setup.install import _log
 
@@ -33,11 +33,26 @@ class Test_Install(unittest.TestCase):
 
     def test_install_missing(self):
         """Unittest to test the install_missing function."""
-        
+        expected = True
+        result = install_missing('numpy')
+        self.assertEqual(result, expected)
+
+  #  def test_install_missing_fail(self):
+   #     """Test case that would cause the install_missing function to fail."""
+    #    with self.assertRaises(SystemExit) as cm:
+     #       install_missing('this does not exist')
+      #  self.assertEqual(cm.exception.code, 2)
+
     def test_check_pip3(self):
         """Unittest to test the check_pip3 function."""
         expected = True
         result = check_pip3()
+        self.assertEqual(result, expected)
+
+    def test_next_steps(self):
+        """Unittest to test the next_steps function"""
+        expected = True
+        result = next_steps()
         self.assertEqual(result, expected)
 
     def test_log(self):

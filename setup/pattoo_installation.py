@@ -19,6 +19,7 @@ This script is not installed in the "{}" directory. Please fix.\
   
 # Importing installation related packages
 from installation_lib.install import install
+from installation_lib.install import check_pip3
 from installation_lib.configure import configure_installation
 
 # Setup pip directories
@@ -37,11 +38,14 @@ def running_venv():
         True: If a virtual environment is currently activated
         False: If a virtual environment is not activated
     """
-    try:
-        os.environ['VIRTUAL_ENV']
-        return True
-    except KeyError:
-        return False
+    with open('temp_venv_file.txt', 'r') as temp_file:
+        line = temp_file.readline()
+        if os.path.isdir(line):
+            venv_val = True
+        else:
+            venv_val = False
+    os.remove('temp_venv_file.txt')
+    return venv_val
 
 
 def prompt_args():
@@ -61,11 +65,31 @@ def prompt_args():
     return args
 
 
-def install_pattoo():
+def installation_checks():
+    """
+    Validate conditions needed to start installation.
+
+    Prevents installation if pattoo is not being run in a venv and if the
+    script is not run as root
+
+    Args:
+        None
+
+    Returns:
+        True: If conditions for installation are satisfied
+    """
     if getpass.getuser() != 'travis':
         if getpass.getuser() != 'root':
             _log('You are currently not running the script as root.\
-    Run as root to continue')
+Run as root to continue')
+        if running_venv() is False:
+            _log('You are not running the script in a venv.\
+Activate the venv to continue.')
+    return True
+
+
+def install_pattoo():
+    installation_checks()
     args = prompt_args()
     print(ROOT_DIR)
     configure_installation(args.prompt)

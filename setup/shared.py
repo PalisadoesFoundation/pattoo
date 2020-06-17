@@ -109,9 +109,3 @@ def _mkdir(directory):
         except OSError:
             _log('''Cannot create directory {}. Please try again.\
 '''.format(directory))
-
-
-if __name__ == '__main__':
-    codes = []
-    test =_run_script('echo test')
-    print(test[0])
