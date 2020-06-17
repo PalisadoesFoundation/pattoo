@@ -12,7 +12,7 @@ from pattoo_shared import log
 
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
-
+sys.path.append(ROOT_DIR)
 prompt_value = False
 
 
@@ -41,6 +41,9 @@ def install_missing(package):
         False: if the package could not be installed
     """
     pip_dir = '/opt/pattoo/daemon/.python'
+    # Automatically installs missing pip3 packages
+    # The --system flag is added to prevent a common conflict that occurs on
+    # Debian based systems
     _run_script('pip3 install {0} --system -t {1}'.format(package, pip_dir))
     return True
 
@@ -242,7 +245,6 @@ def check_config():
     ''')
         _log(log_message)
         #  Check parameters in the configuration
-    filepath = '{0}{1}_check_config.py'.format(ROOT_DIR, os.sep)
     run_configuration_checks()
     print('OK: Configuration check passed')
     return True
@@ -404,7 +406,8 @@ def install(prompt_value):
     set_global_prompt(prompt_value)
 
     check_pip3()
-    from setup.installation_lib.db import create_pattoo_db_tables
+
+    from installation_lib.db import create_pattoo_db_tables
     create_pattoo_db_tables()
     # Check configuration
     check_config()
