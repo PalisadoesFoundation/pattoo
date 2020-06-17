@@ -14,6 +14,8 @@ if EXEC_DIR.endswith(_EXPECTED) is True:
     # We need to prepend the path in case the repo has been installed
     # elsewhere on the system using PIP. This could corrupt expected results
     sys.path.insert(0, ROOT_DIR)
+    # Try catch block to automatically set the config dir if it isn't already
+    # set
 else:
     print('''This script is not installed in the "{0}" directory. Please fix.\
 '''.format(_EXPECTED))
@@ -37,11 +39,11 @@ class Test_Install(unittest.TestCase):
         result = install_missing('numpy')
         self.assertEqual(result, expected)
 
-  #  def test_install_missing_fail(self):
-   #     """Test case that would cause the install_missing function to fail."""
-    #    with self.assertRaises(SystemExit) as cm:
-     #       install_missing('this does not exist')
-      #  self.assertEqual(cm.exception.code, 2)
+    def test_install_missing_fail(self):
+        """Test case that would cause the install_missing function to fail."""
+        with self.assertRaises(SystemExit) as cm:
+            install_missing('this does not exist')
+        self.assertEqual(cm.exception.code, 2)
 
     def test_check_pip3(self):
         """Unittest to test the check_pip3 function."""
@@ -64,7 +66,6 @@ class Test_Install(unittest.TestCase):
 
 if __name__ == '__main__':
     # Make sure the environment is OK to run unittests
-    print(os.environ['PATTOO_CONFIGDIR'])
     UnittestConfig().create()
 
     # Do the unit test

@@ -7,10 +7,8 @@ import sys
 import subprocess
 import traceback
 import getpass
-from installation_lib.db import create_pattoo_db_tables
 from pattoo_shared import files, configuration
 from pattoo_shared import log
-
 
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
@@ -43,7 +41,7 @@ def install_missing(package):
         False: if the package could not be installed
     """
     pip_dir = '/opt/pattoo/daemon/.python'
-    _run_script('pip3 install {0} --target {1}'.format(package, pip_dir))
+    _run_script('pip3 install {0} --system -t {1}'.format(package, pip_dir))
     return True
 
 
@@ -406,7 +404,7 @@ def install(prompt_value):
     set_global_prompt(prompt_value)
 
     check_pip3()
-
+    from setup.installation_lib.db import create_pattoo_db_tables
     create_pattoo_db_tables()
     # Check configuration
     check_config()
