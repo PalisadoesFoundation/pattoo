@@ -194,10 +194,6 @@ def pattoo_config(config_directory, prompt_value):
     # Say what we are doing
     print('\nConfiguring {} file.\n'.format(filepath))
 
-    # Directories that will be excluded from prompt
-    directories = [
-        'system_daemon_directory', 'log_directory', 'cache_directory',
-        'system_daemon_directory']
     # Get configuration
 
     config = read_config(filepath, default_config)
@@ -236,9 +232,11 @@ def create_user():
     Returns:
         None
     """
+    # If the group pattoo does not exist, it gets created
     if not group_exists('pattoo'):
         print('\nCreating pattoo group')
         _run_script('groupadd pattoo')
+    # If the user pattoo does not exist, it gets created
     if not user_exists('pattoo'):
         print('\nCreating pattoo user')
         _run_script('useradd -d /nonexistent -s /bin/false -g pattoo pattoo')
@@ -291,6 +289,7 @@ def initialize_ownership(dir_name, dir_path):
     """
     print('\nSetting ownership of the {} directory to pattoo'.format(dir_name))
     if getpass.getuser() != 'travis':
+        # Set ownership of file specified at dir_path
         shutil.chown(dir_path, 'pattoo', 'pattoo')
 
 
@@ -355,7 +354,6 @@ def read_config(filepath, default_config):
 
     Returns:
         config: Dict of configuration
-
     """
     # Convert config to yaml
     default_config_string = yaml.dump(default_config)
@@ -380,7 +378,6 @@ def prompt(section, key, default_value):
 
     Returns:
         result: Desired value from user
-
     """
     # Get input from user
     result = input('''Enter "{}: {}" value (Hit <enter> for: "{}"): \
@@ -408,7 +405,6 @@ def _mkdir(directory):
 
     Returns:
         None
-
     """
     if os.path.isdir(directory) is False:
         try:
@@ -426,7 +422,6 @@ def configure_installation(prompt_value):
 
     Returns:
         None
-
     """
     # Initialize key variables
     if os.environ.get('PATTOO_CONFIGDIR') is None:
@@ -468,7 +463,7 @@ Successfully created configuration files:
 Next Steps
 ==========
 
-Running Installation Script
+Running the Installation Script
 '''.format(config_directory, os.sep)
     print(output)
 
