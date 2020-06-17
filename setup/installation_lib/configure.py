@@ -290,7 +290,7 @@ def initialize_ownership(dir_name, dir_path):
         None
     """
     print('\nSetting ownership of the {} directory to pattoo'.format(dir_name))
-    if getpass.get_user() != 'travis':
+    if getpass.getuser() != 'travis':
         shutil.chown(dir_path, 'pattoo', 'pattoo')
 
 
@@ -331,7 +331,7 @@ def pattoo_server_config(config_directory, prompt_value):
 
     # Say what we are doing
     print('\nConfiguring {} file.\n'.format(filepath))
-   
+
     # Get configuration
     config = read_config(filepath, default_config)
     if prompt_value:

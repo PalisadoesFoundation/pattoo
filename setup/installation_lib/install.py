@@ -7,6 +7,7 @@ import sys
 import subprocess
 import traceback
 import getpass
+from installation_lib.db import create_pattoo_db_tables
 from pattoo_shared import files, configuration
 from pattoo_shared import log
 
@@ -41,7 +42,8 @@ def install_missing(package):
         True: if the package could be successfully installed
         False: if the package could not be installed
     """
-    _run_script('pip3 install {0}'.format(package))
+    pip_dir = '/opt/pattoo/daemon/.python'
+    _run_script('pip3 install {0} --target {1}'.format(package, pip_dir))
     return True
 
 
@@ -212,6 +214,7 @@ def run_configuration_checks():
     check_pattoo_server()
     check_pattoo_client()
 
+
 def check_config():
     """Ensure configuration is correct.
 
@@ -330,7 +333,7 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
                 print(log_message)
 
             if bool(die) is True:
-            # All done
+                # All done
                 sys.exit(2)
 
     # Return
@@ -373,7 +376,7 @@ Enabling and running system daemons
 ''')
     print(message)
     if getpass.getuser() != 'travis':
-    # Run system daemons
+        # Run system daemons
         print('??: Enabling system daemons')
         _run_script('sudo systemctl daemon-reload')
         _run_script('sudo systemctl enable pattoo_apid')
@@ -403,9 +406,8 @@ def install(prompt_value):
     set_global_prompt(prompt_value)
 
     check_pip3()
-    from installation_lib.db import create_pattoo_db
 
-    create_pattoo_db()
+    create_pattoo_db_tables()
     # Check configuration
     check_config()
 
