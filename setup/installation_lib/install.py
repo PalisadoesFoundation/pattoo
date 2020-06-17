@@ -10,10 +10,9 @@ import getpass
 from pattoo_shared import files, configuration
 from pattoo_shared import log
 
-
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
-
+sys.path.append(ROOT_DIR)
 prompt_value = False
 
 
@@ -41,7 +40,14 @@ def install_missing(package):
         True: if the package could be successfully installed
         False: if the package could not be installed
     """
-    _run_script('pip3 install {0}'.format(package))
+    pip_dir = '/opt/pattoo/daemon/.python'
+    # Automatically installs missing pip3 packages
+    # The --system flag is added to prevent a common conflict that occurs on
+    # Debian based systems
+    if getpass.getuser() != 'travis':
+        _run_script('pip3 install {0} --system -t {1}'.format(package, pip_dir))
+    else:
+        _run_script('pip3 install {0}'.format(package))
     return True
 
 
@@ -212,6 +218,7 @@ def run_configuration_checks():
     check_pattoo_server()
     check_pattoo_client()
 
+
 def check_config():
     """Ensure configuration is correct.
 
@@ -241,7 +248,6 @@ def check_config():
     ''')
         _log(log_message)
         #  Check parameters in the configuration
-    filepath = '{0}{1}_check_config.py'.format(ROOT_DIR, os.sep)
     run_configuration_checks()
     print('OK: Configuration check passed')
     return True
@@ -330,7 +336,7 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
                 print(log_message)
 
             if bool(die) is True:
-            # All done
+                # All done
                 sys.exit(2)
 
     # Return
@@ -373,7 +379,7 @@ Enabling and running system daemons
 ''')
     print(message)
     if getpass.getuser() != 'travis':
-    # Run system daemons
+        # Run system daemons
         print('??: Enabling system daemons')
         _run_script('sudo systemctl daemon-reload')
         _run_script('sudo systemctl enable pattoo_apid')
@@ -403,9 +409,9 @@ def install(prompt_value):
     set_global_prompt(prompt_value)
 
     check_pip3()
-    from installation_lib.db import create_pattoo_db
 
-    create_pattoo_db()
+    from installation_lib.db import create_pattoo_db_tables
+    create_pattoo_db_tables()
     # Check configuration
     check_config()
 

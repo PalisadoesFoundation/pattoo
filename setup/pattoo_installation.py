@@ -8,9 +8,17 @@ from shared import _run_script, _log
 
 EXEC_DIR = os.path.dirname(os.path.realpath(sys.argv[0]))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
+PIP_DIR = '/opt/pattoo/daemon/.python'
 _EXPECTED = '{0}pattoo{0}setup'.format(os.sep)
 if EXEC_DIR.endswith(_EXPECTED) is True:
     sys.path.append(ROOT_DIR)
+    sys.path.append(PIP_DIR)
+    # Try catch block to automatically set the config dir if it isn't already
+    # set
+    try:
+        os.environ['PATTOO_CONFIGDIR']
+    except KeyError:
+        os.environ['PATTOO_CONFIGDIR'] = '/etc/pattoo'
 else:
     print('''\
 This script is not installed in the "{}" directory. Please fix.\
@@ -51,7 +59,7 @@ def running_venv():
 def prompt_args():
     """
     Get CLI arguments for enabling the verbose mode of the installation.
-    
+
     Args:
         None
 
@@ -82,9 +90,6 @@ def installation_checks():
         if getpass.getuser() != 'root':
             _log('You are currently not running the script as root.\
 Run as root to continue')
-        if running_venv() is False:
-            _log('You are not running the script in a venv.\
-Activate the venv to continue.')
     return True
 
 
