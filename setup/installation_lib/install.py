@@ -44,7 +44,10 @@ def install_missing(package):
     # Automatically installs missing pip3 packages
     # The --system flag is added to prevent a common conflict that occurs on
     # Debian based systems
-    _run_script('pip3 install {0} --system -t {1}'.format(package, pip_dir))
+    if getpass.getuser() != 'travis':
+        _run_script('pip3 install {0} --system -t {1}'.format(package, pip_dir))
+    else:
+        _run_script('pip3 install {0}'.format(package))
     return True
 
 
