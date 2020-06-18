@@ -29,7 +29,7 @@ This script is not installed in the "{}" directory. Please fix.\
   
 # Importing installation related packages
 from installation_lib.install import install
-from installation_lib.install import check_pip3
+from installation_lib.install import check_pip3, install_systemd
 from installation_lib.configure import configure_installation
 
 # Importing pattoo related packages
@@ -377,8 +377,8 @@ def main():
             print('??: Installing database')
 
         elif args.qualifier == 'systemd':
-            print('Install systemd')
-            # install_systemd()
+            print('Installing systemd')
+            install_systemd()
         elif args.qualifier == 'pip':
             print('Install pip')
             check_pip3()

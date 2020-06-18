@@ -264,7 +264,7 @@ def install_systemd():
         True for a successful of installation the system daemons
     """
     print('??: Attempting to install system daemons')
-    systemd_dir = 'systemd{0}bin{0}install_systemd.py'.format(os.sep)
+    systemd_dir = 'systemd{0}bin{0}systemd.py'.format(os.sep)
     filepath = os.path.join(ROOT_DIR, systemd_dir)
     config = os.environ['PATTOO_CONFIGDIR']
     _run_script('sudo {0} \
