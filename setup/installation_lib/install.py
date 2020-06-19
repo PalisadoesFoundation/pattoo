@@ -45,7 +45,7 @@ def install_missing(package):
     # The --system flag is added to prevent a common conflict that occurs on
     # Debian based systems
     if getpass.getuser() != 'travis':
-        _run_script('pip3 install {0} --system -t {1}'.format(package, pip_dir))
+        _run_script('pip3 install {0} -t {1}'.format(package, pip_dir))
     else:
         _run_script('pip3 install {0}'.format(package))
     return True
@@ -56,8 +56,10 @@ def check_pip3():
 
     Args:
         None
+
     Returns:
         True if pip3 packages are installed successfully
+        
     """
     # Initialize key variables
     lines = []
@@ -205,7 +207,8 @@ Please fix.'''.format(primary, key))
 
 
 def run_configuration_checks():
-    """Setup pattoo.
+    """
+    Setup pattoo.
 
     Args:
         None
@@ -290,6 +293,7 @@ def _run_script(cli_string, die=True):
     returncode = 1
 
     # Say what we are doing
+    # Change prompt value to verbose
     if prompt_value:
         print('Running Command: "{}"'.format(cli_string))
 
@@ -421,6 +425,3 @@ def install(prompt_value):
     # Print next steps
     next_steps()
 
-
-if __name__ == '__main__':
-    install(False)

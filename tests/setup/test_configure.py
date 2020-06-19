@@ -28,7 +28,7 @@ from setup.installation_lib.configure import read_config, prompt
 from setup.installation_lib.configure import _mkdir
 
 
-class Test_Configure(unittest.TestCase):
+class TestConfigure(unittest.TestCase):
     """Checks all functions for the Pattoo config script."""
 
     def test__init__(self):

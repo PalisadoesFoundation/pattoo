@@ -14,6 +14,7 @@ PIP_DIR = '/opt/pattoo/daemon/.python'
 _EXPECTED = '{0}pattoo{0}setup'.format(os.sep)
 if EXEC_DIR.endswith(_EXPECTED) is True:
     sys.path.append(ROOT_DIR)
+    # Only append when pip dir is defined 
     sys.path.append(PIP_DIR)
     # Try catch block to automatically set the config dir if it isn't already
     # set
@@ -375,7 +376,7 @@ def main():
             install(args.prompt)
         elif args.qualifier == 'database':
             print('??: Installing database')
-
+            # Run configure and database together
         elif args.qualifier == 'systemd':
             print('Installing systemd')
             install_systemd()
