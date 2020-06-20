@@ -20,8 +20,8 @@ else:
     print('''This script is not installed in the "{0}" directory. Please fix.\
 '''.format(_EXPECTED))
     sys.exit(2)
-from setup._pattoo.install import _log, next_steps
-from setup._pattoo.install import check_pip3, install_missing
+from setup._pattoo.install_pip3 import _log, next_steps
+from setup._pattoo.install_pip3 import check_pip3, install_missing
 from tests.libraries.configuration import UnittestConfig
 #from setup.install import _log
 
@@ -36,25 +36,22 @@ class Test_Install(unittest.TestCase):
     def test_install_missing(self):
         """Unittest to test the install_missing function."""
         expected = True
-        result = install_missing('numpy')
-        self.assertEqual(result, expected)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            result = install_missing('numpy', temp_dir)
+            sys.path.append(temp_dir)
+            self.assertEqual(result, expected)
 
     def test_install_missing_fail(self):
         """Test case that would cause the install_missing function to fail."""
-        with self.assertRaises(SystemExit) as cm:
-            install_missing('this does not exist')
-        self.assertEqual(cm.exception.code, 2)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with self.assertRaises(SystemExit) as cm:
+                install_missing('this does not exist', temp_dir)
+            self.assertEqual(cm.exception.code, 2)
 
     def test_check_pip3(self):
         """Unittest to test the check_pip3 function."""
         expected = True
-        result = check_pip3()
-        self.assertEqual(result, expected)
-
-    def test_next_steps(self):
-        """Unittest to test the next_steps function"""
-        expected = True
-        result = next_steps()
+        result = check_pip3(False)
         self.assertEqual(result, expected)
 
     def test_log(self):
