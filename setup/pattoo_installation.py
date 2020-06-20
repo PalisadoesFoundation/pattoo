@@ -16,12 +16,6 @@ if EXEC_DIR.endswith(_EXPECTED) is True:
     sys.path.append(ROOT_DIR)
     # Only append when pip dir is defined 
     sys.path.append(PIP_DIR)
-    # Try catch block to automatically set the config dir if it isn't already
-    # set
-    try:
-        os.environ['PATTOO_CONFIGDIR']
-    except KeyError:
-        os.environ['PATTOO_CONFIGDIR'] = '/etc/pattoo'
 else:
     print('''\
 This script is not installed in the "{}" directory. Please fix.\
@@ -424,5 +418,9 @@ Run as root to continue')
 
 
 if __name__ == '__main__':
+    # Set pattoo config dir
+    if os.environ.get('PATTOO_CONFIGDIR') == '':
+        os.environ['PATTOO_CONFIGDIR'] = '/etc/pattoo'
+
     installation_checks()
     main()

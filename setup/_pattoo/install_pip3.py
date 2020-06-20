@@ -30,18 +30,18 @@ def set_global_prompt(new_val):
     prompt_value = new_val
 
 
-def install_missing(package):
+def install_missing(package, pip_dir):
     """Install missing pip3 packages.
 
     Args:
         package: The pip3 package to be installed
+        pip_dir: The directory the packages should be installed to
 
     Returns:
         True: if the package could be successfully installed
         False: if the package could not be installed
 
     """
-    pip_dir = '/opt/pattoo/daemon/.python'
     # Automatically installs missing pip3 packages
     if getpass.getuser() != 'travis':
         _run_script('pip3 install {0} -t {1}'.format(package, pip_dir))
@@ -50,7 +50,24 @@ def install_missing(package):
     return True
 
 
-def check_pip3():
+def get_pip3_dir(prompt_value):
+    """Get directory to install pip3 packages.
+
+    Args:
+        prompt_value: A boolean value that allows for the pip3 dir to be
+                      Manually set
+
+    Returns:
+        pip_dir: The directory where the pip3 packages will be installed
+    """
+    pip_dir = '/opt/pattoo/daemon/.python'
+    if prompt_value:
+        while not os.path.isdir(pip_dir):
+            pip_dir = input('Enter the directory for the pip3 packages')
+    return pip_dir
+
+
+def check_pip3(prompt_value):
     """Ensure PIP3 packages are installed correctly.
 
     Args:
@@ -63,6 +80,11 @@ def check_pip3():
     # Initialize key variables
     lines = []
     requirements_dir = os.path.abspath(os.path.join(ROOT_DIR, os.pardir))
+
+    # Get pip3 directory
+    pip3_dir = get_pip3_dir(prompt_value)
+    sys.path.append(pip3_dir)
+
     # Read pip_requirements file
     filepath = '{}{}requirements.txt'.format(requirements_dir, os.sep)
     print('??: Checking pip3 packages')
@@ -92,7 +114,7 @@ def check_pip3():
         (returncode, _, _) = _run_script(command, die=False)
         if bool(returncode) is True:
             # If the pack
-            install_missing(package)
+            install_missing(package, pip3_dir)
             # Insert pip3 install function
         if prompt_value:
             print('OK: package {}'.format(line))
