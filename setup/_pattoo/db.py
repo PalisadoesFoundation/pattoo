@@ -369,3 +369,12 @@ def create_pattoo_db_tables():
     # Insert ForeignKey values
     insertions()
     print('OK: Database setup complete.')
+
+    message = ('''
+
+Next Steps
+==========
+
+Installing and running system daemons
+''')
+    print(message)

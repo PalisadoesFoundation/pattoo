@@ -17,8 +17,7 @@ prompt_value = False
 
 
 def set_global_prompt(new_val):
-    """
-    Set the value for the global prompt value.
+    """Set the value for the global prompt value.
 
     Args:
         new_val: A boolean value to enable or disable a verbose installation
@@ -32,18 +31,18 @@ def set_global_prompt(new_val):
 
 
 def install_missing(package):
-    """
-    Install missing pip3 packages.
+    """Install missing pip3 packages.
+
     Args:
         package: The pip3 package to be installed
+
     Returns:
         True: if the package could be successfully installed
         False: if the package could not be installed
+
     """
     pip_dir = '/opt/pattoo/daemon/.python'
     # Automatically installs missing pip3 packages
-    # The --system flag is added to prevent a common conflict that occurs on
-    # Debian based systems
     if getpass.getuser() != 'travis':
         _run_script('pip3 install {0} -t {1}'.format(package, pip_dir))
     else:
@@ -59,7 +58,7 @@ def check_pip3():
 
     Returns:
         True if pip3 packages are installed successfully
-        
+
     """
     # Initialize key variables
     lines = []
@@ -98,161 +97,6 @@ def check_pip3():
         if prompt_value:
             print('OK: package {}'.format(line))
     print('OK: pip3 packages successfully installed')
-    return True
-
-
-def check_pattoo_server():
-    """Ensure server configuration exists.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    """
-    # Print Status
-    print('??: Checking server configuration parameters.')
-
-    ###########################################################################
-    # Check server config
-    ###########################################################################
-    config_file = configuration.agent_config_filename('pattoo_server')
-    config = files.read_yaml_file(config_file)
-
-    # Check main keys
-    keys = [
-        'pattoo_db', 'pattoo_api_agentd', 'pattoo_apid', 'pattoo_ingesterd']
-    for key in keys:
-        if key not in config:
-            log_message = ('''\
-Section "{}" not found in {} configuration file. Please fix.\
-'''.format(key, config_file))
-            log.log2die_safe(20141, log_message)
-
-    # Check secondary keys for 'pattoo_db'
-    secondaries = [
-        'db_pool_size', 'db_max_overflow', 'db_hostname', 'db_username',
-        'db_password', 'db_name']
-    secondary_key_check(config, 'pattoo_db', secondaries)
-
-    # Check secondary keys for 'pattoo_api_agentd'
-    secondaries = ['ip_listen_address', 'ip_bind_port']
-    secondary_key_check(config, 'pattoo_api_agentd', secondaries)
-
-    # Check secondary keys for 'pattoo_apid'
-    secondaries = ['ip_listen_address', 'ip_bind_port']
-    secondary_key_check(config, 'pattoo_apid', secondaries)
-
-    # Print Status
-    print('OK: Server configuration parameter check passed.')
-
-
-def check_pattoo_client():
-    """Ensure client configuration exists.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    """
-    # Print Status
-    print('??: Checking client configuration parameters.')
-
-    ###########################################################################
-    # Check client config
-    ###########################################################################
-    config_file = configuration.agent_config_filename('pattoo')
-    config = files.read_yaml_file(config_file)
-
-    # Check main keys
-    keys = ['pattoo']
-    for key in keys:
-        if key not in config:
-            log_message = ('''\
-Section "{}" not found in {} configuration file. Please fix.\
-'''.format(key, config_file))
-            log.log2die_safe(20090, log_message)
-
-    # Check secondary keys for 'pattoo'
-    secondaries = [
-        'log_level', 'log_directory', 'cache_directory', 'daemon_directory']
-    secondary_key_check(config, 'pattoo', secondaries)
-
-    # Print Status
-    print('OK: Client configuration parameter check passed.')
-
-
-def secondary_key_check(config, primary, secondaries):
-    """Check secondary keys.
-
-    Args:
-        config: Configuration dict
-        primary: Primary key
-        secondaries: List of secondary keys
-
-    Returns:
-        None
-
-    """
-    # Check keys
-    for key in secondaries:
-        if key not in config[primary]:
-            log_message = ('''\
-Configuration file's "{}" section does not have a "{}" sub-section. \
-Please fix.'''.format(primary, key))
-            log.log2die_safe(20091, log_message)
-
-
-def run_configuration_checks():
-    """
-    Setup pattoo.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    """
-    # Check configuration
-    check_pattoo_server()
-    check_pattoo_client()
-
-
-def check_config():
-    """Ensure configuration is correct.
-
-    Args:
-        None
-
-    Returns:
-        True to represet a sucessful configuration
-    """
-    # Print Status
-    print('??: Checking configuration')
-    # Make sure the PATTOO_CONFIGDIR environment variable is set
-
-    if 'PATTOO_CONFIGDIR' not in os.environ:
-        # Sets the default if the pattoo config dir is not in os.environ
-        os.environ['PATTOO_CONFIGDIR'] = '{0}etc{0}pattoo'.format(os.sep)
-
-    # Make sure the PATTOO_CONFIGDIR environment variable is set
-    if os.path.isdir(os.environ['PATTOO_CONFIGDIR']) is False:
-        log_message = ('''\
-    Set your PATTOO_CONFIGDIR cannot be found. Set the variable to point to an\
-    existing directory:
-
-    $ export PATTOO_CONFIGDIR=/path/to/configuration/directory
-
-    Then run this command again.
-    ''')
-        _log(log_message)
-        #  Check parameters in the configuration
-    run_configuration_checks()
-    print('OK: Configuration check passed')
     return True
 
 
@@ -379,7 +223,7 @@ Hooray successful installation! Panna Cotta Time!
 Next Steps
 ==========
 
-Enabling and running system daemons
+Setting up database tables
 ''')
     print(message)
     if getpass.getuser() != 'travis':
@@ -414,7 +258,6 @@ def install(prompt_value):
 
     check_pip3()
 
-    from installation_lib.db import create_pattoo_db_tables
     create_pattoo_db_tables()
     # Check configuration
     check_config()

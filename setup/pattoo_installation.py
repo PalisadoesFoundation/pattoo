@@ -6,7 +6,7 @@ import argparse
 import sys
 import os
 import getpass
-from shared import _run_script, _log
+
 
 EXEC_DIR = os.path.dirname(os.path.realpath(sys.argv[0]))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
@@ -27,11 +27,10 @@ else:
 This script is not installed in the "{}" directory. Please fix.\
 '''.format(_EXPECTED))
     sys.exit(2)
-  
+ 
 # Importing installation related packages
-from installation_lib.install import install
-from installation_lib.install import check_pip3, install_systemd
-from installation_lib.configure import configure_installation
+from _pattoo import install_pip3, install_systemd, configure, db
+from _pattoo import shared
 
 # Importing pattoo related packages
 from pattoo_shared import log
@@ -364,29 +363,40 @@ def main():
 
     # Process CLI options
     if args.action == 'install':
-        print('install', args)
-
+        # Installs all pattoo components
         if args.qualifier == 'all':
             print('Install everything')
             if args.prompt is True:
                 print('Prompt for input')
             else:
                 print('Automatic installation')
-            configure_installation(args.prompt)
-            install(args.prompt)
+            configure.configure_installation(args.prompt)
+            install_pip3.check_pip3()
+            db.create_pattoo_db_tables()
+            install_systemd.install_systemd()
+        # Configures pattoo and sets up database tables
         elif args.qualifier == 'database':
             print('??: Installing database')
             # Run configure and database together
+            configure.configure_installation(False)
+            install_pip3.check_pip3()
+
+            db.create_pattoo_db_tables()
+            install_systemd.install_systemd()
+        # Installs and starts system daemons
         elif args.qualifier == 'systemd':
             print('Installing systemd')
-            install_systemd()
+            configure.configure_installation(False)
+            install_pip3.check_pip3()
+        # Only installs pip3 packages if they haven't been installed already
         elif args.qualifier == 'pip':
             print('Install pip')
-            check_pip3()
+            install_pip3.check_pip3()
+        # Sets up the configuration for pattoo
         elif args.qualifier == 'configuration':
             print('Install configuration')
-            # Assume defaults unless the all qualifier is used
-            configure_installation(False)
+            # Assumes defaults unless the all qualifier is used
+            configure.configure_installation(False)
         sys.exit()
     # Print help if no argument options were triggered
     parser.print_help(sys.stderr)
@@ -408,7 +418,7 @@ def installation_checks():
     """
     if getpass.getuser() != 'travis':
         if getpass.getuser() != 'root':
-            _log('You are currently not running the script as root.\
+            shared._log('You are currently not running the script as root.\
 Run as root to continue')
     return True
 

@@ -12,6 +12,7 @@ Logic:
 
 """
 
+# Importing python packages
 from __future__ import print_function
 import sys
 import os
@@ -21,6 +22,8 @@ import argparse
 from subprocess import check_output, call
 from pathlib import Path
 import yaml
+import getpass
+
 
 # Try to create a working PYTHONPATH
 _EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -29,13 +32,9 @@ ROOT_DIR = os.path.abspath(os.path.join(
         os.path.abspath(os.path.join(
             _EXEC_DIR,
             os.pardir)), os.pardir)), os.pardir))
-if _EXEC_DIR.endswith('/setup/systemd/bin') is True:
-    sys.path.append(ROOT_DIR)
-else:
-    print('''\
-This script is not installed in the "setup/systemd/bin" \
-directory. Please fix.''')
-    sys.exit(2)
+
+# Importing installation packages
+from _pattoo import shared
 
 
 def log(msg):
@@ -94,8 +93,9 @@ def _copy_service_files(target_directory):
 
     # Determine the directory with the service files
     exectuable_directory = os.path.dirname(os.path.realpath(__file__))
-    source_directory = '{}/system'.format(
-        os.path.abspath(os.path.join(exectuable_directory, os.pardir)))
+    source_directory = '{1}{0}systemd{0}system'.format(
+                os.sep,
+                os.path.abspath(os.path.join(exectuable_directory, os.pardir)))
 
     # Get source and destination file paths
     source_filepaths = _filepaths(source_directory)
@@ -111,16 +111,6 @@ def _copy_service_files(target_directory):
     # Make systemd aware of the new services
     activation_command = 'systemctl daemon-reload'
     call(activation_command.split())
-
-    # Print success message
-    source_files = _filepaths(source_directory, full_paths=False)
-    print('''
-SUCCESS! You are now able to start/stop and enable/disable the following \
-systemd services:
-''')
-    for source_file in source_files:
-        print(source_file)
-    print('')
 
     # Return
     return destination_filepaths
@@ -313,7 +303,32 @@ Directory where the pattoo configuration files will be located'''),
     return args
 
 
-def main():
+def run_systemd():
+    """Reload and start system daemons.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    if getpass.getuser() != 'travis':
+        # Run system daemons
+        print('??: Enabling system daemons')
+        shared._run_script('sudo systemctl daemon-reload')
+        shared._run_script('sudo systemctl enable pattoo_apid')
+        shared._run_script('sudo systemctl enable pattoo_api_agentd')
+        shared._run_script('sudo systemctl enable pattoo_ingesterd')
+        print('OK: System daemons enabled')
+        print('??: Starting system daemons')
+        shared._run_script('sudo systemctl start pattoo_apid')
+        shared._run_script('sudo systemctl start pattoo_api_agentd')
+        shared._run_script('sudo systemctl start pattoo_ingesterd')
+        print('OK: System daemons successfully started')
+
+
+def install_systemd():
     """Run the functions for installation.
 
     Args:
@@ -325,8 +340,7 @@ def main():
     """
     # Initialize key variables
     etc_dir = '/etc/systemd/system/multi-user.target.wants'
-    args = arguments()
-    config_dir = os.path.expanduser(args.config_dir)
+    config_dir = '/etc/pattoo'
 
     # Make sure this system supports systemd and that
     # the required directories exist
@@ -342,9 +356,10 @@ def main():
     _update_environment_strings(
         destination_filepaths,
         config_dir,
-        args.username,
-        args.group)
+        'pattoo',
+        'pattoo')
+        
+    # Reload and start systemd
+    run_systemd()
 
 
-if __name__ == '__main__':
-    main()

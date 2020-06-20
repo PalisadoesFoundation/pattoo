@@ -20,8 +20,8 @@ else:
     print('''This script is not installed in the "{0}" directory. Please fix.\
 '''.format(_EXPECTED))
     sys.exit(2)
-from setup.installation_lib.install import _log, check_config, next_steps
-from setup.installation_lib.install import check_pip3, install_missing
+from setup._pattoo.install import _log, next_steps
+from setup._pattoo.install import check_pip3, install_missing
 from tests.libraries.configuration import UnittestConfig
 #from setup.install import _log
 

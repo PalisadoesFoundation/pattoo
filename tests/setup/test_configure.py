@@ -23,9 +23,9 @@ else:
 '''.format(_EXPECTED))
     sys.exit(2)
 
-from setup.installation_lib.configure import already_written, set_configdir
-from setup.installation_lib.configure import read_config, prompt
-from setup.installation_lib.configure import _mkdir
+from setup._pattoo.configure import already_written, set_configdir
+from setup._pattoo.configure import read_config, prompt
+from setup._pattoo.configure import _mkdir
 
 
 class TestConfigure(unittest.TestCase):
@@ -97,9 +97,11 @@ class TestConfigure(unittest.TestCase):
 
     def test_already_written(self):
         """Unittest to test the already_written function."""
+        # Create temporary directory
         with tempfile.TemporaryDirectory() as temp_dir:
             file_path = os.path.join(temp_dir, 'test_file.txt')
             line = 'export PATTOO_CONFIGDIR=/opt/Calico/config'
+            # Writes line to file
             with open(file_path, 'w') as file:
                 file.write(line)
             expected = True
@@ -108,6 +110,7 @@ class TestConfigure(unittest.TestCase):
 
     def test_mkdir(self):
         """Unitttest to test the _mkdir function."""
+        # Create temporary directory
         with tempfile.TemporaryDirectory() as temp_dir:
             directory = os.path.join(temp_dir, 'test_dir')
             _mkdir(directory)
@@ -118,7 +121,6 @@ class TestConfigure(unittest.TestCase):
     @patch('builtins.input', return_value='')
     def test_prompt_default(self, mock_patch):
         """Unittest to test the prompt function with no data."""
-        
         result = prompt('test', 't', 'test')
         expected = 'test'
         self.assertEqual(result, expected)
@@ -132,6 +134,7 @@ class TestConfigure(unittest.TestCase):
 
     @patch('builtins.input', return_value='')
     def test_prompt_dir(self, mock_patch):
+        """Unittest to test the prompt function with default values."""
         with tempfile.TemporaryDirectory() as temp_dir:
             directory = os.path.join(temp_dir, 'test_dir')
             prompt('test', 'test_directory', directory)
@@ -139,6 +142,7 @@ class TestConfigure(unittest.TestCase):
             expected = True
             self.assertEqual(result, expected)
             
+
 
 if __name__ == '__main__':
     # Make sure the environment is OK to run unittests
