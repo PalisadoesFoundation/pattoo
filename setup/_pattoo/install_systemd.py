@@ -26,12 +26,16 @@ import getpass
 
 
 # Try to create a working PYTHONPATH
-_EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(
-    os.path.abspath(os.path.join(
-        os.path.abspath(os.path.join(
-            _EXEC_DIR,
-            os.pardir)), os.pardir)), os.pardir))
+#_EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
+#ROOT_DIR = os.path.abspath(os.path.join(
+    #os.path.abspath(os.path.join(
+      #  os.path.abspath(os.path.join(
+          #  _EXEC_DIR,
+           # os.pardir)), os.pardir)), os.pardir))
+EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(os.path.abspath(
+            os.path.join(
+                EXEC_DIR, os.pardir)), os.pardir))
 
 # Importing installation packages
 from _pattoo import shared
@@ -234,7 +238,6 @@ def _get_runtime_directory(config_directory):
         log('''\
 "system_daemon_directory" parameter not found in the {} configuration file\
 '''.format(filepath))
-
     _result = result.replace('/var/run/', '')
     _result = _result.replace('/run/', '')
     return (result, _result)
@@ -358,8 +361,6 @@ def install_systemd():
         config_dir,
         'pattoo',
         'pattoo')
-        
+
     # Reload and start systemd
     run_systemd()
-
-

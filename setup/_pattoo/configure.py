@@ -19,7 +19,7 @@ except:
 # Pattoo libraries
 from pattoo_shared import files, configuration
 from pattoo_shared import log
-from setup._pattoo import shared
+from _pattoo import shared
 
 
 def already_written(file_path, env_export):

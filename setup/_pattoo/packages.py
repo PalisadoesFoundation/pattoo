@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-"""Install pattoo."""
+"""Install pip3 packages."""
 
 # Main python libraries
 import os
@@ -10,28 +9,11 @@ import getpass
 from pattoo_shared import files, configuration
 from pattoo_shared import log
 
-EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
-sys.path.append(ROOT_DIR)
-prompt_value = False
+from _pattoo import shared
 
 
-def set_global_prompt(new_val):
-    """Set the value for the global prompt value.
-
-    Args:
-        new_val: A boolean value to enable or disable a verbose installation
-
-    Returns:
-        None
-    """
-
-    global prompt_value
-    prompt_value = new_val
-
-
-def install_missing(package, pip_dir):
-    """Install missing pip3 packages.
+def install_missing(package, pip_dir, verbose):
+    """Automatically Install missing pip3 packages.
 
     Args:
         package: The pip3 package to be installed
@@ -39,14 +21,13 @@ def install_missing(package, pip_dir):
 
     Returns:
         True: if the package could be successfully installed
-        False: if the package could not be installed
 
     """
-    # Automatically installs missing pip3 packages
+    # Installs to the directory specified as pip_dir if the user is not travis
     if getpass.getuser() != 'travis':
-        _run_script('pip3 install {0} -t {1}'.format(package, pip_dir))
+        _run_script('pip3 install {0} -t {1}'.format(package, pip_dir), verbose)
     else:
-        _run_script('pip3 install {0}'.format(package))
+        _run_script('pip3 install {0}'.format(package), verbose)
     return True
 
 
@@ -59,19 +40,29 @@ def get_pip3_dir(prompt_value):
 
     Returns:
         pip_dir: The directory where the pip3 packages will be installed
+
     """
+    # Default pip3 directory
     pip_dir = '/opt/pattoo/daemon/.python'
-    if prompt_value:
+    if prompt_value is True:
+
+        # Prompts for input until a valid directory is entered
+        pip_dir = input('Enter the directory for the pip3 packages: ')
         while not os.path.isdir(pip_dir):
-            pip_dir = input('Enter the directory for the pip3 packages')
+            pip_dir = input('Enter the directory for the pip3 packages: ')
+
+    # Return pip3 directory
     return pip_dir
 
 
-def check_pip3(prompt_value):
+def install_pip3(prompt_value, requirements_dir):
     """Ensure PIP3 packages are installed correctly.
 
     Args:
-        None
+        prompt_value: A boolean value to toggle the script's verbose mode and
+                      enable the pip3 directory to be manually set.
+        requirements_dir: The directory that the requirements.txt file is
+                          located in.
 
     Returns:
         True if pip3 packages are installed successfully
@@ -79,7 +70,6 @@ def check_pip3(prompt_value):
     """
     # Initialize key variables
     lines = []
-    requirements_dir = os.path.abspath(os.path.join(ROOT_DIR, os.pardir))
 
     # Get pip3 directory
     pip3_dir = get_pip3_dir(prompt_value)
@@ -89,7 +79,9 @@ def check_pip3(prompt_value):
     filepath = '{}{}requirements.txt'.format(requirements_dir, os.sep)
     print('??: Checking pip3 packages')
     if os.path.isfile(filepath) is False:
-        _log('Cannot find PIP3 requirements file {}'.format(filepath))
+        shared._log('Cannot find PIP3 requirements file {}'.format(filepath))
+
+    # Opens requirements.txt file for reading
     with open(filepath, 'r') as _fp:
         line = _fp.readline()
         while line:
@@ -101,56 +93,41 @@ def check_pip3(prompt_value):
             else:
                 lines.append(_line)
             line = _fp.readline()
-
-    # Try to import the modules listed in the file
-    # Add conditional to check if verbose option is selected
     for line in lines:
+
         # Determine the package
         package = line.split('=', 1)[0]
         package = package.split('>', 1)[0]
+
+        # If prompt_value is true, the package being checked is shown
         if prompt_value:
             print('??: Checking package {}'.format(package))
         command = 'pip3 show {}'.format(package)
-        (returncode, _, _) = _run_script(command, die=False)
+        (returncode, _, _) = _run_script(command, prompt_value, die=False)
         if bool(returncode) is True:
-            # If the pack
-            install_missing(package, pip3_dir)
-            # Insert pip3 install function
+
+            # Installs missing pip3 package
+            install_missing(package, pip3_dir, prompt_value)
+
+        # If the prompt_value is True, the package will be shown
         if prompt_value:
             print('OK: package {}'.format(line))
     print('OK: pip3 packages successfully installed')
     return True
 
 
-def install_systemd():
-    """
-    Automatically install system daemons.
-
-    Args:
-        None
-
-    Returns:
-        True for a successful of installation the system daemons
-    """
-    print('??: Attempting to install system daemons')
-    systemd_dir = 'systemd{0}bin{0}systemd.py'.format(os.sep)
-    filepath = os.path.join(ROOT_DIR, systemd_dir)
-    config = os.environ['PATTOO_CONFIGDIR']
-    _run_script('sudo {0} \
---config_dir {1} --username pattoo --group pattoo'.format(filepath, config))
-    print('OK: System daemons successfully installed')
-
-
-def _run_script(cli_string, die=True):
+def _run_script(cli_string, verbose, die=True):
     """Run the cli_string UNIX CLI command and record output.
 
     Args:
         cli_string: String of command to run
+        verbose: A boolean value to toggle the script's verbose mode
         die: Exit with error if True
 
     Returns:
         (returncode, stdoutdata, stderrdata):
             Execution code, STDOUT output and STDERR output.
+
     """
     # Initialize key variables
     messages = []
@@ -159,8 +136,7 @@ def _run_script(cli_string, die=True):
     returncode = 1
 
     # Say what we are doing
-    # Change prompt value to verbose
-    if prompt_value:
+    if verbose:
         print('Running Command: "{}"'.format(cli_string))
 
     # Run update_targets script
@@ -211,82 +187,3 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
 
     # Return
     return (returncode, stdoutdata, stderrdata)
-
-
-def _log(message):
-    """Log messages and exit abnormally.
-
-    Args:
-        message: Message to print
-
-    Returns:
-        None
-
-    """
-    # exit
-    print('\nPATTOO Error: {}'.format(message))
-    sys.exit(3)
-
-
-def next_steps():
-    """Print what needs to be done after successful installation.
-
-    Args:
-        None
-
-    Returns:
-        True: if system daemons are successfully run
-    """
-    message = ('''
-
-Hooray successful installation! Panna Cotta Time!
-
-
-Next Steps
-==========
-
-Setting up database tables
-''')
-    print(message)
-    if getpass.getuser() != 'travis':
-        # Run system daemons
-        print('??: Enabling system daemons')
-        _run_script('sudo systemctl daemon-reload')
-        _run_script('sudo systemctl enable pattoo_apid')
-        _run_script('sudo systemctl enable pattoo_api_agentd')
-        _run_script('sudo systemctl enable pattoo_ingesterd')
-        print('OK: System daemons enabled')
-        print('??: Starting system daemons')
-        _run_script('sudo systemctl start pattoo_apid')
-        _run_script('sudo systemctl start pattoo_api_agentd')
-        _run_script('sudo systemctl start pattoo_ingesterd')
-        print('OK: System daemons successfully started')
-    return True
-
-
-def install(prompt_value):
-    """Driver for pattoo setup.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    """
-    # Check PIP3 packages
-
-    set_global_prompt(prompt_value)
-
-    check_pip3()
-
-    create_pattoo_db_tables()
-    # Check configuration
-    check_config()
-
-    # Install System Daemons
-    install_systemd()
-
-    # Print next steps
-    next_steps()
-

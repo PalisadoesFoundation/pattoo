@@ -14,20 +14,23 @@ PIP_DIR = '/opt/pattoo/daemon/.python'
 _EXPECTED = '{0}pattoo{0}setup'.format(os.sep)
 if EXEC_DIR.endswith(_EXPECTED) is True:
     sys.path.append(ROOT_DIR)
-    # Only append when pip dir is defined 
-    sys.path.append(PIP_DIR)
+    # Set pattoo config dir if it had not been set already
+    try:
+        os.environ['PATTOO_CONFIGDIR']
+    except KeyError:
+        os.environ['PATTOO_CONFIGDIR'] = '/etc/pattoo'
 else:
     print('''\
 This script is not installed in the "{}" directory. Please fix.\
 '''.format(_EXPECTED))
     sys.exit(2)
- 
+
 # Importing installation related packages
-from _pattoo import install_pip3, install_systemd, configure, db
+from _pattoo import packages, install_systemd, configure
 from _pattoo import shared
 
 # Importing pattoo related packages
-from pattoo_shared import log
+#from pattoo_shared import log
 
 
 class _Parser(argparse.ArgumentParser):
@@ -77,10 +80,6 @@ class Parser():
         """
         # Initialize key variables
         width = 80
-
-        # Log the cli command
-        #log_message = 'CLI: {}'.format(' '.join(sys.argv))
-        #log.log2info(20043, log_message)
 
         # Header for the help menu of the application
         parser = _Parser(
@@ -364,28 +363,39 @@ def main():
                 print('Prompt for input')
             else:
                 print('Automatic installation')
+            # Run configuration
             configure.configure_installation(args.prompt)
-            install_pip3.check_pip3()
+            # Install pip3 packages
+            packages.install_pip3(args.prompt, ROOT_DIR)
+            # Import db after pip3 packages are installed
+            from _pattoo import db
             db.create_pattoo_db_tables()
+            # Install and run system daemons
             install_systemd.install_systemd()
         # Configures pattoo and sets up database tables
         elif args.qualifier == 'database':
+            # Sets up db tables
             print('??: Installing database')
-            # Run configure and database together
+            # Run configuration
             configure.configure_installation(False)
-            install_pip3.check_pip3()
-
+            # Install pip3 packages
+            packages.install_pip3(False, ROOT_DIR)
+            # Import db after pip3 packages are installed
+            from _pattoo import db
             db.create_pattoo_db_tables()
-            install_systemd.install_systemd()
         # Installs and starts system daemons
         elif args.qualifier == 'systemd':
-            print('Installing systemd')
+            print('??: Installing systemd')
+            # Run configuration
             configure.configure_installation(False)
-            install_pip3.check_pip3()
+            # Install pip3 packages, promptless by default
+            packages.install_pip3(False, ROOT_DIR)
+            # Install and run system daemons
+            install_systemd.install_systemd()
         # Only installs pip3 packages if they haven't been installed already
         elif args.qualifier == 'pip':
             print('Install pip')
-            install_pip3.check_pip3()
+            packages.install_pip3(False)
         # Sets up the configuration for pattoo
         elif args.qualifier == 'configuration':
             print('Install configuration')
@@ -418,9 +428,5 @@ Run as root to continue')
 
 
 if __name__ == '__main__':
-    # Set pattoo config dir
-    if os.environ.get('PATTOO_CONFIGDIR') == '':
-        os.environ['PATTOO_CONFIGDIR'] = '/etc/pattoo'
-
     installation_checks()
     main()

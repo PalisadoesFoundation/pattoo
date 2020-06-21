@@ -32,7 +32,6 @@ from pattoo import sysinfo
 from pattoo.ingest import files
 from pattoo.db.db import connectivity
 
-
 class PollingAgent(Agent):
     """Agent that gathers data."""
 
