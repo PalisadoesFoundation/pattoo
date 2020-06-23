@@ -208,8 +208,7 @@ Please try again.\
 
 
 def create_user():
-    """
-    Create pattoo user and pattoo group.
+    """Create pattoo user and pattoo group.
 
     Args:
         None
@@ -237,6 +236,7 @@ def group_exists(group_name):
         True if the group exists and False if it does not
     """
     try:
+        # Gets group name
         grp.getgrnam(group_name)
         return True
     except KeyError:
@@ -253,6 +253,7 @@ def user_exists(user_name):
         True if the user exists and False if it does not
     """
     try:
+        # Gets user name
         pwd.getpwnam(user_name)
         return True
     except KeyError:
@@ -260,8 +261,7 @@ def user_exists(user_name):
 
 
 def initialize_ownership(dir_name, dir_path):
-    """
-    Change the ownership of the directories to the pattoo user and group.
+    """Change the ownership of the directories to the pattoo user and group.
 
     Args:
         dir_name: The name of the directory
@@ -411,9 +411,7 @@ def check_pattoo_server():
     # Print Status
     print('??: Checking server configuration parameters.')
 
-    ###########################################################################
-    # Check server config
-    ###########################################################################
+    # Checks server config
     config_file = configuration.agent_config_filename('pattoo_server')
     config = files.read_yaml_file(config_file)
 
@@ -458,9 +456,7 @@ def check_pattoo_client():
     # Print Status
     print('??: Checking client configuration parameters.')
 
-    ###########################################################################
-    # Check client config
-    ###########################################################################
+    # Checks client config
     config_file = configuration.agent_config_filename('pattoo')
     config = files.read_yaml_file(config_file)
 

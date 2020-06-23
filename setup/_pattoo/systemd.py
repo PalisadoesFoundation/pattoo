@@ -24,19 +24,6 @@ from pathlib import Path
 import yaml
 import getpass
 
-
-# Try to create a working PYTHONPATH
-#_EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
-#ROOT_DIR = os.path.abspath(os.path.join(
-    #os.path.abspath(os.path.join(
-      #  os.path.abspath(os.path.join(
-          #  _EXEC_DIR,
-           # os.pardir)), os.pardir)), os.pardir))
-EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(os.path.abspath(
-            os.path.join(
-                EXEC_DIR, os.pardir)), os.pardir))
-
 # Importing installation packages
 from _pattoo import shared
 
@@ -173,6 +160,11 @@ def _update_environment_strings(
     env_group = '^Group=(.*?)$'
     env_run = '^RuntimeDirectory=(.*?)$'
 
+    execution_dir = os.path.dirname(os.path.realpath(__file__))
+    install_dir = os.path.abspath(os.path.join(os.path.abspath(
+            os.path.join(
+                execution_dir, os.pardir)), os.pardir))
+
     # Do the needful
     for filepath in filepaths:
         # Read files and replace matches
@@ -185,7 +177,7 @@ def _update_environment_strings(
                 _line = line.strip()
 
                 # Fix the binary directory
-                _line = _line.replace('INSTALLATION_DIRECTORY', ROOT_DIR)
+                _line = _line.replace('INSTALLATION_DIRECTORY', install_dir)
 
                 # Test PATTOO_CONFIGDIR
                 if bool(re.search(env_path, line)) is True:
@@ -277,8 +269,7 @@ Expected configuration directory "{}" does not exist.'''.format(config_dir))
 
 
 def arguments():
-    """
-    Get the CLI arguments.
+    """Get the CLI arguments.
 
     Args:
         None

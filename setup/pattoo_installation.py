@@ -10,7 +10,6 @@ import getpass
 
 EXEC_DIR = os.path.dirname(os.path.realpath(sys.argv[0]))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
-PIP_DIR = '/opt/pattoo/daemon/.python'
 _EXPECTED = '{0}pattoo{0}setup'.format(os.sep)
 if EXEC_DIR.endswith(_EXPECTED) is True:
     sys.path.append(ROOT_DIR)
@@ -26,11 +25,8 @@ This script is not installed in the "{}" directory. Please fix.\
     sys.exit(2)
 
 # Importing installation related packages
-from _pattoo import packages, install_systemd, configure
+from _pattoo import packages, systemd, configure
 from _pattoo import shared
-
-# Importing pattoo related packages
-#from pattoo_shared import log
 
 
 class _Parser(argparse.ArgumentParser):
@@ -115,30 +111,30 @@ class _Install():
         # Initialize key variables
         parser = subparsers.add_parser(
             'install',
-            help=textwrap.fill('Set contents of pattoo DB.', width=width)
+            help=textwrap.fill('Install pattoo.', width=width)
         )
-
+        # Argument to install pip packages
         parser.add_argument(
             '--pip',
             action='store_true',
             help=textwrap.fill(
                 'Install pip libraries.', width=width)
         )
-        #
+        # Argument to set up database tables
         parser.add_argument(
             '--database',
             action='store_true',
             help=textwrap.fill(
-                'Install database.', width=width)
+                'Set up database tables.', width=width)
         )
-        #
+        # Argument to install and run system daemons
         parser.add_argument(
             '--systemd',
             action='store_true',
             help=textwrap.fill(
                 'Install systemd.', width=width)
         )
-        #
+        # Argument to install all components
         parser.add_argument(
             '--all',
             action='store_true',
@@ -371,11 +367,9 @@ def main():
             from _pattoo import db
             db.create_pattoo_db_tables()
             # Install and run system daemons
-            install_systemd.install_systemd()
+            systemd.install_systemd()
         # Configures pattoo and sets up database tables
         elif args.qualifier == 'database':
-            # Sets up db tables
-            print('??: Installing database')
             # Run configuration
             configure.configure_installation(False)
             # Install pip3 packages
@@ -391,11 +385,11 @@ def main():
             # Install pip3 packages, promptless by default
             packages.install_pip3(False, ROOT_DIR)
             # Install and run system daemons
-            install_systemd.install_systemd()
+            systemd.install_systemd()
         # Only installs pip3 packages if they haven't been installed already
         elif args.qualifier == 'pip':
             print('Install pip')
-            packages.install_pip3(False)
+            packages.install_pip3(False, ROOT_DIR)
         # Sets up the configuration for pattoo
         elif args.qualifier == 'configuration':
             print('Install configuration')
@@ -408,11 +402,9 @@ def main():
 
 
 def installation_checks():
-    """
-    Validate conditions needed to start installation.
+    """Validate conditions needed to start installation.
 
-    Prevents installation if pattoo is not being run in a venv and if the
-    script is not run as root
+    Prevents installation if the script is not run as root
 
     Args:
         None
