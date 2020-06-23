@@ -18,6 +18,7 @@ if EXEC_DIR.endswith(_EXPECTED) is True:
     # We need to prepend the path in case the repo has been installed
     # elsewhere on the system using PIP. This could corrupt expected results
     sys.path.insert(0, ROOT_DIR)
+    sys.path.append(os.path.join(ROOT_DIR, 'setup'))
 else:
     print('''This script is not installed in the "{0}" directory. Please fix.\
 '''.format(_EXPECTED))
