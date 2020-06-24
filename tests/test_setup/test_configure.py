@@ -25,8 +25,9 @@ else:
     sys.exit(2)
 
 from setup._pattoo.configure import already_written, set_configdir
-from setup._pattoo.configure import read_config, prompt
-from setup._pattoo.configure import _mkdir
+from setup._pattoo.configure import read_config, prompt, create_user
+from setup._pattoo.configure import _mkdir, group_exists, user_exists
+from setup._pattoo.configure import check_pattoo_server,check_pattoo_client
 
 
 class TestConfigure(unittest.TestCase):
@@ -36,8 +37,39 @@ class TestConfigure(unittest.TestCase):
         """Unnittest to test the __init__ function."""
         pass
 
+    def test_group_exists(self):
+        """Unittest to test the group exists function."""
+        # Test case for when the group does not exist
+        with self.subTest():
+            expected = False
+            # Generating random string
+            result = group_exists(str(os.urandom(5)))
+            self.assertEqual(result, expected)
+        with self.subTest():
+            # Test case for when the group exists
+            pass
+
+    def test_user_exists(self):
+        """Unittest to test the user_exists function."""
+        # Test case for when the user does not exist
+        with self.subTest():
+            expected = False
+            result = user_exists(str(os.urandom(5)))
+            self.assertEqual(result, expected)
+        # Test case for when the user does exist
+        with self.subTest():
+            pass
+
+    def test_check_pattoo_server(self):
+        """Unittest to test the check_pattoo_server function."""
+        pass
+
+    def test_check_pattoo_client(self):
+        """Unittest to test the check_pattoo_client function."""
+        pass
+
     def test_set_configuration_directory(self):
-        """Unittest to test the set_configdir function ."""
+        """Unittest to test the set_configdir function."""
         expected = True
         results = []
         config_path = '/opt/pattoo/config'
@@ -142,7 +174,6 @@ class TestConfigure(unittest.TestCase):
             result = os.path.isdir(directory)
             expected = True
             self.assertEqual(result, expected)
-            
 
 
 if __name__ == '__main__':

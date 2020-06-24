@@ -359,17 +359,15 @@ def main():
                 print('Prompt for input')
             else:
                 print('Automatic installation')
-            # Run configuration
             configure.configure_installation(args.prompt)
-            # Install pip3 packages
             packages.install_pip3(args.prompt, ROOT_DIR)
             # Import db after pip3 packages are installed
             from _pattoo import db
             db.create_pattoo_db_tables()
-            # Install and run system daemons
             systemd.install_systemd()
         # Configures pattoo and sets up database tables
         elif args.qualifier == 'database':
+            # Assumes defaults unless the all qualifier is used
             configure.configure_installation(False)
             packages.install_pip3(False, ROOT_DIR)
             # Import db after pip3 packages are installed
@@ -389,7 +387,6 @@ def main():
         # Sets up the configuration for pattoo
         elif args.qualifier == 'configuration':
             print('Install configuration')
-            # Assumes defaults unless the all qualifier is used
             configure.configure_installation(False)
         sys.exit()
     # Print help if no argument options were triggered

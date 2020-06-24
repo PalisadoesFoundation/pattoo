@@ -245,7 +245,6 @@ def preflight(config_dir, etc_dir):
     Returns:
         None
 
-
     """
     # Make sure config_dir exists
     if os.path.isdir(config_dir) is False:
@@ -268,35 +267,6 @@ Expected configuration directory "{}" does not exist.'''.format(config_dir))
         log('Expected systemd directory "{}" does not exist.'.format(etc_dir))
 
 
-def arguments():
-    """Get the CLI arguments.
-
-    Args:
-        None
-
-    Returns:
-        args: NamedTuple of argument values
-
-    """
-    # Get config_dir value
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-f', '--config_dir',
-        help=('''\
-Directory where the pattoo configuration files will be located'''),
-        required=True)
-    parser.add_argument(
-        '-u', '--username',
-        help=('Username that will run the daemon'),
-        required=True)
-    parser.add_argument(
-        '-g', '--group',
-        help=('User group to which username belongs'),
-        required=True)
-    args = parser.parse_args()
-    return args
-
-
 def run_systemd():
     """Reload and start system daemons.
 
@@ -308,9 +278,11 @@ def run_systemd():
 
     """
     if getpass.getuser() != 'travis':
-        # Run system daemons
+        # Say what we are doing
         print('??: Enabling system daemons')
+        # Reloading daemons
         shared._run_script('sudo systemctl daemon-reload')
+        # Enabling daemons
         shared._run_script('sudo systemctl enable pattoo_apid')
         shared._run_script('sudo systemctl enable pattoo_api_agentd')
         shared._run_script('sudo systemctl enable pattoo_ingesterd')

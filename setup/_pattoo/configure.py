@@ -131,18 +131,6 @@ def set_configdir(filepath):
     os.environ['PATTOO_CONFIGDIR'] = config_path
 
 
-def get_configdir():
-    """Retrieve the configuration directory.
-
-    Args:
-        None
-
-    Returns:
-        The file path for the configuration directory
-    """
-    return os.environ['PATTOO_CONFIGDIR']
-
-
 def pattoo_config(config_directory, prompt_value):
     """Create pattoo.yaml file.
 
@@ -207,7 +195,7 @@ Please try again.\
         yaml.dump(config, f_handle, default_flow_style=False)
 
 
-def create_user():
+def create_user(user_name):
     """Create pattoo user and pattoo group.
 
     Args:
@@ -405,7 +393,7 @@ def check_pattoo_server():
         None
 
     Returns:
-        None
+        True: If the server had been configured correctly
 
     """
     # Print Status
@@ -441,7 +429,7 @@ Section "{}" not found in {} configuration file. Please fix.\
 
     # Print Status
     print('OK: Server configuration parameter check passed.')
-
+    return True
 
 def check_pattoo_client():
     """Ensure client configuration exists.
@@ -450,7 +438,7 @@ def check_pattoo_client():
         None
 
     Returns:
-        None
+        True: if the client has been configured correctly
 
     """
     # Print Status
@@ -476,6 +464,7 @@ Section "{}" not found in {} configuration file. Please fix.\
 
     # Print Status
     print('OK: Client configuration parameter check passed.')
+    return True
 
 
 def secondary_key_check(config, primary, secondaries):
