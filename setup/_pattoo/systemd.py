@@ -12,6 +12,7 @@ Logic:
 
 """
 
+# Importing python packages
 from __future__ import print_function
 import sys
 import os
@@ -21,21 +22,10 @@ import argparse
 from subprocess import check_output, call
 from pathlib import Path
 import yaml
+import getpass
 
-# Try to create a working PYTHONPATH
-_EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(
-    os.path.abspath(os.path.join(
-        os.path.abspath(os.path.join(
-            _EXEC_DIR,
-            os.pardir)), os.pardir)), os.pardir))
-if _EXEC_DIR.endswith('/setup/systemd/bin') is True:
-    sys.path.append(ROOT_DIR)
-else:
-    print('''\
-This script is not installed in the "setup/systemd/bin" \
-directory. Please fix.''')
-    sys.exit(2)
+# Importing installation packages
+from _pattoo import shared
 
 
 def log(msg):
@@ -94,8 +84,9 @@ def _copy_service_files(target_directory):
 
     # Determine the directory with the service files
     exectuable_directory = os.path.dirname(os.path.realpath(__file__))
-    source_directory = '{}/system'.format(
-        os.path.abspath(os.path.join(exectuable_directory, os.pardir)))
+    source_directory = '{1}{0}systemd{0}system'.format(
+                os.sep,
+                os.path.abspath(os.path.join(exectuable_directory, os.pardir)))
 
     # Get source and destination file paths
     source_filepaths = _filepaths(source_directory)
@@ -111,16 +102,6 @@ def _copy_service_files(target_directory):
     # Make systemd aware of the new services
     activation_command = 'systemctl daemon-reload'
     call(activation_command.split())
-
-    # Print success message
-    source_files = _filepaths(source_directory, full_paths=False)
-    print('''
-SUCCESS! You are now able to start/stop and enable/disable the following \
-systemd services:
-''')
-    for source_file in source_files:
-        print(source_file)
-    print('')
 
     # Return
     return destination_filepaths
@@ -179,6 +160,11 @@ def _update_environment_strings(
     env_group = '^Group=(.*?)$'
     env_run = '^RuntimeDirectory=(.*?)$'
 
+    execution_dir = os.path.dirname(os.path.realpath(__file__))
+    install_dir = os.path.abspath(os.path.join(os.path.abspath(
+            os.path.join(
+                execution_dir, os.pardir)), os.pardir))
+
     # Do the needful
     for filepath in filepaths:
         # Read files and replace matches
@@ -191,7 +177,7 @@ def _update_environment_strings(
                 _line = line.strip()
 
                 # Fix the binary directory
-                _line = _line.replace('INSTALLATION_DIRECTORY', ROOT_DIR)
+                _line = _line.replace('INSTALLATION_DIRECTORY', install_dir)
 
                 # Test PATTOO_CONFIGDIR
                 if bool(re.search(env_path, line)) is True:
@@ -244,7 +230,6 @@ def _get_runtime_directory(config_directory):
         log('''\
 "system_daemon_directory" parameter not found in the {} configuration file\
 '''.format(filepath))
-
     _result = result.replace('/var/run/', '')
     _result = _result.replace('/run/', '')
     return (result, _result)
@@ -259,7 +244,6 @@ def preflight(config_dir, etc_dir):
 
     Returns:
         None
-
 
     """
     # Make sure config_dir exists
@@ -283,37 +267,42 @@ Expected configuration directory "{}" does not exist.'''.format(config_dir))
         log('Expected systemd directory "{}" does not exist.'.format(etc_dir))
 
 
-def arguments():
-    """
-    Get the CLI arguments.
+def run_systemd():
+    """Reload and start system daemons.
 
     Args:
         None
 
     Returns:
-        args: NamedTuple of argument values
+        None
 
     """
-    # Get config_dir value
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-f', '--config_dir',
-        help=('''\
-Directory where the pattoo configuration files will be located'''),
-        required=True)
-    parser.add_argument(
-        '-u', '--username',
-        help=('Username that will run the daemon'),
-        required=True)
-    parser.add_argument(
-        '-g', '--group',
-        help=('User group to which username belongs'),
-        required=True)
-    args = parser.parse_args()
-    return args
+    if getpass.getuser() != 'travis':
+        # Say what we are doing
+        print('??: Enabling system daemons')
+        # Reloading daemons
+        shared._run_script('sudo systemctl daemon-reload')
+        # Enabling daemons
+        shared._run_script('sudo systemctl enable pattoo_apid')
+        shared._run_script('sudo systemctl enable pattoo_api_agentd')
+        shared._run_script('sudo systemctl enable pattoo_ingesterd')
+        print('OK: System daemons enabled')
+        print('??: Starting system daemons')
+        shared._run_script('sudo systemctl start pattoo_apid')
+        shared._run_script('sudo systemctl start pattoo_api_agentd')
+        shared._run_script('sudo systemctl start pattoo_ingesterd')
+        print('OK: System daemons successfully started')
+    else:
+        shared._run_script('systemctl daemon-reload')
+        shared._run_script('systemctl enable pattoo_apid')
+        shared._run_script('systemctl enable pattoo_api_agentd')
+        shared._run_script('systemctl enable pattoo_ingesterd')
+        shared._run_script('systemctl start pattoo_apid')
+        shared._run_script('systemctl start pattoo_api_agentd')
+        shared._run_script('systemctl start pattoo_ingesterd')
 
 
-def main():
+def install_systemd():
     """Run the functions for installation.
 
     Args:
@@ -325,8 +314,7 @@ def main():
     """
     # Initialize key variables
     etc_dir = '/etc/systemd/system/multi-user.target.wants'
-    args = arguments()
-    config_dir = os.path.expanduser(args.config_dir)
+    config_dir = '/etc/pattoo'
 
     # Make sure this system supports systemd and that
     # the required directories exist
@@ -342,9 +330,8 @@ def main():
     _update_environment_strings(
         destination_filepaths,
         config_dir,
-        args.username,
-        args.group)
+        'pattoo',
+        'pattoo')
 
-
-if __name__ == '__main__':
-    main()
+    # Reload and start systemd
+    run_systemd()

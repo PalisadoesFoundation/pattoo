@@ -14,16 +14,16 @@ if EXEC_DIR.endswith(_EXPECTED) is True:
     # We need to prepend the path in case the repo has been installed
     # elsewhere on the system using PIP. This could corrupt expected results
     sys.path.insert(0, ROOT_DIR)
+    sys.path.append(os.path.join(ROOT_DIR, 'setup'))
     # Try catch block to automatically set the config dir if it isn't already
     # set
 else:
     print('''This script is not installed in the "{0}" directory. Please fix.\
 '''.format(_EXPECTED))
     sys.exit(2)
-from setup.installation_lib.install import _log, check_config, next_steps
-from setup.installation_lib.install import check_pip3, install_missing
+
+from setup._pattoo.packages import install_pip3, install_missing
 from tests.libraries.configuration import UnittestConfig
-#from setup.install import _log
 
 
 class Test_Install(unittest.TestCase):
@@ -36,32 +36,23 @@ class Test_Install(unittest.TestCase):
     def test_install_missing(self):
         """Unittest to test the install_missing function."""
         expected = True
-        result = install_missing('numpy')
-        self.assertEqual(result, expected)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            result = install_missing('numpy', temp_dir, False)
+            sys.path.append(temp_dir)
+            self.assertEqual(result, expected)
 
     def test_install_missing_fail(self):
         """Test case that would cause the install_missing function to fail."""
-        with self.assertRaises(SystemExit) as cm:
-            install_missing('this does not exist')
-        self.assertEqual(cm.exception.code, 2)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with self.assertRaises(SystemExit) as cm:
+                install_missing('this does not exist', temp_dir, False)
+            self.assertEqual(cm.exception.code, 2)
 
     def test_check_pip3(self):
         """Unittest to test the check_pip3 function."""
         expected = True
-        result = check_pip3()
+        result = install_pip3(False, ROOT_DIR)
         self.assertEqual(result, expected)
-
-    def test_next_steps(self):
-        """Unittest to test the next_steps function"""
-        expected = True
-        result = next_steps()
-        self.assertEqual(result, expected)
-
-    def test_log(self):
-        """Unittest to test the _log function."""
-        with self.assertRaises(SystemExit) as cm:
-            _log("Test Error Message")
-        self.assertEqual(cm.exception.code, 3)
 
 
 if __name__ == '__main__':

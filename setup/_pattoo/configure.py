@@ -10,18 +10,20 @@ import traceback
 import grp
 import pwd
 from pathlib import Path
-# from shared import _log, _run_script
 import getpass
 try:
     import yaml
 except:
     print('Install the Python3 "pyyaml" package, then run this script again')
     sys.exit(2)
+# Pattoo libraries
+from pattoo_shared import files, configuration
+from pattoo_shared import log
+from _pattoo import shared
 
 
 def already_written(file_path, env_export):
-    """
-    Check if the CONFIG_DIR had already been exported.
+    """Check if the CONFIG_DIR had already been exported.
 
     Args:
         file_path: The path to bash_profile
@@ -112,24 +114,8 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
     return (returncode, stdoutdata, stderrdata)
 
 
-def _log(message):
-    """Log messages and exit abnormally.
-
-    Args:
-        message: Message to print
-
-    Returns:
-        None
-
-    """
-    # exit
-    print('\nPATTOO Error: {}'.format(message))
-    sys.exit(3)
-
-
 def set_configdir(filepath):
-    """
-    Automatically sets the configuration directory.
+    """Automatically sets the configuration directory.
 
     Args:
         The file path for bash_profile
@@ -143,19 +129,6 @@ def set_configdir(filepath):
         if not (already_written(filepath, env_export)):
             file.write(env_export)
     os.environ['PATTOO_CONFIGDIR'] = config_path
-
-
-def get_configdir():
-    """
-    Retrieve the configuration directory.
-
-    Args:
-        None
-
-    Returns:
-        The file path for the configuration directory
-    """
-    return os.environ['PATTOO_CONFIGDIR']
 
 
 def pattoo_config(config_directory, prompt_value):
@@ -194,10 +167,6 @@ def pattoo_config(config_directory, prompt_value):
     # Say what we are doing
     print('\nConfiguring {} file.\n'.format(filepath))
 
-    # Directories that will be excluded from prompt
-    directories = [
-        'system_daemon_directory', 'log_directory', 'cache_directory',
-        'system_daemon_directory']
     # Get configuration
 
     config = read_config(filepath, default_config)
@@ -210,7 +179,7 @@ def pattoo_config(config_directory, prompt_value):
     for key, value in sorted(config['pattoo'].items()):
         if 'directory' in key:
             if os.sep not in value:
-                _log('''\
+                shared._log('''\
 Provide full directory path for "{}" in section "pattoo: {}". \
 Please try again.\
 '''.format(value, key))
@@ -226,9 +195,8 @@ Please try again.\
         yaml.dump(config, f_handle, default_flow_style=False)
 
 
-def create_user():
-    """
-    Create pattoo user and pattoo group.
+def create_user(user_name):
+    """Create pattoo user and pattoo group.
 
     Args:
         None
@@ -236,17 +204,18 @@ def create_user():
     Returns:
         None
     """
+    # If the group pattoo does not exist, it gets created
     if not group_exists('pattoo'):
         print('\nCreating pattoo group')
         _run_script('groupadd pattoo')
+    # If the user pattoo does not exist, it gets created
     if not user_exists('pattoo'):
         print('\nCreating pattoo user')
         _run_script('useradd -d /nonexistent -s /bin/false -g pattoo pattoo')
 
 
 def group_exists(group_name):
-    """
-    Check if the group already exists.
+    """Check if the group already exists.
 
     Args:
         group_name: The name of the group
@@ -255,6 +224,7 @@ def group_exists(group_name):
         True if the group exists and False if it does not
     """
     try:
+        # Gets group name
         grp.getgrnam(group_name)
         return True
     except KeyError:
@@ -262,8 +232,7 @@ def group_exists(group_name):
 
 
 def user_exists(user_name):
-    """
-    Check if the user already exists.
+    """Check if the user already exists.
 
     Args:
         user_name: The name of the user
@@ -272,6 +241,7 @@ def user_exists(user_name):
         True if the user exists and False if it does not
     """
     try:
+        # Gets user name
         pwd.getpwnam(user_name)
         return True
     except KeyError:
@@ -279,8 +249,7 @@ def user_exists(user_name):
 
 
 def initialize_ownership(dir_name, dir_path):
-    """
-    Change the ownership of the directories to the pattoo user and group.
+    """Change the ownership of the directories to the pattoo user and group.
 
     Args:
         dir_name: The name of the directory
@@ -291,6 +260,7 @@ def initialize_ownership(dir_name, dir_path):
     """
     print('\nSetting ownership of the {} directory to pattoo'.format(dir_name))
     if getpass.getuser() != 'travis':
+        # Set ownership of file specified at dir_path
         shutil.chown(dir_path, 'pattoo', 'pattoo')
 
 
@@ -355,7 +325,6 @@ def read_config(filepath, default_config):
 
     Returns:
         config: Dict of configuration
-
     """
     # Convert config to yaml
     default_config_string = yaml.dump(default_config)
@@ -380,7 +349,6 @@ def prompt(section, key, default_value):
 
     Returns:
         result: Desired value from user
-
     """
     # Get input from user
     result = input('''Enter "{}: {}" value (Hit <enter> for: "{}"): \
@@ -393,7 +361,7 @@ def prompt(section, key, default_value):
             try:
                 os.makedirs(result, mode=0o750, exist_ok=True)
             except:
-                _log('''\
+                shared._log('''\
 Cannot create directory {} in configuration file. Check parent directory \
 permissions and typos'''.format(result))
 
@@ -408,14 +376,116 @@ def _mkdir(directory):
 
     Returns:
         None
-
     """
+    # Check if directory already exists
     if os.path.isdir(directory) is False:
         try:
             Path(directory).mkdir(parents=True, mode=0o750, exist_ok=True)
         except OSError:
-            _log('''Cannot create directory {}. Please try again.\
+            shared._log('''Cannot create directory {}. Please try again.\
 '''.format(directory))
+
+
+def check_pattoo_server():
+    """Ensure server configuration exists.
+
+    Args:
+        None
+
+    Returns:
+        True: If the server had been configured correctly
+
+    """
+    # Print Status
+    print('??: Checking server configuration parameters.')
+
+    # Checks server config
+    config_file = configuration.agent_config_filename('pattoo_server')
+    config = files.read_yaml_file(config_file)
+
+    # Check main keys
+    keys = [
+        'pattoo_db', 'pattoo_api_agentd', 'pattoo_apid', 'pattoo_ingesterd']
+    for key in keys:
+        if key not in config:
+            log_message = ('''\
+Section "{}" not found in {} configuration file. Please fix.\
+'''.format(key, config_file))
+            log.log2die_safe(20141, log_message)
+
+    # Check secondary keys for 'pattoo_db'
+    secondaries = [
+        'db_pool_size', 'db_max_overflow', 'db_hostname', 'db_username',
+        'db_password', 'db_name']
+    secondary_key_check(config, 'pattoo_db', secondaries)
+
+    # Check secondary keys for 'pattoo_api_agentd'
+    secondaries = ['ip_listen_address', 'ip_bind_port']
+    secondary_key_check(config, 'pattoo_api_agentd', secondaries)
+
+    # Check secondary keys for 'pattoo_apid'
+    secondaries = ['ip_listen_address', 'ip_bind_port']
+    secondary_key_check(config, 'pattoo_apid', secondaries)
+
+    # Print Status
+    print('OK: Server configuration parameter check passed.')
+    return True
+
+def check_pattoo_client():
+    """Ensure client configuration exists.
+
+    Args:
+        None
+
+    Returns:
+        True: if the client has been configured correctly
+
+    """
+    # Print Status
+    print('??: Checking client configuration parameters.')
+
+    # Checks client config
+    config_file = configuration.agent_config_filename('pattoo')
+    config = files.read_yaml_file(config_file)
+
+    # Check main keys
+    keys = ['pattoo']
+    for key in keys:
+        if key not in config:
+            log_message = ('''\
+Section "{}" not found in {} configuration file. Please fix.\
+'''.format(key, config_file))
+            log.log2die_safe(20090, log_message)
+
+    # Check secondary keys for 'pattoo'
+    secondaries = [
+        'log_level', 'log_directory', 'cache_directory', 'daemon_directory']
+    secondary_key_check(config, 'pattoo', secondaries)
+
+    # Print Status
+    print('OK: Client configuration parameter check passed.')
+    return True
+
+
+def secondary_key_check(config, primary, secondaries):
+    """Check secondary keys.
+
+    Args:
+        config: Configuration dict
+        primary: Primary key
+        secondaries: List of secondary keys
+
+    Returns:
+        None
+
+    """
+    # Check keys
+    for key in secondaries:
+        if key not in config[primary]:
+            log_message = ('''\
+Configuration file's "{}" section does not have a "{}" sub-section. \
+Please fix.'''.format(primary, key))
+            log.log2die_safe(20091, log_message)
 
 
 def configure_installation(prompt_value):
@@ -426,7 +496,6 @@ def configure_installation(prompt_value):
 
     Returns:
         None
-
     """
     # Initialize key variables
     if os.environ.get('PATTOO_CONFIGDIR') is None:
@@ -444,7 +513,7 @@ $ export PATTOO_CONFIGDIR=/path/to/configuration/directory
 
 Then run this command again.
 ''')
-        _log(log_message)
+        shared._log(log_message)
 
     # Prompt for configuration directory
     print('\nPattoo configuration utility.')
@@ -458,6 +527,10 @@ Then run this command again.
     pattoo_config(config_directory, prompt_value)
     pattoo_server_config(config_directory, prompt_value)
 
+    # Checking configuration
+    check_pattoo_server()
+    check_pattoo_client()
+
     # All done
     output = '''
 Successfully created configuration files:
@@ -468,8 +541,6 @@ Successfully created configuration files:
 Next Steps
 ==========
 
-Running Installation Script
+Checking pip3 packages
 '''.format(config_directory, os.sep)
     print(output)
-
-    

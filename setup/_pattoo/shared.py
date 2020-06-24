@@ -6,6 +6,7 @@ import traceback
 import os
 from pathlib import Path
 
+
 def _run_script(cli_string, die=True):
     """Run the cli_string UNIX CLI command and record output.
 
