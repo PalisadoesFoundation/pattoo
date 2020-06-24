@@ -370,9 +370,7 @@ def main():
             systemd.install_systemd()
         # Configures pattoo and sets up database tables
         elif args.qualifier == 'database':
-            # Run configuration
             configure.configure_installation(False)
-            # Install pip3 packages
             packages.install_pip3(False, ROOT_DIR)
             # Import db after pip3 packages are installed
             from _pattoo import db
@@ -380,11 +378,9 @@ def main():
         # Installs and starts system daemons
         elif args.qualifier == 'systemd':
             print('??: Installing systemd')
-            # Run configuration
             configure.configure_installation(False)
             # Install pip3 packages, promptless by default
             packages.install_pip3(False, ROOT_DIR)
-            # Install and run system daemons
             systemd.install_systemd()
         # Only installs pip3 packages if they haven't been installed already
         elif args.qualifier == 'pip':
