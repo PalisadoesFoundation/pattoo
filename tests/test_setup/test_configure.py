@@ -5,6 +5,7 @@ from tests.libraries.configuration import UnittestConfig
 from unittest.mock import patch
 import os
 import getpass
+import grp
 import unittest
 import sys
 import tempfile
@@ -47,7 +48,9 @@ class TestConfigure(unittest.TestCase):
         with self.subTest():
             # Test case for when the group exists
             expected = True
-            result = group_exists(os.getgid())
+            # Creating grp.struct object
+            grp_struct = grp.getgrgid(os.getgid())
+            result = group_exists(grp_struct.gr_name)
             self.assertEqual(result, expected)
 
     def test_user_exists(self):
@@ -60,7 +63,7 @@ class TestConfigure(unittest.TestCase):
         # Test case for when the user does exist
         with self.subTest():
             expected = True
-            result = user_exists(os.getuid())
+            result = user_exists(getpass.getuser())
             self.assertEqual(result, expected)
 
     def test_check_pattoo_server(self):
