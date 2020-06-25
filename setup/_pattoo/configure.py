@@ -22,26 +22,6 @@ from pattoo_shared import log
 from _pattoo import shared
 
 
-def already_written(file_path, env_export):
-    """Check if the CONFIG_DIR had already been exported.
-
-    Args:
-        file_path: The path to bash_profile
-        env_export: The line being exported to bash_profile
-
-    Returns:
-        True: if the line that exports the PATTOO CONFIGDIR is already in
-        bash profile
-        False: if the line that exports the PATTOO CONFIGDIR had not been
-        written to bash profile
-    """
-    with open(file_path, 'r') as file:
-        for line in file:
-            if line == env_export:
-                return True
-        return False
-
-
 def _run_script(cli_string, die=True):
     """Run the cli_string UNIX CLI command and record output.
 
@@ -114,23 +94,6 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
     return (returncode, stdoutdata, stderrdata)
 
 
-def set_configdir(filepath):
-    """Automatically sets the configuration directory.
-
-    Args:
-        The file path for bash_profile
-
-    Returns:
-        None
-    """
-    config_path = '{0}etc{0}pattoo'.format(os.sep)
-    env_export = 'export PATTOO_CONFIGDIR={}'.format(config_path)
-    with open(filepath, 'a') as file:
-        if not (already_written(filepath, env_export)):
-            file.write(env_export)
-    os.environ['PATTOO_CONFIGDIR'] = config_path
-
-
 def pattoo_config(config_directory, prompt_value):
     """Create pattoo.yaml file.
 
@@ -195,7 +158,7 @@ Please try again.\
         yaml.dump(config, f_handle, default_flow_style=False)
 
 
-def create_user(user_name):
+def create_user():
     """Create pattoo user and pattoo group.
 
     Args:
@@ -431,6 +394,7 @@ Section "{}" not found in {} configuration file. Please fix.\
     print('OK: Server configuration parameter check passed.')
     return True
 
+
 def check_pattoo_client():
     """Ensure client configuration exists.
 
@@ -499,9 +463,7 @@ def configure_installation(prompt_value):
     """
     # Initialize key variables
     if os.environ.get('PATTOO_CONFIGDIR') is None:
-        path = os.path.join(os.path.join(os.path.expanduser('~')),
-                            '.bash_profile')
-        set_configdir(path)
+        os.environ['PATTOO_CONFIGDIR'] = '{0}etc{0}pattoo'.format(os.sep)
     config_directory = os.environ.get('PATTOO_CONFIGDIR')
 
     # Make sure the PATTOO_CONFIGDIR environment variable is set

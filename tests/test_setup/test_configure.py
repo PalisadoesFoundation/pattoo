@@ -27,7 +27,7 @@ else:
 from setup._pattoo.configure import already_written, set_configdir
 from setup._pattoo.configure import read_config, prompt, create_user
 from setup._pattoo.configure import _mkdir, group_exists, user_exists
-from setup._pattoo.configure import check_pattoo_server,check_pattoo_client
+from setup._pattoo.configure import check_pattoo_server, check_pattoo_client
 
 
 class TestConfigure(unittest.TestCase):
@@ -47,7 +47,8 @@ class TestConfigure(unittest.TestCase):
             self.assertEqual(result, expected)
         with self.subTest():
             # Test case for when the group exists
-            pass
+            expected = True
+            result = group_exists(os.getgid())
 
     def test_user_exists(self):
         """Unittest to test the user_exists function."""
@@ -58,7 +59,9 @@ class TestConfigure(unittest.TestCase):
             self.assertEqual(result, expected)
         # Test case for when the user does exist
         with self.subTest():
-            pass
+            expected = True
+            result = user_exists(os.getuid())
+            self.assertEqual(result, expected)
 
     def test_check_pattoo_server(self):
         """Unittest to test the check_pattoo_server function."""
@@ -67,23 +70,6 @@ class TestConfigure(unittest.TestCase):
     def test_check_pattoo_client(self):
         """Unittest to test the check_pattoo_client function."""
         pass
-
-    def test_set_configuration_directory(self):
-        """Unittest to test the set_configdir function."""
-        expected = True
-        results = []
-        config_path = '/opt/pattoo/config'
-        env_variable = 'export PATTOO_CONFIGDIR={}'.format(config_path)
-        file_path = os.path.join(os.path.join(
-            os.path.expanduser('~')), '.bash_profile')
-        set_configdir(file_path)
-        with open(file_path, 'r') as file:
-            for line in file:
-                if line == env_variable:
-                    results.append(True)
-        results.append(os.environ['PATTOO_CONFIGDIR']) == config_path
-        result = all(results)
-        self.assertEqual(result, expected)
 
     def test_pattoo_server_config(self):
         """Unittest to test the pattoo_server_config function."""
@@ -127,19 +113,6 @@ class TestConfigure(unittest.TestCase):
             config = read_config(file_path, expected)
             result = config == expected
             self.assertEqual(result, True)
-
-    def test_already_written(self):
-        """Unittest to test the already_written function."""
-        # Create temporary directory
-        with tempfile.TemporaryDirectory() as temp_dir:
-            file_path = os.path.join(temp_dir, 'test_file.txt')
-            line = 'export PATTOO_CONFIGDIR=/opt/Calico/config'
-            # Writes line to file
-            with open(file_path, 'w') as file:
-                file.write(line)
-            expected = True
-            result = already_written(file_path, line)
-            self.assertEqual(result, expected)
 
     def test_mkdir(self):
         """Unitttest to test the _mkdir function."""
