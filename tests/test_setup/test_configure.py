@@ -24,7 +24,6 @@ else:
 '''.format(_EXPECTED))
     sys.exit(2)
 
-from setup._pattoo.configure import already_written, set_configdir
 from setup._pattoo.configure import read_config, prompt, create_user
 from setup._pattoo.configure import _mkdir, group_exists, user_exists
 from setup._pattoo.configure import check_pattoo_server, check_pattoo_client
@@ -49,6 +48,7 @@ class TestConfigure(unittest.TestCase):
             # Test case for when the group exists
             expected = True
             result = group_exists(os.getgid())
+            self.assertEqual(result, expected)
 
     def test_user_exists(self):
         """Unittest to test the user_exists function."""
