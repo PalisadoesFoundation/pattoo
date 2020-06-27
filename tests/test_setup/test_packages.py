@@ -1,10 +1,13 @@
 
 import os
 import getpass
+import subprocess
 import unittest
 import sys
 import tempfile
 import yaml
+
+
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(
@@ -24,7 +27,7 @@ else:
 
 from setup._pattoo.packages import install_pip3, install_missing
 from tests.libraries.configuration import UnittestConfig
-
+from unittest.mock import patch
 
 class Test_Install(unittest.TestCase):
     """Checks all functions for the Pattoo install script."""
@@ -48,12 +51,23 @@ class Test_Install(unittest.TestCase):
                 install_missing('this does not exist', temp_dir, False)
             self.assertEqual(cm.exception.code, 2)
 
-    def test_check_pip3(self):
-        """Unittest to test the check_pip3 function."""
+    def test_install_pip3(self):
+        """Unittest to test the install_pip3 function."""
+        # At least one expected package
+        expected_package = 'PyNaCl'
         expected = True
-        result = install_pip3(False, ROOT_DIR)
+        install_pip3(False, ROOT_DIR)
+        # Get raw packages in requirements format
+        packages = subprocess.check_output([sys.executable, '-m',
+                                            'pip', 'freeze'])
+        # Get packages with versions removed
+        installed_packages = [
+            package.decode().split('==')[0] for package in packages.split()
+            ]
+        result = expected_package in installed_packages
         self.assertEqual(result, expected)
 
+    
 
 if __name__ == '__main__':
     # Make sure the environment is OK to run unittests

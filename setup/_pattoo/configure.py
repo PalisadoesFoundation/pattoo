@@ -202,6 +202,7 @@ def user_exists(user_name):
 
     Returns
         True if the user exists and False if it does not
+
     """
     try:
         # Gets user name

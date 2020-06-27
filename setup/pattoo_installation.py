@@ -25,8 +25,15 @@ This script is not installed in the "{}" directory. Please fix.\
     sys.exit(2)
 
 # Importing installation related packages
-from _pattoo import packages, systemd, configure
 from _pattoo import shared
+
+try:
+    from _pattoo import packages, systemd, configure
+except ModuleNotFoundError:
+    print('Pattoo shared is missing. Installing pattoo shared')
+    shared._run_script('pip3 install PattooShared')
+    from _pattoo import packages, systemd, configure
+
 
 
 class _Parser(argparse.ArgumentParser):

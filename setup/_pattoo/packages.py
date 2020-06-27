@@ -6,8 +6,7 @@ import sys
 import subprocess
 import traceback
 import getpass
-from pattoo_shared import files, configuration
-from pattoo_shared import log
+import shutil
 
 from _pattoo import shared
 
@@ -25,7 +24,8 @@ def install_missing(package, pip_dir, verbose):
     """
     # Installs to the directory specified as pip_dir if the user is not travis
     if getpass.getuser() != 'travis':
-        _run_script('pip3 install {0} -t {1}'.format(package, pip_dir), verbose)
+        _run_script('pip3 install {0} -t {1}'.format(package, pip_dir),
+                     verbose)
     else:
         _run_script('pip3 install {0}'.format(package), verbose)
     return True
@@ -43,7 +43,7 @@ def get_pip3_dir(prompt_value):
 
     """
     # Default pip3 directory
-    pip_dir = '/opt/pattoo/daemon/.python'
+    pip_dir = '/opt/pattoo-daemon/.python'
     if prompt_value is True:
 
         # Prompts for input until a valid directory is entered
@@ -112,6 +112,11 @@ def install_pip3(prompt_value, requirements_dir):
         # If the prompt_value is True, the package will be shown
         if prompt_value:
             print('OK: package {}'.format(line))
+
+        # Set ownership of python packages to pattoo user
+        if getpass.getuser() != 'travis':
+            _run_script('chown -R pattoo:pattoo {}'.format(pip3_dir),
+                        prompt_value)
     print('OK: pip3 packages successfully installed')
     return True
 
