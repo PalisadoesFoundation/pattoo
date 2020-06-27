@@ -1,8 +1,8 @@
 # Run on ubuntu
 dist: bionic
 
-# Don't use
-sudo: false
+# Temporarily enable sudo
+sudo: true
 
 # Define the language and versions that infoset is written in
 language: python
@@ -28,5 +28,8 @@ before_install:
     - tests/bin/unittest_setup.py
     - mysql -e 'CREATE DATABASE pattoo_unittest;'
 
-# Run the unittest scripts
+before_script: setup/pattoo_installation.py install all
+
+# Run the unittest script
+sudo: false
 script: tests/bin/do_all_tests.py

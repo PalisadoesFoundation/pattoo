@@ -25,7 +25,7 @@ def install_missing(package, pip_dir, verbose):
     # Installs to the directory specified as pip_dir if the user is not travis
     if getpass.getuser() != 'travis':
         _run_script('pip3 install {0} -t {1}'.format(package, pip_dir),
-                     verbose)
+                    verbose)
     else:
         _run_script('pip3 install {0}'.format(package), verbose)
     return True

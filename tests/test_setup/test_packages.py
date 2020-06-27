@@ -58,9 +58,9 @@ class Test_Install(unittest.TestCase):
             self.assertEqual(cm.exception.code, 2)
 
     def test_check_pip3(self):
-        """Unittest to test the install_pip3 function."""
+        """Unittest to test the check_pip3 function."""
         # At least one expected package
-        expected_package = 'PyNaCl'
+        expected_package = 'Flask'
         expected = True
         with tempfile.TemporaryDirectory() as temp_dir:
             result = check_pip3(True, ROOT_DIR, temp_dir)
