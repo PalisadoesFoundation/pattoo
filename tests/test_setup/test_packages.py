@@ -25,9 +25,10 @@ else:
 '''.format(_EXPECTED))
     sys.exit(2)
 
-from setup._pattoo.packages import install_pip3, install_missing
+from setup._pattoo.packages import check_pip3, install_missing
 from tests.libraries.configuration import UnittestConfig
 from unittest.mock import patch
+
 
 class Test_Install(unittest.TestCase):
     """Checks all functions for the Pattoo install script."""
@@ -40,8 +41,13 @@ class Test_Install(unittest.TestCase):
         """Unittest to test the install_missing function."""
         expected = True
         with tempfile.TemporaryDirectory() as temp_dir:
-            result = install_missing('numpy', temp_dir, False)
+            install_missing('pandas', temp_dir, False)
             sys.path.append(temp_dir)
+            try:
+                import pandas
+                result = True
+            except ModuleNotFoundError:
+                result = False
             self.assertEqual(result, expected)
 
     def test_install_missing_fail(self):
@@ -51,23 +57,23 @@ class Test_Install(unittest.TestCase):
                 install_missing('this does not exist', temp_dir, False)
             self.assertEqual(cm.exception.code, 2)
 
-    def test_install_pip3(self):
+    def test_check_pip3(self):
         """Unittest to test the install_pip3 function."""
         # At least one expected package
         expected_package = 'PyNaCl'
         expected = True
-        install_pip3(False, ROOT_DIR)
-        # Get raw packages in requirements format
-        packages = subprocess.check_output([sys.executable, '-m',
-                                            'pip', 'freeze'])
-        # Get packages with versions removed
-        installed_packages = [
-            package.decode().split('==')[0] for package in packages.split()
-            ]
-        result = expected_package in installed_packages
+        with tempfile.TemporaryDirectory() as temp_dir:
+            result = check_pip3(True, ROOT_DIR, temp_dir)
+            # Get raw packages in requirements format
+            packages = subprocess.check_output([sys.executable, '-m',
+                                                'pip', 'freeze'])
+            # Get packages with versions removed
+            installed_packages = [
+                package.decode().split('==')[0] for package in packages.split()
+                ]
+            result = expected_package in installed_packages
         self.assertEqual(result, expected)
 
-    
 
 if __name__ == '__main__':
     # Make sure the environment is OK to run unittests

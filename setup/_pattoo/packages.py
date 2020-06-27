@@ -55,7 +55,7 @@ def get_pip3_dir(prompt_value):
     return pip_dir
 
 
-def install_pip3(prompt_value, requirements_dir):
+def check_pip3(prompt_value, requirements_dir, pip3_dir):
     """Ensure PIP3 packages are installed correctly.
 
     Args:
@@ -71,8 +71,7 @@ def install_pip3(prompt_value, requirements_dir):
     # Initialize key variables
     lines = []
 
-    # Get pip3 directory
-    pip3_dir = get_pip3_dir(prompt_value)
+    # Appends pip3 dir to python path
     sys.path.append(pip3_dir)
 
     # Read pip_requirements file
@@ -114,11 +113,30 @@ def install_pip3(prompt_value, requirements_dir):
             print('OK: package {}'.format(line))
 
         # Set ownership of python packages to pattoo user
-        if getpass.getuser() != 'travis':
+        if getpass.getuser() != 'travis' and getpass.getuser() == 'root':
             _run_script('chown -R pattoo:pattoo {}'.format(pip3_dir),
                         prompt_value)
     print('OK: pip3 packages successfully installed')
     return True
+
+
+def install_pip3(prompt_value, requirements_dir):
+    """Install pip3 packages.
+
+     Args:
+        prompt_value: A boolean value to toggle the script's verbose mode and
+                      enable the pip3 directory to be manually set.
+        requirements_dir: The directory that the requirements.txt file is
+                          located in.
+
+    Returns:
+        True if pip3 packages are installed successfully
+    """
+
+    # Retrieve directory to install packages
+    pip3_dir = get_pip3_dir(prompt_value)
+    # Checks for and installs missing packages
+    check_pip3(prompt_value, requirements_dir, pip3_dir)
 
 
 def _run_script(cli_string, verbose, die=True):
