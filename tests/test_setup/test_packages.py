@@ -79,20 +79,23 @@ class Test_Install(unittest.TestCase):
             result = expected_package in installed_packages
         self.assertEqual(result, expected)
 
-    # Mock patch to feed custom input
-    @patch('builtins.input', return_value='/opt/pattoo')
-    def test_get_pip3_dir(self, mock_patch):
+    def test_get_pip3_dir_default(self):
         """Unittest to test the get_pip3_dir function."""
         # Default option
-        with self.subTest():
-            expected = '/opt/pattoo-daemon/.python'
-            result = get_pip3_dir(False)
-            self.assertEqual(result, expected)
+        expected = '/opt/pattoo-daemon/.python'
+        result = get_pip3_dir(False)
+        self.assertEqual(result, expected)
+
+    # Mock patch to feed custom input
+    @patch('builtins.input', return_value='test/pattoo')
+    def test_get_pip3_dir_prompt(self, mock_patch):
+        """Unittest to test the get_pip3_dir function with a prompt."""
+        expected = 'test/pattoo'
         # Get_pip3_dir with prompt
-        with self.subTest():
-            expected = '/opt/pattoo'
-            result = get_pip3_dir(True)
-            self.assertEqual(result, expected)
+        result = get_pip3_dir(True)
+        self.assertEqual(result, expected)
+
+
 if __name__ == '__main__':
     # Make sure the environment is OK to run unittests
     UnittestConfig().create()
