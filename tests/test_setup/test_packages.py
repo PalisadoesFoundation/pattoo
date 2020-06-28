@@ -87,7 +87,7 @@ class Test_Install(unittest.TestCase):
         self.assertEqual(result, expected)
 
     # Mock patch to feed custom input
-    @patch('builtins.input', return_value='test/pattoo')
+    @patch('builtins.input', return_value=os.path.expanduser('~'))
     def test_get_pip3_dir_prompt(self, mock_patch):
         """Unittest to test the get_pip3_dir function with a prompt."""
         expected = 'test/pattoo'
