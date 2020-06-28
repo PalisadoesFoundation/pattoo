@@ -55,7 +55,7 @@ def main():
     root_dir = ROOT_DIR
     test_dir = '{}{}tests'.format(root_dir, os.sep)
 
-    # Create database tables if necessary
+    # Install pattoo
     command = (
         '{1}{0}setup{0}pattoo_installation.py install all'.format(os.sep, root_dir))
     run_script(command)

@@ -202,7 +202,8 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
         # Log message
         if messages != []:
             for log_message in messages:
-                print(log_message)
+                if verbose is True:
+                    print(log_message)
 
             if bool(die) is True:
                 # All done
