@@ -39,10 +39,12 @@ class Test_Shared(unittest.TestCase):
 
     def test_run_script(self):
         """Unittest to test the _run_script function."""
+        # Test case where the script should fail and exit with 2
         with self.subTest():
             with self.assertRaises(SystemExit) as cm:
                 _run_script("this will exit with 2")
             self.assertEqual(cm.exception.code, 2)
+        # Test case where the script should print "this works" to the console
         with self.subTest():
             expected = 0
             result = _run_script("echo this works")[0]

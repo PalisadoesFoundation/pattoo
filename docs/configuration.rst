@@ -8,25 +8,14 @@ After installation, you will need to create a configuration file in a directory 
 Setting the  Configuration Directory Location
 *********************************************
 
-You must first set the location of the configuration directory by using the ``PATTOO_CONFIGDIR`` environmental variable. Here is how to do this from the Linux command line:
+Currently the configuration directory is automatically set when the installationscript is run
 
-.. code-block:: bash
-
-    $ export PATTOO_CONFIGDIR=/path/to/configuration/directory
-
-``pattoo`` applications will read the configuration files located in this directory when ``PATTOO_CONFIGDIR`` is set.
-
-You can automatically set this variable each time you log in by adding these lines to your ``~/.bash_profile`` file.
-
-.. code-block:: bash
-
-    export PATTOO_CONFIGDIR=/path/to/configuration/directory
-
-Make sure that files in this directory are readable by the user that will be running ``pattoo`` agent daemons or scripts.
 
 *********************
 Configuration Options
+
 *********************
+
 
 There are two ways to configure ``pattoo``. These are the:
 
@@ -38,7 +27,11 @@ Quick Method
 
 Use the quick method if you are new to ``pattoo``.
 
-Run the ``setup/configure.py`` script. It will prompt you for all configuration parameters. The defaults should be sufficient in most cases.
+.. code-block:: bash
+    $ sudo setup/pattoo_installation.py install configuration
+    
+
+The above command will set the most optimal defaults for your system for pattoo.
 
 To guarantee success you will need to know the following beforehand.
 
@@ -47,13 +40,7 @@ To guarantee success you will need to know the following beforehand.
 #. ``db_password``: Database password
 #. ``db_hostname``: Database hostname
 
-Here's the command to run:
 
-.. code-block:: bash
-
-    setup/configure.py
-
-Run the installation script next as outlined in the :doc:`installation` guide.
 
 Expert Method
 =============

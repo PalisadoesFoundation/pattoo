@@ -1,10 +1,15 @@
-
+#!/usr/bin/env python3
+"""Test pattoo packages script."""
 import os
 import getpass
+import subprocess
 import unittest
 import sys
 import tempfile
 import yaml
+from pathlib import Path
+from unittest.mock import patch
+
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(
@@ -22,8 +27,9 @@ else:
 '''.format(_EXPECTED))
     sys.exit(2)
 
-from setup._pattoo.packages import install_pip3, install_missing
+from setup._pattoo.packages import check_pip3, install_missing, get_pip3_dir
 from tests.libraries.configuration import UnittestConfig
+
 
 
 class Test_Install(unittest.TestCase):
@@ -36,13 +42,22 @@ class Test_Install(unittest.TestCase):
     def test_install_missing(self):
         """Unittest to test the install_missing function."""
         expected = True
+        # Create temporary directory to install packages
         with tempfile.TemporaryDirectory() as temp_dir:
-            result = install_missing('numpy', temp_dir, False)
+            install_missing('pandas', temp_dir, False)
+            # Append temporary directory to python path
             sys.path.append(temp_dir)
+            # Try except to determine if package was installed
+            try:
+                import pandas
+                result = True
+            except ModuleNotFoundError:
+                result = False
             self.assertEqual(result, expected)
 
     def test_install_missing_fail(self):
         """Test case that would cause the install_missing function to fail."""
+        # Create temporary directory
         with tempfile.TemporaryDirectory() as temp_dir:
             with self.assertRaises(SystemExit) as cm:
                 install_missing('this does not exist', temp_dir, False)
@@ -50,8 +65,35 @@ class Test_Install(unittest.TestCase):
 
     def test_check_pip3(self):
         """Unittest to test the check_pip3 function."""
+        # At least one expected package
+        expected_package = 'PattooShared'
         expected = True
-        result = install_pip3(False, ROOT_DIR)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            result = check_pip3(True, ROOT_DIR, temp_dir)
+            # Get raw packages in requirements format
+            packages = subprocess.check_output([sys.executable, '-m',
+                                                'pip', 'freeze'])
+            # Get packages with versions removed
+            installed_packages = [
+                package.decode().split('==')[0] for package in packages.split()
+                ]
+            result = expected_package in installed_packages
+        self.assertEqual(result, expected)
+
+    def test_get_pip3_dir_default(self):
+        """Unittest to test the get_pip3_dir function."""
+        # Default option
+        expected = '/opt/pattoo-daemon/.python'
+        result = get_pip3_dir(False)
+        self.assertEqual(result, expected)
+
+    # Mock patch to feed custom input
+    @patch('builtins.input', return_value=os.path.expanduser('~'))
+    def test_get_pip3_dir_prompt(self, mock_patch):
+        """Unittest to test the get_pip3_dir function with a prompt."""
+        expected = os.path.expanduser('~')
+        # Get_pip3_dir with prompt
+        result = get_pip3_dir(True)
         self.assertEqual(result, expected)
 
 

@@ -6,8 +6,7 @@ import sys
 import subprocess
 import traceback
 import getpass
-from pattoo_shared import files, configuration
-from pattoo_shared import log
+import shutil
 
 from _pattoo import shared
 
@@ -25,9 +24,10 @@ def install_missing(package, pip_dir, verbose):
     """
     # Installs to the directory specified as pip_dir if the user is not travis
     if getpass.getuser() != 'travis':
-        _run_script('pip3 install {0} -t {1}'.format(package, pip_dir), verbose)
+        _run_script('python3 -m pip install {0} -t {1}'.format(package,
+                    pip_dir), verbose)
     else:
-        _run_script('pip3 install {0}'.format(package), verbose)
+        _run_script('python3 -m pip install {0}'.format(package), verbose)
     return True
 
 
@@ -43,19 +43,18 @@ def get_pip3_dir(prompt_value):
 
     """
     # Default pip3 directory
-    pip_dir = '/opt/pattoo/daemon/.python'
+    pip_dir = '/opt/pattoo-daemon/.python'
     if prompt_value is True:
 
         # Prompts for input until a valid directory is entered
         pip_dir = input('Enter the directory for the pip3 packages: ')
         while not os.path.isdir(pip_dir):
             pip_dir = input('Enter the directory for the pip3 packages: ')
-
     # Return pip3 directory
     return pip_dir
 
 
-def install_pip3(prompt_value, requirements_dir):
+def check_pip3(prompt_value, requirements_dir, pip3_dir):
     """Ensure PIP3 packages are installed correctly.
 
     Args:
@@ -71,8 +70,7 @@ def install_pip3(prompt_value, requirements_dir):
     # Initialize key variables
     lines = []
 
-    # Get pip3 directory
-    pip3_dir = get_pip3_dir(prompt_value)
+    # Appends pip3 dir to python path
     sys.path.append(pip3_dir)
 
     # Read pip_requirements file
@@ -102,7 +100,7 @@ def install_pip3(prompt_value, requirements_dir):
         # If prompt_value is true, the package being checked is shown
         if prompt_value:
             print('??: Checking package {}'.format(package))
-        command = 'pip3 show {}'.format(package)
+        command = 'python3 -m pip show {}'.format(package)
         (returncode, _, _) = _run_script(command, prompt_value, die=False)
         if bool(returncode) is True:
 
@@ -112,8 +110,32 @@ def install_pip3(prompt_value, requirements_dir):
         # If the prompt_value is True, the package will be shown
         if prompt_value:
             print('OK: package {}'.format(line))
+
+        # Set ownership of python packages to pattoo user
+    if getpass.getuser() != 'travis' and getpass.getuser() == 'root':
+        _run_script('chown -R pattoo:pattoo {}'.format(pip3_dir),
+                    prompt_value)
     print('OK: pip3 packages successfully installed')
     return True
+
+
+def install_pip3(prompt_value, requirements_dir):
+    """Install pip3 packages.
+
+     Args:
+        prompt_value: A boolean value to toggle the script's verbose mode and
+                      enable the pip3 directory to be manually set.
+        requirements_dir: The directory that the requirements.txt file is
+                          located in.
+
+    Returns:
+        True if pip3 packages are installed successfully
+    """
+
+    # Retrieve directory to install packages
+    pip3_dir = get_pip3_dir(prompt_value)
+    # Checks for and installs missing packages
+    check_pip3(prompt_value, requirements_dir, pip3_dir)
 
 
 def _run_script(cli_string, verbose, die=True):
@@ -136,8 +158,8 @@ def _run_script(cli_string, verbose, die=True):
     returncode = 1
 
     # Say what we are doing
-    if verbose:
-        print('Running Command: "{}"'.format(cli_string))
+    #if verbose:
+    print('Running Command: "{}"'.format(cli_string))
 
     # Run update_targets script
     do_command_list = list(cli_string.split(' '))
