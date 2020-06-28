@@ -52,19 +52,19 @@ def main():
     args = parser.parse_args()
 
     # Determine unittest directory
-    root_dir = ROOT_DIR
-    test_dir = '{}{}tests'.format(root_dir, os.sep)
+    #root_dir = ROOT_DIR
+    #test_dir = '{}{}tests'.format(root_dir, os.sep)
 
     # Create database tables if necessary
-    command = (
-        '{1}{0}setup{0}pattoo_installation.py install all'.format(os.sep, root_dir))
-    run_script(command)
+   # command = (
+    #    '{1}{0}setup{0}pattoo_installation.py install all'.format(os.sep, root_dir))
+   # run_script(command)
 
     # Run the test
-    command = 'python3 -m unittest discover --start {}'.format(test_dir)
-    if args.verbose is True:
-        command = '{} --verbose'.format(command)
-    run_script(command)
+    #command = 'python3 -m unittest discover --start {}'.format(test_dir)
+    #if args.verbose is True:
+    #    command = '{} --verbose'.format(command)
+    #run_script(command)
 
     # Check error codes
     command = (
