@@ -6,6 +6,7 @@ import unittest
 import sys
 import tempfile
 import yaml
+from pathlib import Path
 
 
 # Try to create a working PYTHONPATH
@@ -40,9 +41,12 @@ class Test_Install(unittest.TestCase):
     def test_install_missing(self):
         """Unittest to test the install_missing function."""
         expected = True
+        # Create temporary directory to install packages
         with tempfile.TemporaryDirectory() as temp_dir:
             install_missing('pandas', temp_dir, False)
+            # Append temporary directory to python path
             sys.path.append(temp_dir)
+            # Try except to determine if package was installed
             try:
                 import pandas
                 result = True
@@ -52,6 +56,7 @@ class Test_Install(unittest.TestCase):
 
     def test_install_missing_fail(self):
         """Test case that would cause the install_missing function to fail."""
+        # Create temporary directory
         with tempfile.TemporaryDirectory() as temp_dir:
             with self.assertRaises(SystemExit) as cm:
                 install_missing('this does not exist', temp_dir, False)
@@ -60,7 +65,7 @@ class Test_Install(unittest.TestCase):
     def test_check_pip3(self):
         """Unittest to test the check_pip3 function."""
         # At least one expected package
-        expected_package = 'Flask'
+        expected_package = 'PattooShared'
         expected = True
         with tempfile.TemporaryDirectory() as temp_dir:
             result = check_pip3(True, ROOT_DIR, temp_dir)
@@ -72,6 +77,18 @@ class Test_Install(unittest.TestCase):
                 package.decode().split('==')[0] for package in packages.split()
                 ]
             result = expected_package in installed_packages
+        self.assertEqual(result, expected)
+
+    def test_check_package_owner(self):
+        """Unittest to test the check_pip3 function."""
+        default_dir = Path('/opt/pattoo-daemon/.python')
+        # Since the default user doesn't have read/write privileges to
+        # Directories owned by the pattoo user, a PermissionError gets thrown
+        try:
+            default_dir.owner() == 'pattoo'
+        except PermissionError:
+            result = True
+        expected = True
         self.assertEqual(result, expected)
 
 
