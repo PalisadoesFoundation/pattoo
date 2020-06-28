@@ -90,7 +90,7 @@ class Test_Install(unittest.TestCase):
     @patch('builtins.input', return_value=os.path.expanduser('~'))
     def test_get_pip3_dir_prompt(self, mock_patch):
         """Unittest to test the get_pip3_dir function with a prompt."""
-        expected = 'test/pattoo'
+        expected = os.path.expanduser('~')
         # Get_pip3_dir with prompt
         result = get_pip3_dir(True)
         self.assertEqual(result, expected)

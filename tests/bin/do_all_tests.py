@@ -52,8 +52,8 @@ def main():
     args = parser.parse_args()
 
     # Determine unittest directory
-    #root_dir = ROOT_DIR
-    #test_dir = '{}{}tests'.format(root_dir, os.sep)
+    root_dir = ROOT_DIR
+    test_dir = '{}{}tests'.format(root_dir, os.sep)
 
     # Create database tables if necessary
    # command = (
