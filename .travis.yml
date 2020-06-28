@@ -31,6 +31,6 @@ before_install:
 # Run the unittest scripts
 sudo: false
 script:
-    - python3 -m unittest discover --start tests
+    - python3 -m unittest discover --start tests -- verbose
     - tests/bin/do_all_tests.py
     
