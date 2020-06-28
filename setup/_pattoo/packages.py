@@ -50,7 +50,7 @@ def get_pip3_dir(prompt_value):
         pip_dir = input('Enter the directory for the pip3 packages: ')
         while not os.path.isdir(pip_dir):
             pip_dir = input('Enter the directory for the pip3 packages: ')
-
+    sys.path.append(pip_dir)
     # Return pip3 directory
     return pip_dir
 
