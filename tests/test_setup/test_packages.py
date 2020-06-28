@@ -81,7 +81,7 @@ class Test_Install(unittest.TestCase):
 
     def test_check_package_owner(self):
         """Unittest to test the check_pip3 function."""
-        default_dir = Path('/opt/pattoo-daemon/.python')
+        default_dir = Path('/opt/pattoo-daemon')
         # Since the default user doesn't have read/write privileges to
         # Directories owned by the pattoo user, a PermissionError gets thrown
         try:
