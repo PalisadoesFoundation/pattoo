@@ -30,8 +30,11 @@ from _pattoo import shared
 try:
     from _pattoo import packages, systemd, configure
 except ModuleNotFoundError:
+    default_pip_dir = '/opt/pattoo-daemon/.python'
     print('Pattoo shared is missing. Installing pattoo shared')
-    shared._run_script('pip3 install PattooShared')
+    shared._run_script(
+        'python3 -m pip install PattooShared -t {}'.format(default_pip_dir))
+    sys.path.append(default_pip_dir)
     from _pattoo import packages, systemd, configure
 
 

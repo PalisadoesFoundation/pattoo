@@ -34,7 +34,7 @@ class TestConfigure(unittest.TestCase):
     """Checks all functions for the Pattoo config script."""
 
     def test__init__(self):
-        """Unnittest to test the __init__ function."""
+        """Unittest to test the __init__ function."""
         pass
 
     def test_group_exists(self):

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Script to install pmacct daemon files in the correct location.
 
 Logic:

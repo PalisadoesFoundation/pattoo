@@ -24,10 +24,10 @@ def install_missing(package, pip_dir, verbose):
     """
     # Installs to the directory specified as pip_dir if the user is not travis
     if getpass.getuser() != 'travis':
-        _run_script('pip3 install {0} -t {1}'.format(package, pip_dir),
-                    verbose)
+        _run_script('python3 -m pip install {0} -t {1}'.format(package,
+                    pip_dir), verbose)
     else:
-        _run_script('pip3 install {0}'.format(package), verbose)
+        _run_script('python3 -m pip install {0}'.format(package), verbose)
     return True
 
 
@@ -50,7 +50,6 @@ def get_pip3_dir(prompt_value):
         pip_dir = input('Enter the directory for the pip3 packages: ')
         while not os.path.isdir(pip_dir):
             pip_dir = input('Enter the directory for the pip3 packages: ')
-    sys.path.append(pip_dir)
     # Return pip3 directory
     return pip_dir
 
@@ -101,7 +100,7 @@ def check_pip3(prompt_value, requirements_dir, pip3_dir):
         # If prompt_value is true, the package being checked is shown
         if prompt_value:
             print('??: Checking package {}'.format(package))
-        command = 'pip3 show {}'.format(package)
+        command = 'python3 -m pip show {}'.format(package)
         (returncode, _, _) = _run_script(command, prompt_value, die=False)
         if bool(returncode) is True:
 
@@ -113,9 +112,9 @@ def check_pip3(prompt_value, requirements_dir, pip3_dir):
             print('OK: package {}'.format(line))
 
         # Set ownership of python packages to pattoo user
-        if getpass.getuser() != 'travis' and getpass.getuser() == 'root':
-            _run_script('chown -R pattoo:pattoo {}'.format(pip3_dir),
-                        prompt_value)
+    if getpass.getuser() != 'travis' and getpass.getuser() == 'root':
+        _run_script('chown -R pattoo:pattoo {}'.format(pip3_dir),
+                    prompt_value)
     print('OK: pip3 packages successfully installed')
     return True
 
@@ -159,8 +158,8 @@ def _run_script(cli_string, verbose, die=True):
     returncode = 1
 
     # Say what we are doing
-    if verbose:
-        print('Running Command: "{}"'.format(cli_string))
+    #if verbose:
+    print('Running Command: "{}"'.format(cli_string))
 
     # Run update_targets script
     do_command_list = list(cli_string.split(' '))

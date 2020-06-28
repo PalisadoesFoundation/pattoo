@@ -1,4 +1,5 @@
-
+#!/usr/bin/env python3
+"""Test pattoo packages script."""
 import os
 import getpass
 import subprocess
