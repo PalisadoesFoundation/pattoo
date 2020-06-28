@@ -26,7 +26,7 @@ else:
 '''.format(_EXPECTED))
     sys.exit(2)
 
-from setup._pattoo.packages import check_pip3, install_missing, get_pip3_dir
+from setup._pattoo.packages import check_pip3, install_missing  #get_pip3_dir
 from tests.libraries.configuration import UnittestConfig
 from unittest.mock import patch
 
@@ -78,21 +78,6 @@ class Test_Install(unittest.TestCase):
                 ]
             result = expected_package in installed_packages
         self.assertEqual(result, expected)
-
-    # Mock patch to feed custom input
-    @patch('builtins.input', return_value='/opt/pattoo')
-    def test_get_pip3_dir(self, mock_patch):
-        """Unittest to test the get_pip3_dir function."""
-        # Default option
-        with self.subTest():
-            expected = '/opt/pattoo-daemon/.python'
-            result = get_pip3_dir(False)
-            self.assertEqual(result, expected)
-        # Get_pip3_dir with prompt
-        with self.subTest():
-            expected = '/opt/pattoo'
-            result = get_pip3_dir(True)
-            self.assertEqual(result, expected)
 
 
 if __name__ == '__main__':
