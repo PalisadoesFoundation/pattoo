@@ -20,14 +20,12 @@ if EXEC_DIR.endswith(_EXPECTED) is True:
     # elsewhere on the system using PIP. This could corrupt expected results
     sys.path.insert(0, ROOT_DIR)
     sys.path.append(os.path.join(ROOT_DIR, 'setup'))
-    # Try catch block to automatically set the config dir if it isn't already
-    # set
 else:
     print('''This script is not installed in the "{0}" directory. Please fix.\
 '''.format(_EXPECTED))
     sys.exit(2)
 
-from setup._pattoo.packages import check_pip3, install_missing, get_pip3_dir
+from setup._pattoo.packages import check_pip3, install_missing
 from tests.libraries.configuration import UnittestConfig
 
 
