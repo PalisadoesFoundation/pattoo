@@ -31,30 +31,7 @@ def install_missing(package, pip_dir, verbose):
     return True
 
 
-def get_pip3_dir(prompt_value):
-    """Get directory to install pip3 packages.
-
-    Args:
-        prompt_value: A boolean value that allows for the pip3 dir to be
-                      Manually set
-
-    Returns:
-        pip_dir: The directory where the pip3 packages will be installed
-
-    """
-    # Default pip3 directory
-    pip_dir = '/opt/pattoo-daemon/.python'
-    if prompt_value is True:
-
-        # Prompts for input until a valid directory is entered
-        pip_dir = input('Enter the directory for the pip3 packages: ')
-        while not os.path.isdir(pip_dir):
-            pip_dir = input('Enter the directory for the pip3 packages: ')
-    # Return pip3 directory
-    return pip_dir
-
-
-def check_pip3(prompt_value, requirements_dir, pip3_dir):
+def check_pip3(verbose, requirements_dir, pip3_dir):
     """Ensure PIP3 packages are installed correctly.
 
     Args:
@@ -97,24 +74,24 @@ def check_pip3(prompt_value, requirements_dir, pip3_dir):
         package = line.split('=', 1)[0]
         package = package.split('>', 1)[0]
 
-        # If prompt_value is true, the package being checked is shown
-        if prompt_value:
+        # If verbose is true, the package being checked is shown
+        if verbose:
             print('??: Checking package {}'.format(package))
         command = 'python3 -m pip show {}'.format(package)
-        (returncode, _, _) = _run_script(command, prompt_value, die=False)
+        (returncode, _, _) = _run_script(command, verbose, die=False)
         if bool(returncode) is True:
 
             # Installs missing pip3 package
-            install_missing(package, pip3_dir, prompt_value)
+            install_missing(package, pip3_dir, verbose)
 
-        # If the prompt_value is True, the package will be shown
-        if prompt_value:
+        # If the verbose is True, the package will be shown
+        if verbose:
             print('OK: package {}'.format(line))
 
-        # Set ownership of python packages to pattoo user
-    #if getpass.getuser() != 'travis' and getpass.getuser() == 'root':
-       # _run_script('chown -R pattoo:pattoo {}'.format(pip3_dir),
-                   # prompt_value)
+    # Set ownership of python packages to pattoo user
+    if getpass.getuser() != 'travis' and getpass.getuser() == 'root':
+        _run_script('chown -R pattoo:pattoo {}'.format(pip3_dir),
+                    verbose)
     print('OK: pip3 packages successfully installed')
     return True
 
@@ -131,9 +108,8 @@ def install_pip3(prompt_value, requirements_dir):
     Returns:
         True if pip3 packages are installed successfully
     """
-
     # Retrieve directory to install packages
-    pip3_dir = get_pip3_dir(prompt_value)
+    pip3_dir = '/opt/pattoo-daemon/.python'
     # Checks for and installs missing packages
     check_pip3(prompt_value, requirements_dir, pip3_dir)
 
@@ -157,9 +133,9 @@ def _run_script(cli_string, verbose, die=True):
     stderrdata = ''.encode()
     returncode = 1
 
-    # Say what we are doing
-    #if verbose:
-    print('Running Command: "{}"'.format(cli_string))
+    # Enable verbose mode if True
+    if verbose is True:
+        print('Running Command: "{}"'.format(cli_string))
 
     # Run update_targets script
     do_command_list = list(cli_string.split(' '))
@@ -200,8 +176,10 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
 
         # Log message
         if messages != []:
-            for log_message in messages:
-                print(log_message)
+            # Enable verbose mode if true
+            if verbose is True:
+                for log_message in messages:
+                    print(log_message)
 
             if bool(die) is True:
                 # All done
