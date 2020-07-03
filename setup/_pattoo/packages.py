@@ -112,9 +112,9 @@ def check_pip3(prompt_value, requirements_dir, pip3_dir):
             print('OK: package {}'.format(line))
 
         # Set ownership of python packages to pattoo user
-    if getpass.getuser() != 'travis' and getpass.getuser() == 'root':
-        _run_script('chown -R pattoo:pattoo {}'.format(pip3_dir),
-                    prompt_value)
+    #if getpass.getuser() != 'travis' and getpass.getuser() == 'root':
+       # _run_script('chown -R pattoo:pattoo {}'.format(pip3_dir),
+                   # prompt_value)
     print('OK: pip3 packages successfully installed')
     return True
 
