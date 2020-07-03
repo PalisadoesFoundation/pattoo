@@ -20,14 +20,12 @@ if EXEC_DIR.endswith(_EXPECTED) is True:
     # elsewhere on the system using PIP. This could corrupt expected results
     sys.path.insert(0, ROOT_DIR)
     sys.path.append(os.path.join(ROOT_DIR, 'setup'))
-    # Try catch block to automatically set the config dir if it isn't already
-    # set
 else:
     print('''This script is not installed in the "{0}" directory. Please fix.\
 '''.format(_EXPECTED))
     sys.exit(2)
 
-from setup._pattoo.packages import check_pip3, install_missing, get_pip3_dir
+from setup._pattoo.packages import check_pip3, install_missing
 from tests.libraries.configuration import UnittestConfig
 
 
@@ -79,23 +77,6 @@ class Test_Install(unittest.TestCase):
                 ]
             result = expected_package in installed_packages
         self.assertEqual(result, expected)
-
-    def test_get_pip3_dir_default(self):
-        """Unittest to test the get_pip3_dir function."""
-        # Default option
-        expected = '/opt/pattoo-daemon/.python'
-        result = get_pip3_dir(False)
-        self.assertEqual(result, expected)
-
-    # Mock patch to feed custom input
-    @patch('builtins.input', return_value=os.path.expanduser('~'))
-    def test_get_pip3_dir_prompt(self, mock_patch):
-        """Unittest to test the get_pip3_dir function with a prompt."""
-        expected = os.path.expanduser('~')
-        # Get_pip3_dir with prompt
-        result = get_pip3_dir(True)
-        self.assertEqual(result, expected)
-
 
 if __name__ == '__main__':
     # Make sure the environment is OK to run unittests
