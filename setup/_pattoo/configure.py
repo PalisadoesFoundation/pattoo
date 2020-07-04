@@ -60,8 +60,11 @@ def pattoo_config(config_directory, prompt_value):
     # Get configuration
 
     config = read_config(filepath, default_config)
+    forced_directories = ['system_daemon_directory', 'daemon_directory']
     for section, item in sorted(config.items()):
         for key, value in sorted(item.items()):
+            if key in forced_directories:
+                continue
             if prompt_value:
                 new_value = prompt(section, key, value)
                 config[section][key] = new_value
