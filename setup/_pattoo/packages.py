@@ -37,7 +37,7 @@ def check_pip3(verbose, requirements_dir, pip3_dir):
     Args:
         prompt_value: A boolean value to toggle the script's verbose mode and
                       enable the pip3 directory to be manually set.
-        requirements_dir: The directory that the requirements.txt file is
+        requirements_dir: The directory that the pip_requirements file is
                           located in.
 
     Returns:
@@ -51,12 +51,12 @@ def check_pip3(verbose, requirements_dir, pip3_dir):
     sys.path.append(pip3_dir)
 
     # Read pip_requirements file
-    filepath = '{}{}requirements.txt'.format(requirements_dir, os.sep)
+    filepath = '{}{}pip_requirements.txt'.format(requirements_dir, os.sep)
     print('??: Checking pip3 packages')
     if os.path.isfile(filepath) is False:
         shared._log('Cannot find PIP3 requirements file {}'.format(filepath))
 
-    # Opens requirements.txt file for reading
+    # Opens pip_requirements file for reading
     with open(filepath, 'r') as _fp:
         line = _fp.readline()
         while line:
@@ -102,7 +102,7 @@ def install_pip3(prompt_value, requirements_dir):
      Args:
         prompt_value: A boolean value to toggle the script's verbose mode and
                       enable the pip3 directory to be manually set.
-        requirements_dir: The directory that the requirements.txt file is
+        requirements_dir: The directory that the pip_requirements file is
                           located in.
 
     Returns:
