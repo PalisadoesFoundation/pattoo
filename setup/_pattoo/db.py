@@ -19,7 +19,7 @@ from pattoo.configuration import ConfigPattoo as Config
 from pattoo.db import URL
 from pattoo.db.models import BASE
 from pattoo.db.table import (
-    agent_group, language, pair_xlate_group, pair_xlate, agent_xlate)
+    language, pair_xlate_group, pair_xlate, agent_xlate)
 
 
 def insertions():
@@ -34,7 +34,6 @@ def insertions():
     """
     # Initialize key variables
     default_name = 'Pattoo Default'
-    idx_agent_groups = {}
     idx_pair_xlate_groups = {}
     language_dict = {}
     agent_xlate_data = [
@@ -277,20 +276,6 @@ def insertions():
                     language_dict[code] = idx_language
                 pair_xlate.insert_row(
                     _key, _value, _units, idx_language, idx_pair_xlate_group)
-
-    # Insert into AgentGroup
-    if agent_group.idx_exists(1) is False:
-        agent_group.insert_row(default_name)
-        for name, _ in pair_xlate_data:
-            agent_group.insert_row(name)
-            index = agent_group.exists(name)
-            idx_agent_groups[name] = index
-
-    # Assign agent groups to pair_xlate_groups
-    for name, idx_agent_group in idx_agent_groups.items():
-        index = idx_pair_xlate_groups.get(name)
-        if bool(index) is True:
-            agent_group.assign(idx_agent_group, index)
 
     # Insert into AgentXlate
     if agent_xlate.agent_xlate_exists(

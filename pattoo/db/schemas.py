@@ -37,11 +37,8 @@ from pattoo.db.models import (
         PairXlateGroup as PairXlateGroupModel,
         PairXlate as PairXlateModel,
         AgentXlate as AgentXlateModel,
-        AgentGroup as AgentGroupModel,
         Agent as AgentModel
     )
-
-from pattoo_shared import log
 
 
 def resolve_checksum(obj, _):
@@ -107,8 +104,8 @@ def resolve_units(obj, _):
 class InstrumentedQuery(SQLAlchemyConnectionField):
     """Class to allow GraphQL filtering by SQlAlchemycolumn name.
 
-        Add filtering support:
-        https://github.com/graphql-python/graphene-sqlalchemy/issues/27#issuecomment-361978832
+    Add filtering support:
+    https://github.com/graphql-python/graphene-sqlalchemy/issues/27#issuecomment-361978832
 
     """
 
@@ -129,6 +126,12 @@ class InstrumentedQuery(SQLAlchemyConnectionField):
     def get_query(self, model, info, **args):
         """Replace the get_query method."""
         query_filters = {k: v for k, v in args.items() if k in self.query_args}
+
+        # Convert all string values to unicode for database
+        # non-numeric column lookups
+        query_filters = {k: (v.encode() if isinstance(
+            v, str) else v) for k, v in query_filters.items()}
+
         query = model.query.filter_by(**query_filters)
         if 'sort_by' in args:
             criteria = [self.get_order_by_criterion(
@@ -396,38 +399,6 @@ class PairXlate(SQLAlchemyObjectType, PairXlateAttribute):
         interfaces = (graphene.relay.Node,)
 
 
-class AgentGroupAttribute():
-    """Descriptive attributes of the AgentGroup table.
-
-    A generic class to mutualize description of attributes for both queries
-    and mutations.
-
-    """
-
-    idx_agent_group = graphene.String(
-        description='AgentGroup table index.')
-
-    idx_pair_xlate_group = graphene.String(
-        description='PairXlateGroup table index (ForeignKey).')
-
-    name = graphene.String(
-        resolver=resolve_name,
-        description='Name of the AgentGroup.')
-
-    enabled = graphene.String(
-        description='"True" if the group is enabled.')
-
-
-class AgentGroup(SQLAlchemyObjectType, AgentGroupAttribute):
-    """AgentGroup node."""
-
-    class Meta:
-        """Define the metadata."""
-
-        model = AgentGroupModel
-        interfaces = (graphene.relay.Node,)
-
-
 class AgentAttribute():
     """Descriptive attributes of the Agent table.
 
@@ -439,8 +410,8 @@ class AgentAttribute():
     idx_agent = graphene.String(
         description='Agent table index.')
 
-    idx_agent_group = graphene.String(
-        description='AgentGroup table index. (ForeignKey)')
+    idx_pair_xlate_group = graphene.String(
+        description='PairXlateGroup table index. (ForeignKey)')
 
     agent_id = graphene.String(
         resolver=resolve_agent_id,
@@ -540,10 +511,6 @@ class Query(graphene.ObjectType):
     # Results as a single entry filtered by 'id' and as a list
     agent_xlate = graphene.relay.Node.Field(AgentXlate)
     all_agent_xlate = InstrumentedQuery(AgentXlate)
-
-    # Results as a single entry filtered by 'id' and as a list
-    agent_group = graphene.relay.Node.Field(AgentGroup)
-    all_agent_group = InstrumentedQuery(AgentGroup)
 
     # Results as a single entry filtered by 'id' and as a list
     agent = graphene.relay.Node.Field(Agent)

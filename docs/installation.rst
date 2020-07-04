@@ -47,7 +47,7 @@ Follow these steps.
 
        $ sudo mysql
 
-    .. code-block:: sql
+    .. code-block:: mysql
 
         CREATE DATABASE pattoo;
         GRANT ALL PRIVILEGES ON pattoo.* TO pattoo@"localhost" IDENTIFIED BY 'PATTOO_PASSWORD';

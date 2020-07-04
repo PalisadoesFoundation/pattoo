@@ -9,9 +9,9 @@ python:
   - 3.6
 
 # Run tests only against the master branch
-branches:
-  only:
-    - master
+# branches:
+#   only:
+#     - master
 
 # Setup services
 services:

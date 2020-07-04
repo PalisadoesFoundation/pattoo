@@ -141,22 +141,6 @@ class _Show():
             help=textwrap.fill('Show agent parameters.', width=width)
         )
 
-    def agent_group(self, width=80):
-        """Process show agent_group CLI commands.
-
-        Args:
-            width: Width of the help text string to STDIO before wrapping
-
-        Returns:
-            None
-
-        """
-        # Initialize key variables
-        self.subparsers.add_parser(
-            'agent_group',
-            help=textwrap.fill('Show agent_group parameters.', width=width)
-        )
-
     def key_translation_group(self, width=80):
         """Process show key_translation_group CLI commands.
 
@@ -292,38 +276,8 @@ class _Assign():
             required=True)
 
         parser.add_argument(
-            '--idx_agent_group',
-            help='Agent group index',
-            type=int,
-            required=True)
-
-    def agent_group(self, width=80):
-        """Process assign agent_groups CLI commands.
-
-        Args:
-            width: Width of the help text string to STDIO before wrapping
-
-        Returns:
-            None
-
-        """
-        # Initialize key variables
-        parser = self.subparsers.add_parser(
-            'agent_group',
-            help=textwrap.fill('''\
-Assign agent_group to a key-pair "translation group".''', width=width)
-        )
-
-        # Add arguments
-        parser.add_argument(
             '--idx_pair_xlate_group',
-            help='Key-pair translation group',
-            type=int,
-            required=True)
-
-        parser.add_argument(
-            '--idx_agent_group',
-            help='Agent group index',
+            help='Key-pair translation group index',
             type=int,
             required=True)
 
@@ -385,29 +339,6 @@ class _Create():
             type=str,
             required=True)
 
-    def agent_group(self, width=80):
-        """Process create agent_group CLI commands.
-
-        Args:
-            width: Width of the help text string to STDIO before wrapping
-
-        Returns:
-            None
-
-        """
-        # Initialize key variables
-        parser = self.subparsers.add_parser(
-            'agent_group',
-            help=textwrap.fill('Create agent group.', width=width)
-        )
-
-        # Add arguments
-        parser.add_argument(
-            '--name',
-            help='Agent group name',
-            type=str,
-            required=True)
-
     def key_translation_group(self, width=80):
         """Process show key_translation_group CLI commands.
 
@@ -460,35 +391,6 @@ class _Set():
 
                 # Execute
                 attribute(width=width)
-
-    def agent_group(self, width=80):
-        """Process set agent_group CLI commands.
-
-        Args:
-            width: Width of the help text string to STDIO before wrapping
-
-        Returns:
-            None
-
-        """
-        # Initialize key variables
-        parser = self.subparsers.add_parser(
-            'agent_group',
-            help=textwrap.fill('Set agent_group information.', width=width)
-        )
-
-        # Add arguments
-        parser.add_argument(
-            '--idx_agent_group',
-            help='Agent group index',
-            type=int,
-            required=True)
-
-        parser.add_argument(
-            '--name',
-            help='Agent group name',
-            type=str,
-            required=True)
 
     def language(self, width=80):
         """Process set language CLI commands.

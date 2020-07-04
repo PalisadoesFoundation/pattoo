@@ -3,13 +3,9 @@
 
 from collections import namedtuple
 
-# PIP3 imports
-from sqlalchemy import and_
-
 # Import project libraries
 from pattoo.db import db
-from pattoo.db.models import (
-    PairXlateGroup, PairXlate, Language, AgentGroup, Agent)
+from pattoo.db.models import PairXlateGroup, Agent
 
 
 def idx_exists(idx):
@@ -118,8 +114,8 @@ def cli_show_dump():
     result = []
     Record = namedtuple(
         'Record',
-        '''idx_pair_xlate_group translation_group_name idx_agent_group \
-agent_group_name enabled''')
+        '''idx_pair_xlate_group translation_group_name \
+agent_program agent_polled_target enabled''')
 
     # Get the result
     with db.db_query(20062) as session:
@@ -132,9 +128,9 @@ agent_group_name enabled''')
         # Get agents for group
         with db.db_query(20061) as session:
             a_rows = session.query(
-                AgentGroup.name,
-                AgentGroup.idx_agent_group).filter(
-                    AgentGroup.idx_pair_xlate_group == x_row.idx_pair_xlate_group)
+                Agent.agent_program,
+                Agent.agent_polled_target.label('apt')).filter(
+                    Agent.idx_pair_xlate_group == x_row.idx_pair_xlate_group)
 
         if a_rows.count() >= 1:
             # Agents assigned to the group
@@ -145,8 +141,8 @@ agent_group_name enabled''')
                         Record(
                             enabled=x_row.enabled,
                             idx_pair_xlate_group=x_row.idx_pair_xlate_group,
-                            idx_agent_group=a_row.idx_agent_group,
-                            agent_group_name=a_row.name.decode(),
+                            agent_program=a_row.agent_program.decode(),
+                            agent_polled_target=a_row.apt.decode(),
                             translation_group_name=x_row.name.decode()
                         )
                     )
@@ -158,8 +154,8 @@ agent_group_name enabled''')
                             enabled='',
                             idx_pair_xlate_group='',
                             translation_group_name='',
-                            idx_agent_group=a_row.idx_agent_group,
-                            agent_group_name=a_row.name.decode()
+                            agent_polled_target=a_row.apt.decode(),
+                            agent_program=a_row.agent_program.decode()
                         )
                     )
 
@@ -170,8 +166,8 @@ agent_group_name enabled''')
                     enabled=x_row.enabled,
                     idx_pair_xlate_group=x_row.idx_pair_xlate_group,
                     translation_group_name=x_row.name.decode(),
-                    idx_agent_group='',
-                    agent_group_name=''
+                    agent_polled_target='',
+                    agent_program=''
                 )
             )
 
@@ -179,8 +175,8 @@ agent_group_name enabled''')
         result.append(Record(
             enabled='',
             idx_pair_xlate_group='',
-            idx_agent_group='',
-            agent_group_name='',
+            agent_polled_target='',
+            agent_program='',
             translation_group_name=''))
 
     return result

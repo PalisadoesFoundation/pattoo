@@ -40,7 +40,7 @@ class TestBasicFunctions(unittest.TestCase):
 
     def test_pair_exists(self):
         """Testing method / function pair_exists."""
-        # Initialize key variables
+        # Initialize key variables.
         key = data.hashstring(str(random()))
         value = data.hashstring(str(random()))
         result = pair.pair_exists(key, value)
