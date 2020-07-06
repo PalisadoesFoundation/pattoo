@@ -163,8 +163,7 @@ def main():
 
     # Do control
     cli = AgentCLI()
-    cli.control(agent_poller)
-
+    cli.control(agent_poller, graceful=True)
 
 if __name__ == "__main__":
     log.env()

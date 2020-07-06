@@ -328,6 +328,33 @@ class ConfigIngester(ServerConfig):
             result = 3600
         return result
 
+    def graceful_timeout(self):
+        """Get graceful_timeout.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        key = PATTOO_INGESTERD_NAME
+        sub_key = 'graceful_timeout'
+        result = search(
+            key, sub_key, self._server_yaml_configuration, die=False)
+
+        # Make sure we have an integer
+        try:
+            result = int(result)
+        except:
+            result = None
+
+        # Default to 1 hour
+        if result is None:
+            result = 10
+        return result
+
     def multiprocessing(self):
         """Get multiprocessing.
 
