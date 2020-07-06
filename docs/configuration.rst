@@ -112,6 +112,7 @@ The ``pattoo_server.yaml`` file created from the template will have sections tha
 
        ingester_interval: 3600
        batch_size: 500
+       graceful_timeout: 10
 
    pattoo_db:
        db_pool_size: 10
@@ -159,6 +160,9 @@ This table outlines the purpose of each configuration parameter.
    * -
      - ``batch_size``
      - The number of files to read per processing batch until all files are processed.
+   * -
+     - ``graceful_timeout``
+     - The amount of time required for the ingester to finish processing data when the stop or restart command is excuted before it is forcefully stopped or restarted.
    * - ``pattoo_db``
      -
      -
