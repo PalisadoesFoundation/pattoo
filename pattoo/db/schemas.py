@@ -126,6 +126,12 @@ class InstrumentedQuery(SQLAlchemyConnectionField):
     def get_query(self, model, info, **args):
         """Replace the get_query method."""
         query_filters = {k: v for k, v in args.items() if k in self.query_args}
+
+        # Convert all string values to unicode for database
+        # non-numeric column lookups
+        query_filters = {k: (v.encode() if isinstance(
+            v, str) else v) for k, v in query_filters.items()}
+
         query = model.query.filter_by(**query_filters)
         if 'sort_by' in args:
             criteria = [self.get_order_by_criterion(
