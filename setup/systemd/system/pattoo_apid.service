@@ -9,7 +9,6 @@ RuntimeDirectoryPreserve=yes
 RuntimeDirectory=PATTOO_SYSTEM_DAEMON_DIRECTORY
 User=pattoo
 Group=pattoo
-ExecStart=
 ExecStart=INSTALLATION_DIRECTORY/bin/pattoo_apid.py --start
 ExecStop=INSTALLATION_DIRECTORY/bin/pattoo_apid.py --stop
 ExecReload=INSTALLATION_DIRECTORY/bin/pattoo_apid.py --restart

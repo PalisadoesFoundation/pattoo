@@ -9,7 +9,6 @@ RuntimeDirectoryPreserve=yes
 RuntimeDirectory=PATTOO_SYSTEM_DAEMON_DIRECTORY
 User=pattoo
 Group=pattoo
-ExecStart=
 ExecStart=INSTALLATION_DIRECTORY/bin/pattoo_ingesterd.py --start
 ExecStop=INSTALLATION_DIRECTORY/bin/pattoo_ingesterd.py --stop
 ExecReload=INSTALLATION_DIRECTORY/bin/pattoo_ingesterd.py --restart
