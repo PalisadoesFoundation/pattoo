@@ -5,9 +5,10 @@ import os
 import json
 import sys
 from random import randrange
+import hashlib
 
 # Flask imports
-from flask import Blueprint, request, abort
+from flask import Blueprint, request, abort, session
 
 # pattoo imports
 from pattoo_shared import log
@@ -108,3 +109,29 @@ def index():
     """
     # Return
     return 'The Pattoo Agent API is Operational.\n'
+
+
+@POST.route('/key', methods=['POST', 'GET'])
+def xch_key():
+    """Handles public key exhange
+    Args:
+        None
+
+    Returns:
+        message (str): Key exchange response
+        response (int): HTTP response code
+    """
+    response = 400
+    message = 'No keys exchanged'
+
+    if request.method == 'POST':
+        print("POST method")
+        response = 202
+        message = 'Key received'
+
+    if request.method == 'GET':
+        print("GET method")
+        response = 200
+        message = 'Nonce sent'
+
+    return message, response
