@@ -12,6 +12,7 @@ PyYAML
 # Database packages
 PyMySQL
 SQLAlchemy
+mysql-client
 
 # GraphQL packages
 graphene-sqlalchemy

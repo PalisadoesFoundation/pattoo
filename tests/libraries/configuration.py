@@ -21,7 +21,7 @@ from pattoo_shared import log
 class UnittestConfig():
     """Creates configuration for testing."""
 
-    def __init__(self):
+    def __init__(self, db_username='travis', db_password='K2nJ8kFdthEbuwXE'):
         """Initialize the class."""
         # Initialize GLOBAL variables
         config_suffix = '.pattoo-unittests{}config'.format(os.sep)
@@ -39,15 +39,14 @@ class UnittestConfig():
         # Make sure the configuration directory is OK
         if os.path.isdir(self._config_directory) is False:
             os.makedirs(self._config_directory, mode=0o750, exist_ok=True)
-
         self._config = {
             'pattoo_server': {
                 'pattoo_db': {
                     'db_pool_size': 10,
                     'db_max_overflow': 20,
                     'db_hostname': 'localhost',
-                    'db_username': 'travis',
-                    'db_password': 'K2nJ8kFdthEbuwXE',
+                    'db_username': db_username,
+                    'db_password': db_password,
                     'db_name': 'pattoo_unittest'
                 },
                 'pattoo_api_agentd': {
