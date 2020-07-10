@@ -21,24 +21,28 @@ ROOT_DIR = os.path.abspath(os.path.join(
 _EXPECTED = '{0}pattoo{0}tests{0}test_pattoo{0}cli'.format(os.sep)
 if EXEC_DIR.endswith(_EXPECTED) is True:
     # We need to prepend the path in case the repo has been installed
-    # elsewhere on the system using PIP. This could corrupt test_data results
+    # elsewhere on the system using PIP. This could corrupt expected results
     sys.path.insert(0, ROOT_DIR)
 else:
     print('''This script is not installed in the "{0}" directory. Please fix.\
 '''.format(_EXPECTED))
     sys.exit(2)
 
+# Pattoo imports
 from pattoo.cli.cli_import import (process, _process_key_translation,
                                    _process_agent_translation)
 from pattoo.cli.cli import _Import
 from pattoo.db.models import PairXlate, AgentXlate, PairXlateGroup, Language
+
+# Pattoo unittest imports
 from tests.test_pattoo.cli.setup_db import create_tables, teardown_tables
+from tests.libraries.configuration import UnittestConfig
 
 class TestImport(unittest.TestCase):
     """Defines basic database setup and teardown methods"""
 
-    key_test_data = 'key_translation_test_data.csv'
-    agent_test_data = 'agent_translation_test_data.csv'
+    key_expected = 'key_translation_expected.csv'
+    agent_expected = 'agent_translation_expected.csv'
 
     @classmethod
     def setUpClass(self):
@@ -81,16 +85,16 @@ class TestImport(unittest.TestCase):
         # Testing for proper key_translation execution
         #
         ####################################################################
-        test_data = {'language': 'en', 'key': 'test_key', 'translation':'test_translation', 'units': 'test_units'}
+        expected = {'language': 'en', 'key': 'test_key', 'translation':'test_translation', 'units': 'test_units'}
         with tempfile.NamedTemporaryFile(mode='w', suffix='.csv') as fptr:
 
             # Instantiation of csv writer object and fieldnames
-            fieldnames = test_data.keys()
+            fieldnames = expected.keys()
             writer = csv.DictWriter(fptr, fieldnames=fieldnames)
 
             # Populating temporary csv file with key translation data
             writer.writeheader()
-            writer.writerow(test_data)
+            writer.writerow(expected)
             fptr.seek(0)
 
             # Importing key_translation from temporary csv file
@@ -99,13 +103,26 @@ class TestImport(unittest.TestCase):
             _process_key_translation(args)
 
         # Create new PairXlate object
-        test_data['idx_language'] = test_data['language']
-        del test_data['language']
-        expected = PairXlate(1, **test_data)
+        expected['idx_language'] = expected['language']
+        del expected['language']
 
-        # Querying test database for stored results from _process_key_translation
+        # Retrives stored key translation made using '_process_key_translation'
         queried_result = self.session.query(PairXlate).first()
-        print(queried_result)
+
+        # Asserting that each inserted elment into PairXlate test tables matches
+        # arguments passed to '_process_key_translation', as well asserts that a
+        for key, value in expected.items():
+            if key == 'idx_language':
+                self.assertEqual(queried_result.__dict__[key], 1)
+            else:
+                self.assertEqual(queried_result.__dict__[key], value.encode())
+
+        # Asserts created and modified columns were created.
+        self.assertIsNotNone(queried_result.ts_modified)
+        self.assertIsNotNone(queried_result.ts_created)
+
+        # Asserts that idx_pair_xlate_group group matches requested group value
+        self.assertEqual(queried_result.idx_pair_xlate_group, 1)
 
         # Testing for proper agent_translation execution
         args.qualifier = 'agent_translation'
@@ -115,3 +132,11 @@ class TestImport(unittest.TestCase):
 
     def test_process_agent_translation(self):
         pass
+
+if __name__ == '__main__':
+    # Make sure the environment is OK to run unittests
+    config = UnittestConfig(db_username='pattoo_test_user', db_password='')
+    config.create()
+
+    # Do the unit test
+    unittest.main()
