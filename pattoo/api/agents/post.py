@@ -15,6 +15,7 @@ from pattoo_shared import log
 from pattoo_shared.constants import CACHE_KEYS
 from pattoo_shared.configuration import ServerConfig as Config
 from pattoo.constants import PATTOO_API_AGENT_NAME
+from pattoo_shared.files import get_gnupg
 
 
 # Define the POST global variable
@@ -121,6 +122,12 @@ def xch_key():
         message (str): Key exchange response
         response (int): HTTP response code
     """
+    # Read configuration
+    config = Config()
+
+    # Retrieve Pgpier that was already created
+    gpg = get_gnupg(PATTOO_API_AGENT_NAME, config)
+
     response = 400
     message = 'No keys exchanged'
 
@@ -132,6 +139,7 @@ def xch_key():
     if request.method == 'GET':
         print("GET method")
         response = 200
-        message = 'Nonce sent'
+        #message = 'Nonce sent'
+        message = gpg.fingerprint
 
     return message, response
