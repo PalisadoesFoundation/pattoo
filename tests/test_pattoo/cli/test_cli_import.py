@@ -57,7 +57,7 @@ class TestImport(unittest.TestCase):
         self.session = sessionmaker(bind=self.engine)()
 
         # Instantiation of test data in each table
-        self.session.add(Language('en'.encode(), 'English'.encode(), 1))
+        self.session.add(Language('fr'.encode(), 'French'.encode(), 1))
         self.session.add(PairXlateGroup('pair_1'.encode(), 1))
         self.session.commit()
 
