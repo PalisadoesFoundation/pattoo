@@ -59,6 +59,8 @@ class TestImport(unittest.TestCase):
         # Instantiation of test data in each table
         self.session.add(Language('fr'.encode(), 'French'.encode(), 1))
         self.session.add(PairXlateGroup('pair_1'.encode(), 1))
+
+        self.language_count = self.session.query(Language).count()
         self.session.commit()
 
     @classmethod
@@ -114,7 +116,8 @@ class TestImport(unittest.TestCase):
         # arguments passed to '_process_key_translation', as well asserts that a
         for key, value in expected.items():
             if key == 'idx_language':
-                self.assertEqual(queried_result.__dict__[key], 1)
+                self.assertEqual(queried_result.__dict__[key],
+                                 self.language_count)
             else:
                 self.assertEqual(queried_result.__dict__[key], value.encode())
 
