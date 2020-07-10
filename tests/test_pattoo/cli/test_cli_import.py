@@ -85,7 +85,7 @@ class TestImport(unittest.TestCase):
         # Testing for proper key_translation execution
         #
         ####################################################################
-        expected = {'language': 'en', 'key': 'test_key', 'translation':'test_translation', 'units': 'test_units'}
+        expected = {'language': 'fr', 'key': 'test_key', 'translation':'test_translation', 'units': 'test_units'}
         with tempfile.NamedTemporaryFile(mode='w', suffix='.csv') as fptr:
 
             # Instantiation of csv writer object and fieldnames
@@ -107,7 +107,8 @@ class TestImport(unittest.TestCase):
         del expected['language']
 
         # Retrives stored key translation made using '_process_key_translation'
-        queried_result = self.session.query(PairXlate).first()
+        queried_result = self.session.query(PairXlate).filter_by(key =
+                                                                 b'test_key').first()
 
         # Asserting that each inserted elment into PairXlate test tables matches
         # arguments passed to '_process_key_translation', as well asserts that a
