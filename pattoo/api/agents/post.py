@@ -6,9 +6,10 @@ import json
 import sys
 from random import randrange
 import hashlib
+import uuid
 
 # Flask imports
-from flask import Blueprint, request, abort, session
+from flask import Blueprint, request, abort, session, jsonify
 
 # pattoo imports
 from pattoo_shared import log
@@ -129,17 +130,101 @@ def xch_key():
     gpg = get_gnupg(PATTOO_API_AGENT_NAME, config)
 
     response = 400
-    message = 'No keys exchanged'
+    message = 'Error'
 
     if request.method == 'POST':
-        print("POST method")
-        response = 202
-        message = 'Key received'
+
+        # Get data from incoming agent POST
+        try:
+            data_byte = request.stream.read()
+
+            # Decode UTF-8 bytes to Unicode, and convert single quotes
+            # to double quotes to make it valid JSON
+            data_str = data_byte.decode('utf8').replace("'", '"')
+
+            # Load the JSON to a Python list
+            data_dict = json.loads(data_str)
+
+            # Read configuration
+            config = Config()
+
+            try:
+                # Retrieves Pgpier class
+                gpg = get_gnupg(PATTOO_API_AGENT_NAME, config)
+
+                # Checks if a Pgpier object exists
+                if gpg is None:
+                    raise Exception('Could not retrieve Pgpier for {}'
+                                    .format(PATTOO_API_AGENT_NAME))
+            except Exception as e:
+                response = 500
+                log_msg = 'Could not retrieve Pgpier: >>>{}<<<'.format(e)
+                log.log2warning(20500, log_msg)
+
+            # Dump as formatted JSON
+            # data_json = json.dumps(data_dict, indent=4, sort_keys=True)
+
+            # Save email and public key in session
+            session['email'] = data_dict['pattoo_agent_email']
+
+            # Save agent public key in keyring
+            result = gpg.imp_pub_key(data_dict['pattoo_agent_key'])
+
+            # Sent receive response
+            response = 202
+            message = 'Email and key received: {}'.format(result)
+
+        except Exception as e:
+            log_msg = 'Invalid email and key entry: >>>{}<<<'.format(e)
+            log.log2warning(20501, log_msg)
+            message = 'Key not received'
 
     if request.method == 'GET':
-        print("GET method")
-        response = 200
-        #message = 'Nonce sent'
-        message = gpg.fingerprint
+        # Predefined error if email and key was not sent first
+        response = 403
+        message = 'Send email and key first'
+        if session.get('email') == True:
+
+            # Read configuration
+            config = Config()
+
+            # Generate server nonce
+            session['nonce'] = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
+
+            try:
+                # Retrieves Pgpier class
+                gpg = get_gnupg(PATTOO_API_AGENT_NAME, config)
+
+                # Checks if a Pgpier object exists
+                if gpg is None:
+                    raise Exception('Could not retrieve Pgpier for {}'
+                                    .format(PATTOO_API_AGENT_NAME))
+            except Exception as e:
+                response = 500
+                log_msg = 'Could not retrieve Pgpier: >>>{}<<<'.format(e)
+                log.log2warning(20502, log_msg)
+
+            # Set email address in Pgpier object
+            gpg.set_email()
+
+            # Export public key
+            api_key = gpg.exp_pub_key()
+            api_email = gpg.email_addr
+            api_nonce = session['nonce']
+
+            # Retrieve information from session
+            agent_email = session['email']
+            agent_fingerprint = gpg.email_to_key(agent_email)
+
+            # Trust agent key
+            gpg.trust_key(agent_fingerprint)
+
+            # Encrypt api nonce with agent public key
+            encrypted_nonce = gpg.encrypt_data(api_nonce, agent_fingerprint)
+
+            data = {'api_email': api_email, 'api_key': api_key, 'encrypted_nonce': encrypted_nonce}
+
+            # Send api email, public key and encrypted nonce
+            return jsonify(data=data)
 
     return message, response
