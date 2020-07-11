@@ -158,9 +158,6 @@ def xch_key():
             # Load the JSON to a Python list
             data_dict = json.loads(data_str)
 
-            # Dump as formatted JSON
-            # data_json = json.dumps(data_dict, indent=4, sort_keys=True)
-
             # Save email and public key in session
             session['email'] = data_dict['pattoo_agent_email']
 
@@ -223,6 +220,25 @@ def valid_key():
 
     The agent public key is then deleted
     """
+
+    # Read configuration
+    config = Config()
+
+    try:
+        # Retrieves Pgpier class
+        gpg = get_gnupg(PATTOO_API_AGENT_NAME, config)
+
+        # Checks if a Pgpier object exists
+        if gpg is None:
+            raise Exception('Could not retrieve Pgpier for {}'
+                            .format(PATTOO_API_AGENT_NAME))
+    except Exception as e:
+        response = 500
+        message = 'Server error'
+        
+        log_msg = 'Could not retrieve Pgpier: >>>{}<<<'.format(e)
+        log.log2warning(20500, log_msg)
+        return message, response
 
     # Predefined error message and response
     response = 403
