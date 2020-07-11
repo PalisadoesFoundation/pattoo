@@ -172,7 +172,8 @@ def xch_key():
 
             # Sent receive response
             response = 202
-            message = 'Email and key received: {}'.format(result)
+            message = 'Email and key received: {}, {}'\
+                      .format(session['email'], result)
 
         except Exception as e:
             log_msg = 'Invalid email and key entry: >>>{}<<<'.format(e)
@@ -225,6 +226,8 @@ def xch_key():
             data = {'api_email': api_email, 'api_key': api_key, 'encrypted_nonce': encrypted_nonce}
 
             # Send api email, public key and encrypted nonce
-            return jsonify(data=data)
+            
+            response = 200
+            return jsonify(data=data), response
 
     return message, response
