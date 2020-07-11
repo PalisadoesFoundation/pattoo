@@ -1,29 +1,17 @@
-#!/usr/bin/env python3
-"""Check correct database setup.
 
-Attempts to create database tables.
-
-"""
+"""Set up pattoo database."""
 
 # Main python libraries
+
 from __future__ import print_function
 import sys
+import pymysql
+import getpass
 import os
+import yaml
 
-# PIP3 imports
+# pip3 imports
 from sqlalchemy import create_engine
-
-# Try to create a working PYTHONPATH
-EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
-if EXEC_DIR.endswith('/pattoo/setup') is True:
-    sys.path.append(ROOT_DIR)
-else:
-    print(
-        'This script is not installed in the "pattoo/bin" directory. '
-        'Please fix.')
-    sys.exit(2)
-
 
 # Pattoo libraries
 from pattoo_shared import log
@@ -58,6 +46,8 @@ def insertions():
         ('en', 'pattoo_agent_bacnetipd', 'Pattoo Standard BACnet IP Agent')
     ]
     pair_xlate_data = [
+        ('OPC UA Agents', [
+            ('en', 'pattoo_agent_opcuad_opcua_server', 'OPC UA Server', '')]),   
         ('IfMIB Agents', [
             ('en', 'pattoo_agent_snmpd_.1.3.6.1.2.1.31.1.1.1.9', 'Interface Broadcast Packets (HC inbound)', 'Packets / Second'),
             ('en', 'pattoo_agent_snmpd_.1.3.6.1.2.1.31.1.1.1.8', 'Interface Multicast Packets (HC inbound)', 'Packets / Second'),
@@ -297,7 +287,6 @@ def insertions():
 
     print('OK: Database table entries inserted.')
 
-
 def _mysql():
     """Create database tables.
 
@@ -342,16 +331,17 @@ authentication is correct.'''.format(config.db_name(), config.db_hostname()))
     print('OK: Database tables created.')
 
 
-def main():
-    """Configure database.
+def create_pattoo_db_tables():
+    """
+    Create pattoo database with the necessary insertions.
 
     Args:
         None
-
+    
     Returns:
-        None
-
+        True for a successful creation
     """
+    print('??: Setting up database tables.')
     # Initialize key variables
     use_mysql = True
 
@@ -361,8 +351,4 @@ def main():
 
     # Insert ForeignKey values
     insertions()
-
-
-if __name__ == '__main__':
-    # Run setup
-    main()
+    print('OK: Database setup complete.')
