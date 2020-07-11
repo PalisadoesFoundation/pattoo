@@ -41,7 +41,7 @@ from tests.libraries.configuration import UnittestConfig
 class TestImport(unittest.TestCase):
     """Defines basic database setup and teardown methods"""
 
-    travis_ci = os.getenv('travis-ci')
+    travis_ci = os.getenv('travis_ci')
 
     @classmethod
     def setUpClass(self):
