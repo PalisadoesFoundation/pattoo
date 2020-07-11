@@ -11,6 +11,7 @@ import csv
 
 # SQLALCHMEY Imports
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -35,7 +36,7 @@ from pattoo.cli.cli import _Import
 from pattoo.db.models import BASE, PairXlate, AgentXlate, PairXlateGroup, Language
 
 # Pattoo unittest imports
-from tests.test_pattoo.cli.setup_db import create_tables, teardown_tables
+from tests.test_pattoo.cli.setup_db import (create_tables, teardown_tables, DB_URI)
 from tests.libraries.configuration import UnittestConfig
 
 class TestImport(unittest.TestCase):
@@ -63,6 +64,10 @@ class TestImport(unittest.TestCase):
 
             self.language_count = self.session.query(Language).count()
             self.session.commit()
+        else:
+            # Creating session object to for making updates to test database for
+            # tests
+            self.session = sessionmaker(bind=create_engine(DB_URI))()
 
     @classmethod
     def tearDownClass(self):
@@ -70,8 +75,11 @@ class TestImport(unittest.TestCase):
 
         # Skips class teardown if using travis-ci
         if not self.travis_ci:
-            self.session.close()
+            print('tables teardown')
+            print(self.tables, self.engine)
             teardown_tables(self.tables, self.engine)
+        print('session closing')
+        self.session.close()
 
     def test_process(self):
         """Test import argument process function"""

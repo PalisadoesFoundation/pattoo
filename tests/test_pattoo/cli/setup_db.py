@@ -30,6 +30,7 @@ from pattoo.db.models import BASE
 
 DB_NAME = 'pattoo_unittest'
 DB_NAME_ERROR = '''An error occurred: {} database does not exist!\nPlease create before running test!'''.format(DB_NAME)
+DB_URI='mysql://:@localhost/{}'.format(DB_NAME)
 
 def create_tables(tables):
     """Create mock tables for testing in DB_NAME
@@ -43,7 +44,7 @@ def create_tables(tables):
         unittest.
 
     """
-    engine = create_engine('mysql://:@localhost/{}'.format(DB_NAME))
+    engine = create_engine(DB_URI)
 
     try:
         BASE.metadata.create_all(engine, tables=tables)
@@ -62,6 +63,7 @@ def teardown_tables(tables, engine):
         None
 
     """
+    print('present in teardown_tables')
     # Ensures engine object is valid
     if engine is None:
         print('Please pass an engine object')
