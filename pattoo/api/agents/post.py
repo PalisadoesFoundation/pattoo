@@ -184,7 +184,7 @@ def xch_key():
         # Predefined error if email and key was not sent first
         response = 403
         message = 'Send email and key first'
-        if session.get('email') == True:
+        if 'email' in session:
 
             # Read configuration
             config = Config()
