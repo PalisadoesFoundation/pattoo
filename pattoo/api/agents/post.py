@@ -130,6 +130,9 @@ def xch_key():
         # Retrieves Pgpier class
         gpg = get_gnupg(PATTOO_API_AGENT_NAME, config)
 
+        #Sets key ID
+        gpg.set_keyid()
+
         # Checks if a Pgpier object exists
         if gpg is None:
             raise Exception('Could not retrieve Pgpier for {}'
@@ -228,6 +231,9 @@ def valid_key():
     try:
         # Retrieves Pgpier class
         gpg = get_gnupg(PATTOO_API_AGENT_NAME, config)
+
+        #Sets key ID
+        gpg.set_keyid()
 
         # Checks if a Pgpier object exists
         if gpg is None:
