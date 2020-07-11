@@ -160,6 +160,7 @@ def xch_key():
 
             # Save email and public key in session
             session['email'] = data_dict['pattoo_agent_email']
+            session['key'] = data_dict['pattoo_agent_key']
 
             # Save agent public key in keyring
             result = gpg.imp_pub_key(data_dict['pattoo_agent_key'])
