@@ -161,9 +161,8 @@ def xch_key():
             # Load the JSON to a Python list
             data_dict = json.loads(data_str)
 
-            # Save email and public key in session
+            # Save email in session
             session['email'] = data_dict['pattoo_agent_email']
-            session['key'] = data_dict['pattoo_agent_key']
 
             # Save agent public key in keyring
             result = gpg.imp_pub_key(data_dict['pattoo_agent_key'])
@@ -225,6 +224,14 @@ def valid_key():
     The agent public key is then deleted
     """
 
+    # Predefined error message and response
+    response = 403
+    message = 'Proceed to key exchange first'
+
+    # If no nonce is set, inform agent to exchange keys
+    if 'nonce' not in session:
+        return message, response
+
     # Read configuration
     config = Config()
 
@@ -247,14 +254,6 @@ def valid_key():
         log.log2warning(20500, log_msg)
         return message, response
 
-    # Predefined error message and response
-    response = 403
-    message = 'Proceed to key exchange first'
-
-    # If no nonce is set, inform agent to exchange keys
-    if 'nonce' not in session:
-        return message, response
-
     if request.method == 'POST':
         # Get data from incoming agent POST
         try:
@@ -267,10 +266,46 @@ def valid_key():
             # Load the JSON to a Python list
             data_dict = json.loads(data_str)
 
+            # Retrieved symmetrically encrypted nonce
+            encrypted_nonce = data_dict['encrypted_nonce']
+
+            # Retrieved encrypted symmetric key
+            encrypted_sym_key = data_dict['encrypted_sym_key']
+
+            # Decrypt symmetric key
+            passphrase = gpg.passphrase
+            decrypted_symm_key = gpg.decrypt_data(encrypted_sym_key, passphrase)
+
+            # Symmetrically decrypt nonce
+            nonce = gpg.symmetric_decrypt(encrypted_nonce, decrypted_symm_key)
+
+            # Checks if the decrypted nonce matches one sent
+            if nonce != session['nonce']:
+                response = 401
+                message = 'Nonce does not match'
+
+                return message, response
+
+            # Set symmetric key
+            session['symm_key'] = decrypted_symm_key
+
+            # Retrieve information from session
+            agent_email = session['email']
+            agent_fingerprint = gpg.email_to_key(agent_email)
+
+            # Delete agent public key
+            result = gpg.del_pub_key(agent_fingerprint)
+            session.pop('email', None)
+            session.pop('nonce', None)
+
+            response = 200
+            message = 'Symmetric key saved. Del public key: {}'\
+                      .format(result)
+
         except Exception as e:
             log_msg = 'Invalid email and key entry: >>>{}<<<'.format(e)
             log.log2warning(20501, log_msg)
-            message = 'Key not received'
+            message = 'Message not received'
             response = 400
 
     return message, response
