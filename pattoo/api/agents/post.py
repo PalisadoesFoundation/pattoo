@@ -126,8 +126,21 @@ def xch_key():
     # Read configuration
     config = Config()
 
-    # Retrieve Pgpier that was already created
-    gpg = get_gnupg(PATTOO_API_AGENT_NAME, config)
+    try:
+        # Retrieves Pgpier class
+        gpg = get_gnupg(PATTOO_API_AGENT_NAME, config)
+
+        # Checks if a Pgpier object exists
+        if gpg is None:
+            raise Exception('Could not retrieve Pgpier for {}'
+                            .format(PATTOO_API_AGENT_NAME))
+    except Exception as e:
+        response = 500
+        message = 'Server error'
+        
+        log_msg = 'Could not retrieve Pgpier: >>>{}<<<'.format(e)
+        log.log2warning(20500, log_msg)
+        return message, response
 
     response = 400
     message = 'Error'
@@ -144,22 +157,6 @@ def xch_key():
 
             # Load the JSON to a Python list
             data_dict = json.loads(data_str)
-
-            # Read configuration
-            config = Config()
-
-            try:
-                # Retrieves Pgpier class
-                gpg = get_gnupg(PATTOO_API_AGENT_NAME, config)
-
-                # Checks if a Pgpier object exists
-                if gpg is None:
-                    raise Exception('Could not retrieve Pgpier for {}'
-                                    .format(PATTOO_API_AGENT_NAME))
-            except Exception as e:
-                response = 500
-                log_msg = 'Could not retrieve Pgpier: >>>{}<<<'.format(e)
-                log.log2warning(20500, log_msg)
 
             # Dump as formatted JSON
             # data_json = json.dumps(data_dict, indent=4, sort_keys=True)
@@ -185,25 +182,8 @@ def xch_key():
         response = 403
         message = 'Send email and key first'
         if 'email' in session:
-
-            # Read configuration
-            config = Config()
-
             # Generate server nonce
             session['nonce'] = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
-
-            try:
-                # Retrieves Pgpier class
-                gpg = get_gnupg(PATTOO_API_AGENT_NAME, config)
-
-                # Checks if a Pgpier object exists
-                if gpg is None:
-                    raise Exception('Could not retrieve Pgpier for {}'
-                                    .format(PATTOO_API_AGENT_NAME))
-            except Exception as e:
-                response = 500
-                log_msg = 'Could not retrieve Pgpier: >>>{}<<<'.format(e)
-                log.log2warning(20502, log_msg)
 
             # Set email address in Pgpier object
             gpg.set_email()
@@ -223,11 +203,51 @@ def xch_key():
             # Encrypt api nonce with agent public key
             encrypted_nonce = gpg.encrypt_data(api_nonce, agent_fingerprint)
 
-            data = {'api_email': api_email, 'api_key': api_key, 'encrypted_nonce': encrypted_nonce}
+            data = {'api_email': api_email, 'api_key': api_key,
+                    'encrypted_nonce': encrypted_nonce}
 
             # Send api email, public key and encrypted nonce
-            
             response = 200
             return jsonify(data=data), response
+
+    return message, response
+
+@POST.route('/validation', methods=['POST'])
+def valid_key():
+    """Handles validation by decrypting the received symmetric key from
+    the agent and then symmetrically decrypting the nonce from
+    agent and check if it's the same as the nonce sent
+
+    The symmetric key is stored in session so that it can be attached
+    to the cached data for future decryption
+
+    The agent public key is then deleted
+    """
+
+    # Predefined error message and response
+    response = 403
+    message = 'Proceed to key exchange first'
+
+    # If no nonce is set, inform agent to exchange keys
+    if 'nonce' not in session:
+        return message, response
+
+    if request.method == 'POST':
+        # Get data from incoming agent POST
+        try:
+            data_byte = request.stream.read()
+
+            # Decode UTF-8 bytes to Unicode, and convert single quotes
+            # to double quotes to make it valid JSON
+            data_str = data_byte.decode('utf8').replace("'", '"')
+
+            # Load the JSON to a Python list
+            data_dict = json.loads(data_str)
+
+        except Exception as e:
+            log_msg = 'Invalid email and key entry: >>>{}<<<'.format(e)
+            log.log2warning(20501, log_msg)
+            message = 'Key not received'
+            response = 400
 
     return message, response
