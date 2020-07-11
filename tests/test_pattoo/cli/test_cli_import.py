@@ -32,7 +32,7 @@ else:
 from pattoo.cli.cli_import import (process, _process_key_translation,
                                    _process_agent_translation)
 from pattoo.cli.cli import _Import
-from pattoo.db.models import PairXlate, AgentXlate, PairXlateGroup, Language
+from pattoo.db.models import BASE, PairXlate, AgentXlate, PairXlateGroup, Language
 
 # Pattoo unittest imports
 from tests.test_pattoo.cli.setup_db import create_tables, teardown_tables
@@ -41,33 +41,37 @@ from tests.libraries.configuration import UnittestConfig
 class TestImport(unittest.TestCase):
     """Defines basic database setup and teardown methods"""
 
-    key_expected = 'key_translation_expected.csv'
-    agent_expected = 'agent_translation_expected.csv'
+    travis_ci = os.getenv('travis-ci')
 
     @classmethod
     def setUpClass(self):
         """Setup tables in pattoo_unittest database"""
 
-        # Create test tables for Import test
-        self.tables = [PairXlate.__table__, AgentXlate.__table__, PairXlateGroup.__table__, Language.__table__]
+        # Skips class setup if using travis-ci
+        if not self.travis_ci:
+            # Create test tables for Import test
+            self.tables = [PairXlate.__table__, AgentXlate.__table__, PairXlateGroup.__table__, Language.__table__]
 
-        self.engine = create_tables(self.tables) # Returns engine object
+            self.engine = create_tables(self.tables) # Returns engine object
 
-        # Creating session object to make updates to tables in test database
-        self.session = sessionmaker(bind=self.engine)()
+            # Creating session object to make updates to tables in test database
+            self.session = sessionmaker(bind=self.engine)()
 
-        # Instantiation of test data in each table
-        self.session.add(Language('fr'.encode(), 'French'.encode(), 1))
-        self.session.add(PairXlateGroup('pair_1'.encode(), 1))
+            # Instantiation of test data in each table
+            self.session.add(Language('fr'.encode(), 'French'.encode(), 1))
+            self.session.add(PairXlateGroup('pair_1'.encode(), 1))
 
-        self.language_count = self.session.query(Language).count()
-        self.session.commit()
+            self.language_count = self.session.query(Language).count()
+            self.session.commit()
 
     @classmethod
     def tearDownClass(self):
         """End session and drop all test tables from pattoo_unittest database"""
-        self.session.close()
-        teardown_tables(self.tables, self.engine)
+
+        # Skips class teardown if using travis-ci
+        if not self.travis_ci:
+            self.session.close()
+            teardown_tables(self.tables, self.engine)
 
     def test_process(self):
         """Test import argument process function"""
@@ -139,7 +143,7 @@ class TestImport(unittest.TestCase):
 
 if __name__ == '__main__':
     # Make sure the environment is OK to run unittests
-    config = UnittestConfig(db_username='pattoo_test_user', db_password='')
+    config = UnittestConfig()
     config.create()
 
     # Do the unit test
