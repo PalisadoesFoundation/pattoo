@@ -437,7 +437,7 @@ authentication is correct.'''.format(config.db_name(), config.db_hostname()))
     BASE.metadata.create_all(engine)
 
 
-def create_pattoo_db_tables():
+def install():
     """
     Create pattoo database with the necessary insertions.
 
