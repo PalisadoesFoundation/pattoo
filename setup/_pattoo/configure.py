@@ -294,15 +294,23 @@ def _chown(directory):
         None
 
     """
+    # Initialize key variables
+    username = 'pattoo'
+    group = 'pattoo'
+
     # Change ownership
     if '{}pattoo'.format(os.sep) in directory:
+        # Change the parent directory
+        shutil.chown(directory, user=username, group=group)
+
+        # Recursively change the sub-directories and files
         for root, dirs, files_ in os.walk(directory):
             for dir_ in dirs:
                 shutil.chown(
-                    os.path.join(root, dir_), user='pattoo', group='pattoo')
+                    os.path.join(root, dir_), user=username, group=group)
             for file_ in files_:
                 shutil.chown(
-                    os.path.join(root, file_), user='pattoo', group='pattoo')
+                    os.path.join(root, file_), user=username, group=group)
 
 
 def check_pattoo_server():

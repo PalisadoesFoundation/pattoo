@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Script to install patttoo."""
 
 from inspect import ismethod
 import textwrap
@@ -286,6 +287,9 @@ def main():
             parser.print_help(sys.stderr)
             sys.exit(1)
 
+        # Done
+        print('Done')
+
 
 def check_user():
     """Validate conditions needed to start installation.
@@ -308,7 +312,7 @@ Run as root to continue')
 
 if __name__ == '__main__':
     check_user()
-    
+
     # Try except to import pattoo libraries if pattoo shared isn't installed
     try:
         from _pattoo import packages, systemd, configure
