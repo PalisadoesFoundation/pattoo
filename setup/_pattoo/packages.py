@@ -85,9 +85,9 @@ def check_pip3(requirements_dir, installation_directory=None, verbose=True):
         command = 'python3 -m pip show {}'.format(package)
         (returncode, _, _) = shared.run_script(
             command, verbose=verbose, die=False)
-        if bool(returncode) is True:
 
-            # Installs missing pip3 package
+        # Install any missing pip3 package
+        if bool(returncode) is True:
             install_pip3(package, installation_directory, verbose=verbose)
 
     # Set ownership of any newly installed python packages to pattoo user
