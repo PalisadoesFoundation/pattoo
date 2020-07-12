@@ -309,7 +309,7 @@ class PairXlate(BASE):
         self.idx_pair_xlate_group = idx_pair_xlate_group
         self.idx_language = idx_language
         self.key = key
-        self.translationa = translation
+        self.translation = translation
         self.units = units
         self.enabled = enabled
 
