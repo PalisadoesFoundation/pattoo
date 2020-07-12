@@ -123,6 +123,14 @@ def xch_key():
         message (str): Key exchange response
         response (int): HTTP response code
     """
+    # If a symmetric key has already been established, skip
+    if 'symm_key' in session:
+        message = 'Symmetric key already set'
+        response = 208
+        log.log2info(77707, message)
+        return message, response
+
+
     # Read configuration
     config = Config()
 
@@ -152,16 +160,8 @@ def xch_key():
 
         # Get data from incoming agent POST
         try:
-            # data_byte = request.stream.read() 
-
-            # Decode UTF-8 bytes to Unicode, and convert single quotes
-            # to double quotes to make it valid JSON
-            # data_str = data_byte.decode('utf8').replace("'", '"')
-
-            # Load the JSON to a Python list
-            # data_dict = json.loads(data_str)
-
-            data_json = request.get_json(silent=True)
+            # Get data from agent
+            data_json = request.get_json(silent=False)
             data_dict = json.loads(data_json)
 
             # Save email in session
@@ -232,6 +232,13 @@ def valid_key():
     The agent public key is then deleted
     """
 
+    # If a symmetric key has already been established, skip
+    if 'symm_key' in session:
+        message = 'Symmetric key already set'
+        response = 208
+        log.log2info(77707, message)
+        return message, response
+
     # Predefined error message and response
     response = 403
     message = 'Proceed to key exchange first'
@@ -265,15 +272,8 @@ def valid_key():
     if request.method == 'POST':
         # Get data from incoming agent POST
         try:
-            # data_byte = request.stream.read()
-
-            # Decode UTF-8 bytes to Unicode, and convert single quotes
-            # to double quotes to make it valid JSON
-            # data_str = data_byte.decode('utf8').replace("'", '"')
-
-            # Load the JSON to a Python list
-            # data_dict = json.loads(data_str)
-            data_json = request.get_json(silent=True)
+            # Get data from agent
+            data_json = request.get_json(silent=False)
             data_dict = json.loads(data_json)
 
             # Retrieved symmetrically encrypted nonce
@@ -311,11 +311,11 @@ def valid_key():
             response = 200
             message = 'Symmetric key saved. Del public key: {}'\
                       .format(result)
-            log.log2info(77701, message)
+            log.log2info(77702, message)
 
         except Exception as e:
             log_msg = 'Invalid email and key entry: >>>{}<<<'.format(e)
-            log.log2warning(20501, log_msg)
+            log.log2warning(20505, log_msg)
             message = 'Message not received'
             response = 400
 
