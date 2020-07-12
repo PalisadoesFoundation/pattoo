@@ -13,7 +13,7 @@ try:
 except:
     print('Install the Python3 \'pyyaml\' package, then run this script again')
     sys.exit(2)
-    
+
 # Pattoo libraries
 from pattoo_shared import files, configuration
 from pattoo_shared import log
@@ -57,7 +57,6 @@ def pattoo_config(config_directory, prompt_value):
     print('Configuring {} file.'.format(filepath))
 
     # Get configuration
-
     config = read_config(filepath, default_config)
     forced_directories = ['system_daemon_directory', 'daemon_directory']
     for section, item in sorted(config.items()):
@@ -67,6 +66,7 @@ def pattoo_config(config_directory, prompt_value):
             if prompt_value:
                 new_value = prompt(section, key, value)
                 config[section][key] = new_value
+
     # Check validity of directories
     for key, value in sorted(config['pattoo'].items()):
         if 'directory' in key:
@@ -142,17 +142,18 @@ def user_exists(user_name):
         return False
 
 
-def initialize_ownership(dir_name, dir_path):
+def initialize_ownership(config_directory_parameter, dir_path):
     """Change the ownership of the directories to the pattoo user and group.
 
     Args:
-        dir_name: The name of the directory
+        config_directory_parameter: The name of the directory
         dir_path: The path to the directory
 
     Returns:
         None
     """
-    print('Setting ownership of the {} directory to pattoo'.format(dir_name))
+    print('Setting ownership of the {} directory to pattoo'.format(
+        config_directory_parameter))
     if getpass.getuser() != 'travis':
         # Set ownership of file specified at dir_path
         shutil.chown(dir_path, 'pattoo', 'pattoo')
@@ -205,6 +206,7 @@ def pattoo_server_config(config_directory, prompt_value):
                 config[section][key] = new_value
     else:
         print('Using default values')
+
     # Write file
     with open(filepath, 'w') as f_handle:
         yaml.dump(config, f_handle, default_flow_style=False)
@@ -278,6 +280,27 @@ def _mkdir(directory):
         except OSError:
             shared.log('''Cannot create directory {}. Please try again.\
 '''.format(directory))
+
+
+def _chown(directory):
+    """Recursively change the ownership of files in a directory.
+
+    The directory must have the string '/pattoo/' in it
+
+    Args:
+        directory: Directory to create
+
+    Returns:
+        None
+
+    """
+    # Change ownership
+    if '/pattoo/' in directory:
+        for root, dirs, files_ in os.walk(directory):
+            for dir_ in dirs:
+                os.chown(os.path.join(root, dir_), 'pattoo', 'pattoo')
+            for file_ in files_:
+                os.chown(os.path.join(root, file_), 'pattoo', 'pattoo')
 
 
 def check_pattoo_server():
@@ -406,13 +429,17 @@ Then run this command again.
 ''')
         shared.log(log_message)
 
-    # Prompt for configuration directory
-    print('Pattoo configuration utility.')
     # Create the pattoo user and group
-    if getpass.getuser() != 'travis':
+    username = getpass.getuser()
+    if username != 'travis':
         create_user()
+
     # Attempt to create configuration directory
     _mkdir(config_directory)
+
+    # Attempt to change the ownership of the configuration directory
+    if username != 'travis':
+        _chown(config_directory)
 
     # Create configuration
     pattoo_config(config_directory, prompt_value)
@@ -423,15 +450,9 @@ Then run this command again.
     check_pattoo_client()
 
     # All done
-    output = '''
+    output = '''\
 Successfully created configuration files:
-
     {0}{1}pattoo.yaml
-    {0}{1}pattoo_server.yaml
-
-Next Steps
-==========
-
-Checking pip3 packages
+    {0}{1}pattoo_server.yaml\
 '''.format(config_directory, os.sep)
     print(output)
