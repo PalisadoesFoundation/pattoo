@@ -295,7 +295,7 @@ def _chown(directory):
 
     """
     # Change ownership
-    if '/pattoo/' in directory:
+    if '{}pattoo'.format(os.sep) in directory:
         for root, dirs, files_ in os.walk(directory):
             for dir_ in dirs:
                 os.chown(os.path.join(root, dir_), 'pattoo', 'pattoo')
