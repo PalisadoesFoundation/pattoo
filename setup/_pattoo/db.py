@@ -32,7 +32,7 @@ def insertions():
 
     """
     # Say what we are doing
-    print('??: Attempting to insert default database table entries.')
+    print('Inserting default database table entries.')
 
     # Insert Language
     _insert_language()
@@ -51,9 +51,6 @@ def insertions():
 
     # Insert Favorite
     _insert_favorite()
-
-    # All done
-    print('OK: Database table entries inserted.')
 
 
 def _insert_language():
@@ -421,7 +418,7 @@ def _mysql():
         pool_size=pool_size, pool_recycle=3600)
 
     # Try to create the database
-    print('??: Attempting to Connect to configured database.')
+    print('Connecting to configured database.')
     try:
         sql_string = ('''\
 ALTER DATABASE {} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci\
@@ -436,10 +433,8 @@ authentication is correct.'''.format(config.db_name(), config.db_hostname()))
         log.log2die(20086, log_message)
 
     # Apply schemas
-    print('OK: Database connected.')
-    print('??: Attempting to create database tables.')
+    print('Creating database tables.')
     BASE.metadata.create_all(engine)
-    print('OK: Database tables created.')
 
 
 def create_pattoo_db_tables():
@@ -456,7 +451,6 @@ def create_pattoo_db_tables():
     use_mysql = True
 
     # Create DB
-    print('??: Setting up database tables.')
     if use_mysql is True:
         _mysql()
 
@@ -464,4 +458,4 @@ def create_pattoo_db_tables():
     insertions()
 
     # Done
-    print('OK: Database setup complete.')
+    print('Database setup complete.')

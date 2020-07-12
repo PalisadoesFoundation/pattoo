@@ -276,20 +276,16 @@ def run_systemd():
 
     """
     if getpass.getuser() != 'travis':
-        # Say what we are doing
-        print('??: Enabling system daemons')
-        # Reloading daemons
+        print('Loading system daemon configurations')
         shared._run_script('sudo systemctl daemon-reload')
-        # Enabling daemons
+        print('Enabling system daemons')
         shared._run_script('sudo systemctl enable pattoo_apid')
         shared._run_script('sudo systemctl enable pattoo_api_agentd')
         shared._run_script('sudo systemctl enable pattoo_ingesterd')
-        print('OK: System daemons enabled')
-        print('??: Starting system daemons')
+        print('Starting system daemons')
         shared._run_script('sudo systemctl start pattoo_apid')
         shared._run_script('sudo systemctl start pattoo_api_agentd')
         shared._run_script('sudo systemctl start pattoo_ingesterd')
-        print('OK: System daemons successfully started')
     else:
         shared._run_script('systemctl daemon-reload')
         shared._run_script('systemctl enable pattoo_apid')

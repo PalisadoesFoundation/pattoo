@@ -3,11 +3,9 @@
 import sys
 import subprocess
 import traceback
-import os
-from pathlib import Path
 
 
-def _run_script(cli_string, die=True):
+def run_script(cli_string, die=True, verbose=True):
     """Run the cli_string UNIX CLI command and record output.
 
     Args:
@@ -25,8 +23,9 @@ def _run_script(cli_string, die=True):
     stderrdata = ''.encode()
     returncode = 1
 
-    # Say what we are doing
-    print('Running Command: "{}"'.format(cli_string))
+    # Enable verbose mode if True
+    if verbose is True:
+        print('Running Command: "{}"'.format(cli_string))
 
     # Run update_targets script
     do_command_list = list(cli_string.split(' '))
@@ -66,7 +65,7 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
             )
 
         # Log message
-        print("messages: {})".format(messages))
+        print('messages: {}'.format(messages))
         if messages != []:
             for log_message in messages:
                 print(log_message)
@@ -79,7 +78,7 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
     return (returncode, stdoutdata, stderrdata)
 
 
-def _log(message):
+def log(message):
     """Log messages and exit abnormally.
 
     Args:
@@ -92,21 +91,3 @@ def _log(message):
     # exit
     print('\nPATTOO Error: {}'.format(message))
     sys.exit(3)
-
-
-def _mkdir(directory):
-    """Recursively creates directory and its parents.
-
-    Args:
-        directory: Directory to create
-
-    Returns:
-        None
-
-    """
-    if os.path.isdir(directory) is False:
-        try:
-            Path(directory).mkdir(parents=True, mode=0o750, exist_ok=True)
-        except OSError:
-            _log('''Cannot create directory {}. Please try again.\
-'''.format(directory))

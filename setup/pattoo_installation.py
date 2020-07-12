@@ -28,9 +28,6 @@ This script is not installed in the "{}" directory. Please fix.\
 from _pattoo import shared
 
 
-
-
-
 class _Parser(argparse.ArgumentParser):
     """Class gathers all CLI information."""
 
@@ -242,39 +239,47 @@ def main():
     if args.action == 'install':
         # Installs all pattoo components
         if args.qualifier == 'all':
-            print('Install everything')
+            print('Installing everything')
             if args.prompt is True:
                 print('Prompt for input')
             else:
                 print('Automatic installation')
             configure.configure_installation(args.prompt)
-            packages.install_pip3(args.prompt, ROOT_DIR)
+            packages.check_pip3(ROOT_DIR)
+
             # Import db after pip3 packages are installed
             from _pattoo import db
             db.create_pattoo_db_tables()
             systemd.install_systemd()
+
         # Configures pattoo and sets up database tables
         elif args.qualifier == 'database':
+            print('Installing database tables')
+
             # Assumes defaults unless the all qualifier is used
             configure.configure_installation(False)
-            packages.install_pip3(False, ROOT_DIR)
+            packages.check_pip3(ROOT_DIR)
+
             # Import db after pip3 packages are installed
             from _pattoo import db
             db.create_pattoo_db_tables()
+
         # Installs and starts system daemons
         elif args.qualifier == 'systemd':
-            print('??: Installing systemd')
-            configure.configure_installation(False)
             # Install pip3 packages, verbose mode is disabled by default
-            packages.install_pip3(False, ROOT_DIR)
+            print('Installing systemd daemons')
+            configure.configure_installation(False)
+            packages.check_pip3(ROOT_DIR)
             systemd.install_systemd()
-        # Only installs pip3 packages if they haven't been installed already
+
         elif args.qualifier == 'pip':
-            print('Install pip')
-            packages.install_pip3(args.verbose, ROOT_DIR)
+            # Installs additionally required pip3 packages
+            print('Installing pip packages')
+            packages.check_pip3(ROOT_DIR, verbose=args.verbose)
+
         # Sets up the configuration for pattoo
         elif args.qualifier == 'configuration':
-            print('Install configuration')
+            print('Installing configuration')
             configure.configure_installation(args.prompt)
         # Print help if no argument options were triggered
         else:
@@ -282,7 +287,7 @@ def main():
             sys.exit(1)
 
 
-def installation_checks():
+def check_user():
     """Validate conditions needed to start installation.
 
     Prevents installation if the script is not run as root
@@ -292,23 +297,25 @@ def installation_checks():
 
     Returns:
         True: If conditions for installation are satisfied
+
     """
     if getpass.getuser() != 'travis':
         if getpass.getuser() != 'root':
-            shared._log('You are currently not running the script as root.\
+            shared.log('You are currently not running the script as root.\
 Run as root to continue')
     return True
 
 
 if __name__ == '__main__':
-    installation_checks()
+    check_user()
+    
     # Try except to import pattoo libraries if pattoo shared isn't installed
     try:
         from _pattoo import packages, systemd, configure
     except ModuleNotFoundError:
         default_pip_dir = '/opt/pattoo-daemon/.python'
         print('Pattoo shared is missing. Installing pattoo shared')
-        shared._run_script(
+        shared.run_script(
             'python3 -m pip install PattooShared -t {}'.format(default_pip_dir))
         sys.path.append(default_pip_dir)
         from _pattoo import packages, systemd, configure

@@ -4,8 +4,6 @@
 import sys
 import os
 import shutil
-import subprocess
-import traceback
 import grp
 import pwd
 from pathlib import Path
@@ -13,8 +11,9 @@ import getpass
 try:
     import yaml
 except:
-    print('Install the Python3 "pyyaml" package, then run this script again')
+    print('Install the Python3 \'pyyaml\' package, then run this script again')
     sys.exit(2)
+    
 # Pattoo libraries
 from pattoo_shared import files, configuration
 from pattoo_shared import log
@@ -55,7 +54,7 @@ def pattoo_config(config_directory, prompt_value):
     }
 
     # Say what we are doing
-    print('\nConfiguring {} file.\n'.format(filepath))
+    print('Configuring {} file.'.format(filepath))
 
     # Get configuration
 
@@ -72,7 +71,7 @@ def pattoo_config(config_directory, prompt_value):
     for key, value in sorted(config['pattoo'].items()):
         if 'directory' in key:
             if os.sep not in value:
-                shared._log('''\
+                shared.log('''\
 Provide full directory path for "{}" in section "pattoo: {}". \
 Please try again.\
 '''.format(value, key))
@@ -99,12 +98,13 @@ def create_user():
     """
     # If the group pattoo does not exist, it gets created
     if not group_exists('pattoo'):
-        print('\nCreating pattoo group')
-        shared._run_script('groupadd pattoo')
+        print('Creating pattoo group')
+        shared.run_script('groupadd pattoo')
     # If the user pattoo does not exist, it gets created
     if not user_exists('pattoo'):
-        print('\nCreating pattoo user')
-        shared._run_script('useradd -d /nonexistent -s /bin/false -g pattoo pattoo')
+        print('Creating pattoo user')
+        shared.run_script(
+            'useradd -d /nonexistent -s /bin/false -g pattoo pattoo')
 
 
 def group_exists(group_name):
@@ -152,7 +152,7 @@ def initialize_ownership(dir_name, dir_path):
     Returns:
         None
     """
-    print('\nSetting ownership of the {} directory to pattoo'.format(dir_name))
+    print('Setting ownership of the {} directory to pattoo'.format(dir_name))
     if getpass.getuser() != 'travis':
         # Set ownership of file specified at dir_path
         shutil.chown(dir_path, 'pattoo', 'pattoo')
@@ -194,7 +194,7 @@ def pattoo_server_config(config_directory, prompt_value):
     }
 
     # Say what we are doing
-    print('\nConfiguring {} file.\n'.format(filepath))
+    print('Configuring {} file.'.format(filepath))
 
     # Get configuration
     config = read_config(filepath, default_config)
@@ -255,7 +255,7 @@ def prompt(section, key, default_value):
             try:
                 os.makedirs(result, mode=0o750, exist_ok=True)
             except:
-                shared._log('''\
+                shared.log('''\
 Cannot create directory {} in configuration file. Check parent directory \
 permissions and typos'''.format(result))
 
@@ -276,7 +276,7 @@ def _mkdir(directory):
         try:
             Path(directory).mkdir(parents=True, mode=0o750, exist_ok=True)
         except OSError:
-            shared._log('''Cannot create directory {}. Please try again.\
+            shared.log('''Cannot create directory {}. Please try again.\
 '''.format(directory))
 
 
@@ -291,7 +291,7 @@ def check_pattoo_server():
 
     """
     # Print Status
-    print('??: Checking server configuration parameters.')
+    print('Checking server configuration parameters.')
 
     # Checks server config
     config_file = configuration.agent_config_filename('pattoo_server')
@@ -322,7 +322,6 @@ Section "{}" not found in {} configuration file. Please fix.\
     secondary_key_check(config, 'pattoo_apid', secondaries)
 
     # Print Status
-    print('OK: Server configuration parameter check passed.')
     return True
 
 
@@ -337,7 +336,7 @@ def check_pattoo_client():
 
     """
     # Print Status
-    print('??: Checking client configuration parameters.')
+    print('Checking client configuration parameters.')
 
     # Checks client config
     config_file = configuration.agent_config_filename('pattoo')
@@ -358,7 +357,6 @@ Section "{}" not found in {} configuration file. Please fix.\
     secondary_key_check(config, 'pattoo', secondaries)
 
     # Print Status
-    print('OK: Client configuration parameter check passed.')
     return True
 
 
@@ -406,10 +404,10 @@ $ export PATTOO_CONFIGDIR=/path/to/configuration/directory
 
 Then run this command again.
 ''')
-        shared._log(log_message)
+        shared.log(log_message)
 
     # Prompt for configuration directory
-    print('\nPattoo configuration utility.')
+    print('Pattoo configuration utility.')
     # Create the pattoo user and group
     if getpass.getuser() != 'travis':
         create_user()
