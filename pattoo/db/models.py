@@ -165,7 +165,7 @@ class Favorite(BASE):
     user = relationship(
         User,
         backref=backref(
-            'chart_user', uselist=True, cascade='delete,all'))
+            'favorite_user', uselist=True, cascade='delete,all'))
 
     chart = relationship(
         Chart,
