@@ -152,14 +152,17 @@ def xch_key():
 
         # Get data from incoming agent POST
         try:
-            data_byte = request.stream.read()
+            # data_byte = request.stream.read() 
 
             # Decode UTF-8 bytes to Unicode, and convert single quotes
             # to double quotes to make it valid JSON
-            data_str = data_byte.decode('utf8').replace("'", '"')
+            # data_str = data_byte.decode('utf8').replace("'", '"')
 
             # Load the JSON to a Python list
-            data_dict = json.loads(data_str)
+            # data_dict = json.loads(data_str)
+
+            data_json = request.get_json(silent=True)
+            data_dict = json.loads(data_json)
 
             # Save email in session
             session['email'] = data_dict['pattoo_agent_email']
@@ -172,8 +175,11 @@ def xch_key():
             message = 'Email and key received: {}, {}'\
                       .format(session['email'], result)
 
+            log.log2info(77701, message)
+
         except Exception as e:
             log_msg = 'Invalid email and key entry: >>>{}<<<'.format(e)
+            log_msg+= '--->' + data_dict + '<---'
             log.log2warning(20501, log_msg)
             message = 'Key not received'
 
@@ -207,6 +213,8 @@ def xch_key():
                     'encrypted_nonce': encrypted_nonce}
 
             # Send api email, public key and encrypted nonce
+            message = 'API information sent'
+            log.log2info(77701, message)
             response = 200
             return jsonify(data=data), response
 
@@ -257,14 +265,16 @@ def valid_key():
     if request.method == 'POST':
         # Get data from incoming agent POST
         try:
-            data_byte = request.stream.read()
+            # data_byte = request.stream.read()
 
             # Decode UTF-8 bytes to Unicode, and convert single quotes
             # to double quotes to make it valid JSON
-            data_str = data_byte.decode('utf8').replace("'", '"')
+            # data_str = data_byte.decode('utf8').replace("'", '"')
 
             # Load the JSON to a Python list
-            data_dict = json.loads(data_str)
+            # data_dict = json.loads(data_str)
+            data_json = request.get_json(silent=True)
+            data_dict = json.loads(data_json)
 
             # Retrieved symmetrically encrypted nonce
             encrypted_nonce = data_dict['encrypted_nonce']
@@ -301,6 +311,7 @@ def valid_key():
             response = 200
             message = 'Symmetric key saved. Del public key: {}'\
                       .format(result)
+            log.log2info(77701, message)
 
         except Exception as e:
             log_msg = 'Invalid email and key entry: >>>{}<<<'.format(e)
