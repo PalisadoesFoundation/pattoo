@@ -24,7 +24,7 @@ def idx_exists(idx):
     rows = []
 
     # Get the result
-    with db.db_query(20046) as session:
+    with db.db_query(20096) as session:
         rows = session.query(User.idx_user).filter(
             User.idx_user == idx)
 
@@ -77,7 +77,7 @@ def insert_row(row):
     # Verify values
     if bool(row) is False or isinstance(row, DbRowUser) is False:
         log_message = 'Invalid user type being inserted'
-        log.log2die(20033, log_message)
+        log.log2die(20070, log_message)
 
     # Lowercase the name
     username = row.username.strip()[:MAX_KEYPAIR_LENGTH]
@@ -94,5 +94,5 @@ def insert_row(row):
         last_name=last_name.encode(),
         enabled=enabled,
         )
-    with db.db_modify(20032, die=True) as session:
+    with db.db_modify(20054, die=True) as session:
         session.add(row)

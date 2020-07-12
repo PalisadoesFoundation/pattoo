@@ -26,7 +26,7 @@ def idx_exists(idx):
     rows = []
 
     # Get the result
-    with db.db_query(20046) as session:
+    with db.db_query(20095) as session:
         rows = session.query(Favorite.idx_favorite).filter(
             Favorite.idx_favorite == idx)
 
@@ -53,7 +53,7 @@ def exists(idx_chart, idx_user):
     rows = []
 
     # Get name from database
-    with db.db_query(20031) as session:
+    with db.db_query(20010) as session:
         rows = session.query(Favorite.idx_favorite).filter(
             and_(Favorite.idx_chart == idx_chart,
                  Favorite.idx_user == idx_user))
@@ -78,7 +78,7 @@ def insert_row(row):
     # Verify values
     if bool(row) is False or isinstance(row, DbRowFavorite) is False:
         log_message = 'Invalid favorite type being inserted'
-        log.log2die(20033, log_message)
+        log.log2die(20058, log_message)
 
     # Insert
     row = Favorite(
@@ -87,5 +87,5 @@ def insert_row(row):
         order=row.order,
         enabled=int(bool(row.enabled)),
         )
-    with db.db_modify(20032, die=True) as session:
+    with db.db_modify(20056, die=True) as session:
         session.add(row)

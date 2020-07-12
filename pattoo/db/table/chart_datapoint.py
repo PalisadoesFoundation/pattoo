@@ -26,7 +26,7 @@ def idx_exists(idx):
     rows = []
 
     # Get the result
-    with db.db_query(20046) as session:
+    with db.db_query(20097) as session:
         rows = session.query(ChartDataPoint.idx_chart_datapoint).filter(
             ChartDataPoint.idx_chart_datapoint == idx)
 
@@ -53,7 +53,7 @@ def exists(idx_chart, idx_datapoint):
     rows = []
 
     # Get name from database
-    with db.db_query(20031) as session:
+    with db.db_query(20037) as session:
         rows = session.query(ChartDataPoint.idx_chart_datapoint).filter(
             and_(ChartDataPoint.idx_chart == idx_chart,
                  ChartDataPoint.idx_datapoint == idx_datapoint))

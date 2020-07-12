@@ -418,7 +418,7 @@ def _mysql():
         pool_size=pool_size, pool_recycle=3600)
 
     # Try to create the database
-    print('Connecting to configured database.')
+    print('Connecting to configured database. Altering character set.')
     try:
         sql_string = ('''\
 ALTER DATABASE {} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci\

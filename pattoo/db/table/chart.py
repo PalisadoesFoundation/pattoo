@@ -24,7 +24,7 @@ def idx_exists(idx):
     rows = []
 
     # Get the result
-    with db.db_query(20046) as session:
+    with db.db_query(20098) as session:
         rows = session.query(Chart.idx_chart).filter(
             Chart.idx_chart == idx)
 
@@ -50,7 +50,7 @@ def exists(checksum):
     rows = []
 
     # Get checksum from database
-    with db.db_query(20031) as session:
+    with db.db_query(20050) as session:
         rows = session.query(Chart.idx_chart).filter(
             Chart.checksum == checksum.encode())
 
@@ -74,7 +74,7 @@ def insert_row(row):
     # Verify values
     if bool(row) is False or isinstance(row, DbRowChart) is False:
         log_message = 'Invalid user type being inserted'
-        log.log2die(20033, log_message)
+        log.log2die(20067, log_message)
 
     # Lowercase the name
     name = row.name.strip()[:MAX_KEYPAIR_LENGTH]
@@ -87,5 +87,5 @@ def insert_row(row):
         checksum=checksum.encode(),
         enabled=enabled,
         )
-    with db.db_modify(20032, die=True) as session:
+    with db.db_modify(20052, die=True) as session:
         session.add(row)
