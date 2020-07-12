@@ -82,7 +82,7 @@ Please try again.\
                 _mkdir(full_directory)
                 initialize_ownership(key, full_directory)
 
-            # Ensure ownership of /var/run/pattoo
+            # Ensure correct ownership of /var/run/pattoo
             if full_directory == '{0}var{0}run{0}pattoo'.format(os.sep):
                 _chown(full_directory)
 
