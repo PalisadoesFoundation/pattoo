@@ -298,9 +298,11 @@ def _chown(directory):
     if '{}pattoo'.format(os.sep) in directory:
         for root, dirs, files_ in os.walk(directory):
             for dir_ in dirs:
-                os.chown(os.path.join(root, dir_), 'pattoo', 'pattoo')
+                shutil.chown(
+                    os.path.join(root, dir_), user='pattoo', group='pattoo')
             for file_ in files_:
-                os.chown(os.path.join(root, file_), 'pattoo', 'pattoo')
+                shutil.chown(
+                    os.path.join(root, file_), user='pattoo', group='pattoo')
 
 
 def check_pattoo_server():
