@@ -1,6 +1,5 @@
 .. image:: docs/_static/pattoo-rtd.png
    :alt: Pattoo Logo
-
 ``pattoo`` servers store timeseries data sent to it from various IoT data collection agents.
 
 Introduction
@@ -36,3 +35,8 @@ About The Palisadoes Foundation
 ===============================
 
 ``pattoo`` and its supporting applications are based on the original ``infoset`` code created by the `Palisadoes Foundation <http://www.palisadoes.org>`_ as part of its annual Calico Challenge program. Calico provides paid summer internships for  Jamaican university students to work on selected open source projects. They are mentored by software professionals and receive stipends based on the completion of predefined milestones. Calico was started in 2015.
+
+Build Status
+=============
+.. image:: https://travis-ci.org/DangaRanga/pattoo.svg?branch=master
+    :target: https://travis-ci.org/DangaRanga/pattoo

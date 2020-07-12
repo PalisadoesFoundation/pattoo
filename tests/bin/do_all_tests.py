@@ -55,10 +55,6 @@ def main():
     root_dir = ROOT_DIR
     test_dir = '{}{}tests'.format(root_dir, os.sep)
 
-    # Create database tables if necessary
-    command = '{1}{0}setup{0}install.py'.format(os.sep, root_dir)
-    run_script(command)
-
     # Run the test
     command = 'python3 -m unittest discover --start {}'.format(test_dir)
     if args.verbose is True:
