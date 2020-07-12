@@ -131,7 +131,7 @@ class Language(BASE):
     ts_created = Column(
         DATETIME, server_default=text('CURRENT_TIMESTAMP'))
 
-    def __init__(self, code, name, enabled):
+    def __init__(self, code, name, enabled=1):
         """Language Constructor"""
         self.code = code
         self.name = name
@@ -207,7 +207,7 @@ class AgentXlate(BASE):
         backref=backref(
             'agent_xlate_language', uselist=True, cascade='delete,all'))
 
-    def __init__(self, idx_language, agent_program, translation, enabled):
+    def __init__(self, idx_language, agent_program, translation, enabled=1):
         """PairXlate Constructor"""
         self.idx_language = idx_language
         self.agent_program = agent_program
@@ -241,7 +241,7 @@ class PairXlateGroup(BASE):
     ts_created = Column(
         DATETIME, server_default=text('CURRENT_TIMESTAMP'))
 
-    def __init__(self, name, enabled):
+    def __init__(self, name, enabled=1):
         """PairXlateGroup Constructor"""
         self.name = name
         self.enabled = enabled
@@ -303,7 +303,8 @@ class PairXlate(BASE):
         backref=backref(
             'pair_xlate_language', uselist=True, cascade='delete,all'))
 
-    def __init__(self, idx_pair_xlate_group, idx_language, key, translation, units, enabled):
+    def __init__(self, idx_pair_xlate_group, idx_language, key, translation,
+                 units, enabled=1):
         """PairXlate Constructor"""
         self.idx_pair_xlate_group = idx_pair_xlate_group
         self.idx_language = idx_language
