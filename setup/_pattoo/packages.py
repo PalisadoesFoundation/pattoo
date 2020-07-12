@@ -83,7 +83,8 @@ def check_pip3(requirements_dir, installation_directory=None, verbose=True):
         if verbose:
             print('Installing package {}'.format(package))
         command = 'python3 -m pip show {}'.format(package)
-        (returncode, _, _) = shared.run_script(command, verbose, die=False)
+        (returncode, _, _) = shared.run_script(
+            command, verbose=verbose, die=False)
         if bool(returncode) is True:
 
             # Installs missing pip3 package

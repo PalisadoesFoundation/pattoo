@@ -277,23 +277,23 @@ def run_systemd():
     """
     if getpass.getuser() != 'travis':
         print('Loading system daemon configurations')
-        shared._run_script('sudo systemctl daemon-reload')
+        shared.run_script('sudo systemctl daemon-reload')
         print('Enabling system daemons')
-        shared._run_script('sudo systemctl enable pattoo_apid')
-        shared._run_script('sudo systemctl enable pattoo_api_agentd')
-        shared._run_script('sudo systemctl enable pattoo_ingesterd')
+        shared.run_script('sudo systemctl enable pattoo_apid')
+        shared.run_script('sudo systemctl enable pattoo_api_agentd')
+        shared.run_script('sudo systemctl enable pattoo_ingesterd')
         print('Starting system daemons')
-        shared._run_script('sudo systemctl start pattoo_apid')
-        shared._run_script('sudo systemctl start pattoo_api_agentd')
-        shared._run_script('sudo systemctl start pattoo_ingesterd')
+        shared.run_script('sudo systemctl start pattoo_apid')
+        shared.run_script('sudo systemctl start pattoo_api_agentd')
+        shared.run_script('sudo systemctl start pattoo_ingesterd')
     else:
-        shared._run_script('systemctl daemon-reload')
-        shared._run_script('systemctl enable pattoo_apid')
-        shared._run_script('systemctl enable pattoo_api_agentd')
-        shared._run_script('systemctl enable pattoo_ingesterd')
-        shared._run_script('systemctl start pattoo_apid')
-        shared._run_script('systemctl start pattoo_api_agentd')
-        shared._run_script('systemctl start pattoo_ingesterd')
+        shared.run_script('systemctl daemon-reload')
+        shared.run_script('systemctl enable pattoo_apid')
+        shared.run_script('systemctl enable pattoo_api_agentd')
+        shared.run_script('systemctl enable pattoo_ingesterd')
+        shared.run_script('systemctl start pattoo_apid')
+        shared.run_script('systemctl start pattoo_api_agentd')
+        shared.run_script('systemctl start pattoo_ingesterd')
 
 
 def install_systemd():
