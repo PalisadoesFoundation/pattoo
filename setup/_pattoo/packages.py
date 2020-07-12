@@ -8,7 +8,7 @@ import getpass
 from _pattoo import shared
 
 
-def install_pip3(package, pip_dir, verbose=True):
+def install_missing_pip3(package, pip_dir, verbose=True):
     """Automatically Install missing pip3 packages.
 
     Args:
@@ -33,7 +33,7 @@ def install_pip3(package, pip_dir, verbose=True):
     return True
 
 
-def check_pip3(requirements_dir, installation_directory=None, verbose=True):
+def install(requirements_dir, installation_directory=None, verbose=True):
     """Ensure PIP3 packages are installed correctly.
 
     Args:
@@ -88,7 +88,8 @@ def check_pip3(requirements_dir, installation_directory=None, verbose=True):
 
         # Install any missing pip3 package
         if bool(returncode) is True:
-            install_pip3(package, installation_directory, verbose=verbose)
+            install_missing_pip3(
+                package, installation_directory, verbose=verbose)
 
     # Set ownership of any newly installed python packages to pattoo user
     if getpass.getuser() == 'root':

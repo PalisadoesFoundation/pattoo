@@ -296,7 +296,7 @@ def run_systemd():
         shared.run_script('systemctl start pattoo_ingesterd')
 
 
-def install_systemd():
+def install():
     """Run the functions for installation.
 
     Args:

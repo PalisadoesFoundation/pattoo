@@ -245,43 +245,43 @@ def main():
                 print('Prompt for input')
             else:
                 print('Automatic installation')
-            configure.configure_installation(args.prompt)
-            packages.check_pip3(ROOT_DIR)
+            configure.install(args.prompt)
+            packages.install(ROOT_DIR)
 
             # Import db after pip3 packages are installed
             from _pattoo import db
-            db.create_pattoo_db_tables()
-            systemd.install_systemd()
+            db.install()
+            systemd.install()
 
         # Configures pattoo and sets up database tables
         elif args.qualifier == 'database':
             print('Installing database tables')
 
             # Assumes defaults unless the all qualifier is used
-            configure.configure_installation(False)
-            packages.check_pip3(ROOT_DIR)
+            configure.install(False)
+            packages.install(ROOT_DIR)
 
             # Import db after pip3 packages are installed
             from _pattoo import db
-            db.create_pattoo_db_tables()
+            db.install()
 
         # Installs and starts system daemons
         elif args.qualifier == 'systemd':
             # Install pip3 packages, verbose mode is disabled by default
             print('Installing systemd daemons')
-            configure.configure_installation(False)
-            packages.check_pip3(ROOT_DIR)
-            systemd.install_systemd()
+            configure.install(False)
+            packages.install(ROOT_DIR)
+            systemd.install()
 
         elif args.qualifier == 'pip':
             # Installs additionally required pip3 packages
             print('Installing pip packages')
-            packages.check_pip3(ROOT_DIR, verbose=args.verbose)
+            packages.install(ROOT_DIR, verbose=args.verbose)
 
         # Sets up the configuration for pattoo
         elif args.qualifier == 'configuration':
             print('Installing configuration')
-            configure.configure_installation(args.prompt)
+            configure.install(args.prompt)
         # Print help if no argument options were triggered
         else:
             parser.print_help(sys.stderr)

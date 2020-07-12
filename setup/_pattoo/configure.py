@@ -414,7 +414,7 @@ Please fix.'''.format(primary, key))
             log.log2die_safe(20091, log_message)
 
 
-def configure_installation(prompt_value):
+def install(prompt_value):
     """Start configuration process.
 
     Args:
