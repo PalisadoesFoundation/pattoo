@@ -63,7 +63,6 @@ def teardown_tables(tables, engine):
         None
 
     """
-    print('present in teardown_tables')
     # Ensures engine object is valid
     if engine is None:
         print('Please pass an engine object')

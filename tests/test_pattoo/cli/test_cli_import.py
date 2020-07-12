@@ -32,6 +32,7 @@ else:
 # Pattoo imports
 from pattoo.cli.cli_import import (process, _process_key_translation,
                                    _process_agent_translation)
+from pattoo.db import db
 from pattoo.cli.cli import _Import
 from pattoo.db.models import BASE, PairXlate, AgentXlate, PairXlateGroup, Language
 
@@ -39,10 +40,70 @@ from pattoo.db.models import BASE, PairXlate, AgentXlate, PairXlateGroup, Langua
 from tests.test_pattoo.cli.setup_db import (create_tables, teardown_tables, DB_URI)
 from tests.libraries.configuration import UnittestConfig
 
+
 class TestImport(unittest.TestCase):
     """Defines basic database setup and teardown methods"""
 
     travis_ci = os.getenv('travis_ci')
+
+    def populate_fn(self, expected, cmd_args, target_table, parser, callback):
+        """Allows for creation of csv file to test importation of translations for
+        the process functions of cli_import
+
+        Args:
+            expected: key-value pairs to be stored in temporary csv file
+            cmd_args: command line arguments to be parsed to be passed to callback
+            target_table: database table to be queried
+            parser: used to parse command line arguments
+            callback: specific translation process funciton from cli_import module
+
+        Return:
+            queried_result: Result obtain from querying 'target_table'
+
+        """
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv') as fptr:
+
+            # Instantiation of csv writer object and fieldnames
+            fieldnames = expected.keys()
+            writer = csv.DictWriter(fptr, fieldnames=fieldnames)
+
+            # Populating temporary csv file with key translation data
+            writer.writeheader()
+            writer.writerow(expected)
+            fptr.seek(0)
+
+            # Importing key_translation from temporary csv file
+            args = parser.parse_args(cmd_args + ['--filename',
+                                                 '{}'.format(fptr.name)])
+            callback(args)
+
+        # Updating language to match table language table name
+        expected['idx_language'] = expected['language']
+        del expected['language']
+
+        queried_result = None
+        # Retrives stored key translation made using '_process_key_translation'
+        with db.db_query(30002) as session:
+            queried_result = session.query(target_table).filter_by(translation =
+                                                                     b'test_translation').first()
+
+        print(target_table)
+        print(queried_result)
+        print('')
+        # Asserting that each inserted elment into PairXlate test tables matches
+        # arguments passed to '_process_key_translation', as well asserts that a
+        for key, value in expected.items():
+            if key == 'idx_language':
+                self.assertEqual(queried_result.__dict__[key],
+                                 self.language_count)
+            else:
+                self.assertEqual(queried_result.__dict__[key], value.encode())
+
+        # Asserts created and modified columns were created.
+        self.assertIsNotNone(queried_result.ts_modified)
+        self.assertIsNotNone(queried_result.ts_created)
+
+        return queried_result
 
     @classmethod
     def setUpClass(self):
@@ -56,18 +117,13 @@ class TestImport(unittest.TestCase):
             self.engine = create_tables(self.tables) # Returns engine object
 
             # Creating session object to make updates to tables in test database
-            self.session = sessionmaker(bind=self.engine)()
+            with db.db_query(30001) as session:
+                # Instantiation of test data in each table
+                session.add(Language('en'.encode(), 'English'.encode(), 1))
+                session.add(PairXlateGroup('pair_1'.encode(), 1))
 
-            # Instantiation of test data in each table
-            self.session.add(Language('fr'.encode(), 'French'.encode(), 1))
-            self.session.add(PairXlateGroup('pair_1'.encode(), 1))
-
-            self.language_count = self.session.query(Language).count()
-            self.session.commit()
-        else:
-            # Creating session object to for making updates to test database for
-            # tests
-            self.session = sessionmaker(bind=create_engine(DB_URI))()
+                self.language_count = session.query(Language).count()
+                session.commit()
 
     @classmethod
     def tearDownClass(self):
@@ -75,11 +131,7 @@ class TestImport(unittest.TestCase):
 
         # Skips class teardown if using travis-ci
         if not self.travis_ci:
-            print('tables teardown')
-            print(self.tables, self.engine)
             teardown_tables(self.tables, self.engine)
-        print('session closing')
-        self.session.close()
 
     def test_process(self):
         """Test import argument process function"""
@@ -99,55 +151,22 @@ class TestImport(unittest.TestCase):
         # Testing for proper key_translation execution
         #
         ####################################################################
-        expected = {'language': 'fr', 'key': 'test_key', 'translation':'test_translation', 'units': 'test_units'}
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv') as fptr:
-
-            # Instantiation of csv writer object and fieldnames
-            fieldnames = expected.keys()
-            writer = csv.DictWriter(fptr, fieldnames=fieldnames)
-
-            # Populating temporary csv file with key translation data
-            writer.writeheader()
-            writer.writerow(expected)
-            fptr.seek(0)
-
-            # Importing key_translation from temporary csv file
-            args = parser.parse_args(['import', 'key_translation', '--idx_pair_xlate_group',
-                              '1', '--filename', '{}'.format(fptr.name)])
-            _process_key_translation(args)
-
-        # Create new PairXlate object
-        expected['idx_language'] = expected['language']
-        del expected['language']
-
-        # Retrives stored key translation made using '_process_key_translation'
-        queried_result = self.session.query(PairXlate).filter_by(key =
-                                                                 b'test_key').first()
-
-        # Asserting that each inserted elment into PairXlate test tables matches
-        # arguments passed to '_process_key_translation', as well asserts that a
-        for key, value in expected.items():
-            if key == 'idx_language':
-                self.assertEqual(queried_result.__dict__[key],
-                                 self.language_count)
-            else:
-                self.assertEqual(queried_result.__dict__[key], value.encode())
-
-        # Asserts created and modified columns were created.
-        self.assertIsNotNone(queried_result.ts_modified)
-        self.assertIsNotNone(queried_result.ts_created)
+        expected = {'language': 'en', 'key': 'test_key', 'translation':'test_translation', 'units': 'test_units'}
+        cmd_args = ['import', 'key_translation', '--idx_pair_xlate_group', '1']
+        result = self.populate_fn(expected, cmd_args, PairXlate, parser, _process_key_translation)
 
         # Asserts that idx_pair_xlate_group group matches requested group value
-        self.assertEqual(queried_result.idx_pair_xlate_group, 1)
+        self.assertEqual(result.idx_pair_xlate_group, 1)
 
+        ####################################################################
+        #
         # Testing for proper agent_translation execution
-        args.qualifier = 'agent_translation'
-
-    def test__process_key_translation(self):
-        pass
-
-    def test_process_agent_translation(self):
-        pass
+        #
+        ####################################################################
+        expected = {'language': 'en', 'key': 'test_key', 'translation': 'test_translation'}
+        cmd_args = ['import', 'agent_translation']
+        self.populate_fn(expected, cmd_args, AgentXlate, parser,
+                         _process_agent_translation)
 
 if __name__ == '__main__':
     # Make sure the environment is OK to run unittests
