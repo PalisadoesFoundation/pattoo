@@ -160,6 +160,18 @@ class Favorite(BASE):
     enabled = Column(
         BIGINT(unsigned=True), nullable=False, server_default='1')
 
+    # Use cascade='delete,all' to propagate the deletion of a
+    # Language onto its AgentXlate
+    user = relationship(
+        User,
+        backref=backref(
+            'chart_user', uselist=True, cascade='delete,all'))
+
+    chart = relationship(
+        Chart,
+        backref=backref(
+            'favorite_chart', uselist=True, cascade='delete,all'))
+
 
 class AgentXlate(BASE):
     """Class defining the pt_agent_xlate table of the database."""
