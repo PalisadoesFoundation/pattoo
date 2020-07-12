@@ -4,22 +4,21 @@
 # Main python libraries
 
 from __future__ import print_function
-import sys
-import pymysql
-import getpass
-import os
-import yaml
+import random
+import string
 
 # pip3 imports
 from sqlalchemy import create_engine
 
 # Pattoo libraries
 from pattoo_shared import log
+from pattoo_shared import data
 from pattoo.configuration import ConfigPattoo as Config
 from pattoo.db import URL
 from pattoo.db.models import BASE
 from pattoo.db.table import (
-    language, pair_xlate_group, pair_xlate, agent_xlate)
+    language, pair_xlate_group, pair_xlate, agent_xlate, user, chart, favorite)
+from pattoo.constants import DbRowUser, DbRowChart, DbRowFavorite
 
 
 def insertions():
@@ -32,22 +31,60 @@ def insertions():
         None
 
     """
+    # Say what we are doing
+    print('Inserting default database table entries.')
+
+    # Insert Language
+    _insert_language()
+
+    # Insert PairXlateGroup
+    _insert_pair_xlate_group()
+
+    # Insert AgentXlate
+    _insert_agent_xlate()
+
+    # Insert User
+    _insert_user()
+
+    # Insert Chart
+    _insert_chart()
+
+    # Insert Favorite
+    _insert_favorite()
+
+
+def _insert_language():
+    """Insert starting default entries into the Language table.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Insert into Language
+    if language.idx_exists(1) is False:
+        language.insert_row('en', 'English')
+
+
+def _insert_pair_xlate_group():
+    """Insert starting default entries into the PairXlate table.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
     # Initialize key variables
     default_name = 'Pattoo Default'
     idx_pair_xlate_groups = {}
     language_dict = {}
-    agent_xlate_data = [
-        ('en', 'pattoo_agent_os_autonomousd', 'Pattoo Standard OS Autonomous Agent'),
-        ('en', 'pattoo_agent_os_spoked', 'Pattoo Standard OS Spoked Agent'),
-        ('en', 'pattoo_agent_snmpd', 'Pattoo Standard SNMP Agent'),
-        ('en', 'pattoo_agent_snmp_ifmibd', 'Pattoo Standard IfMIB SNMP Agent'),
-        ('en', 'pattoo_agent_modbustcpd', 'Pattoo Standard Modbus TCP Agent'),
-        ('en', 'pattoo_agent_opcuad', 'Pattoo Standard OPC UA Agent'),
-        ('en', 'pattoo_agent_bacnetipd', 'Pattoo Standard BACnet IP Agent')
-    ]
     pair_xlate_data = [
         ('OPC UA Agents', [
-            ('en', 'pattoo_agent_opcuad_opcua_server', 'OPC UA Server', '')]),   
+            ('en', 'pattoo_agent_opcuad_opcua_server', 'OPC UA Server', '')]),
         ('IfMIB Agents', [
             ('en', 'pattoo_agent_snmpd_.1.3.6.1.2.1.31.1.1.1.9', 'Interface Broadcast Packets (HC inbound)', 'Packets / Second'),
             ('en', 'pattoo_agent_snmpd_.1.3.6.1.2.1.31.1.1.1.8', 'Interface Multicast Packets (HC inbound)', 'Packets / Second'),
@@ -91,165 +128,159 @@ def insertions():
             ('en', 'pattoo_agent_snmpd_ifdescr', 'Interface Description', ''),
             ('en', 'pattoo_agent_snmpd_ifname', 'Interface Name', ''),
             ('en', 'pattoo_agent_snmpd_oid', 'SNMP OID', '')]),
-        ('OS Agents', [
-            ('en', 'pattoo_agent_os_autonomousd_processor', 'Processor Type', ''),
-            ('en', 'pattoo_agent_os_autonomousd_release', 'OS Release', ''),
-            ('en', 'pattoo_agent_os_autonomousd_type', 'OS Type', ''),
-            ('en', 'pattoo_agent_os_autonomousd_version', 'OS Version', ''),
-            ('en', 'pattoo_agent_os_autonomousd_cpus', 'OS CPU Count', ''),
-            ('en', 'pattoo_agent_os_autonomousd_hostname', 'Hostname', ''),
-            ('en', 'pattoo_agent_os_autonomousd_disk_partition_device', 'Disk Partition', ''),
-            ('en', 'pattoo_agent_os_autonomousd_disk_partition_fstype', 'Filesystem Type', ''),
-            ('en', 'pattoo_agent_os_autonomousd_disk_partition_mountpoint', 'Mount Point', ''),
-            ('en', 'pattoo_agent_os_autonomousd_disk_partition_opts', 'Partition Options', ''),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_percent_user', 'User (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_percent_nice', 'Nice (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_percent_system', 'System (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_percent_idle', 'Idle (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_percent_iowait', 'IO Wait (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_percent_irq', 'IRQ (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_percent_softirq', 'Soft IRQ (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_percent_steal', 'Steal (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_percent_guest', 'Guest (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_percent_guest_nice', 'Guest / Nice (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_user', 'User (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_nice', 'Nice (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_system', 'System (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_idle', 'Idle (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_iowait', 'IO Wait (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_irq', 'IRQ (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_softirq', 'Soft IRQ (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_steal', 'Steal (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_guest', 'Guest (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_times_guest_nice', 'Guest / Nice (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_stats_ctx_switches', 'CPU (Context Switches)', 'Events / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_stats_interrupts', 'CPU (Context Switches)', 'Events / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_stats_soft_interrupts', 'CPU (Soft Interrupts)', 'Events / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_stats_syscalls', 'CPU (System Calls)', 'Events / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_memory_total', 'Memory (Total)', 'Bytes'),
-            ('en', 'pattoo_agent_os_autonomousd_memory_available', 'Memory (Available)', 'Bytes'),
-            ('en', 'pattoo_agent_os_autonomousd_memory_percent', 'Memory (Percent)', 'Percentage Utilization'),
-            ('en', 'pattoo_agent_os_autonomousd_memory_used', 'Memory (Used)', 'Bytes'),
-            ('en', 'pattoo_agent_os_autonomousd_memory_free', 'Memory (Free)', 'Bytes'),
-            ('en', 'pattoo_agent_os_autonomousd_memory_active', 'Memory (Active)', 'Bytes'),
-            ('en', 'pattoo_agent_os_autonomousd_memory_inactive', 'Memory (Inactive)', 'Bytes'),
-            ('en', 'pattoo_agent_os_autonomousd_memory_buffers', 'Memory (Buffers)', 'Bytes'),
-            ('en', 'pattoo_agent_os_autonomousd_memory_cached', 'Memory (Cached)', 'Bytes'),
-            ('en', 'pattoo_agent_os_autonomousd_memory_shared', 'Memory (Shared)', 'Bytes'),
-            ('en', 'pattoo_agent_os_autonomousd_memory_slab', 'Memory (Slab)', 'Bytes'),
-            ('en', 'pattoo_agent_os_autonomousd_swap_memory_total', 'Swap Memory (Total)', 'Bytes'),
-            ('en', 'pattoo_agent_os_autonomousd_swap_memory_used', 'Swap Memory (Used)', 'Bytes'),
-            ('en', 'pattoo_agent_os_autonomousd_swap_memory_free', 'Swap Memory (Free)', 'Bytes'),
-            ('en', 'pattoo_agent_os_autonomousd_swap_memory_percent', 'Swap Memory (Percent)', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_swap_memory_sin', 'Swap Memory (In)', 'Bytes / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_swap_memory_sout', 'Swap Memory (Out)', 'Bytes / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_disk_partition_disk_usage_total', 'Disk size', 'Bytes'),
-            ('en', 'pattoo_agent_os_autonomousd_disk_partition_disk_usage_used', 'Disk Utilization', 'Percent'),
-            ('en', 'pattoo_agent_os_autonomousd_disk_partition_disk_usage_free', 'Disk Free', 'Bytes'),
-            ('en', 'pattoo_agent_os_autonomousd_disk_partition_disk_usage_percent', 'Disk Percentage Utilization', ''),
-            ('en', 'pattoo_agent_os_autonomousd_disk_io_read_count', 'Disk I/O (Read Count)', 'Reads / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_disk_partition', 'Disk Partition', ''),
-            ('en', 'pattoo_agent_os_autonomousd_disk_io_write_count', 'Disk I/O (Write Count)', 'Writes / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_disk_io_read_bytes', 'Disk I/O (Bytes Read)', 'Bytes / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_disk_io_write_bytes', 'Disk I/O (Bytes Written)', 'Bytes / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_disk_io_read_time', 'Disk I/O (Read Time)', ''),
-            ('en', 'pattoo_agent_os_autonomousd_disk_io_write_time', 'Disk I/O (Write Time)', ''),
-            ('en', 'pattoo_agent_os_autonomousd_disk_io_read_merged_count', 'Disk I/O (Read Merged Count)', 'Reads / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_disk_io_write_merged_count', 'Disk I/O (Write Merged Count)', 'Writes / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_disk_io_busy_time', 'Disk I/O (Busy Time)', ''),
-            ('en', 'pattoo_agent_os_autonomousd_network_io_bytes_sent', 'Network I/O (Bandwidth Inbound)', 'Bits / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_network_io_interface', 'Network Interface', ''),
-            ('en', 'pattoo_agent_os_autonomousd_network_io_bytes_recv', 'Network I/O (Bandwidth Outbound)', 'Bits / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_network_io_packets_sent', 'Network I/O (Packets Sent)', 'Packets / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_network_io_packets_recv', 'Network I/O (Packets Received)', 'Packets / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_network_io_errin', 'Network I/O (Errors Inbound)', 'Errors / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_network_io_errout', 'Network I/O (Errors Outbound)', 'Errors / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_network_io_dropin', 'Network I/O (Drops Inbound)', 'Drops / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_network_io_dropout', 'Network I/O (Drops Outbound)', 'Drops / Second'),
-            ('en', 'pattoo_agent_os_autonomousd_cpu_frequency', 'CPU Frequency', 'Frequency'),
-            ('en', 'pattoo_agent_os_spoked_processor', 'Processor Type', ''),
-            ('en', 'pattoo_agent_os_spoked_release', 'OS Release', ''),
-            ('en', 'pattoo_agent_os_spoked_type', 'OS Type', ''),
-            ('en', 'pattoo_agent_os_spoked_version', 'OS Version', ''),
-            ('en', 'pattoo_agent_os_spoked_cpus', 'OS CPU Count', ''),
-            ('en', 'pattoo_agent_os_spoked_hostname', 'Hostname', ''),
-            ('en', 'pattoo_agent_os_spoked_disk_partition_device', 'Disk Partition', ''),
-            ('en', 'pattoo_agent_os_spoked_disk_partition_fstype', 'Filesystem Type', ''),
-            ('en', 'pattoo_agent_os_spoked_disk_partition_mountpoint', 'Mount Point', ''),
-            ('en', 'pattoo_agent_os_spoked_disk_partition_opts', 'Partition Options', ''),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_percent_user', 'User (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_percent_nice', 'Nice (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_percent_system', 'System (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_percent_idle', 'Idle (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_percent_iowait', 'IO Wait (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_percent_irq', 'IRQ (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_percent_softirq', 'Soft IRQ (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_percent_steal', 'Steal (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_percent_guest', 'Guest (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_percent_guest_nice', 'Guest / Nice (Percent CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_user', 'User (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_nice', 'Nice (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_system', 'System (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_idle', 'Idle (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_iowait', 'IO Wait (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_irq', 'IRQ (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_softirq', 'Soft IRQ (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_steal', 'Steal (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_guest', 'Guest (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_times_guest_nice', 'Guest / Nice (CPU Usage)', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_cpu_stats_ctx_switches', 'CPU (Context Switches)', 'Events / Second'),
-            ('en', 'pattoo_agent_os_spoked_cpu_stats_interrupts', 'CPU (Context Switches)', 'Events / Second'),
-            ('en', 'pattoo_agent_os_spoked_cpu_stats_soft_interrupts', 'CPU (Soft Interrupts)', 'Events / Second'),
-            ('en', 'pattoo_agent_os_spoked_cpu_stats_syscalls', 'CPU (System Calls)', 'Events / Second'),
-            ('en', 'pattoo_agent_os_spoked_memory_total', 'Memory (Total)', 'Bytes'),
-            ('en', 'pattoo_agent_os_spoked_memory_available', 'Memory (Available)', 'Bytes'),
-            ('en', 'pattoo_agent_os_spoked_memory_percent', 'Memory (Percent)', ''),
-            ('en', 'pattoo_agent_os_spoked_memory_used', 'Memory (Used)', 'Bytes'),
-            ('en', 'pattoo_agent_os_spoked_memory_free', 'Memory (Free)', 'Bytes'),
-            ('en', 'pattoo_agent_os_spoked_memory_active', 'Memory (Active)', 'Bytes'),
-            ('en', 'pattoo_agent_os_spoked_memory_inactive', 'Memory (Inactive)', 'Bytes'),
-            ('en', 'pattoo_agent_os_spoked_memory_buffers', 'Memory (Buffers)', 'Bytes'),
-            ('en', 'pattoo_agent_os_spoked_memory_cached', 'Memory (Cached)', 'Bytes'),
-            ('en', 'pattoo_agent_os_spoked_memory_shared', 'Memory (Shared)', 'Bytes'),
-            ('en', 'pattoo_agent_os_spoked_memory_slab', 'Memory (Slab)', 'Bytes'),
-            ('en', 'pattoo_agent_os_spoked_swap_memory_total', 'Swap Memory (Total)', 'Bytes'),
-            ('en', 'pattoo_agent_os_spoked_swap_memory_used', 'Swap Memory (Used)', 'Bytes'),
-            ('en', 'pattoo_agent_os_spoked_swap_memory_free', 'Swap Memory (Free)', 'Bytes'),
-            ('en', 'pattoo_agent_os_spoked_swap_memory_percent', 'Swap Memory (Percent)', ''),
-            ('en', 'pattoo_agent_os_spoked_swap_memory_sin', 'Swap Memory (In)', 'Bytes / Second'),
-            ('en', 'pattoo_agent_os_spoked_swap_memory_sout', 'Swap Memory (Out)', 'Bytes / Second'),
-            ('en', 'pattoo_agent_os_spoked_disk_partition_disk_usage_total', 'Disk size', 'Bytes'),
-            ('en', 'pattoo_agent_os_spoked_disk_partition_disk_usage_used', 'Disk Utilization', 'Percent'),
-            ('en', 'pattoo_agent_os_spoked_disk_partition_disk_usage_free', 'Disk Free', 'Bytes'),
-            ('en', 'pattoo_agent_os_spoked_disk_partition_disk_usage_percent', 'Disk Percentage Utilization', ''),
-            ('en', 'pattoo_agent_os_spoked_disk_io_read_count', 'Disk I/O (Read Count)', 'Reads / Second'),
-            ('en', 'pattoo_agent_os_spoked_disk_partition', 'Disk Partition', ''),
-            ('en', 'pattoo_agent_os_spoked_disk_io_write_count', 'Disk I/O (Write Count)', 'Writes / Second'),
-            ('en', 'pattoo_agent_os_spoked_disk_io_read_bytes', 'Disk I/O (Bytes Read)', 'Bytes / Second'),
-            ('en', 'pattoo_agent_os_spoked_disk_io_write_bytes', 'Disk I/O (Bytes Written)', 'Bytes / Second'),
-            ('en', 'pattoo_agent_os_spoked_disk_io_read_time', 'Disk I/O (Read Time)', ''),
-            ('en', 'pattoo_agent_os_spoked_disk_io_write_time', 'Disk I/O (Write Time)', ''),
-            ('en', 'pattoo_agent_os_spoked_disk_io_read_merged_count', 'Disk I/O (Read Merged Count)', 'Reads / Second'),
-            ('en', 'pattoo_agent_os_spoked_disk_io_write_merged_count', 'Disk I/O (Write Merged Count)', 'Writes / Second'),
-            ('en', 'pattoo_agent_os_spoked_disk_io_busy_time', 'Disk I/O (Busy Time)', ''),
-            ('en', 'pattoo_agent_os_spoked_network_io_bytes_sent', 'Network I/O (Bandwidth Inbound)', 'Bits / Second'),
-            ('en', 'pattoo_agent_os_spoked_network_io_interface', 'Network Interface', ''),
-            ('en', 'pattoo_agent_os_spoked_network_io_bytes_recv', 'Network I/O (Bandwidth Outbound)', 'Bits / Second'),
-            ('en', 'pattoo_agent_os_spoked_network_io_packets_sent', 'Network I/O (Packets Sent)', 'Packets / Second'),
-            ('en', 'pattoo_agent_os_spoked_network_io_packets_recv', 'Network I/O (Packets Received)', 'Packets / Second'),
-            ('en', 'pattoo_agent_os_spoked_network_io_errin', 'Network I/O (Errors Inbound)', 'Errors / Second'),
-            ('en', 'pattoo_agent_os_spoked_network_io_errout', 'Network I/O (Errors Outbound)', 'Errors / Second'),
-            ('en', 'pattoo_agent_os_spoked_network_io_dropin', 'Network I/O (Drops Inbound)', 'Drops / Second'),
-            ('en', 'pattoo_agent_os_spoked_network_io_dropout', 'Network I/O (Drops Outbound)', 'Drops / Second'),
-            ('en', 'pattoo_agent_os_spoked_cpu_frequency', 'CPU Frequency', '')
+        ('Linux Agents', [
+            ('en', 'pattoo_agent_linux_autonomousd_processor', 'Processor Type', ''),
+            ('en', 'pattoo_agent_linux_autonomousd_release', 'OS Release', ''),
+            ('en', 'pattoo_agent_linux_autonomousd_type', 'OS Type', ''),
+            ('en', 'pattoo_agent_linux_autonomousd_version', 'OS Version', ''),
+            ('en', 'pattoo_agent_linux_autonomousd_cpus', 'OS CPU Count', ''),
+            ('en', 'pattoo_agent_linux_autonomousd_hostname', 'Hostname', ''),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_partition_device', 'Disk Partition', ''),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_partition_fstype', 'Filesystem Type', ''),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_partition_mountpoint', 'Mount Point', ''),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_partition_opts', 'Partition Options', ''),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_percent_user', 'User (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_percent_nice', 'Nice (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_percent_system', 'System (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_percent_idle', 'Idle (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_percent_iowait', 'IO Wait (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_percent_irq', 'IRQ (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_percent_softirq', 'Soft IRQ (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_percent_steal', 'Steal (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_percent_guest', 'Guest (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_percent_guest_nice', 'Guest / Nice (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_user', 'User (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_nice', 'Nice (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_system', 'System (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_idle', 'Idle (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_iowait', 'IO Wait (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_irq', 'IRQ (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_softirq', 'Soft IRQ (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_steal', 'Steal (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_guest', 'Guest (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_times_guest_nice', 'Guest / Nice (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_stats_ctx_switches', 'CPU (Context Switches)', 'Events / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_stats_interrupts', 'CPU (Context Switches)', 'Events / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_stats_soft_interrupts', 'CPU (Soft Interrupts)', 'Events / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_stats_syscalls', 'CPU (System Calls)', 'Events / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_memory_total', 'Memory (Total)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_autonomousd_memory_available', 'Memory (Available)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_autonomousd_memory_percent', 'Memory (Percent)', 'Percentage Utilization'),
+            ('en', 'pattoo_agent_linux_autonomousd_memory_used', 'Memory (Used)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_autonomousd_memory_free', 'Memory (Free)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_autonomousd_memory_active', 'Memory (Active)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_autonomousd_memory_inactive', 'Memory (Inactive)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_autonomousd_memory_buffers', 'Memory (Buffers)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_autonomousd_memory_cached', 'Memory (Cached)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_autonomousd_memory_shared', 'Memory (Shared)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_autonomousd_memory_slab', 'Memory (Slab)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_autonomousd_swap_memory_total', 'Swap Memory (Total)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_autonomousd_swap_memory_used', 'Swap Memory (Used)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_autonomousd_swap_memory_free', 'Swap Memory (Free)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_autonomousd_swap_memory_percent', 'Swap Memory (Percent)', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_swap_memory_sin', 'Swap Memory (In)', 'Bytes / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_swap_memory_sout', 'Swap Memory (Out)', 'Bytes / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_partition_disk_usage_total', 'Disk size', 'Bytes'),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_partition_disk_usage_used', 'Disk Utilization', 'Percent'),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_partition_disk_usage_free', 'Disk Free', 'Bytes'),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_partition_disk_usage_percent', 'Disk Percentage Utilization', ''),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_io_read_count', 'Disk I/O (Read Count)', 'Reads / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_partition', 'Disk Partition', ''),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_io_write_count', 'Disk I/O (Write Count)', 'Writes / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_io_read_bytes', 'Disk I/O (Bytes Read)', 'Bytes / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_io_write_bytes', 'Disk I/O (Bytes Written)', 'Bytes / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_io_read_time', 'Disk I/O (Read Time)', ''),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_io_write_time', 'Disk I/O (Write Time)', ''),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_io_read_merged_count', 'Disk I/O (Read Merged Count)', 'Reads / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_io_write_merged_count', 'Disk I/O (Write Merged Count)', 'Writes / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_disk_io_busy_time', 'Disk I/O (Busy Time)', ''),
+            ('en', 'pattoo_agent_linux_autonomousd_network_io_bytes_sent', 'Network I/O (Bandwidth Inbound)', 'Bits / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_network_io_interface', 'Network Interface', ''),
+            ('en', 'pattoo_agent_linux_autonomousd_network_io_bytes_recv', 'Network I/O (Bandwidth Outbound)', 'Bits / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_network_io_packets_sent', 'Network I/O (Packets Sent)', 'Packets / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_network_io_packets_recv', 'Network I/O (Packets Received)', 'Packets / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_network_io_errin', 'Network I/O (Errors Inbound)', 'Errors / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_network_io_errout', 'Network I/O (Errors Outbound)', 'Errors / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_network_io_dropin', 'Network I/O (Drops Inbound)', 'Drops / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_network_io_dropout', 'Network I/O (Drops Outbound)', 'Drops / Second'),
+            ('en', 'pattoo_agent_linux_autonomousd_cpu_frequency', 'CPU Frequency', 'Frequency'),
+            ('en', 'pattoo_agent_linux_spoked_processor', 'Processor Type', ''),
+            ('en', 'pattoo_agent_linux_spoked_release', 'OS Release', ''),
+            ('en', 'pattoo_agent_linux_spoked_type', 'OS Type', ''),
+            ('en', 'pattoo_agent_linux_spoked_version', 'OS Version', ''),
+            ('en', 'pattoo_agent_linux_spoked_cpus', 'OS CPU Count', ''),
+            ('en', 'pattoo_agent_linux_spoked_hostname', 'Hostname', ''),
+            ('en', 'pattoo_agent_linux_spoked_disk_partition_device', 'Disk Partition', ''),
+            ('en', 'pattoo_agent_linux_spoked_disk_partition_fstype', 'Filesystem Type', ''),
+            ('en', 'pattoo_agent_linux_spoked_disk_partition_mountpoint', 'Mount Point', ''),
+            ('en', 'pattoo_agent_linux_spoked_disk_partition_opts', 'Partition Options', ''),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_percent_user', 'User (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_percent_nice', 'Nice (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_percent_system', 'System (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_percent_idle', 'Idle (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_percent_iowait', 'IO Wait (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_percent_irq', 'IRQ (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_percent_softirq', 'Soft IRQ (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_percent_steal', 'Steal (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_percent_guest', 'Guest (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_percent_guest_nice', 'Guest / Nice (Percent CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_user', 'User (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_nice', 'Nice (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_system', 'System (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_idle', 'Idle (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_iowait', 'IO Wait (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_irq', 'IRQ (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_softirq', 'Soft IRQ (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_steal', 'Steal (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_guest', 'Guest (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_times_guest_nice', 'Guest / Nice (CPU Usage)', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_stats_ctx_switches', 'CPU (Context Switches)', 'Events / Second'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_stats_interrupts', 'CPU (Context Switches)', 'Events / Second'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_stats_soft_interrupts', 'CPU (Soft Interrupts)', 'Events / Second'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_stats_syscalls', 'CPU (System Calls)', 'Events / Second'),
+            ('en', 'pattoo_agent_linux_spoked_memory_total', 'Memory (Total)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_spoked_memory_available', 'Memory (Available)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_spoked_memory_percent', 'Memory (Percent)', ''),
+            ('en', 'pattoo_agent_linux_spoked_memory_used', 'Memory (Used)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_spoked_memory_free', 'Memory (Free)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_spoked_memory_active', 'Memory (Active)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_spoked_memory_inactive', 'Memory (Inactive)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_spoked_memory_buffers', 'Memory (Buffers)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_spoked_memory_cached', 'Memory (Cached)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_spoked_memory_shared', 'Memory (Shared)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_spoked_memory_slab', 'Memory (Slab)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_spoked_swap_memory_total', 'Swap Memory (Total)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_spoked_swap_memory_used', 'Swap Memory (Used)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_spoked_swap_memory_free', 'Swap Memory (Free)', 'Bytes'),
+            ('en', 'pattoo_agent_linux_spoked_swap_memory_percent', 'Swap Memory (Percent)', ''),
+            ('en', 'pattoo_agent_linux_spoked_swap_memory_sin', 'Swap Memory (In)', 'Bytes / Second'),
+            ('en', 'pattoo_agent_linux_spoked_swap_memory_sout', 'Swap Memory (Out)', 'Bytes / Second'),
+            ('en', 'pattoo_agent_linux_spoked_disk_partition_disk_usage_total', 'Disk size', 'Bytes'),
+            ('en', 'pattoo_agent_linux_spoked_disk_partition_disk_usage_used', 'Disk Utilization', 'Percent'),
+            ('en', 'pattoo_agent_linux_spoked_disk_partition_disk_usage_free', 'Disk Free', 'Bytes'),
+            ('en', 'pattoo_agent_linux_spoked_disk_partition_disk_usage_percent', 'Disk Percentage Utilization', ''),
+            ('en', 'pattoo_agent_linux_spoked_disk_io_read_count', 'Disk I/O (Read Count)', 'Reads / Second'),
+            ('en', 'pattoo_agent_linux_spoked_disk_partition', 'Disk Partition', ''),
+            ('en', 'pattoo_agent_linux_spoked_disk_io_write_count', 'Disk I/O (Write Count)', 'Writes / Second'),
+            ('en', 'pattoo_agent_linux_spoked_disk_io_read_bytes', 'Disk I/O (Bytes Read)', 'Bytes / Second'),
+            ('en', 'pattoo_agent_linux_spoked_disk_io_write_bytes', 'Disk I/O (Bytes Written)', 'Bytes / Second'),
+            ('en', 'pattoo_agent_linux_spoked_disk_io_read_time', 'Disk I/O (Read Time)', ''),
+            ('en', 'pattoo_agent_linux_spoked_disk_io_write_time', 'Disk I/O (Write Time)', ''),
+            ('en', 'pattoo_agent_linux_spoked_disk_io_read_merged_count', 'Disk I/O (Read Merged Count)', 'Reads / Second'),
+            ('en', 'pattoo_agent_linux_spoked_disk_io_write_merged_count', 'Disk I/O (Write Merged Count)', 'Writes / Second'),
+            ('en', 'pattoo_agent_linux_spoked_disk_io_busy_time', 'Disk I/O (Busy Time)', ''),
+            ('en', 'pattoo_agent_linux_spoked_network_io_bytes_sent', 'Network I/O (Bandwidth Inbound)', 'Bits / Second'),
+            ('en', 'pattoo_agent_linux_spoked_network_io_interface', 'Network Interface', ''),
+            ('en', 'pattoo_agent_linux_spoked_network_io_bytes_recv', 'Network I/O (Bandwidth Outbound)', 'Bits / Second'),
+            ('en', 'pattoo_agent_linux_spoked_network_io_packets_sent', 'Network I/O (Packets Sent)', 'Packets / Second'),
+            ('en', 'pattoo_agent_linux_spoked_network_io_packets_recv', 'Network I/O (Packets Received)', 'Packets / Second'),
+            ('en', 'pattoo_agent_linux_spoked_network_io_errin', 'Network I/O (Errors Inbound)', 'Errors / Second'),
+            ('en', 'pattoo_agent_linux_spoked_network_io_errout', 'Network I/O (Errors Outbound)', 'Errors / Second'),
+            ('en', 'pattoo_agent_linux_spoked_network_io_dropin', 'Network I/O (Drops Inbound)', 'Drops / Second'),
+            ('en', 'pattoo_agent_linux_spoked_network_io_dropout', 'Network I/O (Drops Outbound)', 'Drops / Second'),
+            ('en', 'pattoo_agent_linux_spoked_cpu_frequency', 'CPU Frequency', '')
         ])
     ]
-
-    print('??: Attempting to insert default database table entries.')
-
-    # Insert into Language
-    if language.idx_exists(1) is False:
-        language.insert_row('en', 'English')
 
     # Insert into PairXlateGroup
     if pair_xlate_group.idx_exists(1) is False:
@@ -277,15 +308,92 @@ def insertions():
                 pair_xlate.insert_row(
                     _key, _value, _units, idx_language, idx_pair_xlate_group)
 
+
+def _insert_agent_xlate():
+    """Insert starting default entries into the AgentXlate table.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    agent_xlate_data = [
+        ('en', 'pattoo_agent_linux_autonomousd', 'Pattoo Standard OS Autonomous Agent'),
+        ('en', 'pattoo_agent_linux_spoked', 'Pattoo Standard OS Spoked Agent'),
+        ('en', 'pattoo_agent_snmpd', 'Pattoo Standard SNMP Agent'),
+        ('en', 'pattoo_agent_snmp_ifmibd', 'Pattoo Standard IfMIB SNMP Agent'),
+        ('en', 'pattoo_agent_modbustcpd', 'Pattoo Standard Modbus TCP Agent'),
+        ('en', 'pattoo_agent_opcuad', 'Pattoo Standard OPC UA Agent'),
+        ('en', 'pattoo_agent_bacnetipd', 'Pattoo Standard BACnet IP Agent')
+    ]
+
     # Insert into AgentXlate
     if agent_xlate.agent_xlate_exists(
-            1, 'pattoo_agent_os_autonomousd') is False:
+            1, 'pattoo_agent_linux_autonomousd') is False:
         for row in agent_xlate_data:
             _key = row[1]
             _value = row[2]
             agent_xlate.insert_row(_key, _value, 1)
 
-    print('OK: Database table entries inserted.')
+
+def _insert_user():
+    """Insert starting default entries into the User table.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Insert into User
+    if user.idx_exists(1) is False:
+        password = ''.join(random.SystemRandom().choice(
+            string.ascii_uppercase + string.digits) for _ in range(50))
+        user.insert_row(
+            DbRowUser(
+                username='pattoo',
+                password=data.hashstring(password),
+                first_name='pattoo',
+                last_name='pattoo',
+                enabled=0)
+            )
+
+
+def _insert_chart():
+    """Insert starting default entries into the Chart table.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Insert into Chart
+    if chart.idx_exists(1) is False:
+        chart.insert_row(
+            DbRowChart(name='pattoo', checksum='pattoo', enabled=0))
+
+
+def _insert_favorite():
+    """Insert starting default entries into the Favorite table.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Insert into Favorite
+    if favorite.idx_exists(1) is False:
+        favorite.insert_row(
+            DbRowFavorite(idx_chart=1, idx_user=1, order=0, enabled=0))
+
 
 def _mysql():
     """Create database tables.
@@ -310,7 +418,7 @@ def _mysql():
         pool_size=pool_size, pool_recycle=3600)
 
     # Try to create the database
-    print('??: Attempting to Connect to configured database.')
+    print('Connecting to configured database. Altering character set.')
     try:
         sql_string = ('''\
 ALTER DATABASE {} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci\
@@ -325,23 +433,20 @@ authentication is correct.'''.format(config.db_name(), config.db_hostname()))
         log.log2die(20086, log_message)
 
     # Apply schemas
-    print('OK: Database connected.')
-    print('??: Attempting to create database tables.')
+    print('Creating database tables.')
     BASE.metadata.create_all(engine)
-    print('OK: Database tables created.')
 
 
-def create_pattoo_db_tables():
+def install():
     """
     Create pattoo database with the necessary insertions.
 
     Args:
         None
-    
+
     Returns:
         True for a successful creation
     """
-    print('??: Setting up database tables.')
     # Initialize key variables
     use_mysql = True
 
@@ -349,6 +454,8 @@ def create_pattoo_db_tables():
     if use_mysql is True:
         _mysql()
 
-    # Insert ForeignKey values
+    # Insert starting default entries in database tables
     insertions()
-    print('OK: Database setup complete.')
+
+    # Done
+    print('Database setup complete.')
