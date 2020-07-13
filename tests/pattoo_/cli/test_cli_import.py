@@ -9,10 +9,6 @@ import argparse
 import tempfile
 import csv
 
-# SQLALCHMEY Imports
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(
@@ -44,7 +40,7 @@ from tests.libraries.configuration import UnittestConfig
 
 
 class TestImport(unittest.TestCase):
-    """Defines basic database setup and teardown methods"""
+    """Tests importing new agent and key translation from csv files"""
 
     travis_ci = os.getenv('travis_ci')
 
