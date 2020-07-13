@@ -19,7 +19,7 @@ ROOT_DIR = os.path.abspath(os.path.join(
     os.path.abspath(os.path.join(
         os.path.abspath(os.path.join(
                 EXEC_DIR, os.pardir)), os.pardir)), os.pardir))
-_EXPECTED = '{0}pattoo{0}tests{0}test_pattoo{0}cli'.format(os.sep)
+_EXPECTED = '{0}pattoo{0}tests{0}pattoo_{0}cli'.format(os.sep)
 if EXEC_DIR.endswith(_EXPECTED) is True:
     # We need to prepend the path in case the repo has been installed
     # elsewhere on the system using PIP. This could corrupt expected results
@@ -34,10 +34,12 @@ from pattoo.cli.cli_import import (process, _process_key_translation,
                                    _process_agent_translation)
 from pattoo.db import db
 from pattoo.cli.cli import _Import
-from pattoo.db.models import BASE, PairXlate, AgentXlate, PairXlateGroup, Language
+from pattoo.db.models import (BASE, PairXlate, AgentXlate, PairXlateGroup,
+                              Language)
 
 # Pattoo unittest imports
-from tests.test_pattoo.cli.setup_db import (create_tables, teardown_tables, DB_URI)
+from tests.pattoo_.cli.setup_db import (create_tables, teardown_tables,
+                                            DB_URI)
 from tests.libraries.configuration import UnittestConfig
 
 
@@ -47,15 +49,17 @@ class TestImport(unittest.TestCase):
     travis_ci = os.getenv('travis_ci')
 
     def populate_fn(self, expected, cmd_args, target_table, parser, callback):
-        """Allows for creation of csv file to test importation of translations for
-        the process functions of cli_import
+        """Allows for creation of csv file to test importation of translations
+        for the process functions of cli_import
 
         Args:
             expected: key-value pairs to be stored in temporary csv file
-            cmd_args: command line arguments to be parsed to be passed to callback
+            cmd_args: command line arguments to be parsed to be passed to
+            callback
             target_table: database table to be queried
             parser: used to parse command line arguments
-            callback: specific translation process function from cli_import module
+            callback: specific translation process function from cli_import
+            module
 
         Return:
             queried_result: Result obtain from querying 'target_table'
@@ -84,15 +88,18 @@ class TestImport(unittest.TestCase):
         result = None
         # Retrives stored key translation made using '_process_key_translation'
         with db.db_query(30002) as session:
-            result = session.query(target_table).filter_by(translation = b'test_translation').first()
+            query = session.query(target_table)
+            result = query.filter_by(translation = b'test_translation').first()
 
-        # Asserting that each inserted element into PairXlate test tables matches
-        # arguments passed to '_process_key_translation', as well asserts that a
+        # Asserting that each inserted element into PairXlate test tables
+        # matches arguments passed to '_process_key_translation', as well
+        # asserts that a
         for key, value in expected.items():
             if key == 'idx_language':
                 self.assertEqual(result.__dict__[key], self.language_count)
             elif target_table == AgentXlate and key == 'key':
-                self.assertEqual(result.__dict__['agent_program'], value.encode())
+                self.assertEqual(result.__dict__['agent_program'],
+                                 value.encode())
             else:
                 self.assertEqual(result.__dict__[key], value.encode())
 
@@ -110,11 +117,14 @@ class TestImport(unittest.TestCase):
         # Skips class setup if using travis-ci
         if not self.travis_ci:
             # Create test tables for Import test
-            self.tables = [PairXlate.__table__, AgentXlate.__table__, PairXlateGroup.__table__, Language.__table__]
+            self.tables = [PairXlate.__table__, AgentXlate.__table__,
+                           PairXlateGroup.__table__, Language.__table__]
 
-            self.engine = create_tables(self.tables) # Returns engine object
+            # Returns engine object
+            self.engine = create_tables(self.tables)
 
-            # Creating session object to make updates to tables in test database
+            # Creating session object to make updates to tables in test
+            # database
             with db.db_modify(30001) as session:
                 # Instantiation of test data in each table
                 session.add(Language('en'.encode(), 'English'.encode(), 1))
@@ -149,9 +159,11 @@ class TestImport(unittest.TestCase):
         # Testing for proper key_translation execution
         #
         ####################################################################
-        expected = {'language': 'en', 'key': 'test_key', 'translation':'test_translation', 'units': 'test_units'}
+        expected = {'language': 'en', 'key': 'test_key',
+                    'translation':'test_translation', 'units': 'test_units'}
         cmd_args = ['import', 'key_translation', '--idx_pair_xlate_group', '1']
-        result = self.populate_fn(expected, cmd_args, PairXlate, parser, _process_key_translation)
+        result = self.populate_fn(expected, cmd_args, PairXlate, parser,
+                                  _process_key_translation)
 
         # Asserts that idx_pair_xlate_group group matches requested group value
         self.assertEqual(result.idx_pair_xlate_group, 1)
@@ -161,7 +173,8 @@ class TestImport(unittest.TestCase):
         # Testing for proper agent_translation execution
         #
         ####################################################################
-        expected = {'language': 'en', 'key': 'test_key', 'translation': 'test_translation'}
+        expected = {'language': 'en', 'key': 'test_key', 'translation':
+                    'test_translation'}
         cmd_args = ['import', 'agent_translation']
         self.populate_fn(expected, cmd_args, AgentXlate, parser,
                          _process_agent_translation)
