@@ -10,7 +10,7 @@ from sqlalchemy import UniqueConstraint, PrimaryKeyConstraint, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.mysql import BIGINT, DATETIME, INTEGER
 from sqlalchemy.dialects.mysql import NUMERIC, VARBINARY
-from sqlalchemy import Column, Index
+from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import backref, relationship
 
