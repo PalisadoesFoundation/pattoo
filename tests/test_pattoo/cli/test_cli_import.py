@@ -106,6 +106,7 @@ class TestImport(unittest.TestCase):
     def setUpClass(self):
         """Setup tables in pattoo_unittest database"""
 
+        self.language_count = 1
         # Skips class setup if using travis-ci
         if not self.travis_ci:
             # Create test tables for Import test
@@ -113,7 +114,6 @@ class TestImport(unittest.TestCase):
 
             self.engine = create_tables(self.tables) # Returns engine object
 
-            self.language_count = 1
             # Creating session object to make updates to tables in test database
             with db.db_modify(30001) as session:
                 # Instantiation of test data in each table
@@ -165,6 +165,7 @@ class TestImport(unittest.TestCase):
         cmd_args = ['import', 'agent_translation']
         self.populate_fn(expected, cmd_args, AgentXlate, parser,
                          _process_agent_translation)
+
 
 if __name__ == '__main__':
     # Make sure the environment is OK to run unittests
