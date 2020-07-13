@@ -55,7 +55,7 @@ class TestImport(unittest.TestCase):
             cmd_args: command line arguments to be parsed to be passed to callback
             target_table: database table to be queried
             parser: used to parse command line arguments
-            callback: specific translation process funciton from cli_import module
+            callback: specific translation process function from cli_import module
 
         Return:
             queried_result: Result obtain from querying 'target_table'
@@ -81,29 +81,26 @@ class TestImport(unittest.TestCase):
         expected['idx_language'] = expected['language']
         del expected['language']
 
-        queried_result = None
+        result = None
         # Retrives stored key translation made using '_process_key_translation'
         with db.db_query(30002) as session:
-            queried_result = session.query(target_table).filter_by(translation =
-                                                                     b'test_translation').first()
+            result = session.query(target_table).filter_by(translation = b'test_translation').first()
 
-        print(target_table)
-        print(queried_result)
-        print('')
-        # Asserting that each inserted elment into PairXlate test tables matches
+        # Asserting that each inserted element into PairXlate test tables matches
         # arguments passed to '_process_key_translation', as well asserts that a
         for key, value in expected.items():
             if key == 'idx_language':
-                self.assertEqual(queried_result.__dict__[key],
-                                 self.language_count)
+                self.assertEqual(result.__dict__[key], self.language_count)
+            elif target_table == AgentXlate and key == 'key':
+                self.assertEqual(result.__dict__['agent_program'], value.encode())
             else:
-                self.assertEqual(queried_result.__dict__[key], value.encode())
+                self.assertEqual(result.__dict__[key], value.encode())
 
         # Asserts created and modified columns were created.
-        self.assertIsNotNone(queried_result.ts_modified)
-        self.assertIsNotNone(queried_result.ts_created)
+        self.assertIsNotNone(result.ts_modified)
+        self.assertIsNotNone(result.ts_created)
 
-        return queried_result
+        return result
 
     @classmethod
     def setUpClass(self):
@@ -116,8 +113,9 @@ class TestImport(unittest.TestCase):
 
             self.engine = create_tables(self.tables) # Returns engine object
 
+            self.language_count = 1
             # Creating session object to make updates to tables in test database
-            with db.db_query(30001) as session:
+            with db.db_modify(30001) as session:
                 # Instantiation of test data in each table
                 session.add(Language('en'.encode(), 'English'.encode(), 1))
                 session.add(PairXlateGroup('pair_1'.encode(), 1))
