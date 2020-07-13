@@ -321,8 +321,8 @@ def _insert_agent_xlate():
     """
     # Initialize key variables
     agent_xlate_data = [
-        ('en', 'pattoo_agent_linux_autonomousd', 'Pattoo Standard OS Autonomous Agent'),
-        ('en', 'pattoo_agent_linux_spoked', 'Pattoo Standard OS Spoked Agent'),
+        ('en', 'pattoo_agent_linux_autonomousd', 'Pattoo Standard Linux Autonomous Agent'),
+        ('en', 'pattoo_agent_linux_spoked', 'Pattoo Standard Linux Spoked Agent'),
         ('en', 'pattoo_agent_snmpd', 'Pattoo Standard SNMP Agent'),
         ('en', 'pattoo_agent_snmp_ifmibd', 'Pattoo Standard IfMIB SNMP Agent'),
         ('en', 'pattoo_agent_modbustcpd', 'Pattoo Standard Modbus TCP Agent'),
