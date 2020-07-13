@@ -10,7 +10,7 @@ from sqlalchemy import UniqueConstraint, PrimaryKeyConstraint, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.mysql import BIGINT, DATETIME, INTEGER
 from sqlalchemy.dialects.mysql import NUMERIC, VARBINARY
-from sqlalchemy import Column
+from sqlalchemy import Column, Index
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import backref, relationship
 
@@ -76,7 +76,6 @@ class Chart(BASE):
 
     __tablename__ = 'pt_chart'
     __table_args__ = (
-        UniqueConstraint('checksum'),
         {'mysql_engine': 'InnoDB'}
     )
 
@@ -88,7 +87,7 @@ class Chart(BASE):
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
     checksum = Column(
-        VARBINARY(512), index=True, unique=True, nullable=True, default=None)
+        VARBINARY(512), unique=True, nullable=True, default=None)
 
     enabled = Column(
         BIGINT(unsigned=True), nullable=False, server_default='1')
@@ -351,7 +350,6 @@ class DataPoint(BASE):
 
     __tablename__ = 'pt_datapoint'
     __table_args__ = (
-        UniqueConstraint('checksum'),
         {'mysql_engine': 'InnoDB'}
     )
 
@@ -365,7 +363,7 @@ class DataPoint(BASE):
         index=True, nullable=False, server_default='1')
 
     checksum = Column(
-        VARBINARY(512), index=True, unique=True, nullable=True, default=None)
+        VARBINARY(512), unique=True, nullable=True, default=None)
 
     data_type = Column(INTEGER(unsigned=True), nullable=False)
 
