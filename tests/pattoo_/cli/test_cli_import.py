@@ -160,7 +160,7 @@ class TestImport(unittest.TestCase):
 
             # Creating session object to make updates to tables in test
             # database
-            with db.db_modify(30001) as session:
+            with db.db_modify(30000) as session:
                 # Instantiation of test data in each table
                 session.add(Language('en'.encode(), 'English'.encode(), 1))
                 session.add(PairXlateGroup('pair_1'.encode(), 1))
