@@ -62,7 +62,7 @@ class TestImport(unittest.TestCase):
             callback: specific translation process function from cli_import
             module
             process: Boolean to indicate whether process is used to run either
-            _p_process_key_translation or _process_agent_translation
+            _process_key_translation or _process_agent_translation
 
         Return:
             queried_result: Result obtain from querying 'target_table'
@@ -83,6 +83,7 @@ class TestImport(unittest.TestCase):
             args = self.parser.parse_args(cmd_args + ['--filename',
                                                  '{}'.format(fptr.name)])
 
+            # Determine how to run callback based on value of process
             if process == True:
                 with self.assertRaises(SystemExit):
                     callback(args)
@@ -94,15 +95,14 @@ class TestImport(unittest.TestCase):
         del expected['language']
 
         result = None
-        # Retrives stored key translation made using '_process_key_translation'
+        # Retrives result using stored key translation
         with db.db_query(30002) as session:
             query = session.query(target_table)
             result = query.filter_by(translation =
                                      expected['translation'].encode()).first()
 
-        # Asserting that each inserted element into PairXlate test tables
-        # matches arguments passed to '_process_key_translation', as well
-        # asserts that a
+        # Asserting that each inserted element into target_table test tables
+        # matches arguments passed to 'callback' function
         for key, value in expected.items():
             if key == 'idx_language':
                 self.assertEqual(result.__dict__[key], self.language_count)
@@ -211,7 +211,7 @@ class TestImport(unittest.TestCase):
         cmd_args = ['import', 'agent_translation']
         self.populate_fn(expected, cmd_args, AgentXlate,  process, True)
 
-    def test_process_key_translation(self):
+    def test__process_key_translation(self):
         """Tests process_key_translation"""
 
         # Valid Input Testing
@@ -228,7 +228,7 @@ class TestImport(unittest.TestCase):
         # Testing for log message invalid filename is passed
         self._process_log_test(_process_key_translation)
 
-    def test_process_agent_translation(self):
+    def test__process_agent_translation(self):
         """Tests process_key_translation"""
 
         expected = {'language': 'en', 'key': 'test_key', 'translation':
