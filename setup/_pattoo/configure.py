@@ -194,7 +194,8 @@ def pattoo_server_config(config_directory, prompt_value):
         },
         'pattoo_ingesterd': {
             'ingester_interval': 3600,
-            'batch_size': 500
+            'batch_size': 500,
+            'graceful_timeout': 10
         }
     }
 
