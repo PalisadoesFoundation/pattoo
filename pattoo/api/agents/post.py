@@ -389,10 +389,22 @@ def crypt_receive():
         # Initialize key variables
         prefix = 'Invalid posted data.'
 
+        posted_data = None
+        source = None
+
         # Extract posted data and source
-        data_extract = json.loads(data)
-        posted_data = data_extract['data']
-        source = data_extract['source']
+        try:
+            data_extract = json.loads(data)
+            posted_data = data_extract['data']
+            source = data_extract['source']
+
+        except Exception as e:
+            log_message = 'Decrypted data extraction failed: {}'\
+                          .format(e)
+            log.log2warning(88001, log_message)
+
+        log_message = 'Decrypted data extraction successful'
+        log.log2info(77078, log_message)
 
         # Abort if posted_data isn't a list
         if isinstance(posted_data, dict) is False:
