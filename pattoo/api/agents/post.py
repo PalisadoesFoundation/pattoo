@@ -230,6 +230,13 @@ def valid_key():
     to the cached data for future decryption
 
     The agent public key is then deleted
+
+    Args:
+        None
+
+    Returns:
+        message (str): Validation response message
+        response (int): HTTP response code
     """
 
     # If a symmetric key has already been established, skip
@@ -319,4 +326,31 @@ def valid_key():
             message = 'Message not received'
             response = 400
 
+    return message, response
+
+@POST.route('/receive/encrypted', methods=['POST'])
+def crypt_receive():
+    """Receive encrypted data from agent
+
+    Args:
+        None
+
+    Returns:
+        message (str): Reception result
+        response (int): HTTP response code
+    """
+    
+    # Predefined error message and response
+    response = 400
+    message = 'Proceed to key exchange first'
+
+    # Block connection if a symmetric key was not stored
+    if 'symm_key' not in session:
+        message = 'No symmetric key'
+        response = 403
+        return message, response
+    
+    if request.method == 'POST':
+        pass
+    
     return message, response
