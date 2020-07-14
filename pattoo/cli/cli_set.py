@@ -37,6 +37,7 @@ def _process_language(args):
         None
 
     """
+    print('here')
     # Initialize key variables
     if bool(language.exists(args.code)) is True:
         language.update_name(args.code, args.name)
