@@ -155,6 +155,7 @@ def xch_key():
 
     response = 400
     message = 'Error'
+    log_mem = None
 
     if request.method == 'POST':
 
@@ -163,6 +164,7 @@ def xch_key():
             # Get data from agent
             data_json = request.get_json(silent=False)
             data_dict = json.loads(data_json)
+            log_mem = data_dict
 
             # Save email in session
             session['email'] = data_dict['pattoo_agent_email']
@@ -179,7 +181,7 @@ def xch_key():
 
         except Exception as e:
             log_msg = 'Invalid email and key entry: >>>{}<<<'.format(e)
-            log_msg+= '--->' + data_dict + '<---'
+            log_msg+= '--->{}<---'.format(log_mem)
             log.log2warning(20501, log_msg)
             message = 'Key not received'
 
@@ -328,7 +330,7 @@ def valid_key():
 
     return message, response
 
-@POST.route('/receive/encrypted', methods=['POST'])
+@POST.route('/encrypted', methods=['POST'])
 def crypt_receive():
     """Receive encrypted data from agent
 
@@ -339,6 +341,29 @@ def crypt_receive():
         message (str): Reception result
         response (int): HTTP response code
     """
+
+    # Read configuration
+    config = Config()
+    cache_dir = config.agent_cache_directory(PATTOO_API_AGENT_NAME)
+
+    try:
+        # Retrieves Pgpier class
+        gpg = get_gnupg(PATTOO_API_AGENT_NAME, config)
+
+        #Sets key ID
+        gpg.set_keyid()
+
+        # Checks if a Pgpier object exists
+        if gpg is None:
+            raise Exception('Could not retrieve Pgpier for {}'
+                            .format(PATTOO_API_AGENT_NAME))
+    except Exception as e:
+        response = 500
+        message = 'Server error'
+        
+        log_msg = 'Could not retrieve Pgpier: >>>{}<<<'.format(e)
+        log.log2warning(20500, log_msg)
+        return message, response
     
     # Predefined error message and response
     response = 400
@@ -351,6 +376,77 @@ def crypt_receive():
         return message, response
     
     if request.method == 'POST':
-        pass
-    
+        # Get data from agent
+        data_json = request.get_json(silent=False)
+        data_dict = json.loads(data_json)
+
+        # Retrieved symmetrically encrypted data
+        encrypted_data = data_dict['encrypted_data']
+
+        # Symmetrically decrypt data
+        data = gpg.symmetric_decrypt(encrypted_data, session['symm_key'])
+
+        # Initialize key variables
+        prefix = 'Invalid posted data.'
+
+        # Extract posted data and source
+        data_extract = json.loads(data)
+        posted_data = data_extract['data']
+        source = data_extract['source']
+
+        # Abort if posted_data isn't a list
+        if isinstance(posted_data, dict) is False:
+            log_message = '{} Not a dictionary'.format(prefix)
+            log.log2warning(20024, log_message)
+            abort(404)
+        if len(posted_data) != len(CACHE_KEYS):
+            log_message = ('''{} Incorrect length. Expected length of {}
+                           '''.format(prefix, len(CACHE_KEYS)))
+            log.log2warning(20019, log_message)
+            abort(404)
+
+        for key in posted_data.keys():
+            if key not in CACHE_KEYS:
+                log_message = '{} Invalid key'.format(prefix)
+                log.log2warning(20018, log_message)
+                abort(404)
+        
+        # Extract key values from posting
+        try:
+            timestamp = posted_data['pattoo_agent_timestamp']
+        except:
+            _exception = sys.exc_info()
+            log_message = ('API Failure')
+            log.log2exception(20025, _exception, message=log_message)
+            abort(404)
+
+        # Create filename. Add a suffix in the event the source is posting
+        # frequently.
+        suffix = str(randrange(100000)).zfill(6)
+        json_path = (
+                     '{}{}{}_{}_{}.json'
+                     .format(
+                             cache_dir, os.sep, timestamp, source, suffix
+                             )
+                     )
+        
+        # Create cache file
+        try:
+            with open(json_path, 'w+') as temp_file:
+                json.dump(posted_data, temp_file)
+        except Exception as err:
+            log_message = '{}'.format(err)
+            log.log2warning(20016, log_message)
+            abort(404)
+        except:
+            _exception = sys.exc_info()
+            log_message = ('API Failure')
+            log.log2exception(20017, _exception, message=log_message)
+            abort(404)
+
+        # Return
+        message = 'Decrypted and received'
+        response = 202
+        log.log2info(77077, message)
+        
     return message, response
