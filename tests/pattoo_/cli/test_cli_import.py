@@ -8,6 +8,8 @@ import sys
 import argparse
 import tempfile
 import csv
+from unittest.mock import patch
+from io import StringIO
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -28,6 +30,7 @@ else:
 # Pattoo imports
 from pattoo.cli.cli_import import (process, _process_key_translation,
                                    _process_agent_translation)
+from pattoo_shared import log
 from pattoo.db import db
 from pattoo.cli.cli import _Import
 from pattoo.db.models import (BASE, PairXlate, AgentXlate, PairXlateGroup,
@@ -41,10 +44,13 @@ from tests.libraries.configuration import UnittestConfig
 class TestImport(unittest.TestCase):
     """Tests importing new agent and key translation from csv files"""
 
+    # Parser Instantiation
+    parser = argparse.ArgumentParser()
+
+    # Determine whether should setup up test for travis-ci tool
     travis_ci = os.getenv('travis_ci')
 
-    def populate_fn(self, expected, cmd_args, target_table, parser, callback,
-                    process):
+    def populate_fn(self, expected, cmd_args, target_table, callback, process):
         """Allows for creation of csv file to test importation of translations
         for the process functions of cli_import
 
@@ -53,7 +59,6 @@ class TestImport(unittest.TestCase):
             cmd_args: command line arguments to be parsed to be passed to
             callback
             target_table: database table to be queried
-            parser: used to parse command line arguments
             callback: specific translation process function from cli_import
             module
             process: Boolean to indicate whether process is used to run either
@@ -75,7 +80,7 @@ class TestImport(unittest.TestCase):
             fptr.seek(0)
 
             # Importing key_translation from temporary csv file
-            args = parser.parse_args(cmd_args + ['--filename',
+            args = self.parser.parse_args(cmd_args + ['--filename',
                                                  '{}'.format(fptr.name)])
 
             if process == True:
@@ -113,12 +118,35 @@ class TestImport(unittest.TestCase):
 
         return result
 
+    def _process_log_test(self, callback):
+        """Testing proper log message in _process_key_translation and
+        _process_agent_translation
+
+        Args:
+            callback: Function to be tested for correct log outputs
+
+        Return:
+            None
+
+        """
+        # Testing for log message invalid filename is passed
+        args = self.parser.parse_args([])
+        args.filename = 'test_pattoo'
+        expected_included_str = 'File {} does not exist'.format(args.filename)
+
+        log_obj = log._GetLog()
+        with self.assertLogs(log_obj.stdout(), level='CRITICAL') as cm:
+            print('''Excepton thrown testing for {}:
+                  '''.format(callback.__name__))
+            with self.assertRaises(SystemExit):
+                callback(args)
+        print(cm.output[0])
+        self.assertIn(expected_included_str, cm.output[0])
+
     @classmethod
     def setUpClass(self):
         """Setup tables in pattoo_unittest database"""
 
-        # Parser Instantiation
-        self.parser = argparse.ArgumentParser()
 
         self.language_count = 1
         # Skips class setup if using travis-ci
@@ -168,8 +196,7 @@ class TestImport(unittest.TestCase):
         expected = {'language': 'en', 'key': 'test_key',
                     'translation':'test_translation', 'units': 'test_units'}
         cmd_args = ['import', 'key_translation', '--idx_pair_xlate_group', '1']
-        result = self.populate_fn(expected, cmd_args, PairXlate, self.parser,
-                                  process, True)
+        result = self.populate_fn(expected, cmd_args, PairXlate, process, True)
 
         # Asserts that idx_pair_xlate_group group matches requested group value
         self.assertEqual(result.idx_pair_xlate_group, 1)
@@ -182,8 +209,7 @@ class TestImport(unittest.TestCase):
         expected = {'language': 'en', 'key': 'test_key', 'translation':
                     'test_translation'}
         cmd_args = ['import', 'agent_translation']
-        self.populate_fn(expected, cmd_args, AgentXlate, self.parser, process,
-                         True)
+        self.populate_fn(expected, cmd_args, AgentXlate,  process, True)
 
     def test_process_key_translation(self):
         """Tests process_key_translation"""
@@ -193,13 +219,14 @@ class TestImport(unittest.TestCase):
                     'translation':'test_key_translation', 'units':
                     'test_key_units'}
         cmd_args = ['import', 'key_translation', '--idx_pair_xlate_group', '1']
-        result = self.populate_fn(expected, cmd_args, PairXlate, self.parser,
+        result = self.populate_fn(expected, cmd_args, PairXlate,
                                   _process_key_translation, False)
 
         # Asserts that idx_pair_xlate_group group matches requested group value
         self.assertEqual(result.idx_pair_xlate_group, 1)
 
         # Testing for log message invalid filename is passed
+        self._process_log_test(_process_key_translation)
 
     def test_process_agent_translation(self):
         """Tests process_key_translation"""
@@ -207,11 +234,11 @@ class TestImport(unittest.TestCase):
         expected = {'language': 'en', 'key': 'test_key', 'translation':
                     'test_translation'}
         cmd_args = ['import', 'agent_translation']
-        self.populate_fn(expected, cmd_args, PairXlate, self.parser,
+        self.populate_fn(expected, cmd_args, PairXlate,
                                   _process_agent_translation, False)
 
         # Testing for log message invalid filename is passed
-
+        self._process_log_test(_process_agent_translation)
 
 
 if __name__ == '__main__':
