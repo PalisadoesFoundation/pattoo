@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """Inserts various database values required during ingest."""
 
+import random
+
 # PIP3 imports
 import numpy as np
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from sqlalchemy import and_
 
 from pattoo_shared import times
+from pattoo_shared import data as data_
 from pattoo_shared.constants import (
     DATA_INT, DATA_FLOAT, DATA_COUNT64, DATA_COUNT)
 
@@ -15,7 +18,8 @@ from pattoo_shared.constants import (
 from pattoo.db import db
 from pattoo.db.models import DataPoint as _DataPoint
 from pattoo.db.models import Data
-from pattoo.db.table import agent
+from pattoo.db.table import agent, chart, chart_datapoint
+from pattoo.constants import DbRowChart, DbRowChartDataPoint
 
 
 class DataPoint():
@@ -321,6 +325,18 @@ def idx_datapoint(pattoo_db_record):
         # Create a record in the DataPoint table
         insert_row(checksum, data_type, polling_interval, idx_agent)
         _idx_datapoint = checksum_exists(checksum)
+
+        # Create a record in the Chart table
+        chart_checksum = data_.hashstring(
+            '{}{}'.format(random.random(), checksum))
+        chart.insert_row(
+            DbRowChart(name='', checksum=chart_checksum, enabled=1))
+        idx_chart = chart.exists(chart_checksum)
+
+        # Create a record in the ChartDataPoint table
+        chart_datapoint.insert_row(
+            DbRowChartDataPoint(
+                idx_chart=idx_chart, idx_datapoint=_idx_datapoint, enabled=1))
 
     # Return
     return _idx_datapoint

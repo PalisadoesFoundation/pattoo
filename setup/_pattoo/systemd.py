@@ -17,7 +17,6 @@ import sys
 import os
 import shutil
 import re
-import argparse
 from subprocess import check_output, call
 from pathlib import Path
 import yaml
@@ -280,31 +279,27 @@ def run_systemd():
 
     """
     if getpass.getuser() != 'travis':
-        # Say what we are doing
-        print('??: Enabling system daemons')
-        # Reloading daemons
-        shared._run_script('sudo systemctl daemon-reload')
-        # Enabling daemons
-        shared._run_script('sudo systemctl enable pattoo_apid')
-        shared._run_script('sudo systemctl enable pattoo_api_agentd')
-        shared._run_script('sudo systemctl enable pattoo_ingesterd')
-        print('OK: System daemons enabled')
-        print('??: Starting system daemons')
-        shared._run_script('sudo systemctl start pattoo_apid')
-        shared._run_script('sudo systemctl start pattoo_api_agentd')
-        shared._run_script('sudo systemctl start pattoo_ingesterd')
-        print('OK: System daemons successfully started')
+        print('Loading system daemon configurations')
+        shared.run_script('sudo systemctl daemon-reload')
+        print('Enabling system daemons')
+        shared.run_script('sudo systemctl enable pattoo_apid')
+        shared.run_script('sudo systemctl enable pattoo_api_agentd')
+        shared.run_script('sudo systemctl enable pattoo_ingesterd')
+        print('Starting system daemons')
+        shared.run_script('sudo systemctl start pattoo_apid')
+        shared.run_script('sudo systemctl start pattoo_api_agentd')
+        shared.run_script('sudo systemctl start pattoo_ingesterd')
     else:
-        shared._run_script('systemctl daemon-reload')
-        shared._run_script('systemctl enable pattoo_apid')
-        shared._run_script('systemctl enable pattoo_api_agentd')
-        shared._run_script('systemctl enable pattoo_ingesterd')
-        shared._run_script('systemctl start pattoo_apid')
-        shared._run_script('systemctl start pattoo_api_agentd')
-        shared._run_script('systemctl start pattoo_ingesterd')
+        shared.run_script('systemctl daemon-reload')
+        shared.run_script('systemctl enable pattoo_apid')
+        shared.run_script('systemctl enable pattoo_api_agentd')
+        shared.run_script('systemctl enable pattoo_ingesterd')
+        shared.run_script('systemctl start pattoo_apid')
+        shared.run_script('systemctl start pattoo_api_agentd')
+        shared.run_script('systemctl start pattoo_ingesterd')
 
 
-def install_systemd():
+def install():
     """Run the functions for installation.
 
     Args:

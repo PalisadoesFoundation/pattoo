@@ -36,6 +36,10 @@ class User(BASE):
 
     __tablename__ = 'pt_user'
     __table_args__ = (
+<<<<<<< HEAD
+=======
+        UniqueConstraint('username'),
+>>>>>>> 923ddfdbc8b5092e9017f41cea7a51c3ebf84a99
         {'mysql_engine': 'InnoDB'}
     )
 
@@ -57,7 +61,11 @@ class User(BASE):
 
     password = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH),
+<<<<<<< HEAD
         index=True, nullable=False, default=None)
+=======
+        nullable=False, default=None)
+>>>>>>> 923ddfdbc8b5092e9017f41cea7a51c3ebf84a99
 
     enabled = Column(
         BIGINT(unsigned=True), nullable=False, server_default='1')
@@ -83,8 +91,15 @@ class Chart(BASE):
         autoincrement=True, nullable=False)
 
     name = Column(
+<<<<<<< HEAD
         VARBINARY(MAX_KEYPAIR_LENGTH),
         index=True, nullable=False, default=None)
+=======
+        VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
+
+    checksum = Column(
+        VARBINARY(512), unique=True, nullable=True, default=None)
+>>>>>>> 923ddfdbc8b5092e9017f41cea7a51c3ebf84a99
 
     enabled = Column(
         BIGINT(unsigned=True), nullable=False, server_default='1')
@@ -156,6 +171,21 @@ class Favorite(BASE):
     enabled = Column(
         BIGINT(unsigned=True), nullable=False, server_default='1')
 
+<<<<<<< HEAD
+=======
+    # Use cascade='delete,all' to propagate the deletion of a row
+    # to rows in the tables used by foreign keys
+    user = relationship(
+        User,
+        backref=backref(
+            'favorite_user', uselist=True, cascade='delete,all'))
+
+    chart = relationship(
+        Chart,
+        backref=backref(
+            'favorite_chart', uselist=True, cascade='delete,all'))
+
+>>>>>>> 923ddfdbc8b5092e9017f41cea7a51c3ebf84a99
 
 class AgentXlate(BASE):
     """Class defining the pt_agent_xlate table of the database."""
@@ -191,8 +221,8 @@ class AgentXlate(BASE):
     ts_created = Column(
         DATETIME, server_default=text('CURRENT_TIMESTAMP'))
 
-    # Use cascade='delete,all' to propagate the deletion of a
-    # Language onto its AgentXlate
+    # Use cascade='delete,all' to propagate the deletion of a row
+    # to rows in the tables used by foreign keys
     language = relationship(
         Language,
         backref=backref(
@@ -335,7 +365,6 @@ class DataPoint(BASE):
 
     __tablename__ = 'pt_datapoint'
     __table_args__ = (
-        UniqueConstraint('checksum'),
         {'mysql_engine': 'InnoDB'}
     )
 
@@ -349,7 +378,7 @@ class DataPoint(BASE):
         index=True, nullable=False, server_default='1')
 
     checksum = Column(
-        VARBINARY(512), index=True, unique=True, nullable=True, default=None)
+        VARBINARY(512), unique=True, nullable=True, default=None)
 
     data_type = Column(INTEGER(unsigned=True), nullable=False)
 
@@ -392,7 +421,11 @@ class ChartDataPoint(BASE):
     idx_datapoint = Column(
         BIGINT(unsigned=True),
         ForeignKey('pt_datapoint.idx_datapoint'),
+<<<<<<< HEAD
         index=True, nullable=False, server_default='1')
+=======
+        index=True, nullable=False)
+>>>>>>> 923ddfdbc8b5092e9017f41cea7a51c3ebf84a99
 
     idx_chart = Column(
         BIGINT(unsigned=True),

@@ -54,7 +54,7 @@ def exists(code):
     code = code.lower().strip()
 
     # Get code from database
-    with db.db_query(20031) as session:
+    with db.db_query(20038) as session:
         rows = session.query(Language.idx_language).filter(
             Language.code == code.encode())
 
@@ -81,7 +81,7 @@ def insert_row(code, name=''):
         name = 'Change me. Language name not provided.'
     if bool(code) is False or isinstance(code, str) is False:
         log_message = 'Language code "{}" is invalid'.format(code)
-        log.log2die(20033, log_message)
+        log.log2die(20069, log_message)
 
     # Lowercase the code
     code = code.strip().lower()[:MAX_KEYPAIR_LENGTH]
@@ -89,7 +89,7 @@ def insert_row(code, name=''):
 
     # Insert
     row = Language(code=code.encode(), name=name.encode())
-    with db.db_modify(20032, die=True) as session:
+    with db.db_modify(20055, die=True) as session:
         session.add(row)
 
 
