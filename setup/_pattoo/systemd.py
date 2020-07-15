@@ -139,12 +139,13 @@ def _symlink_dir(directory):
 
 
 def _update_environment_strings(
-        filepaths, config_dir, username, group):
+        filepaths, config_dir, pip_dir, username, group):
     """Update the environment variables in the filepaths files.
 
     Args:
         filepaths: List of filepaths
         config_dir: Directory where configurations will be stored
+        pip_dir: The directory where the pip packages will be installed
         username: Username to run daemon
         group: Group of user to run daemon
 
@@ -183,6 +184,10 @@ def _update_environment_strings(
                     _line = 'Environment="PATTOO_CONFIGDIR={}"'.format(
                         config_dir)
 
+                # Add Python path
+                if bool(re.search(env_pip_path)) is True:
+                    _line = 'Environment="PYTHONPATH={}"'.format(pip_dir)
+
                 # Add RuntimeDirectory and create
                 if bool(re.search(env_run, line)) is True:
                     (run_path,
@@ -199,8 +204,6 @@ def _update_environment_strings(
                 if bool(re.search(env_group, line)) is True:
                     _line = 'Group={}'.format(group)
 
-                # Add Python path
-                if bool(re.search())
                 lines.append(_line)
                 line = _fp.readline()
 
@@ -279,27 +282,31 @@ def run_systemd():
 
     """
     if getpass.getuser() != 'travis':
-        print('Loading system daemon configurations')
-        shared.run_script('sudo systemctl daemon-reload')
-        print('Enabling system daemons')
-        shared.run_script('sudo systemctl enable pattoo_apid')
-        shared.run_script('sudo systemctl enable pattoo_api_agentd')
-        shared.run_script('sudo systemctl enable pattoo_ingesterd')
-        print('Starting system daemons')
-        shared.run_script('sudo systemctl start pattoo_apid')
-        shared.run_script('sudo systemctl start pattoo_api_agentd')
-        shared.run_script('sudo systemctl start pattoo_ingesterd')
+        # Say what we are doing
+        print('??: Enabling system daemons')
+        # Reloading daemons
+        shared._run_script('sudo systemctl daemon-reload')
+        # Enabling daemons
+        shared._run_script('sudo systemctl enable pattoo_apid')
+        shared._run_script('sudo systemctl enable pattoo_api_agentd')
+        shared._run_script('sudo systemctl enable pattoo_ingesterd')
+        print('OK: System daemons enabled')
+        print('??: Starting system daemons')
+        shared._run_script('sudo systemctl start pattoo_apid')
+        shared._run_script('sudo systemctl start pattoo_api_agentd')
+        shared._run_script('sudo systemctl start pattoo_ingesterd')
+        print('OK: System daemons successfully started')
     else:
-        shared.run_script('systemctl daemon-reload')
-        shared.run_script('systemctl enable pattoo_apid')
-        shared.run_script('systemctl enable pattoo_api_agentd')
-        shared.run_script('systemctl enable pattoo_ingesterd')
-        shared.run_script('systemctl start pattoo_apid')
-        shared.run_script('systemctl start pattoo_api_agentd')
-        shared.run_script('systemctl start pattoo_ingesterd')
+        shared._run_script('systemctl daemon-reload')
+        shared._run_script('systemctl enable pattoo_apid')
+        shared._run_script('systemctl enable pattoo_api_agentd')
+        shared._run_script('systemctl enable pattoo_ingesterd')
+        shared._run_script('systemctl start pattoo_apid')
+        shared._run_script('systemctl start pattoo_api_agentd')
+        shared._run_script('systemctl start pattoo_ingesterd')
 
 
-def install():
+def install_systemd():
     """Run the functions for installation.
 
     Args:
@@ -312,6 +319,7 @@ def install():
     # Initialize key variables
     etc_dir = '/etc/systemd/system/multi-user.target.wants'
     config_dir = '/etc/pattoo'
+    pip_dir = '/opt/pattoo-daemon/.python'
 
     # Make sure this system supports systemd and that
     # the required directories exist
@@ -327,6 +335,7 @@ def install():
     _update_environment_strings(
         destination_filepaths,
         config_dir,
+        pip_dir,
         'pattoo',
         'pattoo')
 

@@ -36,10 +36,7 @@ class User(BASE):
 
     __tablename__ = 'pt_user'
     __table_args__ = (
-<<<<<<< HEAD
-=======
         UniqueConstraint('username'),
->>>>>>> 923ddfdbc8b5092e9017f41cea7a51c3ebf84a99
         {'mysql_engine': 'InnoDB'}
     )
 
@@ -61,11 +58,7 @@ class User(BASE):
 
     password = Column(
         VARBINARY(MAX_KEYPAIR_LENGTH),
-<<<<<<< HEAD
-        index=True, nullable=False, default=None)
-=======
         nullable=False, default=None)
->>>>>>> 923ddfdbc8b5092e9017f41cea7a51c3ebf84a99
 
     enabled = Column(
         BIGINT(unsigned=True), nullable=False, server_default='1')
@@ -91,15 +84,10 @@ class Chart(BASE):
         autoincrement=True, nullable=False)
 
     name = Column(
-<<<<<<< HEAD
-        VARBINARY(MAX_KEYPAIR_LENGTH),
-        index=True, nullable=False, default=None)
-=======
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
     checksum = Column(
         VARBINARY(512), unique=True, nullable=True, default=None)
->>>>>>> 923ddfdbc8b5092e9017f41cea7a51c3ebf84a99
 
     enabled = Column(
         BIGINT(unsigned=True), nullable=False, server_default='1')
@@ -171,8 +159,6 @@ class Favorite(BASE):
     enabled = Column(
         BIGINT(unsigned=True), nullable=False, server_default='1')
 
-<<<<<<< HEAD
-=======
     # Use cascade='delete,all' to propagate the deletion of a row
     # to rows in the tables used by foreign keys
     user = relationship(
@@ -185,7 +171,6 @@ class Favorite(BASE):
         backref=backref(
             'favorite_chart', uselist=True, cascade='delete,all'))
 
->>>>>>> 923ddfdbc8b5092e9017f41cea7a51c3ebf84a99
 
 class AgentXlate(BASE):
     """Class defining the pt_agent_xlate table of the database."""
@@ -421,11 +406,7 @@ class ChartDataPoint(BASE):
     idx_datapoint = Column(
         BIGINT(unsigned=True),
         ForeignKey('pt_datapoint.idx_datapoint'),
-<<<<<<< HEAD
-        index=True, nullable=False, server_default='1')
-=======
         index=True, nullable=False)
->>>>>>> 923ddfdbc8b5092e9017f41cea7a51c3ebf84a99
 
     idx_chart = Column(
         BIGINT(unsigned=True),

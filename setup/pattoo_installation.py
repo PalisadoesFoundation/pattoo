@@ -258,7 +258,7 @@ def main():
             print('Installing database tables')
 
             # Assumes defaults unless the all qualifier is used
-            configure.install(False)
+            #configure.install(False)
             packages.install(ROOT_DIR)
 
             # Import db after pip3 packages are installed
