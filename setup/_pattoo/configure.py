@@ -397,22 +397,13 @@ def configure_installation(prompt_value):
         os.environ['PATTOO_CONFIGDIR'] = '{0}etc{0}pattoo'.format(os.sep)
     config_directory = os.environ.get('PATTOO_CONFIGDIR')
 
-    # Make sure the PATTOO_CONFIGDIR environment variable is set
-    if bool(config_directory) is False:
-        log_message = ('''\
-Set your PATTOO_CONFIGDIR to point to your configuration directory like this:
-
-$ export PATTOO_CONFIGDIR=/path/to/configuration/directory
-
-Then run this command again.
-''')
-        shared._log(log_message)
-
     # Prompt for configuration directory
     print('\nPattoo configuration utility.')
+
     # Create the pattoo user and group
     if getpass.getuser() != 'travis':
         create_user()
+        
     # Attempt to create configuration directory
     _mkdir(config_directory)
 

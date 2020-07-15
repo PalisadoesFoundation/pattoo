@@ -37,8 +37,32 @@ from pattoo.db.models import (
         PairXlateGroup as PairXlateGroupModel,
         PairXlate as PairXlateModel,
         AgentXlate as AgentXlateModel,
-        Agent as AgentModel
+        Agent as AgentModel,
+        User as UserModel,
+        Favorite as FavoriteModel,
+        Chart as ChartModel,
+        ChartDataPoint as ChartDataPointModel
     )
+
+
+def resolve_first_name(obj, _):
+    """Convert 'first_name' from bytes to string."""
+    return obj.first_name.decode()
+
+
+def resolve_last_name(obj, _):
+    """Convert 'last_name' from bytes to string."""
+    return obj.last_name.decode()
+
+
+def resolve_username(obj, _):
+    """Convert 'username' from bytes to string."""
+    return obj.username.decode()
+
+
+def resolve_password(obj, _):
+    """Convert 'password' from bytes to string."""
+    return obj.password.decode()
 
 
 def resolve_checksum(obj, _):
@@ -295,6 +319,100 @@ class Glue(SQLAlchemyObjectType, GlueAttribute):
         interfaces = (graphene.relay.Node,)
 
 
+class ChartAttribute():
+    """Descriptive attributes of the Chart table.
+
+    A generic class to mutualize description of attributes for both queries
+    and mutations.
+
+    """
+
+    idx_chart = graphene.String(
+        description='Chart index.')
+
+    name = graphene.String(
+        resolver=resolve_name,
+        description='Chart name.')
+
+    enabled = graphene.String(
+        description='True if the DataPoint is enabled.')
+
+
+class Chart(SQLAlchemyObjectType, ChartAttribute):
+    """Chart node."""
+
+    class Meta:
+        """Define the metadata."""
+
+        model = ChartModel
+        interfaces = (graphene.relay.Node,)
+
+
+class ChartDataPointAttribute():
+    """Descriptive attributes of the ChartDataPoint table.
+
+    A generic class to mutualize description of attributes for both queries
+    and mutations.
+
+    """
+
+    idx_chart_datapoint = graphene.String(
+        description='ChartDataPoint index.')
+
+    idx_datapoint = graphene.String(
+        description='DataPoint table foreign key')
+
+    idx_chart = graphene.String(
+        description='Chart table foreign key.')
+
+    enabled = graphene.String(
+        description='True if the DataPoint is enabled.')
+
+
+class ChartDataPoint(SQLAlchemyObjectType, ChartDataPointAttribute):
+    """ChartDataPoint node."""
+
+    class Meta:
+        """Define the metadata."""
+
+        model = ChartDataPointModel
+        interfaces = (graphene.relay.Node,)
+
+
+class FavoriteAttribute():
+    """Descriptive attributes of the Favorite table.
+
+    A generic class to mutualize description of attributes for both queries
+    and mutations.
+
+    """
+
+    idx_favorite = graphene.String(
+        description='Favorite index.')
+
+    idx_user = graphene.String(
+        description='User table foreign key')
+
+    idx_chart = graphene.String(
+        description='Chart table foreign key.')
+
+    order = graphene.String(
+        description='Order of favorite in list.')
+
+    enabled = graphene.String(
+        description='True if the DataPoint is enabled.')
+
+
+class Favorite(SQLAlchemyObjectType, FavoriteAttribute):
+    """Favorite node."""
+
+    class Meta:
+        """Define the metadata."""
+
+        model = FavoriteModel
+        interfaces = (graphene.relay.Node,)
+
+
 class LanguageAttribute():
     """Descriptive attributes of the Language table.
 
@@ -322,6 +440,47 @@ class Language(SQLAlchemyObjectType, LanguageAttribute):
         """Define the metadata."""
 
         model = LanguageModel
+        interfaces = (graphene.relay.Node,)
+
+
+class UserAttribute():
+    """Descriptive attributes of the User table.
+
+    A generic class to mutualize description of attributes for both queries
+    and mutations.
+
+    """
+
+    idx_user = graphene.String(
+        description='User index.')
+
+    first_name = graphene.String(
+        resolver=resolve_first_name,
+        description='First name.')
+
+    last_name = graphene.String(
+        resolver=resolve_last_name,
+        description='Last name.')
+
+    username = graphene.String(
+        resolver=resolve_username,
+        description='Username.')
+
+    password = graphene.String(
+        resolver=resolve_password,
+        description='Password.')
+
+    enabled = graphene.String(
+        description='True if the DataPoint is enabled.')
+
+
+class User(SQLAlchemyObjectType, UserAttribute):
+    """User node."""
+
+    class Meta:
+        """Define the metadata."""
+
+        model = UserModel
         interfaces = (graphene.relay.Node,)
 
 
@@ -515,6 +674,22 @@ class Query(graphene.ObjectType):
     # Results as a single entry filtered by 'id' and as a list
     agent = graphene.relay.Node.Field(Agent)
     all_agent = InstrumentedQuery(Agent)
+
+    # Results as a single entry filtered by 'id' and as a list
+    chart = graphene.relay.Node.Field(Chart)
+    all_chart = InstrumentedQuery(Chart)
+
+    # Results as a single entry filtered by 'id' and as a list
+    user = graphene.relay.Node.Field(User)
+    all_user = InstrumentedQuery(User)
+
+    # Results as a single entry filtered by 'id' and as a list
+    favorite = graphene.relay.Node.Field(Favorite)
+    all_favorite = InstrumentedQuery(Favorite)
+
+    # Results as a single entry filtered by 'id' and as a list
+    chart_datapoint = graphene.relay.Node.Field(ChartDataPoint)
+    all_chart_datapoint = InstrumentedQuery(ChartDataPoint)
 
 
 # Make the schema global

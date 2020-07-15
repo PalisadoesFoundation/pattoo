@@ -1,4 +1,4 @@
-
+"""Functions utilized by the pattoo installation."""
 # Main python libraries
 import sys
 import subprocess

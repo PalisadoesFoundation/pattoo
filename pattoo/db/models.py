@@ -31,6 +31,72 @@ BASE.query = POOL.query_property()
 ###############################################################################
 
 
+class User(BASE):
+    """Class defining the pt_user table of the database."""
+
+    __tablename__ = 'pt_user'
+    __table_args__ = (
+        {'mysql_engine': 'InnoDB'}
+    )
+
+    idx_user = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    first_name = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH),
+        index=True, nullable=False, default=None)
+
+    last_name = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH),
+        index=True, nullable=False, default=None)
+
+    username = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH),
+        index=True, nullable=False, default=None)
+
+    password = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH),
+        index=True, nullable=False, default=None)
+
+    enabled = Column(
+        BIGINT(unsigned=True), nullable=False, server_default='1')
+
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+
+class Chart(BASE):
+    """Class defining the pt_chart table of the database."""
+
+    __tablename__ = 'pt_chart'
+    __table_args__ = (
+        {'mysql_engine': 'InnoDB'}
+    )
+
+    idx_chart = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    name = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH),
+        index=True, nullable=False, default=None)
+
+    enabled = Column(
+        BIGINT(unsigned=True), nullable=False, server_default='1')
+
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+
 class Language(BASE):
     """Class defining the pt_language table of the database."""
 
@@ -60,6 +126,35 @@ class Language(BASE):
 
     ts_created = Column(
         DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+
+class Favorite(BASE):
+    """Class defining the pt_favorite table of the database."""
+
+    __tablename__ = 'pt_favorite'
+    __table_args__ = (
+        {'mysql_engine': 'InnoDB'}
+    )
+
+    idx_favorite = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    idx_user = Column(
+        BIGINT(unsigned=True),
+        ForeignKey('pt_user.idx_user'),
+        index=True, nullable=False, server_default='1')
+
+    idx_chart = Column(
+        BIGINT(unsigned=True),
+        ForeignKey('pt_chart.idx_chart'),
+        index=True, nullable=False, server_default='1')
+
+    order = Column(
+        BIGINT(unsigned=True), nullable=False, default=None)
+
+    enabled = Column(
+        BIGINT(unsigned=True), nullable=False, server_default='1')
 
 
 class AgentXlate(BASE):
@@ -279,6 +374,52 @@ class DataPoint(BASE):
         Agent,
         backref=backref(
             'datapoint_agent', uselist=True, cascade='delete,all'))
+
+
+class ChartDataPoint(BASE):
+    """Class defining the pt_chart_datapoint table of the database."""
+
+    __tablename__ = 'pt_chart_datapoint'
+    __table_args__ = (
+        UniqueConstraint('idx_chart', 'idx_datapoint'),
+        {'mysql_engine': 'InnoDB'}
+    )
+
+    idx_chart_datapoint = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    idx_datapoint = Column(
+        BIGINT(unsigned=True),
+        ForeignKey('pt_datapoint.idx_datapoint'),
+        index=True, nullable=False, server_default='1')
+
+    idx_chart = Column(
+        BIGINT(unsigned=True),
+        ForeignKey('pt_chart.idx_chart'),
+        index=True, nullable=False, server_default='1')
+
+    enabled = Column(
+        BIGINT(unsigned=True), nullable=False, server_default='1')
+
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+    # Use cascade='delete,all' to propagate the deletion of a
+    # Language onto its AgentXlate
+    datapoint = relationship(
+        DataPoint,
+        backref=backref(
+            'chart_datapoint_datapoint', uselist=True, cascade='delete,all'))
+
+    chart = relationship(
+        Chart,
+        backref=backref(
+            'chart_datapoint_chart', uselist=True, cascade='delete,all'))
 
 
 class Pair(BASE):

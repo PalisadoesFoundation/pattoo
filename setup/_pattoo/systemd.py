@@ -154,7 +154,8 @@ def _update_environment_strings(
 
     """
     # Initialize key variables
-    env_path = '^Environment="PATTOO_CONFIGDIR=(.*?)"$'
+    env_config_path = '^Environment="PATTOO_CONFIGDIR=(.*?)"$'
+    env_pip_path = '^Environment="PYTHONPATH=(.?)"$'
     env_user = '^User=(.*?)$'
     env_group = '^Group=(.*?)$'
     env_run = '^RuntimeDirectory=(.*?)$'
@@ -179,7 +180,7 @@ def _update_environment_strings(
                 _line = _line.replace('INSTALLATION_DIRECTORY', install_dir)
 
                 # Test PATTOO_CONFIGDIR
-                if bool(re.search(env_path, line)) is True:
+                if bool(re.search(env_config_path, line)) is True:
                     _line = 'Environment="PATTOO_CONFIGDIR={}"'.format(
                         config_dir)
 
@@ -199,6 +200,8 @@ def _update_environment_strings(
                 if bool(re.search(env_group, line)) is True:
                     _line = 'Group={}'.format(group)
 
+                # Add Python path
+                if bool(re.search())
                 lines.append(_line)
                 line = _fp.readline()
 
