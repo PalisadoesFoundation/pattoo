@@ -39,7 +39,7 @@ from tests.bin.setup_db import (create_tables, teardown_tables, DB_URI)
 from tests.libraries.configuration import UnittestConfig
 
 
-class TestSet(unittest.TestCase):
+class TestCLISet(unittest.TestCase):
     """Tests CLI set module"""
 
     # Parser Instantiation
@@ -57,7 +57,6 @@ class TestSet(unittest.TestCase):
             name: current_name of a given element within target_table
             expected: testcase values
             cmd_args: command line arguments to be parsed to be passed to
-            callback
             target_table: database table to be queried
             callback: specific cli_set function to be ran
             process: Boolean to indicate whether process is used to run either

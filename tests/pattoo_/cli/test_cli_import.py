@@ -41,7 +41,7 @@ from tests.bin.setup_db import (create_tables, teardown_tables, DB_URI)
 from tests.libraries.configuration import UnittestConfig
 
 
-class TestImport(unittest.TestCase):
+class TestCLIImport(unittest.TestCase):
     """Tests importing new agent and key translation from csv files"""
 
     # Parser Instantiation
