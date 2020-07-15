@@ -71,7 +71,7 @@ class TestSet(unittest.TestCase):
 
         _ts_modified = None
         # Retrieves the current ts_modified before updates are made
-        with db.db_query(40000) as session:
+        with db.db_query(31000) as session:
             query = session.query(target_table)
             queried_result = query.filter_by(name = name.encode()).first()
             _ts_modified = queried_result.ts_modified
@@ -85,7 +85,7 @@ class TestSet(unittest.TestCase):
 
         result = None
         # Retrieves updated result
-        with db.db_query(40002) as session:
+        with db.db_query(31002) as session:
             query = session.query(target_table)
             result = query.filter_by(name = expected['name'].encode()).first()
 
@@ -112,7 +112,7 @@ class TestSet(unittest.TestCase):
             None
 
         """
-        with db.db_modify(40003) as session:
+        with db.db_modify(31003) as session:
             query = session.query(target_table)
             entry = query.filter_by(name = name.encode()).first()
             session.delete(entry)
@@ -129,8 +129,6 @@ class TestSet(unittest.TestCase):
         # Logger
         self.log_obj = log._GetLog()
 
-        self.language_count = 1
-        self.idx_pair_xlate_group_count = 2
         # Skips class setup if using travis-ci
         if not self.travis_ci:
             # Create test tables for Import test
@@ -141,13 +139,16 @@ class TestSet(unittest.TestCase):
 
             # Creating session object to make updates to tables in test
             # database
-            with db.db_modify(30001) as session:
+            with db.db_modify(30005) as session:
                 # Instantiation of test data in each table
                 session.add(Language('en'.encode(), 'English'.encode(), 1))
-                session.add(PairXlateGroup('pair_1'.encode(), 1))
+                session.add(PairXlateGroup('Pattoo Default'.encode(), 1))
 
-                self.language_count = session.query(Language).count()
-                session.commit()
+        self.idx_pair_xlate_group_count = 1
+        # Getting number of entries in PairXlateGroup table
+        with db.db_query(30004) as session:
+            result = session.query(PairXlateGroup)
+            self.idx_pair_xlate_group_count += result.count()
 
     @classmethod
     def tearDownClass(self):
@@ -271,12 +272,12 @@ class TestSet(unittest.TestCase):
 
         # Testing for log message when translation group is not found
         mock_idx = self.idx_pair_xlate_group_count + 1
-        expected = 'Translation group "{}" not found'
-        log_test(mock_idx, expected.format(mock_idx))
+        expected = 'Translation group "{}" not found'.format(mock_idx)
+        log_test(mock_idx, expected)
 
         # Testiing for log message when translation group already exists
         mock_idx = 1
-        mock_name = 'pair_1'
+        mock_name = 'Pattoo Default'
         expected= 'Translation group "{}" already exists'.format(mock_name)
         log_test(mock_idx, expected, mock_name)
 

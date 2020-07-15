@@ -147,6 +147,9 @@ class TestImport(unittest.TestCase):
     def setUpClass(self):
         """Setup tables in pattoo_unittest database"""
 
+        # Setting up arpser to be able to parse import cli commands
+        subparser = self.parser.add_subparsers(dest='action')
+        _Import(subparser)
 
         self.language_count = 1
         # Skips class setup if using travis-ci
@@ -179,12 +182,8 @@ class TestImport(unittest.TestCase):
     def test_process(self):
         """Test import argument process function"""
 
-        # Setting up args parser
-        subparser = self.parser.add_subparsers(dest='action')
-        _Import(subparser)
-        args = self.parser.parse_args([])
-
         # Testing for invalid args.qualifier
+        args = self.parser.parse_args([])
         args.qualifier = ''
         self.assertIsNone(process(args))
 
@@ -231,10 +230,10 @@ class TestImport(unittest.TestCase):
     def test__process_agent_translation(self):
         """Tests process_key_translation"""
 
-        expected = {'language': 'en', 'key': 'test_key', 'translation':
-                    'test_translation'}
+        expected = {'language': 'en', 'key': 'test_agent', 'translation':
+                    'test_agent_translation'}
         cmd_args = ['import', 'agent_translation']
-        self.populate_fn(expected, cmd_args, PairXlate,
+        self.populate_fn(expected, cmd_args, AgentXlate,
                                   _process_agent_translation, False)
 
         # Testing for log message invalid filename is passed
