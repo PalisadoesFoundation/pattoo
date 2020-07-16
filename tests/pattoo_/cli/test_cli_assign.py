@@ -170,7 +170,7 @@ class TestCLIAssign(unittest.TestCase):
         # Asserting that appropriate log message is ran if idx_pair_xlate_group
         # does not exist
         args = self.parser.parse_args([])
-        args.idx_pair_xlate_group = '2'
+        args.idx_pair_xlate_group = ''
         expected_included_str = ('''\
 idx_pair_xlate_group "{}" not found.'''.format(args.idx_pair_xlate_group))
 
