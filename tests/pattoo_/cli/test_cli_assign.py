@@ -6,8 +6,6 @@ import os
 import unittest
 import sys
 import argparse
-from unittest.mock import patch
-from io import StringIO
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -26,17 +24,15 @@ else:
     sys.exit(2)
 
 # Pattoo imports
-from pattoo.cli.cli_import import (process, _process_key_translation,
-                                   _process_agent_translation)
+from pattoo.cli.cli_assign import process, _process_agent
 from pattoo_shared import log
 from pattoo.db import db
-from patoo.db.table import agent, pair_xlate_group
+from pattoo.db.table import agent, pair_xlate_group, language
 from pattoo.cli.cli import _Assign
-from pattoo.db.models import (BASE, PairXlate, AgentXlate, PairXlateGroup,
-                              Language)
+from pattoo.db.models import Agent, PairXlateGroup, Language
 
 # Pattoo unittest imports
-from tests.bin.setup_db import (create_tables, teardown_tables, DB_URI)
+from tests.bin.setup_db import create_tables, teardown_tables, DB_URI
 from tests.libraries.configuration import UnittestConfig
 
 
@@ -45,6 +41,9 @@ class TestCLIAssign(unittest.TestCase):
 
     # Parser Instantiation
     parser = argparse.ArgumentParser()
+
+    # Logger
+    log_obj = log._GetLog()
 
     # Determine whether should setup up test for travis-ci tool
     travis_ci = os.getenv('travis_ci')
@@ -73,6 +72,21 @@ class TestCLIAssign(unittest.TestCase):
         else:
             callback(args)
 
+        result = None
+        # Retrieves updated result
+        with db.db_query(31002) as session:
+            query = session.query(target_table)
+            result = query.filter_by(idx_agent = expected['idx_agent']).first()
+
+        # Asserts that changes made using the 'callback' function was reflected
+        # in target_table
+        for key, value in expected.items():
+            result_value = result.__dict__[key]
+            if type(result_value) == int:
+                self.assertEqual(result_value, int(value))
+            else:
+                self.assertEqual(result_value, value.encode())
+
     @classmethod
     def setUpClass(self):
         """Setup tables in pattoo_unittest database"""
@@ -84,14 +98,14 @@ class TestCLIAssign(unittest.TestCase):
         # Skips class setup if using travis-ci
         if not self.travis_ci:
             # Create test tables for Import test
-            self.tables = [AgentXlate.__table__, PairXlateGroup.__table__]
+            self.tables = [Agent.__table__, PairXlateGroup.__table__,
+                           Language.__table__]
 
             # Returns engine object
             self.engine = create_tables(self.tables)
 
-            # Creating Agent and PairXlateGroup table entries
-            agent.insert_row('test_agent_id_one', 'test_agent_target_one',
-                             'test_agent_program_one')
+            # Creates test entries in Language and PairXlateGroup tables
+            language.insert_row('en', 'English')
             pair_xlate_group.insert_row('test_pair_xlate_group_one')
 
     @classmethod
@@ -115,15 +129,74 @@ class TestCLIAssign(unittest.TestCase):
         # Testing for proper _process_agent execution
         #
         ####################################################################
-        expected = {'language': 'en', 'key': 'test_key',
-                    'translation':'test_translation', 'units': 'test_units'}
-        cmd_args = ['assign', 'agent', '--idx_agent', idx_agent,
-                    '--idx_pair_xlate_group', '1']
-        result = self.populate_fn(expected, cmd_args, PairXlate, process, True)
+
+        # Agent information
+        agent_id = 'test_agent_id_one'
+        agent_target = 'test_agent_target_one'
+        agent_program = 'test_agent_program_one'
+
+        # Inserting agent data and getting agent idx_agent value
+        agent.insert_row(agent_id, agent_target, agent_program)
+        idx_agent = agent.idx_agent(agent_id, agent_target, agent_program)
+
+        # Derfining expected data and command line entries to be passed to
+        # process function
+        expected = {'idx_agent': idx_agent, 'idx_pair_xlate_group': '1'}
+        cmd_args = ['assign', 'agent', '--idx_agent', str(idx_agent),
+                    '--idx_pair_xlate_group', expected['idx_pair_xlate_group']]
+
+        self.assign_fn(expected, cmd_args, Agent, process, True)
 
     def test__process_agent(self):
         """Tests _process_agent"""
-        pass
+
+        # Agent information
+        agent_id = 'test_process_agent_one'
+        agent_target = 'test_process_agent_one'
+        agent_program = 'test_process_agent_progam_one'
+
+        # Inserting agent data and getting agent idx_agent value
+        agent.insert_row(agent_id, agent_target, agent_program)
+        idx_agent = agent.idx_agent(agent_id, agent_target, agent_program)
+
+        # Derfining expected data and command line entries to be passed to
+        # process function
+        expected = {'idx_agent': idx_agent, 'idx_pair_xlate_group': '1'}
+        cmd_args = ['assign', 'agent', '--idx_agent', str(idx_agent),
+                    '--idx_pair_xlate_group', expected['idx_pair_xlate_group']]
+
+        self.assign_fn(expected, cmd_args, Agent, _process_agent, False)
+
+        # Asserting that appropriate log message is ran if idx_pair_xlate_group
+        # does not exist
+        args = self.parser.parse_args([])
+        args.idx_pair_xlate_group = '2'
+        expected_included_str = ('''\
+idx_pair_xlate_group "{}" not found.'''.format(args.idx_pair_xlate_group))
+
+        with self.assertLogs(self.log_obj.stdout(), level='INFO') as cm:
+            print('Exception thrown testing test__process_agent: ')
+            with self.assertRaises(SystemExit):
+                _process_agent(args)
+        print(cm.output[0])
+        print('')
+        self.assertIn(expected_included_str, cm.output[0])
+
+        # Asserting that appropriate log message is ran if idx_agent does not
+        # exist
+        args = self.parser.parse_args([])
+        args.idx_pair_xlate_group = '1'
+        args.idx_agent = ''
+        expected_included_str = ('''\
+idx_agent "{}" not found.'''.format(args.idx_agent))
+
+        with self.assertLogs(self.log_obj.stdout(), level='INFO') as cm:
+            print('Exception thrown testing test__process_agent: ')
+            with self.assertRaises(SystemExit):
+                _process_agent(args)
+        print(cm.output[0])
+        print('')
+        self.assertIn(expected_included_str, cm.output[0])
 
 
 if __name__ == "__main__":

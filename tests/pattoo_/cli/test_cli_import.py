@@ -8,8 +8,6 @@ import sys
 import argparse
 import tempfile
 import csv
-from unittest.mock import patch
-from io import StringIO
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -33,8 +31,7 @@ from pattoo.cli.cli_import import (process, _process_key_translation,
 from pattoo_shared import log
 from pattoo.db import db
 from pattoo.cli.cli import _Import
-from pattoo.db.models import (BASE, PairXlate, AgentXlate, PairXlateGroup,
-                              Language)
+from pattoo.db.models import PairXlate, AgentXlate, PairXlateGroup, Language
 
 # Pattoo unittest imports
 from tests.bin.setup_db import (create_tables, teardown_tables, DB_URI)

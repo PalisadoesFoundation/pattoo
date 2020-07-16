@@ -49,8 +49,9 @@ def create_tables(tables):
 
     try:
         BASE.metadata.create_all(engine, tables=tables)
-    except OperationalError:
+    except OperationalError as e:
         print(DB_NAME_ERROR)
+        print('Error Message: {}'.format(e))
         sys.exit(0)
     return engine
 
