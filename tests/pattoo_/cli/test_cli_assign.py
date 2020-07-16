@@ -74,7 +74,7 @@ class TestCLIAssign(unittest.TestCase):
 
         result = None
         # Retrieves updated result
-        with db.db_query(31002) as session:
+        with db.db_query(32000) as session:
             query = session.query(target_table)
             result = query.filter_by(idx_agent = expected['idx_agent']).first()
 
