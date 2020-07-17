@@ -76,7 +76,6 @@ class Chart(BASE):
 
     __tablename__ = 'pt_chart'
     __table_args__ = (
-        UniqueConstraint('checksum'),
         {'mysql_engine': 'InnoDB'}
     )
 
@@ -88,7 +87,7 @@ class Chart(BASE):
         VARBINARY(MAX_KEYPAIR_LENGTH), nullable=False, default=None)
 
     checksum = Column(
-        VARBINARY(512), index=True, unique=True, nullable=True, default=None)
+        VARBINARY(512), unique=True, nullable=True, default=None)
 
     enabled = Column(
         BIGINT(unsigned=True), nullable=False, server_default='1')
@@ -165,6 +164,18 @@ class Favorite(BASE):
     enabled = Column(
         BIGINT(unsigned=True), nullable=False, server_default='1')
 
+    # Use cascade='delete,all' to propagate the deletion of a row
+    # to rows in the tables used by foreign keys
+    user = relationship(
+        User,
+        backref=backref(
+            'favorite_user', uselist=True, cascade='delete,all'))
+
+    chart = relationship(
+        Chart,
+        backref=backref(
+            'favorite_chart', uselist=True, cascade='delete,all'))
+
 
 class AgentXlate(BASE):
     """Class defining the pt_agent_xlate table of the database."""
@@ -200,8 +211,8 @@ class AgentXlate(BASE):
     ts_created = Column(
         DATETIME, server_default=text('CURRENT_TIMESTAMP'))
 
-    # Use cascade='delete,all' to propagate the deletion of a
-    # Language onto its AgentXlate
+    # Use cascade='delete,all' to propagate the deletion of a row
+    # to rows in the tables used by foreign keys
     language = relationship(
         Language,
         backref=backref(
@@ -366,7 +377,6 @@ class DataPoint(BASE):
 
     __tablename__ = 'pt_datapoint'
     __table_args__ = (
-        UniqueConstraint('checksum'),
         {'mysql_engine': 'InnoDB'}
     )
 
@@ -380,7 +390,7 @@ class DataPoint(BASE):
         index=True, nullable=False, server_default='1')
 
     checksum = Column(
-        VARBINARY(512), index=True, unique=True, nullable=True, default=None)
+        VARBINARY(512), unique=True, nullable=True, default=None)
 
     data_type = Column(INTEGER(unsigned=True), nullable=False)
 
