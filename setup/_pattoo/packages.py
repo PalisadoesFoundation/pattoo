@@ -6,6 +6,7 @@ import sys
 import getpass
 
 from _pattoo import shared
+from pattoo_shared import mkdir
 
 
 def install_missing_pip3(package, pip_dir, verbose=True):
@@ -52,10 +53,9 @@ def install(requirements_dir, installation_directory=None, verbose=True):
     if bool(installation_directory) is False:
         installation_directory = '/opt/pattoo-daemon/.python'
 
-    # Check if valid directory wa passed in
+    # Create directory if it doesn't exist
     if os.path.isdir(installation_directory) is False:
-        shared.log('Invalid directory {} passed in'.format(
-                                                    installation_directory))
+        mkdir(installation_directory)
     # Appends pip3 dir to python path
     sys.path.append(installation_directory)
 
