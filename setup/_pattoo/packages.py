@@ -6,7 +6,7 @@ import sys
 import getpass
 
 from _pattoo import shared
-from pattoo_shared import mkdir
+from pattoo_shared import files
 
 
 def install_missing_pip3(package, pip_dir, verbose=True):
@@ -55,7 +55,7 @@ def install(requirements_dir, installation_directory=None, verbose=True):
 
     # Create directory if it doesn't exist
     if os.path.isdir(installation_directory) is False:
-        mkdir(installation_directory)
+        files.mkdir(installation_directory)
     # Appends pip3 dir to python path
     sys.path.append(installation_directory)
 
