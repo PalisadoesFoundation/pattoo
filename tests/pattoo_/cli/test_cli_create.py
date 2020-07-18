@@ -115,7 +115,7 @@ class TestCLIImport(unittest.TestCase):
 
         # Skips class teardown if using travis-ci
         if not self.travis_ci:
-            teardown_tables(self.tables, self.engine)
+            teardown_tables(self.engine)
 
     def test_process(self):
         """Test create argument process function"""
@@ -132,8 +132,8 @@ class TestCLIImport(unittest.TestCase):
         ####################################################################
 
         # Defining table and expected entries into Language table
-        code = 'fr'
-        name = 'French'
+        code = 'ru'
+        name = 'Russian'
 
         expected = {'code': code, 'name': name,}
         cmd_args = ['create', 'language', '--code', code, '--name', name]
@@ -158,8 +158,8 @@ class TestCLIImport(unittest.TestCase):
         """Test _process_language"""
 
         # Defining table and expected entries into Language table
-        code = 'cn'
-        name = 'Chinese'
+        code = 'kr'
+        name = 'Korean'
 
         expected = {'code': code, 'name': name,}
         cmd_args = ['create', 'language', '--code', code, '--name', name]

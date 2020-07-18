@@ -55,7 +55,7 @@ def create_tables(tables):
         sys.exit(0)
     return engine
 
-def teardown_tables(tables, engine):
+def teardown_tables(engine):
     """Dispose of test tables stored in DB_NAME
 
     Args:
@@ -71,7 +71,8 @@ def teardown_tables(tables, engine):
         sys.exit(0)
 
     try:
-        BASE.metadata.drop_all(engine, tables=tables)
+        BASE.metadata.bind.remove()
+        BASE.metadata.drop_all(engine)
     except OperationalError:
         print(DB_NAME_ERROR)
         sys.exit(0)
