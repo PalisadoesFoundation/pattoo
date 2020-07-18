@@ -6,20 +6,14 @@
 from __future__ import print_function
 import random
 import string
-import sys
-import os
-sys.path.append('/opt/pattoo-daemon/.python')
-print(sys.path)
 # pip3 imports
 from sqlalchemy import create_engine
-
 # Pattoo libraries
 from pattoo_shared import log
 from pattoo_shared import data
 from pattoo.configuration import ConfigPattoo as Config
 from pattoo.db import URL
-#from pattoo.db.models import BASE
-from pattoo.db.table import user
+from pattoo.db.models import BASE
 from pattoo.db.table import (
    language, pair_xlate_group, pair_xlate, agent_xlate, user, chart, favorite)
 from pattoo.constants import DbRowUser, DbRowChart, DbRowFavorite

@@ -26,16 +26,40 @@ else:
 class TestDb(unittest.TestCase):
     """Checks all functions for the Pattoo db script."""
 
-    def test__init__(self):
-        """Unittest to test the __init__ function."""
-        pass
-
     def test_insertions(self):
-        """Unittest to test the insertions function."""
+        """Testing method or function named "insertions"."""
         pass
 
-    def test_mysql(self):
-        """Unittest to test the _mysql function."""
+    def test__insert_language(self):
+        """Testing method or function named "_insert_language"."""
+        pass
+
+    def test__insert_pair_xlate_group(self):
+        """Testing method or function named "_insert_pair_xlate_group"."""
+        pass
+
+    def test__insert_agent_xlate(self):
+        """Testing method or function named "_insert_agent_xlate"."""
+        pass
+
+    def test__insert_user(self):
+        """Testing method or function named "_insert_user"."""
+        pass
+
+    def test__insert_chart(self):
+        """Testing method or function named "_insert_chart"."""
+        pass
+
+    def test__insert_favorite(self):
+        """Testing method or function named "_insert_favorite"."""
+        pass
+
+    def test__mysql(self):
+        """Testing method or function named "_mysql"."""
+        pass
+
+    def test_install(self):
+        """Testing method or function named "install"."""
         pass
 
 
