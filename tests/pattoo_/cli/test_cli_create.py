@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CLI Assign testing"""
+"""CLI create testing"""
 
 # Standard Python imports
 import os
@@ -24,20 +24,21 @@ else:
     sys.exit(2)
 
 # Pattoo imports
-from pattoo.cli.cli_assign import process, _process_agent
+from pattoo.cli.cli_create import (process, _process_language,
+                                   _process_pair_xlate_group)
 from pattoo_shared import log
 from pattoo.db import db
-from pattoo.db.table import agent, pair_xlate_group, language
-from pattoo.cli.cli import _Assign
-from pattoo.db.models import Agent, PairXlateGroup, Language
+from pattoo.cli.cli import _Create
+from pattoo.db.models import PairXlateGroup, Language
+from pattoo.db.table import language, pair_xlate_group
 
 # Pattoo unittest imports
-from tests.bin.setup_db import create_tables, teardown_tables, DB_URI
+from tests.bin.setup_db import (create_tables, teardown_tables, DB_URI)
 from tests.libraries.configuration import UnittestConfig
 
 
-class TestCLIAssign(unittest.TestCase):
-    """Tests CLI assign module"""
+class TestCLIImport(unittest.TestCase):
+    """Tests importing new agent and key translation from csv files"""
 
     # Parser Instantiation
     parser = argparse.ArgumentParser()
@@ -48,22 +49,22 @@ class TestCLIAssign(unittest.TestCase):
     # Determine whether should setup up test for travis-ci tool
     travis_ci = os.getenv('travis_ci')
 
-    def assign_fn(self, expected, cmd_args, target_table, callback, process):
-        """
+    def create_fn(self, expected, cmd_args, target_table, callback, process):
+        """Creates either new key_translation_group or language entries
 
         Args:
             expected: testcase values
             cmd_args: command line arguments to be parsed to be passed to
             callback
             target_table: database table to be queried
-            callback: specific cli_assign function to be ran
+            callback: specific cli_create function to be ran
             process: Boolean to indicate whether process is used to run either
 
         Return:
             None
 
         """
-        # Calling cmd_args using argparse method parse_args
+        # Instantiation of commandline arguments
         args = self.parser.parse_args(cmd_args)
 
         # Determine how to run callback based on value of process
@@ -75,11 +76,11 @@ class TestCLIAssign(unittest.TestCase):
 
         result = None
         # Retrieves updated result
-        with db.db_query(32000) as session:
+        with db.db_query(33000) as session:
             query = session.query(target_table)
-            result = query.filter_by(idx_agent = expected['idx_agent']).first()
+            result = query.filter_by(name = expected['name'].encode()).first()
 
-        # Asserts that changes made using the 'callback' function was reflected
+        # Asserts that changes made usin the 'callback' function was reflected
         # in target_table
         for key, value in expected.items():
             result_value = result.__dict__[key]
@@ -94,20 +95,19 @@ class TestCLIAssign(unittest.TestCase):
 
         # Setting up arpser to be able to parse import cli commands
         subparser = self.parser.add_subparsers(dest='action')
-        _Assign(subparser)
+        _Create(subparser)
 
         # Skips class setup if using travis-ci
         if not self.travis_ci:
             # Create test tables for Import test
-            self.tables = [Agent.__table__, PairXlateGroup.__table__,
-                           Language.__table__]
+            self.tables = [PairXlateGroup.__table__, Language.__table__]
 
             # Returns engine object
             self.engine = create_tables(self.tables)
 
-            # Creates test entries in Language and PairXlateGroup tables
+            # Inserting default entries
             language.insert_row('en', 'English')
-            pair_xlate_group.insert_row('test_pair_xlate_group_one')
+            pair_xlate_group.insert_row('pair_1')
 
     @classmethod
     def tearDownClass(self):
@@ -118,7 +118,7 @@ class TestCLIAssign(unittest.TestCase):
             teardown_tables(self.tables, self.engine)
 
     def test_process(self):
-        """Tests assign argument process function"""
+        """Test create argument process function"""
 
         # Testing for invalid args.qualifier
         args = self.parser.parse_args([])
@@ -127,78 +127,86 @@ class TestCLIAssign(unittest.TestCase):
 
         ####################################################################
         #
-        # Testing for proper _process_agent execution
+        # Testing for proper _process_language execution
         #
         ####################################################################
 
-        # Agent information
-        agent_id = 'test_agent_id_one'
-        agent_target = 'test_agent_target_one'
-        agent_program = 'test_agent_program_one'
+        # Defining table and expected entries into Language table
+        code = 'fr'
+        name = 'French'
 
-        # Inserting agent data and getting agent idx_agent value
-        agent.insert_row(agent_id, agent_target, agent_program)
-        idx_agent = agent.idx_agent(agent_id, agent_target, agent_program)
+        expected = {'code': code, 'name': name,}
+        cmd_args = ['create', 'language', '--code', code, '--name', name]
 
-        # Derfining expected data and command line entries to be passed to
-        # process function
-        expected = {'idx_agent': idx_agent, 'idx_pair_xlate_group': '1'}
-        cmd_args = ['assign', 'agent', '--idx_agent', str(idx_agent),
-                    '--idx_pair_xlate_group', expected['idx_pair_xlate_group']]
+        self.create_fn(expected, cmd_args, Language, process, True)
 
-        self.assign_fn(expected, cmd_args, Agent, process, True)
+        ####################################################################
+        #
+        # Testing for proper _process_pair_xlate_group execution
+        #
+        ####################################################################
 
-    def test__process_agent(self):
-        """Tests _process_agent"""
+        # Defining table and expected entries into PairXlateGroup table
+        name = 'pair_2'
 
-        # Agent information
-        agent_id = 'test_process_agent_one'
-        agent_target = 'test_process_agent_one'
-        agent_program = 'test_process_agent_progam_one'
+        expected = {'name': name}
+        cmd_args = ['create', 'key_translation_group', '--name', name]
 
-        # Inserting agent data and getting agent idx_agent value
-        agent.insert_row(agent_id, agent_target, agent_program)
-        idx_agent = agent.idx_agent(agent_id, agent_target, agent_program)
+        self.create_fn(expected, cmd_args, PairXlateGroup, process, True)
 
-        # Derfining expected data and command line entries to be passed to
-        # process function
-        expected = {'idx_agent': idx_agent, 'idx_pair_xlate_group': '1'}
-        cmd_args = ['assign', 'agent', '--idx_agent', str(idx_agent),
-                    '--idx_pair_xlate_group', expected['idx_pair_xlate_group']]
+    def test__process_language(self):
+        """Test _process_language"""
 
-        self.assign_fn(expected, cmd_args, Agent, _process_agent, False)
+        # Defining table and expected entries into Language table
+        code = 'cn'
+        name = 'Chinese'
 
-        # Asserting that appropriate log message is ran if idx_pair_xlate_group
-        # does not exist
+        expected = {'code': code, 'name': name,}
+        cmd_args = ['create', 'language', '--code', code, '--name', name]
+
+        self.create_fn(expected, cmd_args, Language, _process_language, False)
+
+        # Asserting that appropriate log message is ran if language already
+        # exists
         args = self.parser.parse_args([])
-        args.idx_pair_xlate_group = ''
+        args.code = code
         expected_included_str = ('''\
-idx_pair_xlate_group "{}" not found.'''.format(args.idx_pair_xlate_group))
+Language code "{}" already exists.'''.format(args.code))
 
         with self.assertLogs(self.log_obj.stdout(), level='INFO') as cm:
-            print('Exception thrown testing test__process_agent: ')
+            print('Exception thrown testing test__process_language: ')
             with self.assertRaises(SystemExit):
-                _process_agent(args)
+                _process_language(args)
         print(cm.output[0])
         print('')
         self.assertIn(expected_included_str, cm.output[0])
 
-        # Asserting that appropriate log message is ran if idx_agent does not
-        # exist
+    def test_process_pair_xlate_group(self):
+        """Tests process_pair_xlate_group"""
+
+        # Defining table and expected entries into PairXlateGroup table
+        name = 'pair_group_test'
+
+        expected = {'name': name}
+        cmd_args = ['create', 'key_translation_group', '--name', name]
+
+        self.create_fn(expected, cmd_args, PairXlateGroup,
+                       _process_pair_xlate_group, False)
+
+        # Asserting that appropriate log message is ran if pair_xlate_group
+        # already exists
         args = self.parser.parse_args([])
-        args.idx_pair_xlate_group = '1'
-        args.idx_agent = ''
+        args.name = name
         expected_included_str = ('''\
-idx_agent "{}" not found.'''.format(args.idx_agent))
+Agent group name "{}" already exists.'''.format(args.name))
 
         with self.assertLogs(self.log_obj.stdout(), level='INFO') as cm:
-            print('Exception thrown testing test__process_agent: ')
+            print('Exception thrown testing test__process_pair_xlate_group: ')
             with self.assertRaises(SystemExit):
-                _process_agent(args)
+                _process_pair_xlate_group(args)
         print(cm.output[0])
         print('')
         self.assertIn(expected_included_str, cm.output[0])
-
 
 if __name__ == "__main__":
     # Make sure the environment is OK to run unittests
