@@ -297,7 +297,7 @@ def run_systemd():
     print('OK: System daemons successfully started')
 
 
-def install_systemd():
+def install():
     """Run the functions for installation.
 
     Args:
