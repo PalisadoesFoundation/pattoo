@@ -334,13 +334,10 @@ class ChartAttribute():
         resolver=resolve_name,
         description='Chart name.')
 
-<<<<<<< HEAD
-=======
     checksum = graphene.String(
         resolver=resolve_checksum,
         description='Chart checksum.')
 
->>>>>>> 923ddfdbc8b5092e9017f41cea7a51c3ebf84a99
     enabled = graphene.String(
         description='True if the DataPoint is enabled.')
 

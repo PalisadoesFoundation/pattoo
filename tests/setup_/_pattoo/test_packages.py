@@ -75,12 +75,11 @@ class Test_Install(unittest.TestCase):
         # Test with undefined installation directory
         with self.subTest():
             with self.assertRaises(SystemExit) as cm_:
-                installation_dir = '/tmp/test'
+                installation_dir = data.hashstring(str(random()))
                 install(ROOT_DIR, installation_dir)
                 expected = True
                 # Check if installation dir was created
-                result = os.path.isdir(installation_dir)
-                self.assertEqual(cm_.exception.code, 3)
+                self.assertEqual(cm_.exception.code, 2)
 
         # Test with default expected behaviour
         with self.subTest():
