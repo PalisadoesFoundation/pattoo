@@ -2,6 +2,7 @@
 
 # Import PIP3 libraries
 from flask import Flask
+import hashlib, uuid
 
 # Define the global URL prefix
 from pattoo_shared.constants import PATTOO_API_AGENT_PREFIX
@@ -18,3 +19,6 @@ PATTOO_API_AGENT.register_blueprint(
     POST, url_prefix=PATTOO_API_AGENT_PREFIX)
 PATTOO_API_AGENT.register_blueprint(
     STATUS, url_prefix=PATTOO_API_AGENT_PREFIX)
+
+# Add secret key to Flask
+PATTOO_API_AGENT.config['SECRET_KEY'] = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
