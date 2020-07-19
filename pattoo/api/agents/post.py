@@ -127,7 +127,7 @@ def xch_key():
     if 'symm_key' in session:
         message = 'Symmetric key already set'
         response = 208
-        log.log2info(77707, message)
+        log.log2info(1076, message)
         return message, response
 
 
@@ -177,7 +177,7 @@ def xch_key():
             message = 'Email and key received: {}, {}'\
                       .format(session['email'], result)
 
-            log.log2info(77701, message)
+            log.log2info(1077, message)
 
         except Exception as e:
             log_msg = 'Invalid email and key entry: >>>{}<<<'.format(e)
@@ -216,7 +216,7 @@ def xch_key():
 
             # Send api email, public key and encrypted nonce
             message = 'API information sent'
-            log.log2info(77701, message)
+            log.log2info(1078, message)
             response = 200
             return jsonify(data=data), response
 
@@ -245,7 +245,7 @@ def valid_key():
     if 'symm_key' in session:
         message = 'Symmetric key already set'
         response = 208
-        log.log2info(77707, message)
+        log.log2info(1079, message)
         return message, response
 
     # Predefined error message and response
@@ -320,7 +320,7 @@ def valid_key():
             response = 200
             message = 'Symmetric key saved. Del public key: {}'\
                       .format(result)
-            log.log2info(77702, message)
+            log.log2info(1080, message)
 
         except Exception as e:
             log_msg = 'Invalid email and key entry: >>>{}<<<'.format(e)
