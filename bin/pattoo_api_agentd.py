@@ -49,8 +49,7 @@ def main():
         PATTOO_API_AGENT,
         config=config)
 
-    # Set up encryption using Pgpier in Agent
-    agent_api.set_email('pattoo_test2@gmail.com') # Make this retrieve the information from a yaml
+    # Set up encryption using Pgpier in Agent=
     agent_api.set_gnupg() # Creation and retrieval of Pgpier object
 
     # Do control (API first, Gunicorn second)
