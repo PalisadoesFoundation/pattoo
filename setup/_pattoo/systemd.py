@@ -155,7 +155,7 @@ def _update_environment_strings(
     """
     # Initialize key variables
     env_config_path = '^Environment="PATTOO_CONFIGDIR=(.*?)"$'
-    env_pip_path = '^Environment="PYTHONPATH=(.?)"$'
+    env_pip_path = '^Environment="PYTHONPATH=(.*?)"$'
     env_user = '^User=(.*?)$'
     env_group = '^Group=(.*?)$'
     env_run = '^RuntimeDirectory=(.*?)$'
@@ -185,7 +185,7 @@ def _update_environment_strings(
                         config_dir)
 
                 # Add Python path
-                if bool(re.search(env_pip_path)) is True:
+                if bool(re.search(env_pip_path, line)) is True:
                     _line = 'Environment="PYTHONPATH={}"'.format(pip_dir)
 
                 # Add RuntimeDirectory and create
@@ -284,16 +284,16 @@ def run_systemd():
     # Say what we are doing
     print('??: Enabling system daemons')
     # Reloading daemons
-    shared._run_script('sudo systemctl daemon-reload')
+    shared.run_script('sudo systemctl daemon-reload')
     # Enabling daemons
-    shared._run_script('sudo systemctl enable pattoo_apid')
-    shared._run_script('sudo systemctl enable pattoo_api_agentd')
-    shared._run_script('sudo systemctl enable pattoo_ingesterd')
+    shared.run_script('sudo systemctl enable pattoo_apid')
+    shared.run_script('sudo systemctl enable pattoo_api_agentd')
+    shared.run_script('sudo systemctl enable pattoo_ingesterd')
     print('OK: System daemons enabled')
     print('??: Starting system daemons')
-    shared._run_script('sudo systemctl start pattoo_apid')
-    shared._run_script('sudo systemctl start pattoo_api_agentd')
-    shared._run_script('sudo systemctl start pattoo_ingesterd')
+    shared.run_script('sudo systemctl start pattoo_apid')
+    shared.run_script('sudo systemctl start pattoo_api_agentd')
+    shared.run_script('sudo systemctl start pattoo_ingesterd')
     print('OK: System daemons successfully started')
 
 
