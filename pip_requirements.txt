@@ -8,7 +8,6 @@ PattooShared==0.0.85
 
 # Miscellaneous packages
 PyYAML
-PyNaCl==1.4.0
 
 # Database packages
 PyMySQL
