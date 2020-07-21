@@ -126,16 +126,20 @@ class Test_Systemd(unittest.TestCase):
         """Testing method or function named "_update_environment_strings"."""
         # Initialize key variables
         config_dir = os.environ.get('PATTOO_CONFIGDIR')
+        log_directory = tempfile.mkdtemp()
+        cache_directory = tempfile.mkdtemp()
+        daemon_directory = tempfile.mkdtemp()
+
         default_config = {
             'pattoo': {
                 'language': 'en',
                 'log_directory': (
-                    '/var/log/pattoo'),
+                    log_directory),
                 'log_level': 'debug',
                 'cache_directory': (
-                    '/opt/pattoo-cache'),
+                    cache_directory),
                 'daemon_directory': (
-                    '/opt/pattoo-daemon'),
+                    daemon_directory),
                 'system_daemon_directory': '/var/run/pattoo'
             },
             'pattoo_agent_api': {
