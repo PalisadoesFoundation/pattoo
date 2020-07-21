@@ -1,7 +1,7 @@
 dist: bionic
 
-# Don't use
-sudo: true
+# Enable sudo
+sudo: required
 
 # Define the language and versions that infoset is written in
 language: python
