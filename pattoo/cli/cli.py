@@ -29,7 +29,7 @@ class _Parser(argparse.ArgumentParser):
 
         """
         sys.stderr.write('\nERROR: {}\n\n'.format(message))
-        self.print_help()
+        self.print_help(sys.stderr)
         sys.exit(2)
 
 
