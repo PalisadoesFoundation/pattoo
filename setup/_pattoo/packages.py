@@ -27,7 +27,7 @@ def install_missing_pip3(package, pip_dir, verbose=True):
     username = getpass.getuser()
     if username == 'root':
         shared.run_script(
-            'python3 -m pip install {0} -t {1}'.format(package, pip_dir),
+            'pip3 install {0} -t {1}'.format(package, pip_dir),
             verbose=verbose)
     elif username == 'travis':
         shared.run_script(
