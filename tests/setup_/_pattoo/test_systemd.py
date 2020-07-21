@@ -142,12 +142,37 @@ class Test_Systemd(unittest.TestCase):
                 'RemainAfterExit=yes\n', 'GuessMainPID=yes\n', 'Type=forking\n',
                 '\n', '[Install]\n', 'WantedBy=multi-user.target\n'])
 
+        default_config = {
+            'pattoo': {
+                'language': 'en',
+                'log_directory': (
+                    '/var/log/pattoo'),
+                'log_level': 'debug',
+                'cache_directory': (
+                    '/opt/pattoo-cache'),
+                'daemon_directory': (
+                    '/opt/pattoo-daemon'),
+                'system_daemon_directory': '/var/run/pattoo'
+            },
+            'pattoo_agent_api': {
+                'ip_address': '127.0.0.1',
+                'ip_bind_port': 20201
+            },
+            'pattoo_web_api': {
+                'ip_address': '127.0.0.1',
+                'ip_bind_port': 20202,
+            }
+        }
+
         with tempfile.TemporaryDirectory() as temp_dir:
             # Initialize key variables
-            if os.environ.get('PATTOO_CONFIGDIR') is None:
-                config_dir = '/etc/pattoo'
-            else:
-                config_dir = os.environ.get('PATTOO_CONFIGDIR')
+            config_dir = '/etc/pattoo'
+            if os.path.isdir(config_dir) is False:
+                os.mkdir(config_dir)
+                with open(os.path.join(
+                        config_dir, 'pattoo.yaml'), 'w+') as config:
+                    yaml.dump(default_config, config, default_flow_style=False)
+
             pip_dir = '/opt/pattoo-daemon/.python'
 
             # Initialize as set to ensure equality
@@ -156,7 +181,6 @@ class Test_Systemd(unittest.TestCase):
                 'pattoo_apid.service',
                 'pattoo_ingesterd.service'
             ])
-
             # Place service files into temp dir
             destination_filepaths = _copy_service_files(temp_dir)
             _update_environment_strings(

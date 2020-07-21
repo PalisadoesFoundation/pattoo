@@ -213,7 +213,7 @@ def _get_runtime_directory(config_directory):
 
     """
     result = None
-    filepath = '{}{}pattoo.yaml'.format(config_directory, os.sep)
+    filepath = os.path.join(config_directory, 'pattoo.yaml')
     if os.path.isfile(filepath) is False:
         shared.log('{} does not exist'.format(filepath))
     with open(filepath, 'r') as file_handle:
