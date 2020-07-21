@@ -68,8 +68,7 @@ class UnittestConfig():
                     'log_directory': self._log_directory,
                     'log_level': 'debug',
                     'cache_directory': self._cache_directory,
-                    'daemon_directory': self._daemon_directory,
-                    'system_daemon_directory': '/var/run/pattoo'
+                    'daemon_directory': self._daemon_directory
                 },
                 'pattoo_agent_api': {
                     'ip_address': '127.0.0.1',
