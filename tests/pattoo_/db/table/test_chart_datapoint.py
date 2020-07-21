@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-"""Test pattoo configuration."""
-
 import os
 import unittest
 import sys
@@ -26,8 +23,40 @@ else:
 
 from pattoo_shared import data
 from tests.libraries.configuration import UnittestConfig
-from pattoo.db.table import user, chart, favorite
+from pattoo.db.table import user, chart, favorite, chart_datapoint
+from pattoo.db.table import datapoint, agent
 from pattoo.constants import DbRowUser, DbRowChart, DbRowFavorite
+from pattoo.constants import DbRowChartDataPoint
+from pattoo_shared.constants import DATA_FLOAT
+
+
+def _idx_datapoint():
+    """Create a new DataPoint db entry.
+
+    Args:
+        value: Value to convert
+
+    Returns:
+        result: idx_datapoint value for new DataPoint
+
+    """
+    # Initialize key variables
+    polling_interval = 1
+
+    # Create a new Agent entry
+    agent_id = data.hashstring(str(random()))
+    agent_target = data.hashstring(str(random()))
+    agent_program = data.hashstring(str(random()))
+    agent.insert_row(agent_id, agent_target, agent_program)
+    idx_agent = agent.exists(agent_id, agent_target)
+
+    # Create entry and check
+    _checksum = data.hashstring(str(random()))
+    result = datapoint.checksum_exists(_checksum)
+    datapoint.insert_row(
+        _checksum, DATA_FLOAT, polling_interval, idx_agent)
+    result = datapoint.checksum_exists(_checksum)
+    return result
 
 
 class TestBasicFunctions(unittest.TestCase):
@@ -35,25 +64,6 @@ class TestBasicFunctions(unittest.TestCase):
 
     def test_idx_exists(self):
         """Testing method or function named "idx_exists"."""
-        # Add user entry to database
-        uname = data.hashstring(str(random()))
-        passwrd = data.hashstring(str(random()))
-        f_name = data.hashstring(str(random()))
-        l_name = data.hashstring(str(random()))
-        user.insert_row(
-            DbRowUser(
-                username=uname,
-                password=passwrd,
-                first_name=f_name,
-                last_name=l_name,
-                enabled=0
-            )
-        )
-
-        # Make sure user entry exists
-        idx_user = user.exists(uname)
-        self.assertTrue(bool(idx_user))
-
         # Add chart entry to database
         chart_name = data.hashstring(str(random()))
         chart_checksum = data.hashstring(str(random()))
@@ -64,42 +74,27 @@ class TestBasicFunctions(unittest.TestCase):
         idx_chart = chart.exists(chart_checksum)
         self.assertTrue(bool(idx_chart))
 
-        # Add favorite to database
-        favorite.insert_row(
-            DbRowFavorite(
+        # Create idx datapoint
+        idx_datapoint = _idx_datapoint()
+
+        # Add chart datapoint entry to database
+        chart_datapoint.insert_row(
+            DbRowChartDataPoint(
+                idx_datapoint=idx_datapoint,
                 idx_chart=idx_chart,
-                idx_user=idx_user,
-                order=0,
                 enabled=0
             )
         )
 
-        # Make sure the favorite exists
-        idx_favorite = favorite.exists(idx_chart, idx_user)
+        # Make sure the chart datapoint exists
+        idx_chart_datapoint = chart_datapoint.exists(idx_chart, idx_datapoint)
 
         # Verify that the index exists
-        result = favorite.idx_exists(idx_favorite)
+        result = chart_datapoint.idx_exists(idx_chart_datapoint)
         self.assertTrue(result)
 
     def test_exists(self):
         """Testing method or function named "exists"."""
-        # Add user entry to database
-        uname = data.hashstring(str(random()))
-        passwrd = data.hashstring(str(random()))
-        f_name = data.hashstring(str(random()))
-        l_name = data.hashstring(str(random()))
-        user.insert_row(
-            DbRowUser(
-                username=uname,
-                password=passwrd,
-                first_name=f_name,
-                last_name=l_name,
-                enabled=0
-            )
-        )
-        # Make sure user entry exists
-        idx_user = user.exists(uname)
-
         # Add chart entry to database
         chart_name = data.hashstring(str(random()))
         chart_checksum = data.hashstring(str(random()))
@@ -109,44 +104,29 @@ class TestBasicFunctions(unittest.TestCase):
         # Make sure chart entry exists
         idx_chart = chart.exists(chart_checksum)
 
-        # Make sure favorite does not exist
-        result = favorite.exists(idx_chart, idx_user)
-        self.assertFalse(bool(result))
+        # Create idx datapoint
+        idx_datapoint = _idx_datapoint()
 
-        # Add favorite to database
-        favorite.insert_row(
-            DbRowFavorite(
+        # Subtest to make sure chart datapoint does not exist
+        with self.subTest():
+            result = chart_datapoint.exists(idx_chart, idx_datapoint)
+            self.assertFalse(bool(result))
+
+        # Add chart datapoint entry to database
+        chart_datapoint.insert_row(
+            DbRowChartDataPoint(
+                idx_datapoint=idx_datapoint,
                 idx_chart=idx_chart,
-                idx_user=idx_user,
-                order=0,
                 enabled=0
             )
         )
 
-        # Make sure favorite exists
-        result = favorite.exists(idx_chart, idx_user)
+        # Make sure the chart datapoint exists
+        result = chart_datapoint.exists(idx_chart, idx_datapoint)
         self.assertTrue(bool(result))
 
     def test_insert_row(self):
         """Testing method or function named "insert_row"."""
-        # Add user entry to database
-        uname = data.hashstring(str(random()))
-        passwrd = data.hashstring(str(random()))
-        f_name = data.hashstring(str(random()))
-        l_name = data.hashstring(str(random()))
-        user.insert_row(
-            DbRowUser(
-                username=uname,
-                password=passwrd,
-                first_name=f_name,
-                last_name=l_name,
-                enabled=0
-            )
-        )
-
-        # Make sure user entry exists
-        idx_user = user.exists(uname)
-
         # Add chart entry to database
         chart_name = data.hashstring(str(random()))
         chart_checksum = data.hashstring(str(random()))
@@ -156,21 +136,23 @@ class TestBasicFunctions(unittest.TestCase):
         # Make sure chart entry exists
         idx_chart = chart.exists(chart_checksum)
 
-        # Add favorite to database
-        favorite.insert_row(
-            DbRowFavorite(
+        # Create idx datapoint
+        idx_datapoint = _idx_datapoint()
+
+        # Add chart datapoint entry to database
+        chart_datapoint.insert_row(
+            DbRowChartDataPoint(
+                idx_datapoint=idx_datapoint,
                 idx_chart=idx_chart,
-                idx_user=idx_user,
-                order=0,
                 enabled=0
             )
         )
 
-        # Make sure the favorite exists
-        idx_favorite = favorite.exists(idx_chart, idx_user)
+        # Make sure the chart datapoint exists
+        idx_chart_datapoint = chart_datapoint.exists(idx_chart, idx_datapoint)
 
         # Verify that the index exists
-        result = favorite.idx_exists(idx_favorite)
+        result = chart_datapoint.idx_exists(idx_chart_datapoint)
         self.assertTrue(result)
 
 
