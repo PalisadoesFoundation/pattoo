@@ -157,23 +157,6 @@ class Test_Systemd(unittest.TestCase):
             config_dir = os.path.join(temp_dir, 'pattoo-config')
             pip_dir = '/opt/pattoo-daemon/.python'
 
-            expected_list = sorted([
-                '[Unit]\n', 'Description=pattoo_api_agentd daemon\n',
-                'Wants=network.target\n', 
-                'After=network.target mysql.service mysqld.service mariadb.service mariadb@.service\n',
-                '\n', '[Service]\n',
-                f'Environment="PATTOO_CONFIGDIR={config_dir}"\n', 
-                f'Environment="PYTHONPATH={pip_dir}"\n', 
-                'RuntimeDirectoryPreserve=yes\n', 
-                'RuntimeDirectory=pattoo\n',
-                'User=pattoo\n',
-                'Group=pattoo\n',
-                'ExecStart=/opt/Calico/pattoo/bin/pattoo_api_agentd.py --start\n',
-                'ExecStop=/opt/Calico/pattoo/bin/pattoo_api_agentd.py --stop\n',
-                'ExecReload=/opt/Calico/pattoo/bin/pattoo_api_agentd.py --restart\n',
-                'RemainAfterExit=yes\n', 'GuessMainPID=yes\n', 'Type=forking\n',
-                '\n', '[Install]\n', 'WantedBy=multi-user.target\n'])
-
             # If the config dir doesn't exist it gets created
             if os.path.isdir(config_dir) is False:
                 os.mkdir(config_dir)
@@ -205,13 +188,6 @@ class Test_Systemd(unittest.TestCase):
             copied_files = os.listdir(temp_dir)
             result = set(copied_files)
             self.assertEqual(result, expected)
-
-            # Read copied apid service file contents
-            with open(
-                    os.path.join(temp_dir, copied_files[1]), 'r') as agentd:
-                actual_list = sorted(agentd.readlines())
-
-            self.assertEqual(actual_list, expected_list)
 
     def test__get_runtime_directory_default(self):
         """Testing method or function named "_get_runtime_directory"."""
