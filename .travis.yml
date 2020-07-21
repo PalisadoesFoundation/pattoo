@@ -25,7 +25,9 @@ env:
 before_install:
     - pip3 install -r pip_requirements.txt
     - tests/bin/unittest_setup.py
-    - mysql -e 'CREATE DATABASE pattoo_unittest;'
+    - mysql -e 'CREATE DATABASE pattoo_unittest;
+    - sudo easy_install pip
+
 
 install:
     - sudo setup/pattoo_installation.py install all
