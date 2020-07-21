@@ -5,7 +5,7 @@ After=network.target mysql.service mysqld.service mariadb.service mariadb@.servi
 
 [Service]
 Environment="PATTOO_CONFIGDIR=x"
-Environment="PYTHONPATH=/opt/pattoo-daemon/.python:$PYTHONPATH"
+Environment="PYTHONPATH=x"
 RuntimeDirectoryPreserve=yes
 RuntimeDirectory=PATTOO_SYSTEM_DAEMON_DIRECTORY
 User=pattoo

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Test pattoo db script."""
-from tests.libraries.configuration import UnittestConfig
 import os
 import unittest
 import sys
@@ -21,6 +20,15 @@ else:
     print('''This script is not installed in the "{0}" directory. Please fix.\
 '''.format(_EXPECTED))
     sys.exit(2)
+from tests.libraries.configuration import UnittestConfig
+from pattoo.db import URL
+from pattoo.db.models import BASE
+from pattoo.db.table import (
+   language, pair_xlate_group, pair_xlate, agent_xlate, user, chart, favorite)
+from pattoo.constants import DbRowUser, DbRowChart, DbRowFavorite
+from setup._pattoo.db import _insert_chart, _insert_favorite, _insert_language
+from setup._pattoo.db import _insert_agent_xlate, _insert_user, insertions
+from setup._pattoo.db import _insert_agent_xlate, install, _mysql
 
 
 class TestDb(unittest.TestCase):
@@ -32,7 +40,9 @@ class TestDb(unittest.TestCase):
 
     def test__insert_language(self):
         """Testing method or function named "_insert_language"."""
-        pass
+        _insert_language()
+        result = language.idx_exists(1)
+        self.assertTrue(result)
 
     def test__insert_pair_xlate_group(self):
         """Testing method or function named "_insert_pair_xlate_group"."""
@@ -40,19 +50,34 @@ class TestDb(unittest.TestCase):
 
     def test__insert_agent_xlate(self):
         """Testing method or function named "_insert_agent_xlate"."""
-        pass
+        _insert_agent_xlate()
+        result = agent_xlate.agent_xlate_exists(
+            1, 'pattoo_agent_linux_autonomousd'
+        )
+        self.assertTrue(result)
 
     def test__insert_user(self):
         """Testing method or function named "_insert_user"."""
-        pass
+        _insert_user()
+        # Make sure user exists
+        idx_user = user.exists('pattoo')
+        self.assertEqual(idx_user, 1)
+
+        # Check if index exists
+        result = user.idx_exists(1)
+        self.assertTrue(result)
 
     def test__insert_chart(self):
         """Testing method or function named "_insert_chart"."""
-        pass
+        _insert_chart()
+        result = chart.idx_exists(1)
+        self.assertTrue(result)
 
     def test__insert_favorite(self):
         """Testing method or function named "_insert_favorite"."""
-        pass
+        _insert_favorite()
+        result = favorite.idx_exists(1)
+        self.assertTrue(result)
 
     def test__mysql(self):
         """Testing method or function named "_mysql"."""

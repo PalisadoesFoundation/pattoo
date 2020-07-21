@@ -26,22 +26,6 @@ import getpass
 from _pattoo import shared
 
 
-def log(msg):
-    """Log messages to STDIO and exit.
-
-    Args:
-        msg: String to print
-
-    Returns:
-        None
-
-    """
-    # Die!
-    message = 'ERROR: {}'.format(msg)
-    print(message)
-    sys.exit(0)
-
-
 def _filepaths(directory, full_paths=True):
     """Get the filenames in the directory.
 
@@ -99,7 +83,8 @@ def _copy_service_files(target_directory):
 
     # Make systemd aware of the new services
     activation_command = 'systemctl daemon-reload'
-    call(activation_command.split())
+    if getpass.getuser() == 'root':
+        call(activation_command.split())
 
     # Return
     return destination_filepaths
@@ -117,7 +102,7 @@ def _symlink_dir(directory):
     """
     # Initialize key variables
     data_dictionary = {}
-
+    result = None
     # Get all the filenames in the directory
     filenames = _filepaths(directory)
 
@@ -135,6 +120,10 @@ def _symlink_dir(directory):
             continue
         result = os.path.dirname(str(key))
         break
+    # Die if there are no symlinks
+    if bool(result) is False:
+        shared.log(
+            'No symlinks found in the directory: "{}"'.format(directory))
     return result
 
 
@@ -194,7 +183,8 @@ def _update_environment_strings(
                      relative_run_path) = _get_runtime_directory(config_dir)
                     _line = 'RuntimeDirectory={}'.format(relative_run_path)
                     os.makedirs(run_path, 0o750, exist_ok=True)
-                    shutil.chown(run_path, user=username, group=group)
+                    if getpass.getuser == 'root':
+                        shutil.chown(run_path, user=username, group=group)
 
                 # Add user
                 if bool(re.search(env_user, line)) is True:
@@ -224,6 +214,8 @@ def _get_runtime_directory(config_directory):
     """
     result = None
     filepath = '{}{}pattoo.yaml'.format(config_directory, os.sep)
+    if os.path.isfile(filepath) is False:
+        shared.log('{} does not exist'.format(filepath))
     with open(filepath, 'r') as file_handle:
         yaml_from_file = file_handle.read()
     config = yaml.safe_load(yaml_from_file)
@@ -231,7 +223,7 @@ def _get_runtime_directory(config_directory):
     if bool(pattoo) is True:
         result = pattoo.get('system_daemon_directory')
     if result is None:
-        log('''\
+        shared.log('''\
 "system_daemon_directory" parameter not found in the {} configuration file\
 '''.format(filepath))
     _result = result.replace('/var/run/', '')
@@ -252,23 +244,23 @@ def preflight(config_dir, etc_dir):
     """
     # Make sure config_dir exists
     if os.path.isdir(config_dir) is False:
-        log('''\
+        shared.log('''\
 Expected configuration directory "{}" does not exist.'''.format(config_dir))
 
     # Verify whether the script is being run by root or sudo user
     if bool(os.getuid()) is True:
-        log('This script must be run as the "root" user '
+        shared.log('This script must be run as the "root" user '
             'or with "sudo" privileges')
 
     # Check to see whether this is a systemd system
     try:
         check_output(['pidof', 'systemd'])
     except:
-        log('This is not a "systemd" system. This script should not be run.')
+        shared.log('This is not a "systemd" system. This script should not be run.')
 
     # Check existence of /etc/systemd/system/multi-user.target.wants directory
     if os.path.isdir(etc_dir) is False:
-        log('Expected systemd directory "{}" does not exist.'.format(etc_dir))
+        shared.log('Expected systemd directory "{}" does not exist.'.format(etc_dir))
 
 
 def run_systemd():
