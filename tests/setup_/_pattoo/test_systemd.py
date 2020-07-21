@@ -144,7 +144,10 @@ class Test_Systemd(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temp_dir:
             # Initialize key variables
-            config_dir = '/etc/pattoo'
+            if os.environ.get('PATTOO_CONFIGDIR') is None:
+                config_dir = '/etc/pattoo'
+            else:
+                config_dir = os.environ.get('PATTOO_CONFIGDIR')
             pip_dir = '/opt/pattoo-daemon/.python'
 
             # Initialize as set to ensure equality
