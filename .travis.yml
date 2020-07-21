@@ -28,7 +28,7 @@ before_install:
     - mysql -e 'CREATE DATABASE pattoo_unittest;'
 
 install:
-    - setup/pattoo_installation.py install all
+    - sudo setup/pattoo_installation.py install all
 
 # Run the unittest scripts
 sudo: false
