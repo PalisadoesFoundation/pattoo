@@ -19,25 +19,19 @@ services:
 
 # Setup global environmental variables
 env:
-    - PYTHONPATH=./ PATTOO_TRAVIS=""
+    - PYTHONPATH=./ PATTOO_CONFIGDIR=$HOME/.pattoo-unittests/config PATTOO_TRAVIS=""
 
 # Install PIP packages and create a temporary config file before installing
 before_install:
     - pip3 install -r pip_requirements.txt
+    - tests/bin/unittest_setup.py
     - mysql -e 'CREATE DATABASE pattoo_unittest;'
-    - mysql -e 'CREATE DATABASE pattoo;'
     - wget https://bootstrap.pypa.io/get-pip.py
     - sudo python3.6 get-pip.py
 
 
 install:
     - sudo setup/pattoo_installation.py install all
-
-# Create environment for unittests
-after_install:
-    - PYTHONPATH=./ PATTOO_CONFIGDIR=$HOME/.pattoo-unittests/config PATTOO_TRAVIS=""
-    - tests/bin/unittest_setup.py
-    - sudo setup/pattoo_installation.py install database
 
 # Run the unittest scripts
 sudo: false
