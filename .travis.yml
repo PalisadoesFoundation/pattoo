@@ -24,7 +24,6 @@ env:
 # Install PIP packages and create a temporary config file before installing
 before_install:
     - pip3 install -r pip_requirements.txt
-    - tests/bin/unittest_setup.py
     - mysql -e 'CREATE DATABASE pattoo_unittest;'
     - wget https://bootstrap.pypa.io/get-pip.py
     - sudo python3.6 get-pip.py
@@ -36,5 +35,6 @@ install:
 # Run the unittest scripts
 sudo: false
 script:
+    - tests/bin/unittest_setup.py
     - tests/bin/do_all_tests.py --verbose
     
