@@ -160,7 +160,7 @@ class Test_Systemd(unittest.TestCase):
                 filepaths=destination_filepaths,
                 config_dir=config_dir,
                 pip_dir=pip_dir,
-                user='pattoo',
+                username='pattoo',
                 group='pattoo'
             )
 
