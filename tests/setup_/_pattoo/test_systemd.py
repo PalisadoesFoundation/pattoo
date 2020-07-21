@@ -125,23 +125,7 @@ class Test_Systemd(unittest.TestCase):
     def test__update_environment_strings(self):
         """Testing method or function named "_update_environment_strings"."""
         # Initialize key variables
-        expected_list = sorted([
-                '[Unit]\n', 'Description=pattoo_api_agentd daemon\n',
-                'Wants=network.target\n', 
-                'After=network.target mysql.service mysqld.service mariadb.service mariadb@.service\n',
-                '\n', '[Service]\n',
-                'Environment="PATTOO_CONFIGDIR=/etc/pattoo"\n', 
-                'Environment="PYTHONPATH=/opt/pattoo-daemon/.python"\n', 
-                'RuntimeDirectoryPreserve=yes\n', 
-                'RuntimeDirectory=pattoo\n',
-                'User=pattoo\n',
-                'Group=pattoo\n',
-                'ExecStart=/opt/Calico/pattoo/bin/pattoo_api_agentd.py --start\n',
-                'ExecStop=/opt/Calico/pattoo/bin/pattoo_api_agentd.py --stop\n',
-                'ExecReload=/opt/Calico/pattoo/bin/pattoo_api_agentd.py --restart\n',
-                'RemainAfterExit=yes\n', 'GuessMainPID=yes\n', 'Type=forking\n',
-                '\n', '[Install]\n', 'WantedBy=multi-user.target\n'])
-
+        config_dir = os.environ.get('PATTOO_CONFIGDIR')
         default_config = {
             'pattoo': {
                 'language': 'en',
@@ -166,21 +150,43 @@ class Test_Systemd(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temp_dir:
             # Initialize key variables
-            config_dir = '/etc/pattoo'
+            config_dir = os.path.join(temp_dir, 'pattoo-config')
+            pip_dir = '/opt/pattoo-daemon/.python'
+
+            expected_list = sorted([
+                '[Unit]\n', 'Description=pattoo_api_agentd daemon\n',
+                'Wants=network.target\n', 
+                'After=network.target mysql.service mysqld.service mariadb.service mariadb@.service\n',
+                '\n', '[Service]\n',
+                f'Environment="PATTOO_CONFIGDIR={config_dir}"\n', 
+                f'Environment="PYTHONPATH={pip_dir}"\n', 
+                'RuntimeDirectoryPreserve=yes\n', 
+                'RuntimeDirectory=pattoo\n',
+                'User=pattoo\n',
+                'Group=pattoo\n',
+                'ExecStart=/opt/Calico/pattoo/bin/pattoo_api_agentd.py --start\n',
+                'ExecStop=/opt/Calico/pattoo/bin/pattoo_api_agentd.py --stop\n',
+                'ExecReload=/opt/Calico/pattoo/bin/pattoo_api_agentd.py --restart\n',
+                'RemainAfterExit=yes\n', 'GuessMainPID=yes\n', 'Type=forking\n',
+                '\n', '[Install]\n', 'WantedBy=multi-user.target\n'])
+
+            # If the config dir doesn't exist it gets created
             if os.path.isdir(config_dir) is False:
                 os.mkdir(config_dir)
-                with open(os.path.join(
-                        config_dir, 'pattoo.yaml'), 'w+') as config:
-                    yaml.dump(default_config, config, default_flow_style=False)
 
-            pip_dir = '/opt/pattoo-daemon/.python'
+            # Dump config to pattoo.yaml
+            with open(os.path.join(
+                    config_dir, 'pattoo.yaml'), 'w+') as config:
+                yaml.dump(default_config, config, default_flow_style=False)
 
             # Initialize as set to ensure equality
             expected = set([
+                'pattoo-config',
                 'pattoo_api_agentd.service',
                 'pattoo_apid.service',
                 'pattoo_ingesterd.service'
             ])
+
             # Place service files into temp dir
             destination_filepaths = _copy_service_files(temp_dir)
             _update_environment_strings(
@@ -196,9 +202,9 @@ class Test_Systemd(unittest.TestCase):
             result = set(copied_files)
             self.assertEqual(result, expected)
 
-            # Read apid copied
+            # Read copied apid service file contents
             with open(
-                    os.path.join(temp_dir, copied_files[0]), 'r') as agentd:
+                    os.path.join(temp_dir, copied_files[1]), 'r') as agentd:
                 actual_list = sorted(agentd.readlines())
 
             self.assertEqual(actual_list, expected_list)
