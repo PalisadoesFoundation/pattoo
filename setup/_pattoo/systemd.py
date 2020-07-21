@@ -182,8 +182,8 @@ def _update_environment_strings(
                     (run_path,
                      relative_run_path) = _get_runtime_directory(config_dir)
                     _line = 'RuntimeDirectory={}'.format(relative_run_path)
-                    os.makedirs(run_path, 0o750, exist_ok=True)
                     if getpass.getuser == 'root':
+                        os.makedirs(run_path, 0o750, exist_ok=True)
                         shutil.chown(run_path, user=username, group=group)
 
                 # Add user
