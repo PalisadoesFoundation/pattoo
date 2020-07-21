@@ -3,7 +3,6 @@
 #############################################
 
 # Pattoo packages
-
 PattooShared==0.0.85
 
 # Miscellaneous packages
@@ -34,3 +33,6 @@ psutil
 
 # Helps with multiprocessing errors
 tblib
+
+# Encryption support
+python-gnupg==0.4.6
