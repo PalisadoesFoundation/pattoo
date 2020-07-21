@@ -19,7 +19,7 @@ services:
 
 # Setup global environmental variables
 env:
-    - PYTHONPATH=./ PATTOO_CONFIGDIR=$HOME/.pattoo-unittests/config PATTOO_TRAVIS=""
+    - PYTHONPATH=./ PATTOO_TRAVIS=""
 
 # Install PIP packages and create a temporary config file before installing
 before_install:
@@ -32,9 +32,14 @@ before_install:
 install:
     - sudo setup/pattoo_installation.py install all
 
+# Create environment for unittests
+after_install:
+    - PYTHONPATH=./ PATTOO_CONFIGDIR=$HOME/.pattoo-unittests/config PATTOO_TRAVIS=""
+    - tests/bin/unittest_setup.py
+    - sudo setup/pattoo_installation.py install database
+
 # Run the unittest scripts
 sudo: false
 script:
-    - tests/bin/unittest_setup.py
     - tests/bin/do_all_tests.py --verbose
     
