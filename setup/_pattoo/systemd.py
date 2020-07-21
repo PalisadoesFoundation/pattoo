@@ -301,7 +301,9 @@ def install():
     """
     # Initialize key variables
     etc_dir = '/etc/systemd/system/multi-user.target.wants'
-    config_dir = '/etc/pattoo'
+    if os.environ.get('PATTOO_CONFIGDIR') is None:
+        os.environ['PATTOO_CONFIGDIR'] = '{0}etc{0}pattoo'.format(os.sep)
+    config_dir = os.environ.get('PATTOO_CONFIGDIR')
     pip_dir = '/opt/pattoo-daemon/.python'
 
     # Make sure this system supports systemd and that
