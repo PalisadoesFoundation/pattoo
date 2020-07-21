@@ -96,6 +96,13 @@ class TestEncryptedPost(LiveServerTestCase):
         # Initialize key variables
         config = ServerConfig()
 
+        # Get Pgpier object
+        gconfig = Config()  # Get config for Pgpier
+
+        # Create Pgpier object for the agent
+        agent_gpg = files.set_gnupg("test_encrypted_agent", gconfig,
+                        "agent_test@example.com")
+
         # Make agent data
         agent_data = _make_agent_data()
 
@@ -104,13 +111,6 @@ class TestEncryptedPost(LiveServerTestCase):
         expected = converter.posting_data_points(
             converter.agentdata_to_post(agent_data)
             )
-
-        # Get Pgpier object
-        gconfig = Config()  # Get config for Pgpier
-
-        # Create Pgpier object for the agent
-        agent_gpg = files.set_gnupg("test_encrypted_agent", gconfig,
-                        "agent_test@example.com")
 
         # Make encrypted post
         post_encrypted = EncryptedPostAgent(agent_data, agent_gpg)
