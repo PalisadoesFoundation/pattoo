@@ -1,7 +1,6 @@
 #!/usr/bin/env/python3
 """Test pattoo installation shared script"""
 
-from tests.libraries.configuration import UnittestConfig
 import os
 import unittest
 import sys
@@ -26,6 +25,7 @@ else:
 '''.format(_EXPECTED))
     sys.exit(2)
 
+from tests.libraries.configuration import UnittestConfig
 from pattoo_shared import data
 from setup._pattoo.systemd import _filepaths, _copy_service_files, _symlink_dir
 from setup._pattoo.systemd import _get_runtime_directory
@@ -157,11 +157,11 @@ class Test_Systemd(unittest.TestCase):
             # Place service files into temp dir
             destination_filepaths = _copy_service_files(temp_dir)
             _update_environment_strings(
-                destination_filepaths,
-                config_dir,
-                pip_dir,
-                'pattoo',
-                'pattoo'
+                filepaths=destination_filepaths,
+                config_dir=config_dir,
+                pip_dir=pip_dir,
+                user='pattoo',
+                group='pattoo'
             )
 
             # Ensure files are copied into temp directory
