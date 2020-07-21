@@ -84,6 +84,8 @@ class TestEncryptedPost(LiveServerTestCase):
         """
         print('setUp')
         gconfig = Config()  # Get config for Pgpier
+
+        # Create Pgpier object for the API
         api_gpg = files.set_gnupg(PATTOO_API_AGENT_NAME, gconfig,
                                   "api_test@example.com")
 
@@ -93,25 +95,65 @@ class TestEncryptedPost(LiveServerTestCase):
 
         # Initialize key variables
         config = ServerConfig()
+
+        # Make agent data
         agent_data = _make_agent_data()
-        post_dict = converter.posting_data_points(
+
+        # Turn agent data into a dict to be compared to
+        # the data received by the API
+        expected = converter.posting_data_points(
             converter.agentdata_to_post(agent_data)
             )
 
         # Get Pgpier object
         gconfig = Config()  # Get config for Pgpier
+
+        # Create Pgpier object for the agent
         agent_gpg = files.set_gnupg("test_encrypted_agent", gconfig,
                         "agent_test@example.com")
-        # api_gpg = files.get_gnupg(PATTOO_API_AGENT_NAME, gconfig)
 
+        # Make encrypted post
         post_encrypted = EncryptedPostAgent(agent_data, agent_gpg)
         post_encrypted.post()
+
+        # Read data from directory
+        cache_directory = config.agent_cache_directory(PATTOO_API_AGENT_NAME)
+        cache_data = files.read_json_files(cache_directory)
+
+        # Test
+        self.assertEqual(len(cache_data), 1)
+        self.assertEqual(len(cache_data[0]), 2)
+        result = cache_data[0][1]
+
+        # Result and expected are not quite the same. 'expected' will have
+        # lists of tuples where 'result' will have lists of lists
+        for key, value in result.items():
+            if key != 'pattoo_datapoints':
+                self.assertEqual(value, expected[key])
+        self.assertEqual(
+            result['pattoo_datapoints']['datapoint_pairs'],
+            expected['pattoo_datapoints']['datapoint_pairs'])
+
+        # Test list of tuples
+        for key, value in result[
+                'pattoo_datapoints']['key_value_pairs'].items():
+            self.assertEqual(
+                tuple(value),
+                expected['pattoo_datapoints']['key_value_pairs'][int(key)])
+
+        # Revert cache_directory
+        for filename in os.listdir(cache_directory):
+            # Examine all the '.json' files in directory
+            if filename.endswith('.json'):
+                # Read file and add to string
+                filepath = '{}{}{}'.format(cache_directory, os.sep, filename)
+                os.remove(filepath)
 
 def _make_agent_data():
     """Create generate data to post to API server"""
     # Initialize key variables
     config = Config()
-    polling_interval = 20
+    polling_interval = 60
     pattoo_agent_program = 1
     pattoo_agent_polled_target = 2
     pattoo_key = '3'
