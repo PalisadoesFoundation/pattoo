@@ -25,6 +25,7 @@ env:
 before_install:
     - pip3 install -r pip_requirements.txt
     - mysql -e 'CREATE DATABASE pattoo_unittest;'
+    - mysql -e 'CREATE DATABASE pattoo;'
     - wget https://bootstrap.pypa.io/get-pip.py
     - sudo python3.6 get-pip.py
 
