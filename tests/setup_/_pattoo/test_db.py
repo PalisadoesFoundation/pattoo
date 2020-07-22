@@ -28,15 +28,11 @@ from pattoo.db.table import (
 from pattoo.constants import DbRowUser, DbRowChart, DbRowFavorite
 from setup._pattoo.db import _insert_chart, _insert_favorite, _insert_language
 from setup._pattoo.db import _insert_agent_xlate, _insert_user, insertions
-from setup._pattoo.db import _insert_agent_xlate, install, _mysql
+from setup._pattoo.db import _insert_pair_xlate_group, install, _mysql
 
 
 class TestDb(unittest.TestCase):
     """Checks all functions for the Pattoo db script."""
-
-    def test_insertions(self):
-        """Testing method or function named "insertions"."""
-        pass
 
     def test__insert_language(self):
         """Testing method or function named "_insert_language"."""
@@ -46,11 +42,19 @@ class TestDb(unittest.TestCase):
 
     def test__insert_pair_xlate_group(self):
         """Testing method or function named "_insert_pair_xlate_group"."""
-        pass
+        _insert_pair_xlate_group()
+        names = ['OPC UA Agents', 'IfMIB Agents', 'Linux Agents', ]
+        result = []
+        # Loop through names and checks if they're inserted into the table
+        for name in names:
+            result.append(pair_xlate_group.exists(name))
+        self.assertTrue(all(result))
 
     def test__insert_agent_xlate(self):
         """Testing method or function named "_insert_agent_xlate"."""
         _insert_agent_xlate()
+
+        # Make sure agent translation exists
         result = agent_xlate.agent_xlate_exists(
             1, 'pattoo_agent_linux_autonomousd'
         )
@@ -70,7 +74,14 @@ class TestDb(unittest.TestCase):
     def test__insert_chart(self):
         """Testing method or function named "_insert_chart"."""
         _insert_chart()
-        result = chart.idx_exists(1)
+        chart_checksum = 'pattoo'
+
+        # Make sure that chart exists
+        idx_chart = chart.exists(chart_checksum)
+        self.assertTrue(bool(idx_chart))
+
+        # Verify that index exists
+        result = chart.idx_exists(idx_chart)
         self.assertTrue(result)
 
     def test__insert_favorite(self):
@@ -78,15 +89,6 @@ class TestDb(unittest.TestCase):
         _insert_favorite()
         result = favorite.idx_exists(1)
         self.assertTrue(result)
-
-    def test__mysql(self):
-        """Testing method or function named "_mysql"."""
-        pass
-
-    def test_install(self):
-        """Testing method or function named "install"."""
-        pass
-
 
 if __name__ == '__main__':
     # Make sure the environment is OK to run unittests
