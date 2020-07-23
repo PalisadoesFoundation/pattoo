@@ -28,17 +28,17 @@ from sqlalchemy import desc, asc
 # Import schemas
 from pattoo.db.schema.agent import Agent
 from pattoo.db.schema.agent_xlate import AgentXlate
-from pattoo.db.schema import user as user_
 from pattoo.db.schema import chart as chart_
 from pattoo.db.schema import chart_datapoint as chart_datapoint_
 from pattoo.db.schema.data import Data
 from pattoo.db.schema.datapoint import DataPoint
-from pattoo.db.schema.favorite import Favorite
+from pattoo.db.schema import favorite as favorite_
 from pattoo.db.schema.glue import Glue
 from pattoo.db.schema.language import Language
 from pattoo.db.schema.pair import Pair
 from pattoo.db.schema.pair_xlate_group import PairXlateGroup
 from pattoo.db.schema.pair_xlate import PairXlate
+from pattoo.db.schema import user as user_
 
 
 ###############################################################################
@@ -124,8 +124,10 @@ class Mutation(graphene.ObjectType):
     updateChart = chart_.UpdateChart.Field()
     createChartDataPoint = chart_datapoint_.CreateChartDataPoint.Field()
     updateChartDataPoint = chart_datapoint_.UpdateChartDataPoint.Field()
-    createUser = chart_datapoint_.CreateUser.Field()
-    updateUser = chart_datapoint_.UpdateUser.Field()
+    createFavorite = favorite_.CreateFavorite.Field()
+    updateFavorite = favorite_.UpdateFavorite.Field()
+    createUser = user_.CreateUser.Field()
+    updateUser = user_.UpdateUser.Field()
 
 
 class Query(graphene.ObjectType):
@@ -178,8 +180,8 @@ class Query(graphene.ObjectType):
     all_user = InstrumentedQuery(user_.User)
 
     # Results as a single entry filtered by 'id' and as a list
-    favorite = graphene.relay.Node.Field(Favorite)
-    all_favorite = InstrumentedQuery(Favorite)
+    favorite = graphene.relay.Node.Field(favorite_.Favorite)
+    all_favorite = InstrumentedQuery(favorite_.Favorite)
 
     # Results as a single entry filtered by 'id' and as a list
     chart_datapoint = graphene.relay.Node.Field(
