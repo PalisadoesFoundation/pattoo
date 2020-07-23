@@ -9,7 +9,7 @@ from _pattoo import shared
 from pattoo_shared import files
 
 
-def install_missing_pip3(package, pip_dir, verbose=True):
+def install_missing_pip3(package, pip_dir, verbose=False):
     """Automatically Install missing pip3 packages.
 
     Args:
@@ -27,7 +27,9 @@ def install_missing_pip3(package, pip_dir, verbose=True):
     username = getpass.getuser()
     if username == 'root':
         shared.run_script(
-            'python3 -m pip install {0} -t {1}'.format(package, pip_dir),
+            'python3 -m pip install {0} -t {1} -U --force-reinstall'.format(
+                                                                package,
+                                                                pip_dir),
             verbose=verbose)
     elif username == 'travis':
         shared.run_script(
@@ -36,7 +38,7 @@ def install_missing_pip3(package, pip_dir, verbose=True):
         shared.log('Installation user is not "root" or "travis"')
 
 
-def install(requirements_dir, installation_directory=None, verbose=True):
+def install(requirements_dir, installation_directory=None, verbose=False):
     """Ensure PIP3 packages are installed correctly.
 
     Args:
