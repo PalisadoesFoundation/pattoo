@@ -1,7 +1,6 @@
 #!/usr/bin/env/python3
 """Test pattoo configuration script."""
 
-from tests.libraries.configuration import UnittestConfig
 from unittest.mock import patch
 import os
 import getpass
@@ -28,7 +27,9 @@ else:
 '''.format(_EXPECTED))
     sys.exit(2)
 
+from tests.libraries.configuration import UnittestConfig
 from setup._pattoo.configure import read_config, prompt, create_user
+from setup._pattoo.configure import pattoo_server_config, pattoo_config
 from setup._pattoo.configure import _mkdir, group_exists, user_exists
 from setup._pattoo.configure import check_pattoo_server, check_pattoo_client
 
@@ -69,17 +70,38 @@ class TestConfigure(unittest.TestCase):
             result = user_exists(getpass.getuser())
             self.assertEqual(result, expected)
 
-    def test_check_pattoo_server(self):
-        """Unittest to test the check_pattoo_server function."""
-        pass
-
-    def test_check_pattoo_client(self):
-        """Unittest to test the check_pattoo_client function."""
-        pass
-
     def test_pattoo_server_config(self):
         """Unittest to test the pattoo_server_config function."""
-        pass
+        # Initialize key variables
+        expected = set([
+            'pattoo_api_agentd:\n',
+            '  ip_bind_port: 20201\n',
+            '  ip_listen_address: 0.0.0.0\n',
+            'pattoo_apid:\n',
+            '  ip_bind_port: 20202\n', 
+            '  ip_listen_address: 0.0.0.0\n',
+            'pattoo_db:\n',
+            '  db_hostname: localhost\n',
+            '  db_max_overflow: 20\n',
+            '  db_name: pattoo\n',
+            '  db_password: password\n',
+            '  db_pool_size: 10\n',
+            '  db_username: pattoo\n',
+            'pattoo_ingesterd:\n',
+            '  batch_size: 500\n',
+            '  graceful_timeout: 10\n',
+            '  ingester_interval: 3600\n'])
+
+        # Initialize temporary directory
+        with tempfile.TemporaryDirectory() as temp_dir:
+            file_path = os.path.join(temp_dir, "pattoo_server.yaml")
+            # Create config file
+            pattoo_server_config(temp_dir, False)
+            with open(file_path, 'r') as temp_config:
+
+                # Make result a set to ensure elements are sorted
+                result = set(temp_config.readlines())
+            self.assertEqual(result, expected)
 
     def test_read_config(self):
         """Unittest to test the read_server_config function."""
