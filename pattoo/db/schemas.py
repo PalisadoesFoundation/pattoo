@@ -29,7 +29,7 @@ from sqlalchemy import desc, asc
 from pattoo.db.schema.agent import Agent
 from pattoo.db.schema.agent_xlate import AgentXlate
 from pattoo.db.schema import chart as chart_
-from pattoo.db.schema.chart_datapoint import ChartDataPoint
+from pattoo.db.schema import chart_datapoint as chart_datapoint_
 from pattoo.db.schema.data import Data
 from pattoo.db.schema.datapoint import DataPoint
 from pattoo.db.schema.favorite import Favorite
@@ -122,6 +122,7 @@ class InstrumentedQuery(SQLAlchemyConnectionField):
 class Mutation(graphene.ObjectType):
     createChart = chart_.CreateChart.Field()
     updateChart = chart_.UpdateChart.Field()
+    createChartDataPoint = chart_datapoint_.CreateChartDataPoint.Field()
 
 
 class Query(graphene.ObjectType):
@@ -178,8 +179,9 @@ class Query(graphene.ObjectType):
     all_favorite = InstrumentedQuery(Favorite)
 
     # Results as a single entry filtered by 'id' and as a list
-    chart_datapoint = graphene.relay.Node.Field(ChartDataPoint)
-    all_chart_datapoint = InstrumentedQuery(ChartDataPoint)
+    chart_datapoint = graphene.relay.Node.Field(
+        chart_datapoint_.ChartDataPoint)
+    all_chart_datapoint = InstrumentedQuery(chart_datapoint_.ChartDataPoint)
 
 
 # Make the schema global

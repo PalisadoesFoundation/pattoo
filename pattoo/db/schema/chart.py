@@ -8,6 +8,7 @@ from graphene_sqlalchemy import SQLAlchemyObjectType
 from pattoo.db import db
 from pattoo.db.models import Chart as ChartModel
 from pattoo.db.schema import utils
+from pattoo_shared.constants import DATA_INT
 
 
 class ChartAttribute():
@@ -44,12 +45,12 @@ class Chart(SQLAlchemyObjectType, ChartAttribute):
 
 
 class CreateChartInput(graphene.InputObjectType, ChartAttribute):
-    """Arguments to create a chart."""
+    """Arguments to create a Chart."""
     pass
 
 
 class CreateChart(graphene.Mutation):
-    """Create a chart Mutation."""
+    """Create a Chart Mutation."""
 
     chart = graphene.Field(
         lambda: Chart, description='Chart created by this mutation.')
@@ -58,7 +59,7 @@ class CreateChart(graphene.Mutation):
         Input = CreateChartInput(required=True)
 
     def mutate(self, info_, Input):
-        data = utils.input_to_dictionary(Input)
+        data = _input_to_dictionary(Input)
 
         chart = ChartModel(**data)
         with db.db_modify(20142, close=False) as session:
@@ -68,7 +69,7 @@ class CreateChart(graphene.Mutation):
 
 
 class UpdateChartInput(graphene.InputObjectType, ChartAttribute):
-    """Arguments to update a chart.
+    """Arguments to update a Chart.
 
     InputFields are used in mutations to allow nested input data for mutations
 
@@ -83,7 +84,7 @@ class UpdateChartInput(graphene.InputObjectType, ChartAttribute):
 
 
 class UpdateChart(graphene.Mutation):
-    """Update a chart."""
+    """Update a Chart."""
     chart = graphene.Field(
         lambda: Chart, description='Chart updated by this mutation.')
 
@@ -91,7 +92,7 @@ class UpdateChart(graphene.Mutation):
         Input = UpdateChartInput(required=True)
 
     def mutate(self, info_, Input):
-        data = utils.input_to_dictionary(Input)
+        data = _input_to_dictionary(Input)
 
         # Update database
         with db.db_modify(20143) as session:
@@ -104,3 +105,22 @@ class UpdateChart(graphene.Mutation):
                 idx_chart=data['idx_chart']).first()
 
         return UpdateChart(chart=chart)
+
+
+def _input_to_dictionary(input_):
+    """Convert.
+
+    Args:
+        input_: GraphQL "data" dictionary structure from mutation
+
+    Returns:
+        result: Dict of inputs
+
+    """
+    # 'column' is a dict of DB model 'non string' column names and their types
+    column = {
+        'idx_chart': DATA_INT,
+        'enabled': DATA_INT
+    }
+    result = utils.input_to_dictionary(input_, column=column)
+    return result

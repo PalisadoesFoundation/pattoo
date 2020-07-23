@@ -1,7 +1,7 @@
 """pattoo ORM Schema utility functions."""
 
 from graphql_relay.node.node import from_global_id
-from pattoo_shared import log
+from pattoo_shared.constants import DATA_INT, DATA_STRING, DATA_FLOAT
 
 
 def resolve_first_name(obj, _):
@@ -74,11 +74,12 @@ def resolve_units(obj, _):
     return obj.units.decode()
 
 
-def input_to_dictionary(input_):
+def input_to_dictionary(input_, column=None):
     """Method to convert Graphene inputs into dictionary.
 
     Args:
         input_: GraphQL "data" dictionary structure from mutation
+        column: List database model column names that should be column
 
     Returns:
         dictionary: Dict of inputs
@@ -86,6 +87,8 @@ def input_to_dictionary(input_):
     """
     # Initialize key variables
     dictionary = {}
+    if bool(column) is False:
+        column = {}
 
     # Process each key from the imput
     for key in input_:
@@ -95,8 +98,13 @@ def input_to_dictionary(input_):
         else:
             # Otherwise the key is related to the database.
             # We only use Unicode data in the tables, so we need to convert.
-            if isinstance(input_[key], str):
+            column_type = column.get(key, DATA_STRING)
+            if column_type == DATA_STRING:
                 input_[key] = input_[key].encode()
+            elif column_type == DATA_FLOAT:
+                input_[key] = float(input_[key])
+            else:
+                input_[key] = int(input_[key])
 
         dictionary[key] = input_[key]
     return dictionary
