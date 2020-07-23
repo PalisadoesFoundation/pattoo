@@ -14,7 +14,7 @@ from pattoo.db.models import DataPoint
 
 
 @contextmanager
-def db_modify(error_code, die=True):
+def db_modify(error_code, die=True, close=True):
     """Provide a transactional scope around Update / Insert operations.
 
     From https://docs.sqlalchemy.org/en/13/orm/session_basics.html
@@ -22,6 +22,8 @@ def db_modify(error_code, die=True):
     Args:
         error_code: Error code to use in messages
         die: Die if True
+        close: Close session if True. GraphQL mutations sometimes require the
+            session to remain open.
 
     Returns:
         None
@@ -53,18 +55,20 @@ def db_modify(error_code, die=True):
             log.log2info(error_code, log_message)
     finally:
         # Return the Connection to the pool
-        session.close()
+        if bool(close) is True:
+            session.close()
 
 
 @contextmanager
-def db_query(error_code):
+def db_query(error_code, close=True):
     """Provide a transactional scope around Query operations.
 
     From https://docs.sqlalchemy.org/en/13/orm/session_basics.html
 
     Args:
         error_code: Error code to use in messages
-
+        close: Close session if True. GraphQL mutations sometimes require the
+            session to remain open.
     Returns:
         None
 
@@ -88,7 +92,8 @@ def db_query(error_code):
         log.log2info(error_code, log_message)
     finally:
         # Return the Connection to the pool
-        session.close()
+        if bool(close) is True:
+            session.close()
 
 
 def connectivity(die=True):

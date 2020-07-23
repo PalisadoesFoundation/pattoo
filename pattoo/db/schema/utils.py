@@ -1,6 +1,7 @@
 """pattoo ORM Schema utility functions."""
 
 from graphql_relay.node.node import from_global_id
+from pattoo_shared import log
 
 
 def resolve_first_name(obj, _):
@@ -73,20 +74,29 @@ def resolve_units(obj, _):
     return obj.units.decode()
 
 
-def input_to_dictionary(_input):
+def input_to_dictionary(input_):
     """Method to convert Graphene inputs into dictionary.
 
     Args:
-        _input: GraphQL input
+        input_: GraphQL "data" dictionary structure from mutation
 
     Returns:
         dictionary: Dict of inputs
 
     """
+    # Initialize key variables
     dictionary = {}
-    for key in _input:
+
+    # Process each key from the imput
+    for key in input_:
         # Convert GraphQL global id to database id
         if key[-2:] == 'id':
-            _input[key] = from_global_id(_input[key])[1]
-        dictionary[key] = _input[key]
+            input_[key] = from_global_id(input_[key])[1]
+        else:
+            # Otherwise the key is related to the database.
+            # We only use Unicode data in the tables, so we need to convert.
+            if isinstance(input_[key], str):
+                input_[key] = input_[key].encode()
+
+        dictionary[key] = input_[key]
     return dictionary

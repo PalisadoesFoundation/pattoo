@@ -55,13 +55,13 @@ class CreateChart(graphene.Mutation):
         lambda: Chart, description='Chart created by this mutation.')
 
     class Arguments:
-        input_ = CreateChartInput(required=True)
+        Input = CreateChartInput(required=True)
 
-    def mutate(self, info_, input_):
-        data = utils.input_to_dictionary(input_)
+    def mutate(self, info_, Input):
+        data = utils.input_to_dictionary(Input)
 
         chart = ChartModel(**data)
-        with db.db_modify(20036, die=True) as session:
+        with db.db_modify(20142, close=False) as session:
             session.add(chart)
 
         return CreateChart(chart=chart)
@@ -78,7 +78,8 @@ class UpdateChartInput(graphene.InputObjectType, ChartAttribute):
     """
 
     # Provide a description of the ID
-    id = graphene.ID(required=True, description='Global ID of the chart.')
+    idx_chart = graphene.String(
+        required=True, description='Chart index value.')
 
 
 class UpdateChart(graphene.Mutation):
@@ -87,17 +88,19 @@ class UpdateChart(graphene.Mutation):
         lambda: Chart, description='Chart updated by this mutation.')
 
     class Arguments:
-        input_ = UpdateChartInput(required=True)
+        Input = UpdateChartInput(required=True)
 
-    def mutate(self, info_, input_):
-        data = utils.input_to_dictionary(input_)
+    def mutate(self, info_, Input):
+        data = utils.input_to_dictionary(Input)
 
         # Update database
-        with db.db_modify(20036, die=True) as session:
-            session.query(ChartModel).filter_by(id=data['id']).update(data)
+        with db.db_modify(20143) as session:
+            session.query(ChartModel).filter_by(
+                idx_chart=data['idx_chart']).update(data)
 
         # Get code from database
-        with db.db_query(20038) as session:
-            chart = session.query(ChartModel).filter_by(id=data['id']).first()
+        with db.db_query(20144, close=False) as session:
+            chart = session.query(ChartModel).filter_by(
+                idx_chart=data['idx_chart']).first()
 
         return UpdateChart(chart=chart)
