@@ -19,9 +19,9 @@ Based on the pages at:
 # PIP3 imports
 import graphene
 from graphene import relay
-from graphene_sqlalchemy import SQLAlchemyConnectionField
 from graphene.utils.str_converters import to_snake_case
 from graphene.relay.connection import PageInfo
+from graphene_sqlalchemy import SQLAlchemyConnectionField
 from graphql_relay.connection.arrayconnection import connection_from_list_slice
 from sqlalchemy import desc, asc
 
