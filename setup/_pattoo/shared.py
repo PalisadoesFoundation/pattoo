@@ -67,7 +67,7 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
         # Log message
         if verbose is True:
             print('messages: {}'.format(messages))
-        if bool(messages) is False:
+        if bool(messages) is True:
             for log_message in messages:
                 if verbose is True:
                     print(log_message)

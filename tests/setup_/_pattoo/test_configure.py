@@ -91,7 +91,7 @@ pattoo_ingesterd:
 batch_size: 500
   graceful_timeout: 10
 ingester_interval: 3600
-'''
+'''.strip().replace(' ', '')
 
         # Initialize temporary directory
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -99,7 +99,10 @@ ingester_interval: 3600
             # Create config file
             pattoo_server_config(temp_dir, False)
             with open(file_path, 'r') as temp_config:
-                result = temp_config.read()
+
+                # Remove all whitespace
+                result = temp_config.read().strip().replace(' ', '')
+               # print
             self.assertEqual(result, expected)
 
     def test_read_config(self):
