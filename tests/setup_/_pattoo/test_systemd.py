@@ -29,7 +29,7 @@ else:
 from tests.libraries.configuration import UnittestConfig
 from pattoo_shared import data
 from setup._pattoo.systemd import _filepaths, _copy_service_files, _symlink_dir
-from setup._pattoo.systemd import _get_runtime_directory
+from setup._pattoo.systemd import _get_runtime_directory, _check_symlinks
 from setup._pattoo.systemd import _update_environment_strings
 
 class Test_Systemd(unittest.TestCase):
@@ -265,6 +265,29 @@ class Test_Systemd(unittest.TestCase):
             with self.assertRaises(SystemExit) as cm_:
                 _get_runtime_directory(temp_dir)
             self.assertEqual(cm_.exception.code, 3)
+
+    def test___check_symlinks(self):
+        """Testing method or function named "_get_runtime_directory"."""
+        # Initialize key variables
+        daemons = [
+            'pattoo_apid',
+            'pattoo_api_agentd',
+            'pattoo_ingesterd'
+            ]
+        result = []
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create target directory
+            target_dir = os.path.join(temp_dir, 'test_symlink')
+            os.mkdir(target_dir)
+
+            # Check for symlinks and create them
+            _check_symlinks(temp_dir, target_dir, daemons)
+            for daemon in daemons:
+                symlink_path = os.path.join(temp_dir, daemon)
+                result.append(os.path.islink(symlink_path))
+            
+        self.assertTrue(all(result))
 
 
 if __name__ == '__main__':

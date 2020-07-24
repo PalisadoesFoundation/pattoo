@@ -73,24 +73,17 @@ class TestConfigure(unittest.TestCase):
     def test_pattoo_server_config(self):
         """Unittest to test the pattoo_server_config function."""
         # Initialize key variables
-        expected = set([
-            'pattoo_api_agentd:\n',
-            '  ip_bind_port: 20201\n',
-            '  ip_listen_address: 0.0.0.0\n',
-            'pattoo_apid:\n',
-            '  ip_bind_port: 20202\n', 
-            '  ip_listen_address: 0.0.0.0\n',
-            'pattoo_db:\n',
-            '  db_hostname: localhost\n',
-            '  db_max_overflow: 20\n',
-            '  db_name: pattoo\n',
-            '  db_password: password\n',
-            '  db_pool_size: 10\n',
-            '  db_username: pattoo\n',
-            'pattoo_ingesterd:\n',
-            '  batch_size: 500\n',
-            '  graceful_timeout: 10\n',
-            '  ingester_interval: 3600\n'])
+        expected = '''\
+pattoo_api_agentd:\n  \
+ip_bind_port: 20201\n  \
+ip_listen_address: 0.0.0.0\n\
+pattoo_apid:\n  ip_bind_port: 20202\n  \
+ip_listen_address: 0.0.0.0\npattoo_db:\n  \
+db_hostname: localhost\n  db_max_overflow: 20\n  \
+db_name: pattoo\n  db_password: password\n  \
+db_pool_size: 10\n  db_username: pattoo\npattoo_ingesterd:\n  \
+batch_size: 500\n  graceful_timeout: 10\n  \
+ingester_interval: 3600\n'''
 
         # Initialize temporary directory
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -98,9 +91,7 @@ class TestConfigure(unittest.TestCase):
             # Create config file
             pattoo_server_config(temp_dir, False)
             with open(file_path, 'r') as temp_config:
-
-                # Make result a set to ensure elements are sorted
-                result = set(temp_config.readlines())
+                result = temp_config.read()
             self.assertEqual(result, expected)
 
     def test_read_config(self):

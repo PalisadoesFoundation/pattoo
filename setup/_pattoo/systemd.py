@@ -263,7 +263,33 @@ Expected configuration directory "{}" does not exist.'''.format(config_dir))
         shared.log('Expected systemd directory "{}" does not exist.'.format(etc_dir))
 
 
-def run_systemd():
+def _check_symlinks(etc_dir, symlink_dir, daemons):
+    """Ensure the files in the etc dir are symlinks.
+
+    Args:
+        etc_dir: The directory that the symlinks are located in
+        symlink_dir: The directory that the symlinks point to
+        daemons: The list of system daemons
+
+    Returns:
+        None
+
+    """
+    for daemon in daemons:
+        # Initialize key variables
+        symlink_path = os.path.join(etc_dir, daemon)
+        file_path = os.path.join(symlink_dir, daemon)
+
+        # Say what we are doing
+        print('Checking if the {}.service file is a symlink '.format(daemon))
+        link = os.path.islink('{0}.service'.format(symlink_path))
+        if link is False:
+            print('Creating symlink for {}'.format(daemon))
+            # Create symlink if it doesn't exist
+            os.symlink(file_path, symlink_path)
+
+
+def run_systemd(daemons):
     """Reload and start system daemons.
 
     Args:
@@ -273,12 +299,6 @@ def run_systemd():
         None
 
     """
-    # Initialize key variables
-    daemons = [
-        'pattoo_apid',
-        'pattoo_api_agentd',
-        'pattoo_ingesterd'
-    ]
     # Say what we are doing
     print('Checking if daemons are already running')
 
@@ -318,6 +338,11 @@ def install():
         os.environ['PATTOO_CONFIGDIR'] = '{0}etc{0}pattoo'.format(os.sep)
     config_dir = os.environ.get('PATTOO_CONFIGDIR')
     pip_dir = '/opt/pattoo-daemon/.python'
+    daemons = [
+        'pattoo_apid',
+        'pattoo_api_agentd',
+        'pattoo_ingesterd'
+    ]
 
     # Make sure this system supports systemd and that
     # the required directories exist
@@ -338,4 +363,7 @@ def install():
         'pattoo')
 
     # Reload and start systemd
-    run_systemd()
+    run_systemd(daemons)
+
+    # Check symlinks
+    _check_symlinks(etc_dir, target_directory, daemons)
