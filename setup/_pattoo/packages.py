@@ -38,7 +38,7 @@ def install_missing_pip3(package, pip_dir, verbose=True):
         shared.log('Installation user is not "root" or "travis"')
 
 
-def install(requirements_dir, installation_directory=None, verbose=False):
+def install(requirements_dir, installation_directory=None, verbose=True):
     """Ensure PIP3 packages are installed correctly.
 
     Args:
