@@ -286,7 +286,7 @@ class Test_Systemd(unittest.TestCase):
             for daemon in daemons:
                 symlink_path = os.path.join(temp_dir, daemon)
                 result.append(os.path.islink(symlink_path))
-            
+
         self.assertTrue(all(result))
 
 

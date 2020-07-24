@@ -90,6 +90,7 @@ class TestDb(unittest.TestCase):
         result = favorite.idx_exists(1)
         self.assertTrue(result)
 
+
 if __name__ == '__main__':
     # Make sure the environment is OK to run unittests
     UnittestConfig().create()

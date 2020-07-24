@@ -74,16 +74,24 @@ class TestConfigure(unittest.TestCase):
         """Unittest to test the pattoo_server_config function."""
         # Initialize key variables
         expected = '''\
-pattoo_api_agentd:\n  \
-ip_bind_port: 20201\n  \
-ip_listen_address: 0.0.0.0\n\
-pattoo_apid:\n  ip_bind_port: 20202\n  \
-ip_listen_address: 0.0.0.0\npattoo_db:\n  \
-db_hostname: localhost\n  db_max_overflow: 20\n  \
-db_name: pattoo\n  db_password: password\n  \
-db_pool_size: 10\n  db_username: pattoo\npattoo_ingesterd:\n  \
-batch_size: 500\n  graceful_timeout: 10\n  \
-ingester_interval: 3600\n'''
+pattoo_api_agentd:
+ip_bind_port: 20201
+ip_listen_address: 0.0.0.0
+pattoo_apid:
+  ip_bind_port: 20202
+ip_listen_address: 0.0.0.0
+pattoo_db:
+db_hostname: localhost
+  db_max_overflow: 20
+db_name: pattoo
+  db_password: password
+db_pool_size: 10
+  db_username: pattoo
+pattoo_ingesterd:
+batch_size: 500
+  graceful_timeout: 10
+ingester_interval: 3600
+'''
 
         # Initialize temporary directory
         with tempfile.TemporaryDirectory() as temp_dir:

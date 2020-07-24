@@ -25,6 +25,7 @@ else:
     sys.exit(2)
 
 from pattoo_shared import data
+from setup._pattoo import shared
 from setup._pattoo.packages import install, install_missing_pip3
 from tests.libraries.configuration import UnittestConfig
 
@@ -83,8 +84,7 @@ class Test_Install(unittest.TestCase):
                 result = install(ROOT_DIR, temp_dir)
 
                 # Get raw packages in requirements format
-                packages = subprocess.check_output(
-                    [sys.executable, '-m', 'pip', 'freeze'])
+                packages = shared.run_script('python3 -m pip freeze')[1]
 
                 # Get packages with versions removed
                 installed_packages = [package.decode().split('==')[

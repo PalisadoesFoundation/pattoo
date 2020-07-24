@@ -263,7 +263,7 @@ Expected configuration directory "{}" does not exist.'''.format(config_dir))
         shared.log('Expected systemd directory "{}" does not exist.'.format(etc_dir))
 
 
-def _check_symlinks(etc_dir, symlink_dir, daemons):
+def _check_symlinks(etc_dir, daemons):
     """Ensure the files in the etc dir are symlinks.
 
     Args:
@@ -278,7 +278,6 @@ def _check_symlinks(etc_dir, symlink_dir, daemons):
     for daemon in daemons:
         # Initialize key variables
         symlink_path = os.path.join(etc_dir, daemon)
-        file_path = os.path.join(symlink_dir, daemon)
 
         # Say what we are doing
         print('Checking if the {}.service file is a symlink '.format(daemon))
@@ -286,7 +285,7 @@ def _check_symlinks(etc_dir, symlink_dir, daemons):
         if link is False:
             print('Creating symlink for {}'.format(daemon))
             # Create symlink if it doesn't exist
-            os.symlink(file_path, symlink_path)
+            shared.run_script('systemctl enable {}'.format(daemon))
 
 
 def run_systemd(daemons):
@@ -304,11 +303,11 @@ def run_systemd(daemons):
 
     # Loop through daemon list
     for daemon in daemons:
-        command = '''
+        command = '''\
 systemctl is-active {} daemon --quiet service-name'''.format(daemon)
 
         # Check status code of daemon
-        status = os.system(command)
+        status = shared.run_script(command, die=False)[0]
         if status == 0:
             print('''
 {} daemon is already enabled/running, stopping daemon'''.format(daemon))
@@ -366,4 +365,4 @@ def install():
     run_systemd(daemons)
 
     # Check symlinks
-    _check_symlinks(etc_dir, target_directory, daemons)
+    _check_symlinks(etc_dir, daemons)
