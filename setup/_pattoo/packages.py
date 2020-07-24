@@ -61,8 +61,9 @@ def install(requirements_dir, installation_directory=None, verbose=False):
 
     # Read pip_requirements file
     filepath = '{}{}pip_requirements.txt'.format(requirements_dir, os.sep)
-    if verbose:
-        print('Checking pip3 packages')
+
+    # Say what we are doing
+    print('Checking pip3 packages')
     if os.path.isfile(filepath) is False:
         shared.log('Cannot find PIP3 requirements file {}'.format(filepath))
 

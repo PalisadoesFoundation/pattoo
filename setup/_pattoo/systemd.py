@@ -273,20 +273,33 @@ def run_systemd():
         None
 
     """
+    # Initialize key variables
+    daemons = [
+        'pattoo_apid',
+        'pattoo_api_agentd',
+        'pattoo_ingesterd'
+    ]
     # Say what we are doing
-    print('??: Enabling system daemons')
-    # Reloading daemons
-    shared.run_script('sudo systemctl daemon-reload')
-    # Enabling daemons
-    shared.run_script('sudo systemctl enable pattoo_apid')
-    shared.run_script('sudo systemctl enable pattoo_api_agentd')
-    shared.run_script('sudo systemctl enable pattoo_ingesterd')
-    print('OK: System daemons enabled')
-    print('??: Starting system daemons')
-    shared.run_script('sudo systemctl start pattoo_apid')
-    shared.run_script('sudo systemctl start pattoo_api_agentd')
-    shared.run_script('sudo systemctl start pattoo_ingesterd')
-    print('OK: System daemons successfully started')
+    print('Checking if daemons are already running')
+
+    # Loop through daemon list
+    for daemon in daemons:
+        command = '''
+systemctl is-active {} daemon --quiet service-name'''.format(daemon)
+
+        # Check status code of daemon
+        status = os.system(command)
+        if status == 0:
+            print('''
+{} daemon is already enabled/running, stopping daemon'''.format(daemon))
+            shared.run_script('systemctl stop {}'.format(daemon))
+
+        # Reloading daemons
+        shared.run_script('systemctl daemon-reload')
+        # Enabling daemon
+        shared.run_script('systemctl enable {}'.format(daemon))
+        # Starting daemon
+        shared.run_script('systemctl start {}'.format(daemon))
 
 
 def install():
