@@ -6,6 +6,7 @@ import unittest
 import sys
 import tempfile
 import yaml
+import distro
 from random import random
 
 # Try to create a working PYTHONPATH
@@ -110,8 +111,15 @@ class Test_Systemd(unittest.TestCase):
     def test__symlink_dir(self):
         """Testing method or function named "_symlink_dir"."""
         # Initialise key variables
+        linux_distro = distro.linux_distribution()[0].lower()
         etc_dir = '/etc/systemd/system/multi-user.target.wants'
-        expected = '/lib/systemd/system'
+
+        if linux_distro == 'ubuntu':
+            expected = '/lib/systemd/system'
+        else:
+            # Expected directory for CentOS
+            expected = '/usr/lib/systemd/system'
+        
         # Test directory without symlinks
         with tempfile.TemporaryDirectory() as temp_dir:
             with self.assertRaises(SystemExit) as cm_:
