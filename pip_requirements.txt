@@ -34,5 +34,8 @@ psutil
 # Helps with multiprocessing errors
 tblib
 
+# Determine linux distrobution
+distro
+
 # Encryption support
 python-gnupg==0.4.6

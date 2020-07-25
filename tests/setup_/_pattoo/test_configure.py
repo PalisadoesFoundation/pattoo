@@ -1,7 +1,6 @@
 #!/usr/bin/env/python3
 """Test pattoo configuration script."""
 
-from tests.libraries.configuration import UnittestConfig
 from unittest.mock import patch
 import os
 import getpass
@@ -28,7 +27,9 @@ else:
 '''.format(_EXPECTED))
     sys.exit(2)
 
+from tests.libraries.configuration import UnittestConfig
 from setup._pattoo.configure import read_config, prompt, create_user
+from setup._pattoo.configure import pattoo_server_config, pattoo_config
 from setup._pattoo.configure import _mkdir, group_exists, user_exists
 from setup._pattoo.configure import check_pattoo_server, check_pattoo_client
 
@@ -69,17 +70,39 @@ class TestConfigure(unittest.TestCase):
             result = user_exists(getpass.getuser())
             self.assertEqual(result, expected)
 
-    def test_check_pattoo_server(self):
-        """Unittest to test the check_pattoo_server function."""
-        pass
-
-    def test_check_pattoo_client(self):
-        """Unittest to test the check_pattoo_client function."""
-        pass
-
     def test_pattoo_server_config(self):
         """Unittest to test the pattoo_server_config function."""
-        pass
+        # Initialize key variables
+        expected = '''\
+pattoo_api_agentd:
+ip_bind_port: 20201
+ip_listen_address: 0.0.0.0
+pattoo_apid:
+  ip_bind_port: 20202
+ip_listen_address: 0.0.0.0
+pattoo_db:
+db_hostname: localhost
+  db_max_overflow: 20
+db_name: pattoo
+  db_password: password
+db_pool_size: 10
+  db_username: pattoo
+pattoo_ingesterd:
+batch_size: 500
+  graceful_timeout: 10
+ingester_interval: 3600
+'''.strip().replace(' ', '')
+
+        # Initialize temporary directory
+        with tempfile.TemporaryDirectory() as temp_dir:
+            file_path = os.path.join(temp_dir, "pattoo_server.yaml")
+            # Create config file
+            pattoo_server_config(temp_dir, False)
+            with open(file_path, 'r') as temp_config:
+
+                # Remove all whitespace
+                result = temp_config.read().strip().replace(' ', '')
+            self.assertEqual(result, expected)
 
     def test_read_config(self):
         """Unittest to test the read_server_config function."""

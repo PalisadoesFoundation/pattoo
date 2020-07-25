@@ -3,6 +3,7 @@
 import os
 import subprocess
 import unittest
+from random import random
 import sys
 import tempfile
 
@@ -23,6 +24,8 @@ else:
 '''.format(_EXPECTED))
     sys.exit(2)
 
+from pattoo_shared import data
+from setup._pattoo import shared
 from setup._pattoo.packages import install, install_missing_pip3
 from tests.libraries.configuration import UnittestConfig
 
@@ -63,22 +66,31 @@ class Test_Install(unittest.TestCase):
 
     def test_install(self):
         """Unittest to test the install function."""
-        # At least one expected package
-        expected_package = 'PattooShared'
-        expected = True
-        with tempfile.TemporaryDirectory() as temp_dir:
-            result = install(ROOT_DIR, temp_dir)
+        # Test with undefined requirements directory
+        with self.subTest():
+            with self.assertRaises(SystemExit) as cm_:
+                requirements_dir = data.hashstring(str(random()))
+                install(requirements_dir)
+            self.assertEqual(cm_.exception.code, 3)
 
-            # Get raw packages in requirements format
-            packages = subprocess.check_output(
-                [sys.executable, '-m', 'pip', 'freeze'])
+        # Test with default expected behaviour
+        with self.subTest():
+            # At least one expected package
+            expected_package = 'PattooShared'
+            expected = True
 
-            # Get packages with versions removed
-            installed_packages = [
-                package.decode().split('==')[
-                    0] for package in packages.split()]
-            result = expected_package in installed_packages
-        self.assertEqual(result, expected)
+            # Create temporary directory
+            with tempfile.TemporaryDirectory() as temp_dir:
+                result = install(ROOT_DIR, temp_dir)
+
+                # Get raw packages in requirements format
+                packages = shared.run_script('python3 -m pip freeze')[1]
+
+                # Get packages with versions removed
+                installed_packages = [package.decode().split('==')[
+                        0] for package in packages.split()]
+                result = expected_package in installed_packages
+                self.assertEqual(result, expected)
 
 
 if __name__ == '__main__':
