@@ -6,10 +6,8 @@
 from __future__ import print_function
 import random
 import string
-
 # pip3 imports
 from sqlalchemy import create_engine
-
 # Pattoo libraries
 from pattoo_shared import log
 from pattoo_shared import data
@@ -17,7 +15,7 @@ from pattoo.configuration import ConfigPattoo as Config
 from pattoo.db import URL
 from pattoo.db.models import BASE
 from pattoo.db.table import (
-    language, pair_xlate_group, pair_xlate, agent_xlate, user, chart, favorite)
+   language, pair_xlate_group, pair_xlate, agent_xlate, user, chart, favorite)
 from pattoo.constants import DbRowUser, DbRowChart, DbRowFavorite
 
 

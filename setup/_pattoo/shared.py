@@ -1,4 +1,4 @@
-
+"""Functions utilized by the pattoo installation."""
 # Main python libraries
 import sys
 import subprocess
@@ -65,10 +65,12 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
             )
 
         # Log message
-        print('messages: {}'.format(messages))
-        if messages != []:
+        if verbose is True:
+            print('messages: {}'.format(messages))
+        if bool(messages) is True:
             for log_message in messages:
-                print(log_message)
+                if verbose is True:
+                    print(log_message)
 
             if bool(die) is True:
                 # All done
