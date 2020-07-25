@@ -283,6 +283,8 @@ def _check_symlinks(etc_dir, daemons):
         print('Checking if the {}.service file is a symlink '.format(daemon))
         link = os.path.islink('{0}.service'.format(symlink_path))
         if link is False:
+            if getpass.getuser() != 'root':
+                shared.log('Current user is not root')
             print('Creating symlink for {}'.format(daemon))
             # Create symlink if it doesn't exist
             shared.run_script('systemctl enable {}'.format(daemon))

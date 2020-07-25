@@ -102,7 +102,6 @@ ingester_interval: 3600
 
                 # Remove all whitespace
                 result = temp_config.read().strip().replace(' ', '')
-               # print
             self.assertEqual(result, expected)
 
     def test_read_config(self):

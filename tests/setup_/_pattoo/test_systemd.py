@@ -281,11 +281,10 @@ class Test_Systemd(unittest.TestCase):
             target_dir = os.path.join(temp_dir, 'test_symlink')
             os.mkdir(target_dir)
 
-            # Check for symlinks and create them
-            _check_symlinks(temp_dir, target_dir, daemons)
-            for daemon in daemons:
-                symlink_path = os.path.join(temp_dir, daemon)
-                result.append(os.path.islink(symlink_path))
+            # Check for symlinks and sudo access
+            with self.assertRaises(SystemExit) as cm_:
+                _check_symlinks(temp_dir, daemons)
+            self.assertEqual(cm_.exception.code, 3)
 
         self.assertTrue(all(result))
 
