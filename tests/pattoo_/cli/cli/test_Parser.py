@@ -6,8 +6,6 @@ import os
 import unittest
 import sys
 import argparse
-from unittest.mock import patch
-from io import StringIO
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
