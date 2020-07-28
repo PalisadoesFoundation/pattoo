@@ -3,10 +3,11 @@
 #############################################
 
 # Pattoo packages
-PattooShared==0.0.85
+PattooShared==0.0.86
 
 # Miscellaneous packages
 PyYAML
+Flask-Session
 
 # Database packages
 PyMySQL
