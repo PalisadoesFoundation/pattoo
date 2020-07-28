@@ -174,7 +174,7 @@ class TestCLIImport(unittest.TestCase):
 
         # Skips class teardown if using travis-ci
         if not self.travis_ci:
-            teardown_tables(self.tables, self.engine)
+            teardown_tables(self.engine)
 
     def test_process(self):
         """Test import argument process function"""
