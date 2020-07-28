@@ -1,7 +1,7 @@
 #!/usr/bin/env/python3
 """Test pattoo installation shared script"""
 
-from tests.libraries.configuration import UnittestConfig
+
 import os
 import unittest
 import sys
@@ -24,6 +24,7 @@ else:
 '''.format(_EXPECTED))
     sys.exit(2)
 
+from tests.libraries.configuration import UnittestConfig
 from setup._pattoo import shared
 
 

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """pattoo ORM Table classes.
 
 Used to define the tables used in the database.

@@ -35,3 +35,6 @@ psutil
 
 # Helps with multiprocessing errors
 tblib
+
+# Determine linux distrobution
+distro

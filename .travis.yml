@@ -1,6 +1,6 @@
 dist: bionic
 
-# Don't use
+# Enable sudo
 sudo: true
 
 # Define the language and versions that infoset is written in
@@ -26,7 +26,12 @@ before_install:
     - pip3 install -r pip_requirements.txt
     - tests/bin/unittest_setup.py
     - mysql -e 'CREATE DATABASE pattoo_unittest;'
-    - setup/pattoo_installation.py install all
+    - wget https://bootstrap.pypa.io/get-pip.py
+    - sudo python3.6 get-pip.py
+
+
+install:
+    - sudo setup/pattoo_installation.py install database
 
 # Run the unittest scripts
 sudo: false
