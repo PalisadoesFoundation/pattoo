@@ -317,8 +317,7 @@ if __name__ == '__main__':
     try:
         from _pattoo import packages, systemd, configure
     except ModuleNotFoundError:
-        # default_pip_dir = '/opt/pattoo-daemon/.python'
-        default_pip_dir = '/home/travis/virtualenv/python3.6.10/lib/python3.6/site-packages'
+        default_pip_dir = '/opt/pattoo-daemon/.python'
         print('Pattoo shared is missing. Installing pattoo shared')
         shared.run_script(
             'python3 -m pip install PattooShared -t {}'.format(default_pip_dir))
