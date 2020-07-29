@@ -79,14 +79,18 @@ class TestCLIShow(unittest.TestCase):
         # Gets callback stdout output
         with patch('sys.stdout', new = StringIO()) as output:
             if callback.__name__ in ['_process_pair_xlate', 'process']:
-                with self.assertRaises(SystemExit):
+                if callback.__name__ == 'process':
+                    with self.assertRaises(SystemExit):
+                        callback(args)
+                else:
                     callback(args)
             else:
                 callback()
             callback_output = output.getvalue()
 
         # Generating expected stdout output
-        if callback.__name__ == '_process_pair_xlate':
+        if (callback.__name__ == '_process_pair_xlate' or table_module ==
+            pair_xlate):
             data = table_module.cli_show_dump(args.idx_pair_xlate_group)
         else:
             data = table_module.cli_show_dump()
@@ -130,7 +134,7 @@ class TestCLIShow(unittest.TestCase):
             teardown_tables(self.engine)
 
     def test_process(self):
-        """Tests assign argument process function"""
+        """Tests show process function"""
 
         # Testing for invalid args.qualifier
         args = self.parser.parse_args([])
@@ -143,10 +147,35 @@ class TestCLIShow(unittest.TestCase):
                                                    agent_xlate)]
 
         for arg, fn in test_vars:
-            # if arg == 'key_translation':
-                # cmd_args = ['show', arg, '--idx_pair_xlate_group', '1']
-                # self.show_fn(fn, process, True, cmd_args)
+            if arg == 'key_translation':
+                cmd_args = ['show', arg, '--idx_pair_xlate_group', '1']
+                self.show_fn(fn, process, True, cmd_args)
             self.show_fn(fn, process, True, ['show', arg])
+
+
+    def test__process_agent(self):
+        """Tests _process_agent"""
+        self.show_fn(agent, _process_agent)
+
+    def test__process_language(self):
+        """Tests _process_agent"""
+        self.show_fn(language, _process_language)
+
+    def test__process_pair_xlate_group(self):
+        """Tests _process_agent"""
+        self.show_fn(pair_xlate_group, _process_pair_xlate_group)
+
+    def test__process_pair_xlate(self):
+        """Tests _process_agent"""
+        cmd_args = ['show', 'key_translation']
+        self.show_fn(pair_xlate, _process_pair_xlate, cmd_args=cmd_args)
+
+        cmd_args = ['show', 'key_translation', '--idx_pair_xlate_group', '1']
+        self.show_fn(pair_xlate, _process_pair_xlate, cmd_args=cmd_args)
+
+    def test__process_agent_xlate(self):
+        """Tests _process_agent"""
+        self.show_fn(agent_xlate, _process_agent_xlate)
 
 
 if __name__ == "__main__":
