@@ -136,15 +136,12 @@ class TestCLISet(unittest.TestCase):
             # Returns engine object
             self.engine = create_tables(self.tables)
 
-            # Creating session object to make updates to tables in test
-            # database
-            with db.db_modify(30005) as session:
-                # Instantiation of test data in each table
-                session.add(Language('en'.encode(), 'English'.encode(), 1))
-                session.add(PairXlateGroup('Pattoo Default'.encode(), 1))
+            # Creating test data in Language and PairXlateGroup tables
+            language.insert_row('en', 'English')
+            pair_xlate_group.insert_row('Pattoo Default')
 
-        self.idx_pair_xlate_group_count = 1
         # Getting number of entries in PairXlateGroup table
+        self.idx_pair_xlate_group_count = 1
         with db.db_query(30004) as session:
             result = session.query(PairXlateGroup)
             self.idx_pair_xlate_group_count += result.count()
@@ -155,7 +152,7 @@ class TestCLISet(unittest.TestCase):
 
         # Skips class teardown if using travis-ci
         if not self.travis_ci:
-            teardown_tables(self.tables, self.engine)
+            teardown_tables(self.engine)
 
     def test_process(self):
         """Test import argument process function"""

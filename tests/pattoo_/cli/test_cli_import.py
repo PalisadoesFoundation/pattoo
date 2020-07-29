@@ -31,6 +31,7 @@ from pattoo.cli.cli_import import (process, _process_key_translation,
 from pattoo_shared import log
 from pattoo.db import db
 from pattoo.cli.cli import _Import
+from pattoo.db.table import language, pair_xlate_group
 from pattoo.db.models import PairXlate, AgentXlate, PairXlateGroup, Language
 
 # Pattoo unittest imports
@@ -158,15 +159,9 @@ class TestCLIImport(unittest.TestCase):
             # Returns engine object
             self.engine = create_tables(self.tables)
 
-            # Creating session object to make updates to tables in test
-            # database
-            with db.db_modify(30000) as session:
-                # Instantiation of test data in each table
-                session.add(Language('en'.encode(), 'English'.encode(), 1))
-                session.add(PairXlateGroup('pair_1'.encode(), 1))
-
-                self.language_count = session.query(Language).count()
-                session.commit()
+            # Creating test data in Language and PairXlateGroup tables
+            language.insert_row('en', 'English')
+            pair_xlate_group.insert_row('pair_1')
 
     @classmethod
     def tearDownClass(self):
