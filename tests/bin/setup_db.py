@@ -48,6 +48,7 @@ def create_tables(tables):
     engine = create_engine(DB_URI)
 
     try:
+        BASE.metadata.drop_all(engine)
         BASE.metadata.create_all(engine, tables=tables)
     except OperationalError as e:
         print(DB_NAME_ERROR)
