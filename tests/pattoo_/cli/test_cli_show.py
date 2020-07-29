@@ -74,11 +74,13 @@ class TestCLIShow(unittest.TestCase):
         expected, callback_output = '', ''
 
         # Parsing arguments
-        args = self.parser.parse_args(cmd_args)
+        args = None
 
         # Gets callback stdout output
         with patch('sys.stdout', new = StringIO()) as output:
             if callback.__name__ in ['_process_pair_xlate', 'process']:
+                args = self.parser.parse_args(cmd_args)
+
                 if callback.__name__ == 'process':
                     with self.assertRaises(SystemExit):
                         callback(args)
