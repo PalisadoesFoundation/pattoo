@@ -38,3 +38,6 @@ tblib
 
 # Determine linux distrobution
 distro
+
+# Python encryption
+python-gnupg
