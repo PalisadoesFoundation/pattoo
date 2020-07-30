@@ -26,7 +26,6 @@ before_install:
     - pip3 install -r pip_requirements.txt
     - tests/bin/unittest_setup.py
     - mysql -e 'CREATE DATABASE pattoo_unittest;'
-    - wget https://bootstrap.pypa.io/get-pip.py
 
 
 install:
