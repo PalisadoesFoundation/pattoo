@@ -27,7 +27,6 @@ before_install:
     - tests/bin/unittest_setup.py
     - mysql -e 'CREATE DATABASE pattoo_unittest;'
     - wget https://bootstrap.pypa.io/get-pip.py
-    - sudo python3.6 get-pip.py
 
 
 install:
