@@ -150,7 +150,7 @@ def xch_key():
         message = 'Server error'
         
         log_msg = 'Could not retrieve Pgpier: >>>{}<<<'.format(e)
-        log.log2warning(20149, log_msg)
+        log.log2warning(20167, log_msg)
         return message, response
 
     response = 400
@@ -177,12 +177,12 @@ def xch_key():
             message = 'Email and key received: {}, {}'\
                       .format(session['email'], result)
 
-            log.log2info(20150, message)
+            log.log2info(20168, message)
 
         except Exception as e:
             log_msg = 'Invalid email and key entry: >>>{}<<<'.format(e)
             log_msg+= '--->{}<---'.format(log_mem)
-            log.log2warning(20151, log_msg)
+            log.log2warning(20169, log_msg)
             message = 'Key not received'
 
     if request.method == 'GET':
@@ -216,7 +216,7 @@ def xch_key():
 
             # Send api email, public key and encrypted nonce
             message = 'API information sent'
-            log.log2info(20152, message)
+            log.log2info(20170, message)
             response = 200
             return jsonify(data=data), response
 
@@ -245,7 +245,7 @@ def valid_key():
     if 'symm_key' in session:
         message = 'Symmetric key already set'
         response = 208
-        log.log2info(20153, message)
+        log.log2info(20171, message)
         return message, response
 
     # Predefined error message and response
@@ -275,7 +275,7 @@ def valid_key():
         message = 'Server error'
         
         log_msg = 'Could not retrieve Pgpier: >>>{}<<<'.format(e)
-        log.log2warning(20154, log_msg)
+        log.log2warning(20172, log_msg)
         return message, response
 
     if request.method == 'POST':
@@ -320,11 +320,11 @@ def valid_key():
             response = 200
             message = 'Symmetric key saved. Del public key: {}'\
                       .format(result)
-            log.log2info(20155, message)
+            log.log2info(20173, message)
 
         except Exception as e:
             log_msg = 'Invalid email and key entry: >>>{}<<<'.format(e)
-            log.log2warning(20156, log_msg)
+            log.log2warning(20174, log_msg)
             message = 'Message not received'
             response = 400
 
@@ -362,7 +362,7 @@ def crypt_receive():
         message = 'Server error'
         
         log_msg = 'Could not retrieve Pgpier: >>>{}<<<'.format(e)
-        log.log2warning(20157, log_msg)
+        log.log2warning(20175, log_msg)
         return message, response
     
     # Predefined error message and response
@@ -401,26 +401,26 @@ def crypt_receive():
         except Exception as e:
             log_message = 'Decrypted data extraction failed: {}'\
                           .format(e)
-            log.log2warning(20158, log_message)
+            log.log2warning(20176, log_message)
 
         log_message = 'Decrypted data extraction successful'
-        log.log2info(20159, log_message)
+        log.log2info(20177, log_message)
 
         # Abort if posted_data isn't a list
         if isinstance(posted_data, dict) is False:
             log_message = '{} Not a dictionary'.format(prefix)
-            log.log2warning(20160, log_message)
+            log.log2warning(20178, log_message)
             abort(404)
         if len(posted_data) != len(CACHE_KEYS):
             log_message = ('''{} Incorrect length. Expected length of {}
                            '''.format(prefix, len(CACHE_KEYS)))
-            log.log2warning(20161, log_message)
+            log.log2warning(20179, log_message)
             abort(404)
 
         for key in posted_data.keys():
             if key not in CACHE_KEYS:
                 log_message = '{} Invalid key'.format(prefix)
-                log.log2warning(20162, log_message)
+                log.log2warning(20180, log_message)
                 abort(404)
         
         # Extract key values from posting
@@ -429,7 +429,7 @@ def crypt_receive():
         except:
             _exception = sys.exc_info()
             log_message = ('API Failure')
-            log.log2exception(20163, _exception, message=log_message)
+            log.log2exception(20181, _exception, message=log_message)
             abort(404)
 
         # Create filename. Add a suffix in the event the source is posting
@@ -448,17 +448,17 @@ def crypt_receive():
                 json.dump(posted_data, temp_file)
         except Exception as err:
             log_message = '{}'.format(err)
-            log.log2warning(20164, log_message)
+            log.log2warning(20182, log_message)
             abort(404)
         except:
             _exception = sys.exc_info()
             log_message = ('API Failure')
-            log.log2exception(20165, _exception, message=log_message)
+            log.log2exception(20183, _exception, message=log_message)
             abort(404)
 
         # Return
         message = 'Decrypted and received'
         response = 202
-        log.log2info(20166, message)
+        log.log2info(20184, message)
         
     return message, response
