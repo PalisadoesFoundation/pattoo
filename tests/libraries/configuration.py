@@ -72,11 +72,11 @@ class UnittestConfig():
                 },
                 'pattoo_agent_api': {
                     'ip_address': '127.0.0.1',
-                    'ip_bind_port': 40201
+                    'ip_bind_port': 40203
                 },
                 'pattoo_web_api': {
                     'ip_address': '127.0.0.1',
-                    'ip_bind_port': 40202,
+                    'ip_bind_port': 40204,
                 }
             }
         }
