@@ -31,7 +31,7 @@ PATTOO_API_AGENT.config['SESSION_FILE_THRESHOLD'] = 500
 PATTOO_API_AGENT.config['SESSION_USE_SIGNER'] = True
 
 # Store cookies permanently (for local session)
-PATTOO_API_AGENT.config['SESSION_PERMANENT'] = True
+PATTOO_API_AGENT.config['SESSION_PERMANENT'] = False
 
 # Location to store cookies (for local session)
 config = BaseConfig()
