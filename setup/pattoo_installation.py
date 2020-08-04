@@ -28,6 +28,16 @@ This script is not installed in the "{}" directory. Please fix.\
     sys.exit(2)
 
 # Importing installation related packages
+# Attempt to import pattoo shared
+try:
+    import pattoo_shared
+except ModuleNotFoundError:
+    print('''
+Pattoo shared is missing, please run the following command to continue:
+"python3 -m pip install PattooShared -t {}"'''.format(DAEMON_DIRECTORY))
+    # Die
+    sys.exit(2)
+
 from pattoo_shared.installation import packages, shared, systemd
 from _pattoo import configure
 
