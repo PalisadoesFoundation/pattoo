@@ -12,8 +12,10 @@ import getpass
 EXEC_DIR = os.path.dirname(os.path.realpath(sys.argv[0]))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
 _EXPECTED = '{0}pattoo{0}setup'.format(os.sep)
+DAEMON_DIRECTORY = '/opt/pattoo-daemon/.python'
 if EXEC_DIR.endswith(_EXPECTED) is True:
     sys.path.append(ROOT_DIR)
+    sys.path.append(DAEMON_DIRECTORY)
     # Set pattoo config dir if it had not been set already
     try:
         os.environ['PATTOO_CONFIGDIR']
@@ -26,7 +28,8 @@ This script is not installed in the "{}" directory. Please fix.\
     sys.exit(2)
 
 # Importing installation related packages
-from _pattoo import shared
+from pattoo_shared.installation import packages, shared, systemd
+from _pattoo import configure
 
 
 class _Parser(argparse.ArgumentParser):
@@ -128,7 +131,7 @@ class _Install():
                 attribute(width=width)
 
     def all(self, width=80):
-        """CLI command to install all pattoo components
+        """CLI command to install all pattoo components.
 
         Args:
             width: Width of the help text string to STDIO before wrapping
@@ -231,6 +234,12 @@ def main():
     """
     # Initialize key variables
     _help = 'This program is the CLI interface to configuring pattoo'
+    daemon_list = [
+        'pattoo_apid',
+        'pattoo_api_agentd',
+        'pattoo_ingesterd'
+    ]
+    template_dir = os.path.join(ROOT_DIR, 'setup/systemd/system')
 
     # Process the CLI
     _parser = Parser(additional_help=_help)
@@ -245,22 +254,22 @@ def main():
                 print('Prompt for input')
             else:
                 print('Automatic installation')
-            configure.install(args.prompt)
+            configure.install()
             packages.install(ROOT_DIR)
 
             # Import db after pip3 packages are installed
             from _pattoo import db
             db.install()
-            systemd.install()
+            systemd.install(daemon_list=daemon_list,
+                            template_dir=template_dir,
+                            installation_dir=ROOT_DIR)
 
         # Configures pattoo and sets up database tables
         elif args.qualifier == 'database':
             print('Installing database tables')
 
             # Assumes defaults unless the all qualifier is used
-            configure.install(False)
             packages.install(ROOT_DIR)
-
             # Import db after pip3 packages are installed
             from _pattoo import db
             db.install()
@@ -269,19 +278,18 @@ def main():
         elif args.qualifier == 'systemd':
             # Install pip3 packages, verbose mode is disabled by default
             print('Installing systemd daemons')
-            configure.install(False)
-            packages.install(ROOT_DIR)
-            systemd.install()
+            systemd.install(daemon_list=daemon_list,
+                            template_dir=template_dir,
+                            installation_dir=ROOT_DIR)
 
         elif args.qualifier == 'pip':
             # Installs additionally required pip3 packages
-            print('Installing pip packages')
-            packages.install(ROOT_DIR, verbose=args.verbose)
+            packages.install(ROOT_DIR)
 
         # Sets up the configuration for pattoo
         elif args.qualifier == 'configuration':
-            print('Installing configuration')
-            configure.install(args.prompt)
+            configure.install()
+
         # Print help if no argument options were triggered
         else:
             parser.print_help(sys.stderr)
@@ -312,16 +320,5 @@ Run as root to continue')
 
 if __name__ == '__main__':
     check_user()
-
-    # Try except to import pattoo libraries if pattoo shared isn't installed
-    try:
-        from _pattoo import packages, systemd, configure
-    except ModuleNotFoundError:
-        default_pip_dir = '/opt/pattoo-daemon/.python'
-        print('Pattoo shared is missing. Installing pattoo shared')
-        shared.run_script(
-            'python3 -m pip install PattooShared -t {}'.format(default_pip_dir))
-        sys.path.append(default_pip_dir)
-        from _pattoo import packages, systemd, configure
     # Execute main
     main()

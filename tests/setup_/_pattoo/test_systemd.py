@@ -28,9 +28,10 @@ else:
 
 from tests.libraries.configuration import UnittestConfig
 from pattoo_shared import data
-from setup._pattoo.systemd import _filepaths, _copy_service_files, _symlink_dir
-from setup._pattoo.systemd import _get_runtime_directory, _check_symlinks
-from setup._pattoo.systemd import _update_environment_strings
+from pattoo_shared.installation.systemd import _filepaths, copy_service_files, symlink_dir
+from pattoo_shared.installation.systemd import _get_runtime_directory, _check_symlinks
+from pattoo_shared.installation.systemd import update_environment_strings
+
 
 class Test_Systemd(unittest.TestCase):
     """Checks all functions and methods."""
@@ -48,8 +49,8 @@ class Test_Systemd(unittest.TestCase):
             result = _filepaths(temp_dir)
             self.assertEqual(expected, result)
 
-    def test__copy_service_files(self):
-        """Testing method or function named "_copy_service_files"."""
+    def test_copy_service_files(self):
+        """Testing method or function named "copy_service_files"."""
         # Initialize key variables
         service_directory = '{1}/{0}systemd/system'.format('setup/', ROOT_DIR)
         files = os.listdir(service_directory)
@@ -80,7 +81,8 @@ class Test_Systemd(unittest.TestCase):
                 os.path.join(temp_dir, 'pattoo_ingesterd.service')
             ])
 
-            copied_service_files = _copy_service_files(temp_dir)
+            copied_service_files = copy_service_files(
+                                                temp_dir, service_directory)
 
             # Ensure service files are copied to directory
             result = set(copied_service_files)
@@ -123,17 +125,18 @@ class Test_Systemd(unittest.TestCase):
         # Test directory without symlinks
         with tempfile.TemporaryDirectory() as temp_dir:
             with self.assertRaises(SystemExit) as cm_:
-                _symlink_dir(temp_dir)
+                symlink_dir(temp_dir)
             self.assertEqual(cm_.exception.code, 3)
 
         # Test directory with expected symlinks
-        result = _symlink_dir(etc_dir)
+        result = symlink_dir(etc_dir)
         self.assertEqual(result, expected)
 
     def test__update_environment_strings(self):
         """Testing method or function named "_update_environment_strings"."""
         # Initialize key variables
         config_dir = os.environ.get('PATTOO_CONFIGDIR')
+        service_directory = '{1}/{0}systemd/system'.format('setup/', ROOT_DIR)
         log_directory = tempfile.mkdtemp()
         cache_directory = tempfile.mkdtemp()
         daemon_directory = tempfile.mkdtemp()
@@ -183,9 +186,11 @@ class Test_Systemd(unittest.TestCase):
             ])
 
             # Place service files into temp dir
-            destination_filepaths = _copy_service_files(temp_dir)
-            _update_environment_strings(
+            destination_filepaths = copy_service_files(
+                                                temp_dir, service_directory)
+            update_environment_strings(
                 filepaths=destination_filepaths,
+                install_dir=ROOT_DIR,
                 config_dir=config_dir,
                 pip_dir=pip_dir,
                 username='pattoo',
