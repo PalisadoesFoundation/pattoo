@@ -19,11 +19,6 @@ def resolve_username(obj, _):
     return obj.username.decode()
 
 
-def resolve_password(obj, _):
-    """Convert 'password' from bytes to string."""
-    return obj.password.decode()
-
-
 def resolve_checksum(obj, _):
     """Convert 'checksum' from bytes to string."""
     return obj.checksum.decode()

@@ -42,7 +42,7 @@ def insertions():
     _insert_agent_xlate()
 
     # Insert User
-    _insert_user()
+    username, password = _insert_user()
 
     # Insert Chart
     _insert_chart()
@@ -50,6 +50,8 @@ def insertions():
     # Insert Favorite
     _insert_favorite()
 
+    print('Default Username: {}\nDefault Password: {}'.format(username,
+                                                              password))
 
 def _insert_language():
     """Insert starting default entries into the Language table.
@@ -344,21 +346,33 @@ def _insert_user():
         None
 
     Returns:
-        None
+        password: default password for pattoo user
 
     """
+    username, password = 'pattoo', None
     # Insert into User
     if user.idx_exists(1) is False:
+
+        # Creating initial password
         password = ''.join(random.SystemRandom().choice(
             string.ascii_uppercase + string.digits) for _ in range(50))
+
+        password_hash, salt = \
+        (user.generate_password_hash(data.hashstring(password)))
+
+        # Inserting default user
         user.insert_row(
             DbRowUser(
-                username='pattoo',
-                password=data.hashstring(password),
-                first_name='pattoo',
-                last_name='pattoo',
-                enabled=0)
+                username=username,
+                password=password_hash,
+                salt=salt,
+                first_name=username,
+                last_name=username,
+                is_admin=1,
+                enabled=1)
             )
+
+    return username, password
 
 
 def _insert_chart():

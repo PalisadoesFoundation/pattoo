@@ -59,6 +59,13 @@ class User(BASE):
         VARBINARY(MAX_KEYPAIR_LENGTH),
         nullable=False, default=None)
 
+    salt = Column(
+        VARBINARY(MAX_KEYPAIR_LENGTH),
+        nullable=False, default=None)
+
+    is_admin = Column(
+        BIGINT(unsigned=True), nullable=False, server_default='0')
+
     enabled = Column(
         BIGINT(unsigned=True), nullable=False, server_default='1')
 

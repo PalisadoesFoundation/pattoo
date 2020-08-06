@@ -7,6 +7,7 @@ from graphene_sqlalchemy import SQLAlchemyObjectType
 # pattoo imports
 from pattoo.db import db
 from pattoo.db.models import User as UserModel
+from pattoo.db.table import user as _user
 from pattoo.db.schema import utils
 from pattoo_shared.constants import DATA_INT
 
@@ -34,9 +35,8 @@ class UserAttribute():
         resolver=utils.resolve_username,
         description='Username.')
 
-    password = graphene.String(
-        resolver=utils.resolve_password,
-        description='Password.')
+    is_admin = graphene.String(
+        description='Admin.')
 
     enabled = graphene.String(
         description='True if enabled.')
@@ -54,7 +54,8 @@ class User(SQLAlchemyObjectType, UserAttribute):
 
 class CreateUserInput(graphene.InputObjectType, UserAttribute):
     """Arguments to create a User."""
-    pass
+
+    password = graphene.String(description='Password.')
 
 
 class CreateUser(graphene.Mutation):
@@ -68,11 +69,22 @@ class CreateUser(graphene.Mutation):
 
     def mutate(self, info_, Input):
         data = _input_to_dictionary(Input)
+        user = None
 
-        user = UserModel(**data)
-        with db.db_modify(20150, close=False) as session:
-            session.add(user)
+        # Checking that a given username is not taken
+        idx_user = _user.exists(data['username'].decode())
+        if idx_user in [False, 0]:
+            data['password'], data['salt'] = \
+            _user.generate_password_hash(data['password'])
 
+            user = UserModel(**data)
+            with db.db_modify(20150, close=False) as session:
+                session.add(user)
+
+        else:
+            for key in data.keys():
+                data[key] = 'Error: username already taken!'.encode()
+            user = UserModel(**data)
         return CreateUser(user=user)
 
 
