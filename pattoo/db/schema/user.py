@@ -3,6 +3,7 @@
 # PIP3 imports
 import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType
+from graphql import GraphQLError
 
 # pattoo imports
 from pattoo.db import db
@@ -69,22 +70,20 @@ class CreateUser(graphene.Mutation):
 
     def mutate(self, info_, Input):
         data = _input_to_dictionary(Input)
-        user = None
 
         # Checking that a given username is not taken
         idx_user = _user.exists(data['username'].decode())
-        if idx_user in [False, 0]:
-            data['password'], data['salt'] = \
-            _user.generate_password_hash(data['password'])
+        if bool(idx_user) == True:
+            raise GraphQLError('Username already exists!')
 
-            user = UserModel(**data)
-            with db.db_modify(20150, close=False) as session:
-                session.add(user)
+        # Generating password and salt User data
+        data['password'], data['salt'] = \
+        _user.generate_password_hash(data['password'])
 
-        else:
-            for key in data.keys():
-                data[key] = 'Error: username already taken!'.encode()
-            user = UserModel(**data)
+        user = UserModel(**data)
+        with db.db_modify(20150, close=False) as session:
+            session.add(user)
+
         return CreateUser(user=user)
 
 
