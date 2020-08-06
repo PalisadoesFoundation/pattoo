@@ -9,6 +9,7 @@ import uuid
 # Define the global URL prefix
 from pattoo_shared.constants import PATTOO_API_AGENT_PREFIX
 from pattoo_shared.configuration import BaseConfig
+from pattoo_shared import files
 
 # Import PATTOO_API_AGENT Blueprints
 from pattoo.api.agents.post import POST
@@ -35,7 +36,8 @@ PATTOO_API_AGENT.config['SESSION_PERMANENT'] = False
 
 # Location to store cookies (for local session)
 config = BaseConfig()
-PATTOO_API_AGENT.config['SESSION_FILE_DIR'] = config.cache_directory()
+PATTOO_API_AGENT.config['SESSION_FILE_DIR'] = \
+    files.get_session_cache_dir(config)
 
 # Initialize Session plugin (for local session)
 sess = Session()
