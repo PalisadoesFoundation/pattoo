@@ -3,6 +3,19 @@ Testing Your Code
 
 Make sure you create your own unittests for all the classes, methods, and functions you have created or modified. Place them in the `tests/` directory in a subdirectory that matches the relative location of your production code under the `pattoo/` directory.
 
+Create Unittest Database
+------------------------
+
+Assuming you already have the `pattoo` database set up, these steps will copy
+the contents of the pattoo database to a new `pattoo_unittest` database so that
+it can be used by the local unittests.
+
+::
+    $ mysqldump -u root -p pattoo > pattoo.sql
+    Enter password:
+    $ mysql -u root -p pattoo_unittest < pattoo.sql
+    Enter password:
+
 Database Setup
 --------------
 
