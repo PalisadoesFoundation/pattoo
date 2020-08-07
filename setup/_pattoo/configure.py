@@ -3,6 +3,7 @@
 # Main python libraries
 import sys
 import os
+import secrets
 import shutil
 import grp
 import pwd
@@ -17,6 +18,7 @@ except:
 # Pattoo libraries
 from pattoo_shared import files, configuration
 from pattoo_shared import log
+from pattoo_shared.constants import MAX_KEYPAIR_LENGTH
 from _pattoo import shared
 
 
@@ -191,6 +193,7 @@ def pattoo_server_config(config_directory, prompt_value):
         'pattoo_apid': {
             'ip_listen_address': '0.0.0.0',
             'ip_bind_port': 20202,
+            'JWT_SECRET_KEY': secrets.token_urlsafe(MAX_KEYPAIR_LENGTH)
         },
         'pattoo_ingesterd': {
             'ingester_interval': 3600,

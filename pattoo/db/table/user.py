@@ -120,7 +120,7 @@ def generate_password_hash(password, salt=None):
     if bool(salt) is False:
         salt = secrets.token_bytes(blake2b.SALT_SIZE)
     blake2b_hash = blake2b(digest_size=blake2b.MAX_DIGEST_SIZE, salt=salt)
-    blake2b_hash.update(password)
+    blake2b_hash.update(password.encode())
 
     # Extracting digest from blake2b_hash
     password_hash = blake2b_hash.hexdigest().encode()

@@ -1,5 +1,8 @@
 """Initialize the PATTOO_API_WEB module."""
 
+# Python Module Imports
+import os
+
 # Import PIP3 libraries
 from flask import Flask
 from flask_caching import Cache
@@ -10,11 +13,19 @@ from pattoo_shared.constants import PATTOO_API_WEB_PREFIX
 # Import pattoo modules
 from pattoo.db import POOL
 
+
 # Setup REST URI prefix
 PATTOO_API_WEB_REST_PREFIX = '{}/rest'.format(PATTOO_API_WEB_PREFIX)
 
-# Setup flask
+# Setup flask and secret key config
 PATTOO_API_WEB = Flask(__name__)
+
+# Import GraphQLAuth from Flask-GraphQL-Auth
+from flask_graphql_auth import GraphQLAuth
+
+# Setup Flask-GraphQL-Auth
+PATTOO_API_WEB.config['JWT_SECRET_KEY'] = 'place_holder'
+auth = GraphQLAuth(PATTOO_API_WEB)
 
 # Setup memcache. Required for all API imports
 CACHE = Cache(PATTOO_API_WEB, config={'CACHE_TYPE': 'simple'})
