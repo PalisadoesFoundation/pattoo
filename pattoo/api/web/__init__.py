@@ -12,6 +12,7 @@ from pattoo_shared.constants import PATTOO_API_WEB_PREFIX
 
 # Import pattoo modules
 from pattoo.db import POOL
+from pattoo.configuration import ConfigPattoo as Config
 
 
 # Setup REST URI prefix
@@ -24,7 +25,8 @@ PATTOO_API_WEB = Flask(__name__)
 from flask_graphql_auth import GraphQLAuth
 
 # Setup Flask-GraphQL-Auth
-PATTOO_API_WEB.config['JWT_SECRET_KEY'] = 'place_holder'
+config = Config()
+PATTOO_API_WEB.config['JWT_SECRET_KEY'] = config.jwt_secret_key()
 auth = GraphQLAuth(PATTOO_API_WEB)
 
 # Setup memcache. Required for all API imports

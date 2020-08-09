@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Pattoo classes that manage various configurations."""
 
+# Python imports
 import os
 
 # Import project libraries
@@ -209,6 +210,31 @@ class ConfigPattoo(ServerConfig):
             result = 20202
         else:
             result = int(intermediate)
+        return result
+
+    def jwt_secret_key(self):
+        """Get jwt_secret_key.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Initialize key variables
+        key = PATTOO_API_WEB_NAME
+        sub_key = 'jwt_secret_key'
+
+        # Process configuration
+        result = configuration.search(
+            key, sub_key, self._server_yaml_configuration)
+
+        # Ensures that jwt_secret_key is set
+        if (result is None) or result.strip(' ') == '':
+            raise Exception('Plese set JWT SECRET KEY in config file')
+
+        # Get result
         return result
 
 
