@@ -78,7 +78,7 @@ class CreateUser(graphene.Mutation):
 
         # Generating password and salt User data
         data['password'], data['salt'] = \
-        _user.generate_password_hash(data['password'])
+        _user.generate_password_hash(data['password'].decode())
 
         user = UserModel(**data)
         with db.db_modify(20150, close=False) as session:

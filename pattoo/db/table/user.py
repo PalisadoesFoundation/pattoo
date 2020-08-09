@@ -103,8 +103,12 @@ def insert_row(row):
     with db.db_modify(20054, die=True) as session:
         session.add(row)
 
+
 def generate_password_hash(password, salt=None):
     """Generates a unique password hash using blake2b hash function
+
+    Should be noted that password is accepted as String, and both password_hash
+    and salt are returned as encode Strings.
 
     Args:
         password: user password to be hashed
