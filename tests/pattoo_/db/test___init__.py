@@ -46,7 +46,7 @@ class TestBasicFunctions(unittest.TestCase):
         # Initialize key variables
         loops = 10
         process_count = 100
-        timeout = 120
+        timeout = 300
         code = data.hashstring(str(random()))
         name = data.hashstring(str(random()))
         Arguments = namedtuple('Arguments', 'loops process_count code')
