@@ -39,6 +39,7 @@ from pattoo.db.schema.pair import Pair
 from pattoo.db.schema.pair_xlate_group import PairXlateGroup
 from pattoo.db.schema.pair_xlate import PairXlate
 from pattoo.db.schema import user as user_
+from pattoo.db.schema import auth
 
 
 ###############################################################################
@@ -128,6 +129,9 @@ class Mutation(graphene.ObjectType):
     updateFavorite = favorite_.UpdateFavorite.Field()
     createUser = user_.CreateUser.Field()
     updateUser = user_.UpdateUser.Field()
+
+    # Authentication mutations
+    authenticate = auth.AuthMutation.Field()
 
 
 class Query(graphene.ObjectType):

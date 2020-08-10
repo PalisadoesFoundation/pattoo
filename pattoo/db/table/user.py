@@ -186,18 +186,23 @@ def authenticate(username, password):
 
     Return:
         auth: Boolean indicating if authentication was successful
+        enabled: user account availability
 
     """
     auth = False
 
     # Querying  user table
     with db.db_query(20156) as session:
-        query = session.query(User).filter(User.username ==
-                                                username).first()
+        _user = session.query(User).filter(User.username ==
+                                                username.encode()).first()
 
         # Checking that a given user exists
-        if bool(query) is True:
+        if bool(_user) is True:
+
+            # Extracting db_password and salt
+            db_password, salt, enabled = (_user.password, _user.salt,
+                                          _user.enabled)
 
             # Checking that password matches
-            auth = bool(User.password.decode() == password)
-    return auth
+            auth = verify_password(password, db_password, salt)
+    return auth, enabled
