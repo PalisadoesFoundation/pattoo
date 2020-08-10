@@ -46,13 +46,15 @@ class TestBasicFunctions(unittest.TestCase):
         # Initialize key variables
         loops = 10
         process_count = 100
-        timeout = 300
+        timeout = 600
         code = data.hashstring(str(random()))
-        name = data.hashstring(str(random()))
-        Arguments = namedtuple('Arguments', 'loops process_count code')
+        names = [
+            data.hashstring(str(random())) for _ in range(loops)
+        ]
+        Arguments = namedtuple('Arguments', 'loops process_count code names')
 
         # Add an entry to the database
-        language.insert_row(code, name)
+        language.insert_row(code, names[0])
 
         # Make sure it exists
         idx_language = language.exists(code)
@@ -65,6 +67,7 @@ class TestBasicFunctions(unittest.TestCase):
         arguments = Arguments(
             code=code,
             loops=loops,
+            names=names,
             process_count=process_count
         )
 
@@ -96,12 +99,10 @@ def run_(arguments):
 
     """
     # Create a list of arguments from a random list of names
-    names = [
-        data.hashstring(str(random())) for _ in range(5)
-    ]
     args = [
-        (arguments.code, names[randint(0, len(names) - 1)]) for _ in range(
-            arguments.process_count)
+        (arguments.code, arguments.names[
+            randint(0, len(arguments.names) - 1)]) for _ in range(
+                arguments.process_count)
     ]
 
     # Now spawn processes and update the table
