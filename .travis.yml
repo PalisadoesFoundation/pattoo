@@ -29,7 +29,7 @@ before_install:
 
 
 install:
-    - sudo setup/pattoo_installation.py install database
+    - setup/pattoo_installation.py install database
 
 # Run the unittest scripts
 sudo: false
