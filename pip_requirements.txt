@@ -37,3 +37,6 @@ tblib
 
 # Determine linux distrobution
 distro
+
+# Environment setup
+virtualenv
