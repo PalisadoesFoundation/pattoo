@@ -316,14 +316,16 @@ def main():
         'pattoo_ingesterd'
     ]
     template_dir = os.path.join(ROOT_DIR, 'setup/systemd/system')
-    pattoo_home = get_pattoo_home()
-    venv_dir = os.path.join(pattoo_home, 'pattoo-venv')
-    venv_interpreter = os.path.join(venv_dir, 'bin/python3')
-    installation_dir = '{} {}'.format(venv_interpreter, ROOT_DIR)
 
     # Setup virtual environment
     if getpass.getuser != 'travis':
+        pattoo_home = get_pattoo_home()
+        venv_dir = os.path.join(pattoo_home, 'pattoo-venv')
         environment.environment_setup(venv_dir)
+        venv_interpreter = os.path.join(venv_dir, 'bin/python3')
+        installation_dir = '{} {}'.format(venv_interpreter, ROOT_DIR)
+    else:
+        installation_dir = ROOT_DIR
 
     # Process the CLI
     _parser = Parser(additional_help=_help)
