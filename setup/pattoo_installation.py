@@ -12,10 +12,8 @@ import pwd
 EXEC_DIR = os.path.dirname(os.path.realpath(sys.argv[0]))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
 _EXPECTED = '{0}pattoo{0}setup'.format(os.sep)
-DAEMON_DIRECTORY = '/opt/pattoo-daemon/.python'
 if EXEC_DIR.endswith(_EXPECTED) is True:
     sys.path.append(ROOT_DIR)
-    sys.path.append(DAEMON_DIRECTORY)
     # Set pattoo config dir if it had not been set already
     try:
         os.environ['PATTOO_CONFIGDIR']
@@ -259,7 +257,7 @@ def get_pattoo_home():
         if home_dir == '/nonexistent':
             pattoo_home = '/home/pattoo'
         else:
-            return pattoo_home
+            pattoo_home = home_dir
 
     # Set defaults if pattoo user doesn't exist
     except KeyError:
