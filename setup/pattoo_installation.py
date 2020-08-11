@@ -34,7 +34,6 @@ default_path = '''\
 try:
     import pattoo_shared
 except ModuleNotFoundError:
-
     shared.run_script('pip3 install PattooShared -t {0}'.format(default_path))
 
 # Import packages that depend on pattoo shared
@@ -352,8 +351,7 @@ def main():
         # Configures pattoo and sets up database tables
         elif args.qualifier == 'database':
             print('Installing database tables')
-
-            # Assumes defaults unless the all qualifier is used
+            configure.install(pattoo_home)
             packages.install(ROOT_DIR, venv_dir)
             # Import db after pip3 packages are installed
             from _pattoo import db
