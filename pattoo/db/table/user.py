@@ -154,12 +154,31 @@ def verify_password(password, db_password, salt):
     return verify
 
 
+def is_enabled(idx):
+    """Determines if a user has been enabled
+
+    Args:
+        idx: id number to be queried for in user table
+
+    Return:
+        enabled: associated enable value for a given user
+
+    """
+    enabled = False
+
+    # Querying user table
+    with db.db_query(20155) as session:
+        query = session.query(User).filter(User.idx_user == idx).first()
+        enabled = bool(query.enabled)
+    return enabled
+
+
 # TODO Throw error if querying to database fails
-def is_admin(user_id):
+def is_admin(idx):
     """Determines whether a given user is an admin
 
     Args:
-        user_id: User ID to be queried
+        idx: id number to be queried for in user table
 
     Return:
         _is_admin: Boolean indicating whether user associated with user_id is an
@@ -169,9 +188,8 @@ def is_admin(user_id):
     _is_admin = False
 
     # Querying user table
-    with db.db_query(20155) as session:
-        query = session.query(User).filter(User.idx_user ==
-                                                user_id).first()
+    with db.db_query(20156) as session:
+        query = session.query(User).filter(User.idx_user == idx).first()
         _is_admin = bool(query.is_admin)
     return _is_admin
 
@@ -185,14 +203,14 @@ def authenticate(username, password):
         password: String containing the password of associated username
 
     Return:
-        auth: Boolean indicating if authentication was successful
-        enabled: user account availability
+        idx_user: User associated id number
+        enabled: user associated enabled value
 
     """
-    auth = False
+    idx_user, enabled = None, None
 
     # Querying  user table
-    with db.db_query(20156) as session:
+    with db.db_query(20157) as session:
         _user = session.query(User).filter(User.username ==
                                                 username.encode()).first()
 
@@ -200,9 +218,10 @@ def authenticate(username, password):
         if bool(_user) is True:
 
             # Extracting db_password and salt
-            db_password, salt, enabled = (_user.password, _user.salt,
-                                          _user.enabled)
+            db_password, salt = _user.password, _user.salt,
 
             # Checking that password matches
-            auth = verify_password(password, db_password, salt)
-    return auth, enabled
+            if verify_password(password, db_password, salt):
+                idx_user = _user.idx_user
+                enabled = _user.enabled
+    return idx_user, enabled

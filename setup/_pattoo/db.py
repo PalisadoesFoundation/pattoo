@@ -358,7 +358,7 @@ def _insert_user():
             string.ascii_uppercase + string.digits) for _ in range(50))
 
         password_hash, salt = \
-        (user.generate_password_hash(data.hashstring(password)))
+        (user.generate_password_hash(password))
 
         # Inserting default user
         user.insert_row(

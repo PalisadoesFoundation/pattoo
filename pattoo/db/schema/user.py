@@ -4,6 +4,7 @@
 import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType
 from graphql import GraphQLError
+from flask_graphql_auth import mutation_jwt_required, get_jwt_identity
 
 # pattoo imports
 from pattoo.db import db
@@ -67,9 +68,16 @@ class CreateUser(graphene.Mutation):
 
     class Arguments:
         Input = CreateUserInput(required=True)
+        token = graphene.String()
 
+    @mutation_jwt_required
     def mutate(self, info_, Input):
         data = _input_to_dictionary(Input)
+        token_idx_user = get_jwt_identity()
+
+        # Checking that the user creating the new user is an admin
+        if _user.is_admin(token_idx_user) is False:
+            raise GraphQLError('Only admins can create a new user!')
 
         # Checking that a given username is not taken
         idx_user = _user.exists(data['username'].decode())
@@ -84,7 +92,7 @@ class CreateUser(graphene.Mutation):
         with db.db_modify(20150, close=False) as session:
             session.add(user)
 
-        return CreateUser(user=user)
+        return CreateUser(user)
 
 
 class UpdateUserInput(graphene.InputObjectType, UserAttribute):
