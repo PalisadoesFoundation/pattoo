@@ -1,12 +1,13 @@
-"""Install pattoo."""
+"""Install pattoo configuration."""
 
 # Main python libraries
 import os
+import getpass
 from pattoo_shared.installation import configure, shared
 from pattoo_shared import files
 
 
-def install(pattoo_home):
+def install(pattoo_home='/home/patoo'):
     """Start configuration process.
 
     Args:
@@ -81,8 +82,9 @@ def install(pattoo_home):
     configure.create_user('pattoo', pattoo_home, '/bin/false', True)
 
     # Attempt to change the ownership of the config and pattoo-home directories
-    shared.chown(config_directory)
-    shared.chown(pattoo_home)
+    if getpass.getuser() != 'travis':
+        shared.chown(config_directory)
+        shared.chown(pattoo_home)
 
     # Create configuration
     configure.configure_component('pattoo', config_directory, shared_config)
