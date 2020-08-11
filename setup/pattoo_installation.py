@@ -325,6 +325,7 @@ def main():
         venv_interpreter = os.path.join(venv_dir, 'bin/python3')
         installation_dir = '{} {}'.format(venv_interpreter, ROOT_DIR)
     else:
+        venv_dir = default_path
         installation_dir = ROOT_DIR
 
     # Process the CLI
