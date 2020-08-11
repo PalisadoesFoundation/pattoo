@@ -318,7 +318,7 @@ def main():
     template_dir = os.path.join(ROOT_DIR, 'setup/systemd/system')
 
     # Setup virtual environment
-    if getpass.getuser != 'travis':
+    if getpass.getuser() != 'travis':
         pattoo_home = get_pattoo_home()
         venv_dir = os.path.join(pattoo_home, 'pattoo-venv')
         environment.environment_setup(venv_dir)
