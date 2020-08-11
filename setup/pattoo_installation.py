@@ -325,6 +325,8 @@ def main():
         venv_interpreter = os.path.join(venv_dir, 'bin/python3')
         installation_dir = '{} {}'.format(venv_interpreter, ROOT_DIR)
     else:
+        # Set default directories for travis
+        pattoo_home = os.path.join(os.path.expanduser('~'), 'pattoo')
         venv_dir = default_path
         installation_dir = ROOT_DIR
 

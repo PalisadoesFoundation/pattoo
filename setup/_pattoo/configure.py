@@ -7,7 +7,7 @@ from pattoo_shared.installation import configure, shared
 from pattoo_shared import files
 
 
-def install(pattoo_home='/home/patoo'):
+def install(pattoo_home):
     """Start configuration process.
 
     Args:
