@@ -78,11 +78,11 @@ def install(pattoo_home):
     # Attempt to create configuration directory
     files.mkdir(config_directory)
 
-    # Create the pattoo user and group
-    configure.create_user('pattoo', pattoo_home, '/bin/false', True)
-
-    # Attempt to change the ownership of the config and pattoo-home directories
     if getpass.getuser() != 'travis':
+        # Create the pattoo user and group
+        configure.create_user('pattoo', pattoo_home, '/bin/false', True)
+
+        # Attempt to change the ownership of the config and home directories
         shared.chown(config_directory)
         shared.chown(pattoo_home)
 
