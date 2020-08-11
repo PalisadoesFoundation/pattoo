@@ -7,7 +7,7 @@ import argparse
 import sys
 import os
 import getpass
-
+import pwd
 
 EXEC_DIR = os.path.dirname(os.path.realpath(sys.argv[0]))
 ROOT_DIR = os.path.abspath(os.path.join(EXEC_DIR, os.pardir))
@@ -27,19 +27,20 @@ This script is not installed in the "{}" directory. Please fix.\
 '''.format(_EXPECTED))
     sys.exit(2)
 
-# Importing installation related packages
+# Importing shared to install pattoo_shared if its not installed
+from _pattoo import shared
+
 # Attempt to import pattoo shared
 try:
     import pattoo_shared
 except ModuleNotFoundError:
-    print('''
-Pattoo shared is missing, please run the following command to continue:
-"python3 -m pip install PattooShared -t {}"'''.format(DAEMON_DIRECTORY))
-    # Die
-    sys.exit(2)
+    default_path = '''\
+{}/.local/lib/python3.6/site-packages'''.format(os.path.expanduser('~'))
+    shared.run_script('pip3 install PattooShared -t {0}'.format(default_path))
 
-from pattoo_shared.installation import packages, shared, systemd
+# Import packages that depend on pattoo shared
 from _pattoo import configure
+from pattoo_shared.installation import packages, systemd, environment
 
 
 class _Parser(argparse.ArgumentParser):
@@ -157,9 +158,9 @@ class _Install():
 
         # Add arguments
         parser.add_argument(
-            '--prompt',
+            '--verbose',
             action='store_true',
-            help='Prompt for user input and enable verbose mode.')
+            help='Enable verbose mode.')
 
     def database(self, width=80):
         """CLI command to create pattoo database tables.
@@ -213,9 +214,9 @@ class _Install():
 
         # Add arguments
         parser.add_argument(
-            '--prompt',
+            '--verbose',
             action='store_true',
-            help='Prompt for user input')
+            help='Enable verbose mode.')
 
     def systemd(self, width=80):
         """CLI command to install and start the system daemons.
@@ -227,10 +228,77 @@ class _Install():
             None
         """
         # Initialize key variables
-        _ = self.subparsers.add_parser(
+        parser = self.subparsers.add_parser(
             'systemd',
             help=textwrap.fill('Install systemd service files', width=width)
         )
+
+        # Add arguments
+        parser.add_argument(
+            '--verbose',
+            action='store_true',
+            help='Enable verbose mode.')
+
+
+def get_pattoo_home():
+    """Retrieve home directory for pattoo user.
+
+    Args:
+        None
+
+    Returns:
+        The home directory for the pattoo user
+
+    """
+    try:
+        # No exception will be thrown if the pattoo user exists
+        passwd_entry = pwd.getpwnam('pattoo')
+        home_dir = passwd_entry.pw_dir
+
+        # Ensure that the pattoo home directory is not set to non-existent
+        if home_dir == '/nonexistent':
+            pattoo_home = '/home/pattoo'
+        else:
+            return pattoo_home
+
+    # Set defaults if pattoo user doesn't exist
+    except KeyError:
+        pattoo_home = '/home/pattoo'
+
+    return pattoo_home
+
+
+def installation_checks():
+    """Validate conditions needed to start installation.
+
+    Prevents installation if the script is not run as root and prevents
+    installation if script is run in a home related directory
+
+    Args:
+        None
+
+    Returns:
+        True: If conditions for installation are satisfied
+
+    """
+    # Check user
+    if getpass.getuser() != 'travis':
+        if getpass.getuser() != 'root':
+            shared.log('You are currently not running the script as root.\
+Run as root to continue')
+        # Check installation directory
+        if os.getcwd().startswith('/home'):
+            shared.log('''\
+You cloned the repository in a home related directory, please clone in a\
+ non-home directory to continue''')
+
+        # Check if virtualenv is installed
+        try:
+            import virtualenv
+        except ModuleNotFoundError:
+            print('virtualenv is not installed. Installing virtualenv')
+            shared.run_script('''\
+pip3 install virtualenv -t {}'''.format(default_path))
 
 
 def main():
@@ -250,6 +318,13 @@ def main():
         'pattoo_ingesterd'
     ]
     template_dir = os.path.join(ROOT_DIR, 'setup/systemd/system')
+    pattoo_home = get_pattoo_home()
+    venv_dir = os.path.join(pattoo_home, 'pattoo-venv')
+    venv_interpreter = os.path.join(venv_dir, 'bin/python3')
+    installation_dir = '{} {}'.format(venv_interpreter, ROOT_DIR)
+
+    # Setup virtual environment
+    environment.environment_setup(venv_dir)
 
     # Process the CLI
     _parser = Parser(additional_help=_help)
@@ -260,45 +335,42 @@ def main():
         # Installs all pattoo components
         if args.qualifier == 'all':
             print('Installing everything')
-            if args.prompt is True:
-                print('Prompt for input')
-            else:
-                print('Automatic installation')
-            configure.install()
-            packages.install(ROOT_DIR)
+            configure.install(pattoo_home)
+            packages.install(ROOT_DIR, venv_dir, args.verbose)
 
             # Import db after pip3 packages are installed
             from _pattoo import db
             db.install()
             systemd.install(daemon_list=daemon_list,
                             template_dir=template_dir,
-                            installation_dir=ROOT_DIR)
+                            installation_dir=installation_dir,
+                            verbose=args.verbose)
 
         # Configures pattoo and sets up database tables
         elif args.qualifier == 'database':
             print('Installing database tables')
 
             # Assumes defaults unless the all qualifier is used
-            packages.install(ROOT_DIR)
+            packages.install(ROOT_DIR, venv_dir)
             # Import db after pip3 packages are installed
             from _pattoo import db
             db.install()
 
         # Installs and starts system daemons
         elif args.qualifier == 'systemd':
-            # Install pip3 packages, verbose mode is disabled by default
             print('Installing systemd daemons')
             systemd.install(daemon_list=daemon_list,
                             template_dir=template_dir,
-                            installation_dir=ROOT_DIR)
+                            installation_dir=installation_dir,
+                            verbose=True)
 
         elif args.qualifier == 'pip':
             # Installs additionally required pip3 packages
-            packages.install(ROOT_DIR)
+            packages.install(ROOT_DIR, venv_dir, args.verbose)
 
         # Sets up the configuration for pattoo
         elif args.qualifier == 'configuration':
-            configure.install()
+            configure.install(pattoo_home)
 
         # Print help if no argument options were triggered
         else:
@@ -309,26 +381,8 @@ def main():
         print('Done')
 
 
-def check_user():
-    """Validate conditions needed to start installation.
-
-    Prevents installation if the script is not run as root
-
-    Args:
-        None
-
-    Returns:
-        True: If conditions for installation are satisfied
-
-    """
-    if getpass.getuser() != 'travis':
-        if getpass.getuser() != 'root':
-            shared.log('You are currently not running the script as root.\
-Run as root to continue')
-    return True
-
-
 if __name__ == '__main__':
-    check_user()
+    # Ensure environment is okay
+    installation_checks()
     # Execute main
     main()

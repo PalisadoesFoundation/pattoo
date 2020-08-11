@@ -6,11 +6,11 @@ from pattoo_shared.installation import configure, shared
 from pattoo_shared import files
 
 
-def install():
+def install(pattoo_home):
     """Start configuration process.
 
     Args:
-        prompt_value: A boolean value to toggle the script's verbose mode
+        pattoo_home: The home directory of the pattoo user
 
     Returns:
         None
@@ -78,27 +78,19 @@ def install():
     files.mkdir(config_directory)
 
     # Create the pattoo user and group
-    configure.create_user('pattoo', '/nonexistent', ' /bin/false', True)
+    configure.create_user('pattoo', pattoo_home, '/bin/false', True)
 
-    # Attempt to change the ownership of the configuration directory
+    # Attempt to change the ownership of the config and pattoo-home directories
     shared.chown(config_directory)
+    shared.chown(pattoo_home)
 
     # Create configuration
-    shared_config_file = configure.pattoo_config('pattoo',
-                                                 config_directory,
-                                                 shared_config)
+    configure.configure_component('pattoo', config_directory, shared_config)
 
-    agent_config_file = configure.pattoo_config('pattoo_agent',
-                                                config_directory,
-                                                agent_config)
+    configure.configure_component('pattoo_agent',
+                                  config_directory,
+                                  agent_config)
 
-    server_config_file = configure.pattoo_config('pattoo_server',
-                                                 config_directory,
-                                                 server_config)
-
-    # Checking configuration
-    configure.check_config(shared_config_file, shared_config)
-
-    configure.check_config(agent_config_file, agent_config)
-
-    configure.check_config(server_config_file, server_config)
+    configure.configure_component('pattoo_server',
+                                  config_directory,
+                                  server_config)
