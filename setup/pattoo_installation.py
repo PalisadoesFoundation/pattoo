@@ -29,11 +29,12 @@ This script is not installed in the "{}" directory. Please fix.\
 from _pattoo import shared
 
 # Attempt to import pattoo shared
+default_path = '''\
+{}/.local/lib/python3.6/site-packages'''.format(os.path.expanduser('~'))
 try:
     import pattoo_shared
 except ModuleNotFoundError:
-    default_path = '''\
-{}/.local/lib/python3.6/site-packages'''.format(os.path.expanduser('~'))
+
     shared.run_script('pip3 install PattooShared -t {0}'.format(default_path))
 
 # Import packages that depend on pattoo shared
