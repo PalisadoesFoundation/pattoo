@@ -322,7 +322,8 @@ def main():
     installation_dir = '{} {}'.format(venv_interpreter, ROOT_DIR)
 
     # Setup virtual environment
-    environment.environment_setup(venv_dir)
+    if getpass.getuser != 'travis':
+        environment.environment_setup(venv_dir)
 
     # Process the CLI
     _parser = Parser(additional_help=_help)
