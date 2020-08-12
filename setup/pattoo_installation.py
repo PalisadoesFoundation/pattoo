@@ -170,10 +170,15 @@ class _Install():
             None
         """
         # Initialize key variables
-        _ = self.subparsers.add_parser(
+        parser = self.subparsers.add_parser(
             'database',
             help=textwrap.fill('Install database', width=width)
         )
+        # Add arguments
+        parser.add_argument(
+            '--verbose',
+            action='store_true',
+            help='Enable verbose mode.')
 
     def pip(self, width=80):
         """CLI command to install the necessary pip3 packages.
