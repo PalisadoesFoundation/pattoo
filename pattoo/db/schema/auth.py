@@ -3,7 +3,9 @@
 # PIP3 imports
 import graphene
 from graphql import GraphQLError
-from flask_graphql_auth import create_access_token, create_refresh_token
+from flask_graphql_auth import (create_access_token, create_refresh_token,
+                                get_jwt_identity,
+                                mutation_jwt_refresh_token_required)
 
 # pattoo imports
 from pattoo.db.table import user as _user
@@ -14,6 +16,7 @@ class AuthMutationInput(graphene.InputObjectType):
 
     username = graphene.String(required=True, description='Username.')
     password = graphene.String(required=True, description='Password.')
+
 
 class AuthMutation(graphene.Mutation):
     """Handles user authentication.
@@ -46,3 +49,22 @@ class AuthMutation(graphene.Mutation):
         refresh_token = create_refresh_token(idx_user)
 
         return AuthMutation(access_token, refresh_token)
+
+
+class RefreshMutation(graphene.Mutation):
+    """Handles generating new access_token using refresh_token"""
+
+    access_token = graphene.String()
+
+    class Arguments:
+        refresh_token = graphene.String()
+
+    @mutation_jwt_refresh_token_required
+    def mutate(self):
+
+        # Retrieves User claim(user id) from refresh_token and creates new
+        # acces_token
+        idx_user = get_jwt_identity()
+        acces_token = create_access_token(identity=idx_user)
+
+        return RefreshMutation(acces_token)

@@ -132,6 +132,7 @@ class Mutation(graphene.ObjectType):
 
     # Authentication mutations
     authenticate = auth.AuthMutation.Field()
+    authRefresh = auth.RefreshMutation.Field()
 
 
 class Query(graphene.ObjectType):
