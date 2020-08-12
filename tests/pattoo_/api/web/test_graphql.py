@@ -33,8 +33,6 @@ else:
 
 from pattoo_shared import data, log, converter
 from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
-from pattoo_shared.configuration import Config, ServerConfig
-
 from tests.libraries.configuration import UnittestConfig, WebConfig
 from pattoo.api.web import PATTOO_API_WEB as APP
 from pattoo.constants import IDXTimestampValue
@@ -143,7 +141,7 @@ def _get(query):
     """
     # Initialize key variables
     success = False
-    config = Config()
+    config = WebConfig()
     result = None
 
     # Get the data from the GraphQL API
