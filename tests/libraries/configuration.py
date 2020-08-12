@@ -132,7 +132,6 @@ class UnittestConfig():
             os.makedirs(self._config_directory, mode=0o750, exist_ok=True)
 
         self._server_config = {
-            'pattoo_server': {
                 'pattoo_db': {
                     'db_pool_size': 10,
                     'db_max_overflow': 20,
@@ -154,7 +153,6 @@ class UnittestConfig():
                     'batch_size': 1503
                 },
             }
-        }
 
         self._config = {
                 'encryption': {
