@@ -32,7 +32,7 @@ Use the quick method if you are new to ``pattoo``.
     
 
 The above command will set the most optimal defaults for your system for pattoo.
-
+Additionally, the pattoo user and group will be created with the home directory for the pattoo user being /home/pattoo
 To guarantee success you will need to know the following beforehand.
 
 #. ``db_name``: Database name
