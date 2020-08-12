@@ -121,7 +121,7 @@ class Test_Systemd(unittest.TestCase):
         else:
             # Expected directory for CentOS
             expected = '/usr/lib/systemd/system'
-        
+
         # Test directory without symlinks
         with tempfile.TemporaryDirectory() as temp_dir:
             with self.assertRaises(SystemExit) as cm_:
@@ -166,7 +166,6 @@ class Test_Systemd(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             # Initialize key variables
             config_dir = os.path.join(temp_dir, 'pattoo-config')
-            pip_dir = '/opt/pattoo-daemon/.python'
 
             # If the config dir doesn't exist it gets created
             if os.path.isdir(config_dir) is False:
@@ -192,7 +191,6 @@ class Test_Systemd(unittest.TestCase):
                 filepaths=destination_filepaths,
                 install_dir=ROOT_DIR,
                 config_dir=config_dir,
-                pip_dir=pip_dir,
                 username='pattoo',
                 group='pattoo'
             )
