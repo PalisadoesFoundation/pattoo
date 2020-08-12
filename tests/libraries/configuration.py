@@ -64,6 +64,9 @@ class UnittestConfig():
                 },
             },
             'pattoo': {
+                'encryption': {
+                    'api_email': 'api_email@example.org',
+                },
                 'pattoo': {
                     'log_directory': self._log_directory,
                     'log_level': 'debug',
