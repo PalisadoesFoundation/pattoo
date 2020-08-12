@@ -186,13 +186,30 @@ class UnittestConfig():
             self.config_directory: Directory where the config is placed
 
         """
-        # Write good_config to file
-        for key, value in sorted(self._config.items()):
-            config_file = (
-                '{}{}{}.yaml'.format(self._config_directory, os.sep, key))
-            with open(config_file, 'w') as f_handle:
-                yaml.dump(value, f_handle, default_flow_style=False)
+        # Initialize key variables
+        base_config = '{}{}pattoo.yaml'.format(self._config_directory, os.sep)
 
+        server_config = '{}{}pattoo_server.yaml'.format(
+                                            self._config_directory, os.sep)
+        # Write to pattoo.yaml
+        try:
+            f_handle = open(base_config, 'w')
+        except PermissionError:
+            log.log2die(1019, '''\
+Insufficient permissions for creating the file:{}'''.format(f_handle))
+        else:
+            with f_handle:
+                yaml.dump(self._config, f_handle, default_flow_style=False)
+
+        # Write to pattoo_server.yaml
+        try:
+            f_handle = open(server_config, 'w')
+        except PermissionError:
+            log.log2die(1062, '''\
+Insufficient permissions for creating the file:{}'''.format(f_handle))
+        else:
+            with f_handle:
+                yaml.dump(self._server_config, f_handle, default_flow_style=False)
         # Return
         return self._config_directory
 
