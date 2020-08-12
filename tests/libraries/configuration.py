@@ -193,7 +193,7 @@ class UnittestConfig():
         try:
             f_handle = open(base_config, 'w')
         except PermissionError:
-            log.log2die(1019, '''\
+            log.log2die(20090, '''\
 Insufficient permissions for creating the file:{}'''.format(f_handle))
         else:
             with f_handle:
@@ -203,7 +203,7 @@ Insufficient permissions for creating the file:{}'''.format(f_handle))
         try:
             f_handle = open(server_config, 'w')
         except PermissionError:
-            log.log2die(1062, '''\
+            log.log2die(20091, '''\
 Insufficient permissions for creating the file:{}'''.format(f_handle))
         else:
             with f_handle:
