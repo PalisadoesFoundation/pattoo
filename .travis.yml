@@ -35,4 +35,3 @@ install:
 sudo: false
 script:
     - tests/bin/do_all_tests.py --verbose
-    
