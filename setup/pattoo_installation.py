@@ -255,17 +255,13 @@ def get_pattoo_home():
     """
     try:
         # No exception will be thrown if the pattoo user exists
-        passwd_entry = pwd.getpwnam('pattoo')
-        home_dir = passwd_entry.pw_dir
-
-        # Ensure that the pattoo home directory is not set to non-existent
-        if home_dir == '/nonexistent':
-            pattoo_home = '/home/pattoo'
-        else:
-            pattoo_home = home_dir
-
+        pattoo_home = pwd.getpwnam('pattoo').pw_dir
     # Set defaults if pattoo user doesn't exist
     except KeyError:
+        pattoo_home = '/home/pattoo'
+
+    # Ensure that the pattoo home directory is not set to non-existent
+    if pattoo_home == '/nonexistent':
         pattoo_home = '/home/pattoo'
 
     return pattoo_home

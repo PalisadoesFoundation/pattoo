@@ -357,8 +357,8 @@ def _insert_user():
                 password=data.hashstring(password),
                 first_name='pattoo',
                 last_name='pattoo',
-                user_type=0,
-                change_password=0,
+                user_type=1,
+                change_password=1,
                 enabled=0)
             )
 
@@ -373,7 +373,7 @@ def _insert_user():
                 last_name='admin',
                 user_type=0,
                 change_password=0,
-                enabled=0)
+                enabled=1)
             )
 
 def _insert_chart():
