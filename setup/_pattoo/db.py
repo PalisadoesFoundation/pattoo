@@ -357,24 +357,9 @@ def _insert_user():
                 password=data.hashstring(password),
                 first_name='pattoo',
                 last_name='pattoo',
-                user_type=0,
-                change_password=0,
                 enabled=0)
             )
 
-    # Insert admin into User table
-    if user.idx_exists(2) is False:
-        password = 'some_secure_string'
-        user.insert_row(
-            DbRowUser(
-                username='admin',
-                password=data.hashstring(password),
-                first_name='admin',
-                last_name='admin',
-                user_type=0,
-                change_password=0,
-                enabled=0)
-            )
 
 def _insert_chart():
     """Insert starting default entries into the Chart table.
