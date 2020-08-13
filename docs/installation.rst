@@ -39,7 +39,7 @@ Follow these steps.
 
    .. code-block:: bash
 
-      $ pip3 install -r pip_requirements.txt --target /opt/pattoo/daemon/.python
+      $ pip3 install -r pip_requirements.txt
 
 #. Create the ``MySQL`` or ``MariaDB`` database for ``pattoo`` with the correct authentication parameters provided in the :doc:`configuration` In this example adjust the name of your database and the password accordingly.
 

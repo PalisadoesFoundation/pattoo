@@ -44,7 +44,6 @@ def main():
     """
     # Initialize key variables
     config = Config()
-    
 
     # Make sure we have a database
     _ = connectivity()
