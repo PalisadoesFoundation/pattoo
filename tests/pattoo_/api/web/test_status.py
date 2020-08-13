@@ -31,9 +31,7 @@ else:
     sys.exit(2)
 
 from pattoo_shared import data
-from pattoo_shared.configuration import Config
-
-from tests.libraries.configuration import UnittestConfig
+from tests.libraries.configuration import UnittestConfig, WebConfig
 from pattoo.api.web import PATTOO_API_WEB as APP
 
 
@@ -56,7 +54,7 @@ class TestBasicFunctions(LiveServerTestCase):
         """
         # Create APP and set configuration
         app = APP
-        config = Config()
+        config = WebConfig()
 
         app.config['TESTING'] = True
         app.config['LIVESERVER_PORT'] = config.web_api_ip_bind_port()
@@ -75,7 +73,7 @@ class TestBasicFunctions(LiveServerTestCase):
         expected = 'The Pattoo Web API is Operational.\n'
 
         # Create URL
-        config = Config()
+        config = WebConfig()
         agent_url = config.web_api_server_url(graphql=False)
         url = agent_url.replace('/rest/data', '/status')
 

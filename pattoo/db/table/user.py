@@ -84,6 +84,8 @@ def insert_row(row):
     password = row.password[:MAX_KEYPAIR_LENGTH]
     first_name = row.first_name.strip()[:MAX_KEYPAIR_LENGTH]
     last_name = row.last_name.strip()[:MAX_KEYPAIR_LENGTH]
+    user_type = int(row.user_type)
+    change_password = int(row.change_password)
     enabled = int(bool(row.enabled))
 
     # Insert
@@ -92,7 +94,9 @@ def insert_row(row):
         password=password.encode(),
         first_name=first_name.encode(),
         last_name=last_name.encode(),
-        enabled=enabled,
+        user_type=user_type,
+        change_password=change_password,
+        enabled=enabled
         )
     with db.db_modify(20054, die=True) as session:
         session.add(row)
