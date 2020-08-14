@@ -29,16 +29,8 @@ This script is not installed in the "{}" directory. Please fix.\
 from _pattoo import shared
 
 # Attempt to import pattoo shared
-default_path = '''\
+DEFAULT_PATH = '''\
 {}/.local/lib/python3.6/site-packages'''.format(os.path.expanduser('~'))
-try:
-    import pattoo_shared
-except ModuleNotFoundError:
-    shared.run_script('pip3 install PattooShared -t {0}'.format(default_path))
-
-# Import packages that depend on pattoo shared
-from _pattoo import configure
-from pattoo_shared.installation import packages, systemd, environment
 
 
 class _Parser(argparse.ArgumentParser):
@@ -296,8 +288,7 @@ You cloned the repository in a home related directory, please clone in a\
             import virtualenv
         except ModuleNotFoundError:
             print('virtualenv is not installed. Installing virtualenv')
-            shared.run_script('''\
-pip3 install virtualenv -t {}'''.format(default_path))
+            shared.run_script('pip3 install virtualenv')
 
 
 def main():
@@ -328,7 +319,7 @@ def main():
     else:
         # Set default directories for travis
         pattoo_home = os.path.join(os.path.expanduser('~'), 'pattoo')
-        venv_dir = default_path
+        venv_dir = DEFAULT_PATH
         installation_dir = ROOT_DIR
 
     # Process the CLI
@@ -388,5 +379,15 @@ def main():
 if __name__ == '__main__':
     # Ensure environment is okay
     installation_checks()
+
+    try:
+        import pattoo_shared
+    except ModuleNotFoundError:
+        shared.run_script('pip3 install PattooShared')
+
+    # Import packages that depend on pattoo shared
+    from _pattoo import configure
+    from pattoo_shared.installation import packages, systemd, environment
+
     # Execute main
     main()
