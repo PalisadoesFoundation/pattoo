@@ -1,11 +1,8 @@
 """Shared functions and methods utilized by the pattoo installation."""
 # Standard imports
 import sys
-import os
 import subprocess
 import traceback
-import shutil
-import getpass
 
 
 def run_script(cli_string, die=True, verbose=True):

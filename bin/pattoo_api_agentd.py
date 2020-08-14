@@ -15,8 +15,6 @@ _ROOT_DIRECTORY = os.path.abspath(os.path.join(_BIN_DIRECTORY, os.pardir))
 _EXPECTED = '{0}pattoo{0}bin'.format(os.sep)
 if _BIN_DIRECTORY.endswith(_EXPECTED) is True:
     sys.path.append(_ROOT_DIRECTORY)
-    default_pip_dir = '/opt/pattoo-daemon/.python'
-    sys.path.append(default_pip_dir)
 else:
     print('''This script is not installed in the "{0}" directory. Please fix.\
 '''.format(_EXPECTED))
@@ -50,6 +48,12 @@ def main():
         PATTOO_API_AGENT_PROXY,
         PATTOO_API_AGENT,
         config=config)
+
+    # Add set API email address
+    agent_api.set_api_email()
+
+    # Set up encryption using Pgpier in Agent
+    agent_api.set_gnupg() # Creation and retrieval of Pgpier object
 
     # Do control (API first, Gunicorn second)
     cli = AgentCLI()
