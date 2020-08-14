@@ -24,6 +24,7 @@ from graphene.relay.connection import PageInfo
 from graphene_sqlalchemy import SQLAlchemyConnectionField
 from graphql_relay.connection.arrayconnection import connection_from_list_slice
 from sqlalchemy import desc, asc
+from flask_graphql_auth import query_jwt_required, AuthInfoField
 
 # Import schemas
 from pattoo.db.schema.agent import Agent
@@ -74,6 +75,7 @@ class InstrumentedQuery(SQLAlchemyConnectionField):
         args['sort_by'] = graphene.List(graphene.String, required=False)
         SQLAlchemyConnectionField.__init__(self, type_, args=args, **kwargs)
 
+    @query_jwt_required
     def get_query(self, model, info, **args):
         """Replace the get_query method."""
         query_filters = {k: v for k, v in args.items() if k in self.query_args}
@@ -94,7 +96,12 @@ class InstrumentedQuery(SQLAlchemyConnectionField):
             self, resolver, connection, model, root, info, **args):
         query = resolver(
             root, info, **args) or self.get_query(model, info, **args)
-        count = query.count()
+
+        if type(query) == AuthInfoField:
+            count = 0
+        else:
+            count = query.count()
+
         connection = connection_from_list_slice(
             query,
             args,
@@ -158,7 +165,7 @@ class Query(graphene.ObjectType):
 
     # Results as a single entry filtered by 'id' and as a list
     language = graphene.relay.Node.Field(Language)
-    all_language = InstrumentedQuery(Language)
+    all_language = InstrumentedQuery(Language, token=graphene.String())
 
     # Results as a single entry filtered by 'id' and as a list
     pair_xlate_group = graphene.relay.Node.Field(PairXlateGroup)
@@ -174,15 +181,15 @@ class Query(graphene.ObjectType):
 
     # Results as a single entry filtered by 'id' and as a list
     agent = graphene.relay.Node.Field(Agent)
-    all_agent = InstrumentedQuery(Agent)
+    all_agent = InstrumentedQuery(Agent, token=graphene.String())
 
     # Results as a single entry filtered by 'id' and as a list
     chart = graphene.relay.Node.Field(chart_.Chart)
     all_chart = InstrumentedQuery(chart_.Chart)
 
     # Results as a single entry filtered by 'id' and as a list
-    user = graphene.relay.Node.Field(user_.User)
-    all_user = InstrumentedQuery(user_.User)
+    # user = graphene.relay.Node.Field(user_.ProtectedUser)
+    all_user = InstrumentedQuery(user_.User, token=graphene.String())
 
     # Results as a single entry filtered by 'id' and as a list
     favorite = graphene.relay.Node.Field(favorite_.Favorite)

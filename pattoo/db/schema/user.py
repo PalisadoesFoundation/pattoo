@@ -4,7 +4,8 @@
 import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType
 from graphql import GraphQLError
-from flask_graphql_auth import mutation_jwt_required, get_jwt_identity
+from flask_graphql_auth import (mutation_jwt_required, get_jwt_identity,
+                                AuthInfoField)
 
 # pattoo imports
 from pattoo.db import db
@@ -54,6 +55,11 @@ class User(SQLAlchemyObjectType, UserAttribute):
         interfaces = (graphene.relay.Node,)
 
 
+class ProtectedUser(graphene.Union):
+    class Meta:
+        types = (User, AuthInfoField)
+
+
 class CreateUserInput(graphene.InputObjectType, UserAttribute):
     """Arguments to create a User."""
 
@@ -63,8 +69,9 @@ class CreateUserInput(graphene.InputObjectType, UserAttribute):
 class CreateUser(graphene.Mutation):
     """Create a User Mutation."""
 
-    user = graphene.Field(
-        lambda: User, description='User created by this mutation.')
+    user = graphene.Field(lambda: User,
+                          description='User created by this mutation.')
+    message = graphene.String()
 
     class Arguments:
         Input = CreateUserInput(required=True)
@@ -112,8 +119,8 @@ class UpdateUserInput(graphene.InputObjectType, UserAttribute):
 
 class UpdateUser(graphene.Mutation):
     """Update a User."""
-    user = graphene.Field(
-        lambda: User, description='User updated by this mutation.')
+    user = graphene.Field(lambda: User,
+                          description='User updated by this mutation.')
 
     class Arguments:
         Input = UpdateUserInput(required=True)

@@ -1,6 +1,11 @@
 """pattoo ORM Schema utility functions."""
 
+# PIP3 imports
+import graphene
 from graphql_relay.node.node import from_global_id
+from flask_graphql_auth import AuthInfoField
+
+# pattoo imports
 from pattoo_shared.constants import DATA_INT, DATA_STRING, DATA_FLOAT
 
 

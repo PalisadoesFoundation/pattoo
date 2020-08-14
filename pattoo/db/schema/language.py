@@ -3,6 +3,7 @@
 # PIP3 imports
 import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType
+from flask_graphql_auth import AuthInfoField
 
 # pattoo imports
 from pattoo.db.models import Language as LanguageModel
@@ -37,3 +38,7 @@ class Language(SQLAlchemyObjectType, LanguageAttribute):
 
         model = LanguageModel
         interfaces = (graphene.relay.Node,)
+
+class ProtectedLanguage(graphene.Union):
+    class Meta:
+        types = (Language, AuthInfoField)
