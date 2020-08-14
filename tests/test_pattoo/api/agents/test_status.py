@@ -20,7 +20,7 @@ ROOT_DIR = os.path.abspath(os.path.join(
             os.path.abspath(os.path.join(
                 EXEC_DIR,
                 os.pardir)), os.pardir)), os.pardir)), os.pardir))
-_EXPECTED = '{0}pattoo{0}tests{0}pattoo_{0}api{0}web'.format(os.sep)
+_EXPECTED = '{0}pattoo{0}tests{0}test_pattoo{0}api{0}agents'.format(os.sep)
 if EXEC_DIR.endswith(_EXPECTED) is True:
     # We need to prepend the path in case the repo has been installed
     # elsewhere on the system using PIP. This could corrupt expected results
@@ -31,8 +31,9 @@ else:
     sys.exit(2)
 
 from pattoo_shared import data
-from tests.libraries.configuration import UnittestConfig, WebConfig
-from pattoo.api.web import PATTOO_API_WEB as APP
+from pattoo_shared.configuration import Config
+from tests.libraries.configuration import UnittestConfig
+from pattoo.api.agents import PATTOO_API_AGENT as APP
 
 
 class TestBasicFunctions(LiveServerTestCase):
@@ -54,10 +55,10 @@ class TestBasicFunctions(LiveServerTestCase):
         """
         # Create APP and set configuration
         app = APP
-        config = WebConfig()
+        config = Config()
 
         app.config['TESTING'] = True
-        app.config['LIVESERVER_PORT'] = config.web_api_ip_bind_port()
+        app.config['LIVESERVER_PORT'] = config.agent_api_ip_bind_port()
         os.environ['FLASK_ENV'] = 'development'
 
         # Clear the flask cache
@@ -70,12 +71,12 @@ class TestBasicFunctions(LiveServerTestCase):
     def test_index(self):
         """Testing method / function index."""
         # Initialize key variables
-        expected = 'The Pattoo Web API is Operational.\n'
+        expected = 'The Pattoo Agent API is Operational.\n'
 
         # Create URL
-        config = WebConfig()
-        agent_url = config.web_api_server_url(graphql=False)
-        url = agent_url.replace('/rest/data', '/status')
+        config = Config()
+        agent_url = config.agent_api_server_url('')
+        url = agent_url.replace('/receive/', '/status')
 
         # Check response
         with requests.get(url) as response:

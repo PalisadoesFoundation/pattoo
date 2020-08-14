@@ -3,11 +3,11 @@
 #############################################
 
 # Pattoo packages
-
-PattooShared==0.0.85
+PattooShared==0.0.89
 
 # Miscellaneous packages
 PyYAML
+Flask-Session
 
 # Database packages
 PyMySQL
@@ -37,3 +37,6 @@ tblib
 
 # Determine linux distrobution
 distro
+
+# Encryption support
+python-gnupg==0.4.6

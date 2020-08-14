@@ -57,7 +57,7 @@ def main():
             config.db_hostname(), config.db_name()))
 
         # Fix for multiprocessing on pools.
-        _add_engine_pidguard(QueuePool)
+        # _add_engine_pidguard(QueuePool)
 
         # Add MySQL to the pool
         db_engine = create_engine(
@@ -73,7 +73,10 @@ def main():
             pool_timeout=pool_timeout)
 
         # Fix for multiprocessing on engines.
-        _add_engine_pidguard(db_engine)
+        # _add_engine_pidguard(db_engine)
+
+        # Ensure connections are disposed before sharing engine.
+        db_engine.dispose()
 
         # Create database session object
         POOL = scoped_session(
