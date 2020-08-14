@@ -10,12 +10,9 @@ Setting the  Configuration Directory Location
 
 Currently the configuration directory is automatically set when the installationscript is run
 
-
 *********************
 Configuration Options
-
 *********************
-
 
 There are two ways to configure ``pattoo``. These are the:
 
@@ -28,8 +25,9 @@ Quick Method
 Use the quick method if you are new to ``pattoo``.
 
 .. code-block:: bash
+
     $ sudo setup/pattoo_installation.py install configuration
-    
+
 
 The above command will set the most optimal defaults for your system for pattoo.
 
@@ -221,4 +219,4 @@ This table outlines the purpose of each configuration parameter.
      - Directory used to store daemon related data that needs to be maintained between reboots
    * -
      - ``system_daemon_directory``
-     - Directory used to store daemon related data that should be deleted between reboots. This should only be configured if you are running ``pattoo`` daemons as ``systemd`` daemons. The ``systemd`` daemon installation procedure automatically adjusts this configuration. This parameter defaults to the ``daemon_directory`` value if it is not configured. 
+     - Directory used to store daemon related data that should be deleted between reboots. This should only be configured if you are running ``pattoo`` daemons as ``systemd`` daemons. The ``systemd`` daemon installation procedure automatically adjusts this configuration. This parameter defaults to the ``daemon_directory`` value if it is not configured.
