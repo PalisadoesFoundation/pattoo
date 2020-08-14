@@ -24,6 +24,10 @@ If you want to access GraphQL programmatically, without using your browser then 
 
 If you are running it on your local machine go to the http://localhost:20202/pattoo/api/v1/web/graphql URL to get your results.
 
+Retrieving GraphQL data with Pattoo-Web
+```````````````````````````````````````
+
+You can use the `get` function in this file to get GraphQL data from the pattoo API server. https://github.com/PalisadoesFoundation/pattoo-web/blob/master/pattoo_web/phttp.py
 
 How The Database Maps to GraphQL Queries
 ========================================
@@ -92,50 +96,50 @@ This file contains the mappings from SQLAlchemy table definitions to GraphQL que
 
     class InstrumentedQuery(SQLAlchemyConnectionField):
         """Class to allow GraphQL filtering by SQlAlchemycolumn name."""
-    
+
         def __init__(self, type_, **kwargs):
             ...
             ...
             ...
-    
-    
+
+
     class AgentXlateAttribute():
         """Descriptive attributes of the AgentXlate table.
         A generic class to mutualize description of attributes for both queries
         and mutations.
         """
-    
+
         idx_agent_xlate = graphene.String(
             description='AgentXlate table index.')
-    
+
         idx_language = graphene.String(
             description='Language table index (ForeignKey).')
-    
+
         agent_program = graphene.String(
             resolver=resolve_agent_program,
             description=('Agent progam'))
-    
+
         translation = graphene.String(
             resolver=resolve_translation,
             description='Translation of the agent program name.')
-    
+
         enabled = graphene.String(
             description='"True" if enabled.')
-    
-    
+
+
     class AgentXlate(SQLAlchemyObjectType, AgentXlateAttribute):
         """AgentXlate node."""
-    
+
         class Meta:
             """Define the metadata."""
-    
+
             model = AgentXlateModel
             interfaces = (graphene.relay.Node,)
 
 Next we'll discuss the `Query` class  you'll find further down the file. This class:
 
 #. Uses the `InstrumentedQuery` class to filter queries by database column values. This `InstrumentedQuery` class makes things a lot easier. The `graphene-sqlalchemy` implementation of GraphQL has limited filtering capabilities. For example:
-    #. Every row of every database table has a fixed unique automatically generated GraphQL ID which is a `graphene.relay.node.GlobalID` object. You can filter specifically on this ID. 
+    #. Every row of every database table has a fixed unique automatically generated GraphQL ID which is a `graphene.relay.node.GlobalID` object. You can filter specifically on this ID.
     #. You also get lists of database row results containing the first X and last X rows.
     #. Lists of database row results can also be obtained for values before and/or after X GraphQL ID values retrieved from a database table.
     #. Custom filtering for specific values in a database column can be using resolvers, but you have to manually create a resolver for each table’s column. This per query customization is not ideal.
@@ -145,13 +149,13 @@ Next we'll discuss the `Query` class  you'll find further down the file. This cl
 
     class Query(graphene.ObjectType):
         """Define GraphQL queries."""
-    
+
         node = relay.Node.Field()
-    
+
         # Results as a single entry filtered by 'id' and as a list
         agent_xlate = graphene.relay.Node.Field(AgentXlate)
         all_agent_xlate = InstrumentedQuery(AgentXlate)
-    
+
 
 Query Examples
 ==============
@@ -161,7 +165,7 @@ Here are some query examples using the example database table we have been using
 **Note:**
 
 #. In all the examples in this section the “id” represents the `graphene.relay.node.GlobalID` string. You can use this to get information on a specific row of a specific table.
-#. The `InstrumentedQuery` related queries in the Query class can only filter on a database table value, not the `graphene.relay.node.GlobalID` string. 
+#. The `InstrumentedQuery` related queries in the Query class can only filter on a database table value, not the `graphene.relay.node.GlobalID` string.
 
 Agent Table Queries
 -------------------
@@ -175,7 +179,7 @@ This will provide information on all the known polling agents.
 The agentProgram value will be used later for getting a translation into a meaningful name.
 
 .. code-block:: text
-    
+
     {
       allAgent {
         edges {
@@ -242,7 +246,7 @@ You’ll notice that this query also gives you the following information that wi
         }
       }
     }
-    
+
 
 All Charts in which Datapoints Polled by Agent appear. Where id = “X”
 ``````````````````````````````````````````````````````````````````````
@@ -595,8 +599,8 @@ This query provides all the configured languages. The `code` returned is the lan
         }
       }
     }
-    
-    
+
+
 Agent Translation Table Queries
 -------------------------------
 
@@ -630,7 +634,7 @@ You can use this query to get the translation for an agentProgram name for a spe
         }
       }
     }
-    
+
 Translation for a Specific agentProgram (all Languages)
 ```````````````````````````````````````````````````````
 In this case we get translations for the `agentProgram` named `pattoo_agent_snmp_ifmibd`.
@@ -675,7 +679,7 @@ In this case:
         tsModified
       }
     }
-    
+
 
 Filtered Agent Translation table entry with Language where idxAgentXlate = “4”
 ``````````````````````````````````````````````````````````````````````````````
@@ -738,7 +742,7 @@ View key-pair Translations for idxPairXlateGroup = “x”
 In this example, we filter by `idxPairXlateGroup`
 
 .. code-block:: text
-    
+
     {
       allPairXlate (idxPairXlateGroup: "2"){
         edges {
@@ -753,7 +757,7 @@ In this example, we filter by `idxPairXlateGroup`
         }
       }
     }
-    
+
 Favorites Table Queries
 -----------------------
 
@@ -793,8 +797,8 @@ This is the query string you'll need to see all the favorites in the database.
         }
       }
     }
-    
-    
+
+
 User Table Queries
 ------------------
 
@@ -835,7 +839,7 @@ This query will show:
         }
       }
     }
-    
+
 View all Favorites for a Specific User (by filter other than ID)
 ````````````````````````````````````````````````````````````````
 This query will show:
@@ -868,7 +872,7 @@ This query will show:
         }
       }
     }
-    
+
 
 View all Favorites for a Specific User (by ID)
 ``````````````````````````````````````````````
@@ -899,7 +903,7 @@ This query will show:
         }
       }
     }
-    
+
 Pagination
 ----------
 
@@ -911,7 +915,7 @@ View all Datapoints
 This query will return all Datapoint values.
 
 .. code-block:: text
-    
+
     {
       allDatapoints {
         edges {
@@ -925,7 +929,7 @@ This query will return all Datapoint values.
         }
       }
     }
-    
+
 View First X Datapoints
 ```````````````````````
 
@@ -952,7 +956,7 @@ It’s important to note the `startCursor` and `endCursor` values when wanting t
         }
       }
     }
-    
+
 View Last X Datapoints
 ``````````````````````
 
@@ -979,7 +983,7 @@ It’s important to note the `startCursor` and `endCursor` values when wanting t
         }
       }
     }
-    
+
 Next X Datapoints
 `````````````````
 
@@ -1009,8 +1013,8 @@ Next X Datapoints
         }
       }
     }
-    
-    
+
+
 
 Previous X Datapoints
 `````````````````````
@@ -1041,7 +1045,7 @@ Previous X Datapoints
         }
       }
     }
-    
+
 
 Mutation Examples
 =================
@@ -1064,7 +1068,7 @@ Mutation
 ........
 
 .. code-block:: text
-    
+
     mutation {
       createChart(Input: {name: "Flying Fish"}) {
         chart {
@@ -1074,7 +1078,7 @@ Mutation
         }
       }
     }
-    
+
 Result
 ......
 
@@ -1091,7 +1095,7 @@ Result
         }
       }
     }
-    
+
 
 Modify Chart Name
 `````````````````
@@ -1111,7 +1115,7 @@ Mutation
         }
       }
     }
-    
+
 
 
 Result
@@ -1155,14 +1159,14 @@ Mutation
         }
       }
     }
-    
+
 
 
 Result
 ......
 
 .. code-block:: text
-    
+
     {
       "data": {
         "createChartDataPoint": {
@@ -1198,14 +1202,14 @@ Mutation
         }
       }
     }
-    
+
 
 
 Result
 ......
 
 .. code-block:: text
-    
+
     {
       "data": {
         "updateChartDataPoint": {
@@ -1267,7 +1271,7 @@ Result
         }
       }
     }
-    
+
 
 Modify User FirstName
 `````````````````````
@@ -1289,7 +1293,7 @@ Mutation
         }
       }
     }
-    
+
 
 
 Result
@@ -1310,7 +1314,7 @@ Result
         }
       }
     }
-    
+
 
 Favorite Table Mutation
 -----------------------
@@ -1335,9 +1339,9 @@ Mutation
           enabled
         }
       }
-    } 
-    
-    
+    }
+
+
 
 Result
 ......
@@ -1357,7 +1361,7 @@ Result
         }
       }
     }
-    
+
 
 Modify Favorite
 ```````````````
@@ -1368,7 +1372,7 @@ Mutation
 ........
 
 .. code-block:: text
-    
+
     mutation {
       updateFavorite(Input: {idxFavorite: "2", enabled: "0"}) {
         favorite {
@@ -1384,7 +1388,7 @@ Result
 ......
 
 .. code-block:: text
-    
+
     {
       "data": {
         "updateFavorite": {
@@ -1397,8 +1401,3 @@ Result
         }
       }
     }
-    
-    
-    
-    
-        
