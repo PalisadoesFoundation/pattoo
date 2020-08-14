@@ -19,7 +19,7 @@ ROOT_DIR = os.path.abspath(os.path.join(
             os.path.abspath(os.path.join(
                 EXEC_DIR,
                 os.pardir)), os.pardir)), os.pardir)), os.pardir))
-_EXPECTED = '{0}pattoo{0}tests{0}pattoo_{0}api{0}agents'.format(os.sep)
+_EXPECTED = '{0}pattoo{0}tests{0}test_pattoo{0}api{0}agents'.format(os.sep)
 if EXEC_DIR.endswith(_EXPECTED) is True:
     # We need to prepend the path in case the repo has been installed
     # elsewhere on the system using PIP. This could corrupt expected results

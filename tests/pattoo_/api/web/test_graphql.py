@@ -33,9 +33,7 @@ else:
 
 from pattoo_shared import data, log, converter
 from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
-from pattoo_shared.configuration import Config, ServerConfig
-
-from tests.libraries.configuration import UnittestConfig
+from tests.libraries.configuration import UnittestConfig, WebConfig
 from pattoo.api.web import PATTOO_API_WEB as APP
 from pattoo.constants import IDXTimestampValue
 from pattoo.db.table import datapoint
@@ -61,7 +59,7 @@ class TestBasicFunctions(LiveServerTestCase):
         """
         # Create APP and set configuration
         app = APP
-        config = Config()
+        config = WebConfig()
 
         app.config['TESTING'] = True
         app.config['LIVESERVER_PORT'] = config.web_api_ip_bind_port()
@@ -143,7 +141,7 @@ def _get(query):
     """
     # Initialize key variables
     success = False
-    config = Config()
+    config = WebConfig()
     result = None
 
     # Get the data from the GraphQL API
