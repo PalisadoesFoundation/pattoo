@@ -30,9 +30,9 @@ def install(pattoo_home):
                 '/var/log/pattoo'),
             'log_level': 'debug',
             'cache_directory': (
-                '/opt/pattoo-cache'),
+                '/opt/pattoo/cache'),
             'daemon_directory': (
-                '/opt/pattoo-daemon'),
+                '/opt/pattoo/daemon'),
             'system_daemon_directory': '/var/run/pattoo',
         }
     }
