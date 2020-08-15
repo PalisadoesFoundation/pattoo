@@ -22,6 +22,7 @@ from graphene import relay
 from graphene.utils.str_converters import to_snake_case
 from graphene.relay.connection import PageInfo
 from graphene_sqlalchemy import SQLAlchemyConnectionField
+from graphql import GraphQLError
 from graphql_relay.connection.arrayconnection import connection_from_list_slice
 from sqlalchemy import desc, asc
 from flask_graphql_auth import query_jwt_required, AuthInfoField
@@ -62,6 +63,7 @@ class InstrumentedQuery(SQLAlchemyConnectionField):
     """
 
     def __init__(self, type_, **kwargs):
+        """InstrumentedQuery constructor"""
         self.query_args = {}
         for key, value in type_._meta.fields.items():
             if isinstance(value, graphene.Field):
@@ -70,9 +72,15 @@ class InstrumentedQuery(SQLAlchemyConnectionField):
                 if isinstance(field_type, graphene.NonNull):
                     field_type = field_type.of_type
                 self.query_args[key] = field_type()
+
+        # Retrieving field keys and names
         args = kwargs.pop('args', dict())
         args.update(self.query_args)
         args['sort_by'] = graphene.List(graphene.String, required=False)
+
+        # Required token field
+        args['token'] = graphene.String(required=True)
+
         SQLAlchemyConnectionField.__init__(self, type_, args=args, **kwargs)
 
     @query_jwt_required
@@ -98,9 +106,9 @@ class InstrumentedQuery(SQLAlchemyConnectionField):
             root, info, **args) or self.get_query(model, info, **args)
 
         if type(query) == AuthInfoField:
-            count = 0
-        else:
-            count = query.count()
+            raise GraphQLError(query.message)
+
+        count = query.count()
 
         connection = connection_from_list_slice(
             query,
@@ -165,7 +173,7 @@ class Query(graphene.ObjectType):
 
     # Results as a single entry filtered by 'id' and as a list
     language = graphene.relay.Node.Field(Language)
-    all_language = InstrumentedQuery(Language, token=graphene.String())
+    all_language = InstrumentedQuery(Language)
 
     # Results as a single entry filtered by 'id' and as a list
     pair_xlate_group = graphene.relay.Node.Field(PairXlateGroup)
@@ -181,15 +189,15 @@ class Query(graphene.ObjectType):
 
     # Results as a single entry filtered by 'id' and as a list
     agent = graphene.relay.Node.Field(Agent)
-    all_agent = InstrumentedQuery(Agent, token=graphene.String())
+    all_agent = InstrumentedQuery(Agent)
 
     # Results as a single entry filtered by 'id' and as a list
     chart = graphene.relay.Node.Field(chart_.Chart)
     all_chart = InstrumentedQuery(chart_.Chart)
 
     # Results as a single entry filtered by 'id' and as a list
-    # user = graphene.relay.Node.Field(user_.ProtectedUser)
-    all_user = InstrumentedQuery(user_.User, token=graphene.String())
+    user = graphene.relay.Node.Field(user_.User)
+    all_user = InstrumentedQuery(user_.User)
 
     # Results as a single entry filtered by 'id' and as a list
     favorite = graphene.relay.Node.Field(favorite_.Favorite)
