@@ -39,12 +39,12 @@ def install(pattoo_home):
 
     # Defines how agents will communicate with the API daemons
     # Only required for travis-ci unittesting
-    # agent_config = {
-    #     'pattoo_agent_api': {
-    #         'ip_address': '127.0.0.1',
-    #         'ip_bind_port': 20201
-    #     },
-    # }
+    agent_config = {
+        'pattoo_agent_api': {
+            'ip_address': '127.0.0.1',
+            'ip_bind_port': 20201
+        },
+    }
 
     server_config = {
         'pattoo_db': {
@@ -58,7 +58,7 @@ def install(pattoo_home):
         'pattoo_api_agentd': {
             'ip_listen_address': '0.0.0.0',
             'ip_bind_port': 20201,
-            'api_encryption_email': 'agent_email@example.org',
+            'api_encryption_email': 'test_api@example.org',
         },
         'pattoo_apid': {
             'ip_listen_address': '0.0.0.0',
@@ -88,8 +88,5 @@ def install(pattoo_home):
     configure.configure_component(
         'pattoo_server', config_directory, server_config)
 
-    # This configuration is only required if we are running
-    # Travis for unittesting purposes.
-    # if getpass.getuser() == 'travis':
-    #     configure.configure_component(
-    #         'pattoo_agent', config_directory, agent_config)
+    configure.configure_component(
+        'pattoo_agent', config_directory, agent_config)
