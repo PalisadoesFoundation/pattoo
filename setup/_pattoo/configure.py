@@ -21,9 +21,6 @@ def install(pattoo_home):
         os.environ['PATTOO_CONFIGDIR'] = '{0}etc{0}pattoo'.format(os.sep)
     config_directory = os.environ.get('PATTOO_CONFIGDIR')
     shared_config = {
-        'encryption': {
-            'api_email': 'api_email@example.org',
-            },
         'pattoo': {
             'language': 'en',
             'log_directory': (
