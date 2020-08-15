@@ -28,12 +28,6 @@ else:
 # Pattoo imports
 from tests.libraries.configuration import UnittestConfig
 
-from pattoo.configuration import ConfigPattoo as Config
-from pattoo.db import URL
-from pattoo.db.models import BASE
-from sqlalchemy import create_engine
-from pattoo_shared import log
-
 
 def main():
     """Verify that we are ready to run tests."""
@@ -41,49 +35,6 @@ def main():
     # Check environment
     config = UnittestConfig()
     _ = config.create()
-    _mysql()
-
-
-def _mysql():
-    """Create database tables.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    """
-    # Initialize key variables
-    config = Config()
-    pool_size = config.db_pool_size()
-    max_overflow = config.db_max_overflow()
-
-    # Add MySQL to the pool
-    engine = create_engine(
-        URL, echo=True,
-        encoding='utf8',
-        max_overflow=max_overflow,
-        pool_size=pool_size, pool_recycle=3600)
-
-    # Try to create the database
-    print('Connecting to configured database. Altering character set.')
-    try:
-        sql_string = ('''\
-ALTER DATABASE {} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci\
-'''.format(config.db_name()))
-        engine.execute(sql_string)
-    except:
-        log_message = (
-            '''\
-ERROR: Cannot connect to database "{}" on server "{}". Verify database server \
-is started. Verify database is created. Verify that the configured database \
-authentication is correct.'''.format(config.db_name(), config.db_hostname()))
-        log.log2die(20086, log_message)
-
-    # Apply schemas
-    print('Creating database tables.')
-    BASE.metadata.create_all(engine)
 
 
 if __name__ == '__main__':
