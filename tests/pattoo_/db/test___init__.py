@@ -107,7 +107,6 @@ def run_(arguments):
 
     # Now spawn processes and update the table
     for loop in range(arguments.loops):
-        print('Processing loop {}'.format(loop))
         with multiprocessing.get_context(
                 'spawn').Pool(processes=arguments.process_count) as pool:
             pool.starmap(language.update_name, args)
