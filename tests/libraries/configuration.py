@@ -132,47 +132,45 @@ class UnittestConfig():
             os.makedirs(self._config_directory, mode=0o750, exist_ok=True)
 
         self._server_config = {
-                'pattoo_db': {
-                    'db_pool_size': 10,
-                    'db_max_overflow': 20,
-                    'db_hostname': 'localhost',
-                    'db_username': 'travis',
-                    'db_password': 'K2nJ8kFdthEbuwXE',
-                    'db_name': 'pattoo_unittest'
-                },
-                'pattoo_api_agentd': {
-                    'ip_listen_address': '127.0.0.1',
-                    'ip_bind_port': 40201,
-                },
-                'pattoo_apid': {
-                    'ip_listen_address': '127.0.0.1',
-                    'ip_bind_port': 40202,
-                },
-                'pattoo_ingesterd': {
-                    'ingester_interval': 45,
-                    'batch_size': 1503
-                },
-            }
+            'pattoo_db': {
+                'db_pool_size': 10,
+                'db_max_overflow': 20,
+                'db_hostname': 'localhost',
+                'db_username': 'travis',
+                'db_password': 'K2nJ8kFdthEbuwXE',
+                'db_name': 'pattoo_unittest'
+            },
+            'pattoo_api_agentd': {
+                'ip_listen_address': '127.0.0.1',
+                'ip_bind_port': 40201,
+                'api_encryption_email': 'agent_email@example.org'
+            },
+            'pattoo_apid': {
+                'ip_listen_address': '127.0.0.1',
+                'ip_bind_port': 40202,
+            },
+            'pattoo_ingesterd': {
+                'ingester_interval': 45,
+                'batch_size': 1503
+            },
+        }
 
         self._config = {
-                'encryption': {
-                    'api_email': 'api_email@example.org',
-                },
-                'pattoo': {
-                    'log_directory': self._log_directory,
-                    'log_level': 'debug',
-                    'cache_directory': self._cache_directory,
-                    'daemon_directory': self._daemon_directory
-                },
-                'pattoo_agent_api': {
-                    'ip_address': '127.0.0.1',
-                    'ip_bind_port': 40201
-                },
-                'pattoo_web_api': {
-                    'ip_address': '127.0.0.1',
-                    'ip_bind_port': 40202,
-                }
+            'pattoo': {
+                'log_directory': self._log_directory,
+                'log_level': 'debug',
+                'cache_directory': self._cache_directory,
+                'daemon_directory': self._daemon_directory
+            },
+            'pattoo_agent_api': {
+                'ip_address': '127.0.0.1',
+                'ip_bind_port': 40201
+            },
+            'pattoo_web_api': {
+                'ip_address': '127.0.0.1',
+                'ip_bind_port': 40202,
             }
+        }
 
     def create(self):
         """Create a good config and set the PATTOO_CONFIGDIR variable.
