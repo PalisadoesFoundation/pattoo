@@ -22,7 +22,7 @@ else:
 
 # Pattoo libraries
 from pattoo_shared import log
-from pattoo_shared.agent import Agent, AgentCLI, AgentAPI
+from pattoo_shared.agent import Agent, AgentCLI, EncryptedAgentAPI
 from pattoo.constants import (
     PATTOO_API_AGENT_NAME, PATTOO_API_AGENT_PROXY)
 from pattoo.configuration import ConfigAgent as Config
@@ -43,17 +43,11 @@ def main():
 
     # Create agent for daemon
     config = Config()
-    agent_api = AgentAPI(
+    agent_api = EncryptedAgentAPI(
         PATTOO_API_AGENT_NAME,
         PATTOO_API_AGENT_PROXY,
         PATTOO_API_AGENT,
         config=config)
-
-    # Add set API email address
-    agent_api.set_api_email()
-
-    # Set up encryption using Pgpier in Agent
-    agent_api.set_gnupg() # Creation and retrieval of Pgpier object
 
     # Do control (API first, Gunicorn second)
     cli = AgentCLI()

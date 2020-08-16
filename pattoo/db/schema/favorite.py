@@ -60,7 +60,7 @@ class CreateFavorite(graphene.Mutation):
         Input = CreateFavoriteInput(required=True)
 
     def mutate(self, info_, Input):
-        data = _input_to_dictionary(Input)
+        data = _create(Input)
 
         favorite = FavoriteModel(**data)
         with db.db_modify(20149, close=False) as session:
@@ -93,7 +93,7 @@ class UpdateFavorite(graphene.Mutation):
         Input = UpdateFavoriteInput(required=True)
 
     def mutate(self, info_, Input):
-        data = _input_to_dictionary(Input)
+        data = _update(Input)
 
         # Update database
         with db.db_modify(20153) as session:
@@ -108,8 +108,8 @@ class UpdateFavorite(graphene.Mutation):
         return UpdateFavorite(favorite=favorite)
 
 
-def _input_to_dictionary(input_):
-    """Convert.
+def _update(input_):
+    """Update mutation.
 
     Args:
         input_: GraphQL "data" dictionary structure from mutation
@@ -121,6 +121,27 @@ def _input_to_dictionary(input_):
     # 'column' is a dict of DB model 'non string' column names and their types
     column = {
         'idx_favorite': DATA_INT,
+        'idx_user': DATA_INT,
+        'idx_chart': DATA_INT,
+        'order': DATA_INT,
+        'enabled': DATA_INT
+    }
+    result = utils.input_to_dictionary(input_, column=column)
+    return result
+
+
+def _create(input_):
+    """Create mutation.
+
+    Args:
+        input_: GraphQL "data" dictionary structure from mutation
+
+    Returns:
+        result: Dict of inputs
+
+    """
+    # 'column' is a dict of DB model 'non string' column names and their types
+    column = {
         'idx_user': DATA_INT,
         'idx_chart': DATA_INT,
         'order': DATA_INT,

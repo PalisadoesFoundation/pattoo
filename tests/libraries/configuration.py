@@ -39,7 +39,7 @@ class WebConfig(BaseConfig):
         """
         # Get the configuration
         BaseConfig.__init__(self)
-        self._base_yaml_configuration = _config_reader('pattoo.yaml')
+        self._base_yaml_configuration = _config_reader('pattoo_webd.yaml')
 
     def web_api_ip_address(self):
         """Get web_api_ip_address.
@@ -132,47 +132,51 @@ class UnittestConfig():
             os.makedirs(self._config_directory, mode=0o750, exist_ok=True)
 
         self._server_config = {
-                'pattoo_db': {
-                    'db_pool_size': 10,
-                    'db_max_overflow': 20,
-                    'db_hostname': 'localhost',
-                    'db_username': 'travis',
-                    'db_password': 'K2nJ8kFdthEbuwXE',
-                    'db_name': 'pattoo_unittest'
-                },
-                'pattoo_api_agentd': {
-                    'ip_listen_address': '127.0.0.1',
-                    'ip_bind_port': 40201,
-                },
-                'pattoo_apid': {
-                    'ip_listen_address': '127.0.0.1',
-                    'ip_bind_port': 40202,
-                },
-                'pattoo_ingesterd': {
-                    'ingester_interval': 45,
-                    'batch_size': 1503
-                },
-            }
+            'pattoo_db': {
+                'db_pool_size': 10,
+                'db_max_overflow': 20,
+                'db_hostname': 'localhost',
+                'db_username': 'travis',
+                'db_password': 'K2nJ8kFdthEbuwXE',
+                'db_name': 'pattoo_unittest'
+            },
+            'pattoo_api_agentd': {
+                'ip_listen_address': '127.0.0.1',
+                'ip_bind_port': 40201,
+                'api_encryption_email': 'test_api@example.org'
+            },
+            'pattoo_apid': {
+                'ip_listen_address': '127.0.0.1',
+                'ip_bind_port': 40202,
+            },
+            'pattoo_ingesterd': {
+                'ingester_interval': 45,
+                'batch_size': 1503
+            },
+        }
 
         self._config = {
-                'encryption': {
-                    'api_email': 'api_email@example.org',
-                },
-                'pattoo': {
-                    'log_directory': self._log_directory,
-                    'log_level': 'debug',
-                    'cache_directory': self._cache_directory,
-                    'daemon_directory': self._daemon_directory
-                },
-                'pattoo_agent_api': {
-                    'ip_address': '127.0.0.1',
-                    'ip_bind_port': 40201
-                },
-                'pattoo_web_api': {
-                    'ip_address': '127.0.0.1',
-                    'ip_bind_port': 40202,
-                }
+            'pattoo': {
+                'log_directory': self._log_directory,
+                'log_level': 'debug',
+                'cache_directory': self._cache_directory,
+                'daemon_directory': self._daemon_directory
+            },
+        }
+
+        self._agent_config = {
+            'pattoo_agent_api': {
+                'ip_address': '127.0.0.1',
+                'ip_bind_port': 40203
+            },
+        }
+
+        self._web_config = {
+            'pattoo_web_api': {
+                'ip_address': '127.0.0.1',
+                'ip_bind_port': 40204,
             }
+        }
 
     def create(self):
         """Create a good config and set the PATTOO_CONFIGDIR variable.
@@ -184,30 +188,33 @@ class UnittestConfig():
             self.config_directory: Directory where the config is placed
 
         """
-        # Initialize key variables
-        base_config = '{}{}pattoo.yaml'.format(self._config_directory, os.sep)
+        # Delete any existing configuration files to make a clean start
+        _delete_files(self._config_directory, delete_directory=False)
 
-        server_config = '{}{}pattoo_server.yaml'.format(
-                                            self._config_directory, os.sep)
-        # Write to pattoo.yaml
-        try:
-            f_handle = open(base_config, 'w')
-        except PermissionError:
-            log.log2die(20090, '''\
-Insufficient permissions for creating the file:{}'''.format(f_handle))
-        else:
-            with f_handle:
-                yaml.dump(self._config, f_handle, default_flow_style=False)
+        # Initialize filenames and their contents
+        data_ = {
+            '{}{}pattoo.yaml'.format(
+                self._config_directory, os.sep): self._config,
+            '{}{}pattoo_server.yaml'.format(
+                self._config_directory, os.sep): self._server_config,
+            '{}{}pattoo_agent.yaml'.format(
+                self._config_directory, os.sep): self._agent_config,
+            '{}{}pattoo_webd.yaml'.format(
+                self._config_directory, os.sep): self._web_config,
+        }
 
-        # Write to pattoo_server.yaml
-        try:
-            f_handle = open(server_config, 'w')
-        except PermissionError:
-            log.log2die(20091, '''\
+        # Write configurations
+        for filename, contents in data_.items():
+            # Write to pattoo.yaml
+            try:
+                f_handle = open(filename, 'w')
+            except PermissionError:
+                log.log2die(20090, '''\
 Insufficient permissions for creating the file:{}'''.format(f_handle))
-        else:
-            with f_handle:
-                yaml.dump(self._server_config, f_handle, default_flow_style=False)
+            else:
+                with f_handle:
+                    yaml.dump(contents, f_handle, default_flow_style=False)
+
         # Return
         return self._config_directory
 
@@ -231,7 +238,7 @@ Insufficient permissions for creating the file:{}'''.format(f_handle))
             _delete_files(directory)
 
 
-def _delete_files(directory):
+def _delete_files(directory, delete_directory=True):
     """Delete all files in directory."""
     # Cleanup files in temp directories
     filenames = [filename for filename in os.listdir(
@@ -244,7 +251,8 @@ def _delete_files(directory):
         os.remove(filepath)
 
     # Remove directory after files are deleted.
-    os.rmdir(directory)
+    if bool(delete_directory) is True:
+        os.rmdir(directory)
 
 
 def _environment(config_directory):

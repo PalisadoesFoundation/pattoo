@@ -21,9 +21,6 @@ def install(pattoo_home):
         os.environ['PATTOO_CONFIGDIR'] = '{0}etc{0}pattoo'.format(os.sep)
     config_directory = os.environ.get('PATTOO_CONFIGDIR')
     shared_config = {
-        'encryption': {
-            'api_email': 'api_email@example.org',
-            },
         'pattoo': {
             'language': 'en',
             'log_directory': (
@@ -37,18 +34,13 @@ def install(pattoo_home):
         }
     }
 
+    # Defines how agents will communicate with the API daemons
+    # Only required for travis-ci unittesting
     agent_config = {
-        'encryption': {
-            'agent_email': 'agent_email@example.org'
-        },
         'pattoo_agent_api': {
             'ip_address': '127.0.0.1',
             'ip_bind_port': 20201
         },
-        'pattoo_web_api': {
-            'ip_address': '127.0.0.1',
-            'ip_bind_port': 20202,
-        }
     }
 
     server_config = {
@@ -63,6 +55,7 @@ def install(pattoo_home):
         'pattoo_api_agentd': {
             'ip_listen_address': '0.0.0.0',
             'ip_bind_port': 20201,
+            'api_encryption_email': 'test_api@example.org',
         },
         'pattoo_apid': {
             'ip_listen_address': '0.0.0.0',
@@ -89,10 +82,8 @@ def install(pattoo_home):
     # Create configuration
     configure.configure_component('pattoo', config_directory, shared_config)
 
-    configure.configure_component('pattoo_agent',
-                                  config_directory,
-                                  agent_config)
+    configure.configure_component(
+        'pattoo_server', config_directory, server_config)
 
-    configure.configure_component('pattoo_server',
-                                  config_directory,
-                                  server_config)
+    configure.configure_component(
+        'pattoo_agent', config_directory, agent_config)
