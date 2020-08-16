@@ -110,9 +110,11 @@ class _Install():
     def __init__(self, subparsers, width=80):
         """Intialize the class."""
         # Initialize key variables
+        help_message = '''\
+Install pattoo. Type install --help to see additional arguments'''
         parser = subparsers.add_parser(
             'install',
-            help=textwrap.fill('Install pattoo.', width=width)
+            help=textwrap.fill(help_message, width=width)
         )
         # Add subparser
         self.subparsers = parser.add_subparsers(dest='qualifier')
