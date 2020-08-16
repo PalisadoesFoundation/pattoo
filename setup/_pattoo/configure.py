@@ -71,7 +71,7 @@ def install(pattoo_home):
     # Attempt to create configuration directory
     files.mkdir(config_directory)
 
-    if getpass.getuser() != 'travis':
+    if getpass.getuser() == 'root':
         # Create the pattoo user and group
         configure.create_user('pattoo', pattoo_home, '/bin/false', True)
 

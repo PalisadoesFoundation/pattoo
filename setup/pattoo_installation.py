@@ -317,8 +317,7 @@ def installation_checks():
     # Check user
     if getpass.getuser() != 'travis':
         if getpass.getuser() != 'root':
-            shared.log('You are currently not running the script as root.\
-Run as root to continue')
+            print('Assuming configuration for unittesting')
         # Check installation directory
         if os.getcwd().startswith('/home'):
             shared.log('''\
@@ -359,7 +358,7 @@ def main():
         from pattoo_shared.installation import packages, systemd, environment
 
         # Setup virtual environment
-        if getpass.getuser() != 'travis':
+        if getpass.getuser() == 'root':
             pattoo_home = get_pattoo_home()
             venv_dir = os.path.join(pattoo_home, 'pattoo-venv')
             environment.environment_setup(venv_dir)
@@ -380,10 +379,11 @@ def main():
             # Import db after pip3 packages are installed
             from _pattoo import db
             db.install()
-            systemd.install(daemon_list=daemon_list,
-                            template_dir=template_dir,
-                            installation_dir=installation_dir,
-                            verbose=args.verbose)
+            if getpass.getuser() == 'root':
+                systemd.install(daemon_list=daemon_list,
+                                template_dir=template_dir,
+                                installation_dir=installation_dir,
+                                verbose=args.verbose)
 
         # Configures pattoo and sets up database tables
         elif args.qualifier == 'database':
@@ -397,10 +397,13 @@ def main():
         # Installs and starts system daemons
         elif args.qualifier == 'systemd':
             print('Installing systemd daemons')
-            systemd.install(daemon_list=daemon_list,
-                            template_dir=template_dir,
-                            installation_dir=installation_dir,
-                            verbose=True)
+            if getpass.getuser() == 'root':
+                systemd.install(daemon_list=daemon_list,
+                                template_dir=template_dir,
+                                installation_dir=installation_dir,
+                                verbose=True)
+            else:
+                shared.log('You need to be running as root to install the daemons')
 
         elif args.qualifier == 'pip':
             # Installs additionally required pip3 packages
