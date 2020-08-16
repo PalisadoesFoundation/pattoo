@@ -32,7 +32,6 @@ from pattoo import sysinfo
 from pattoo.ingest import files
 from pattoo.db.db import connectivity
 
-
 class PollingAgent(Agent):
     """Agent that gathers data."""
 
@@ -50,7 +49,7 @@ class PollingAgent(Agent):
         # Initialize key variables
         Agent.__init__(self, parent, config=config)
 
-    def run(self):
+    def query(self):
         """Query all remote targets for data.
 
         Args:
@@ -164,7 +163,6 @@ def main():
     # Do control
     cli = AgentCLI()
     cli.control(agent_poller, graceful=True)
-
 
 if __name__ == "__main__":
     log.env()
