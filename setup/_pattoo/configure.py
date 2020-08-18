@@ -193,7 +193,9 @@ def pattoo_server_config(config_directory, prompt_value):
         'pattoo_apid': {
             'ip_listen_address': '0.0.0.0',
             'ip_bind_port': 20202,
-            'jwt_secret_key': secrets.token_urlsafe(MAX_KEYPAIR_LENGTH)
+            'jwt_secret_key': secrets.token_urlsafe(MAX_KEYPAIR_LENGTH),
+            'acesss_token_exp': '15_m',
+            'refresh_token_exp': '1_D'
         },
         'pattoo_ingesterd': {
             'ingester_interval': 3600,
