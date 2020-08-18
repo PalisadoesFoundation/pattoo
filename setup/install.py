@@ -392,7 +392,8 @@ def main():
         # Set up essentials for creating the virtualenv
         pattoo_home = get_pattoo_home()
         venv_dir = os.path.join(pattoo_home, 'pattoo-venv')
-        environment.environment_setup(venv_dir)
+        if getpass.getuser() != 'travis':
+            environment.environment_setup(venv_dir)
         venv_interpreter = os.path.join(venv_dir, 'bin/python3')
         installation_dir = '{} {}'.format(venv_interpreter, ROOT_DIR)
 
