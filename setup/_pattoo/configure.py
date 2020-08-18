@@ -2,7 +2,7 @@
 
 # Main python libraries
 import os
-import getpass
+from _pattoo import shared as _shared
 from pattoo_shared.installation import configure, shared
 from pattoo_shared import files
 
@@ -71,7 +71,7 @@ def install(pattoo_home):
     # Attempt to create configuration directory
     files.mkdir(config_directory)
 
-    if getpass.getuser() == 'root':
+    if _shared.root_check() is True:
         # Create the pattoo user and group
         configure.create_user('pattoo', pattoo_home, '/bin/false', True)
 

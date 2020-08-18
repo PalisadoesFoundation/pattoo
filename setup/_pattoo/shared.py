@@ -3,6 +3,7 @@
 import sys
 import subprocess
 import traceback
+import getpass
 
 
 def run_script(cli_string, die=True, verbose=True):
@@ -78,6 +79,22 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
 
     # Return
     return (returncode, stdoutdata, stderrdata)
+
+
+def root_check():
+    """Check if the user is root.
+
+    Args:
+        None
+
+    Returns:
+        True: If the user is root
+        False: If the user is not root
+    """
+    if getpass.getuser() == 'root':
+        return True
+    else:
+        return False
 
 
 def log(message):

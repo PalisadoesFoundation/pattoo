@@ -241,22 +241,27 @@ def get_pattoo_home():
     """Retrieve home directory for pattoo user.
 
     Args:
-        None
+        unittest_dir: The directory for unittests
 
     Returns:
         The home directory for the pattoo user
 
     """
-    try:
-        # No exception will be thrown if the pattoo user exists
-        pattoo_home = pwd.getpwnam('pattoo').pw_dir
-    # Set defaults if pattoo user doesn't exist
-    except KeyError:
-        pattoo_home = '/home/pattoo'
+    if shared.root_check() is True:
+        try:
+            # No exception will be thrown if the pattoo user exists
+            pattoo_home = pwd.getpwnam('pattoo').pw_dir
+        # Set defaults if pattoo user doesn't exist
+        except KeyError:
+            pattoo_home = '/home/pattoo'
 
-    # Ensure that the pattoo home directory is not set to non-existent
-    if pattoo_home == '/nonexistent':
-        pattoo_home = '/home/pattoo'
+        # Ensure that the pattoo home directory is not set to non-existent
+        if pattoo_home == '/nonexistent':
+            pattoo_home = '/home/pattoo'
+
+    # Set up pattoo home for unittest user if the user is not root
+    else:
+        pattoo_home = unittest_environment_setup()
 
     return pattoo_home
 
@@ -278,8 +283,8 @@ def venv_check():
     try:
         import virtualenv
     except ModuleNotFoundError:
-        print('virtualenv is not installed, installing the latest version')
-        shared.run_script('pip3 install virtualenv')
+        print('virtualenv is not installed, installing virtualenv')
+        shared.run_script('pip3 install virtualenv==20.0.30')
 
 
 def pattoo_shared_check():
@@ -301,6 +306,30 @@ def pattoo_shared_check():
     except ModuleNotFoundError:
         print('PattooShared is missing, installing the latest version')
         shared.run_script('pip3 install PattooShared')
+
+
+def unittest_environment_setup():
+    """Set up config dir to the unittest configdir if the user is not root.
+
+    Args:
+        None
+
+    Returns:
+        unittest_dir: The directory where unittest resources are stored
+
+    """
+    # Initialize key variables
+    config_suffix = '.pattoo-unittests{}config'.format(os.sep)
+    unittest_config_dir = (
+        '{}{}{}'.format(os.environ['HOME'], os.sep, config_suffix))
+    print('Setting config directory to {}'.format(unittest_config_dir))
+
+    # Sets PATTOO_CONFIGDIR environment varaible to the unittest config dir
+    if 'unittest' not in os.environ['PATTOO_CONFIGDIR']:
+        os.environ['PATTOO_CONFIGDIR'] = unittest_config_dir
+
+    unittest_dir = config_suffix.split(os.sep)[0]
+    return unittest_dir
 
 
 def installation_checks():
@@ -325,6 +354,7 @@ def installation_checks():
             shared.log('''\
 You cloned the repository in a home related directory, please clone in a\
  non-home directory to continue''')
+        # Check config_dir
 
 
 def main():
@@ -359,18 +389,12 @@ def main():
         from _pattoo import configure
         from pattoo_shared.installation import packages, systemd, environment
 
-        # Setup virtual environment
-        if getpass.getuser() == 'root':
-            pattoo_home = get_pattoo_home()
-            venv_dir = os.path.join(pattoo_home, 'pattoo-venv')
-            environment.environment_setup(venv_dir)
-            venv_interpreter = os.path.join(venv_dir, 'bin/python3')
-            installation_dir = '{} {}'.format(venv_interpreter, ROOT_DIR)
-        else:
-            # Set default directories for travis
-            pattoo_home = os.path.join(os.path.expanduser('~'), 'pattoo')
-            venv_dir = DEFAULT_PATH
-            installation_dir = ROOT_DIR
+        # Set up essentials for creating the virtualenv
+        pattoo_home = get_pattoo_home()
+        venv_dir = os.path.join(pattoo_home, 'pattoo-venv')
+        environment.environment_setup(venv_dir)
+        venv_interpreter = os.path.join(venv_dir, 'bin/python3')
+        installation_dir = '{} {}'.format(venv_interpreter, ROOT_DIR)
 
         # Installs all pattoo components
         if args.qualifier == 'all':
@@ -381,7 +405,7 @@ def main():
             # Import db after pip3 packages are installed
             from _pattoo import db
             db.install()
-            if getpass.getuser() == 'root':
+            if shared.root_check() is True:
                 systemd.install(daemon_list=daemon_list,
                                 template_dir=template_dir,
                                 installation_dir=installation_dir,
