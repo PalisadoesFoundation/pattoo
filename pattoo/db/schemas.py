@@ -106,7 +106,12 @@ class InstrumentedQuery(SQLAlchemyConnectionField):
             root, info, **args) or self.get_query(model, info, **args)
 
         if type(query) == AuthInfoField:
-            raise GraphQLError(query.message)
+            message = query.message
+
+            if query.message == "Invalid header padding":
+                message = "Invalid Token Provided"
+
+            raise GraphQLError(message)
 
         count = query.count()
 
@@ -136,12 +141,21 @@ class InstrumentedQuery(SQLAlchemyConnectionField):
 
 
 class Mutation(graphene.ObjectType):
+    """Define GraphQL mutations"""
+
+    # Chart Mutations
     createChart = chart_.CreateChart.Field()
     updateChart = chart_.UpdateChart.Field()
+
+    # Chart Datapoints Mutation
     createChartDataPoint = chart_datapoint_.CreateChartDataPoint.Field()
     updateChartDataPoint = chart_datapoint_.UpdateChartDataPoint.Field()
+
+    # Chart Favorites Mutation
     createFavorite = favorite_.CreateFavorite.Field()
     updateFavorite = favorite_.UpdateFavorite.Field()
+
+    # User Mutations
     createUser = user_.CreateUser.Field()
     updateUser = user_.UpdateUser.Field()
 

@@ -69,16 +69,16 @@ class CreateUserInput(graphene.InputObjectType, UserAttribute):
 class CreateUser(graphene.Mutation):
     """Create a User Mutation."""
 
-    user = graphene.Field(lambda: User,
+    user = graphene.Field(lambda: ProtectedUser,
                           description='User created by this mutation.')
-    message = graphene.String()
 
     class Arguments:
         Input = CreateUserInput(required=True)
         token = graphene.String()
 
+    @classmethod
     @mutation_jwt_required
-    def mutate(self, info_, Input):
+    def mutate(cls, _, info_, Input):
         data = _input_to_dictionary(Input)
         token_idx_user = get_jwt_identity()
 
@@ -119,13 +119,16 @@ class UpdateUserInput(graphene.InputObjectType, UserAttribute):
 
 class UpdateUser(graphene.Mutation):
     """Update a User."""
-    user = graphene.Field(lambda: User,
+    user = graphene.Field(lambda: ProtectedUser,
                           description='User updated by this mutation.')
 
     class Arguments:
         Input = UpdateUserInput(required=True)
+        token = graphene.String()
 
-    def mutate(self, info_, Input):
+    @classmethod
+    @mutation_jwt_required
+    def mutate(cls, _, info_, Input):
         data = _input_to_dictionary(Input)
 
         # Update database
