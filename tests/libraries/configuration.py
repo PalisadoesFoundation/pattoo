@@ -13,9 +13,11 @@ from __future__ import print_function
 import tempfile
 import os
 import yaml
+import secrets
 
 # Pattoo imports
 from pattoo_shared import log
+from pattoo_shared.constants import MAX_KEYPAIR_LENGTH
 
 
 class UnittestConfig():
