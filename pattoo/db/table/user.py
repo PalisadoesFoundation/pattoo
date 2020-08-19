@@ -23,41 +23,31 @@ class User():
             None
 
         """
-        # Integrity test
-        if bool(exists(username)) is False:
-            log_message = 'Username "{}" does not exist.'.format(username)
-            log.log2die(20091, log_message)
+        # Initialize key variables
+        rows = []
+        self.first_name = None
+        self.last_name = None
+        self.user_type = None
+        self.change_password = None
+        self.enabled = None
+        self.exists = False
+        self._username = username
 
         # Get data
-        with db.db_query(20141) as session:
-            self._user = session.query(
-                _User).filter(username=username.encode())
+        with db.db_query(20162) as session:
+            rows = session.query(
+                _User).filter(_User.username == username.encode())
 
-    def first_name(self):
-        """Get first name.
-
-        Args:
-            None
-
-        Returns:
-            result: metadata value
-
-        """
-        # Return
-        return self._user.first_name.decode()
-
-    def last_name(self):
-        """Get last name.
-
-        Args:
-            None
-
-        Returns:
-            None
-
-        """
-        # Return
-        return self._user.last_name.decode()
+        # Assign variables
+        for row in rows:
+            self.first_name = row.first_name.decode()
+            self.last_name = row.last_name.decode()
+            self.user_type = row.user_type
+            self.change_password = bool(row.change_password)
+            self.enabled = bool(row.enabled)
+            self.username = username
+            self.exists = True
+            break
 
     def valid_password(self, value):
         """Get.
@@ -66,53 +56,26 @@ class User():
             value: New value to apply
 
         Returns:
-            None
+            result: True if valid
 
         """
         # Initialize key variables
-        found = self._user.password.decode()
-        (_, salt, __) = found.split('$')
-        expected = crypt.crypt(value, '$6${}'.format(salt))
-        return bool(found == expected)
+        result = False
 
-    def user_type(self):
-        """Get.
+        if bool(self.exists) is True:
+            # Get password from database
+            with db.db_query(20141) as session:
+                password = session.query(
+                    _User.password).filter(
+                        _User.username == self._username.encode()).one()
 
-        Args:
-            None
+            # Determine state of password
+            found = password[0].decode()
+            salt = found.split('$')[2]
+            expected = crypt.crypt(value, '$6${}'.format(salt))
+            result = bool(found == expected)
 
-        Returns:
-            None
-
-        """
-        # Return
-        return self._user.user_type
-
-    def change_password(self):
-        """Set the change_password flag.
-
-        Args:
-            None
-
-        Returns:
-            None
-
-        """
-        # Return
-        return bool(self._user.change_password)
-
-    def enabled(self):
-        """Get enabled status.
-
-        Args:
-            None
-
-        Returns:
-            None
-
-        """
-        # Return
-        return bool(self._user.enabled)
+        return result
 
 
 class Modify():
@@ -147,9 +110,9 @@ class Modify():
         """
         # Update
         _value = value.strip()[:MAX_KEYPAIR_LENGTH].encode()
-        with db.db_modify(20156, die=False) as session:
+        with db.db_modify(20156, die=True) as session:
             session.query(_User).filter(
-                _User.username == self._username
+                _User.username == self._username.encode()
             ).update({'first_name': _value})
 
     def last_name(self, value):
@@ -164,9 +127,9 @@ class Modify():
         """
         # Update
         _value = value.strip()[:MAX_KEYPAIR_LENGTH].encode()
-        with db.db_modify(20157, die=False) as session:
+        with db.db_modify(20157, die=True) as session:
             session.query(_User).filter(
-                _User.username == self._username
+                _User.username == self._username.encode()
             ).update({'last_name': _value})
 
     def password(self, value):
@@ -181,9 +144,9 @@ class Modify():
         """
         # Initialize key variables
         _value = crypt.crypt(value).encode()
-        with db.db_modify(20158, die=False) as session:
+        with db.db_modify(20158, die=True) as session:
             session.query(_User).filter(
-                _User.username == self._username
+                _User.username == self._username.encode()
             ).update({'password': _value})
 
     def user_type(self, value):
@@ -198,9 +161,9 @@ class Modify():
         """
         # Update
         _value = int(value)
-        with db.db_modify(20159, die=False) as session:
+        with db.db_modify(20159, die=True) as session:
             session.query(_User).filter(
-                _User.username == self._username
+                _User.username == self._username.encode()
             ).update({'user_type': _value})
 
     def change_password(self, value):
@@ -214,9 +177,9 @@ class Modify():
 
         """
         # Update
-        with db.db_modify(20160, die=False) as session:
+        with db.db_modify(20160, die=True) as session:
             session.query(_User).filter(
-                _User.username == self._username
+                _User.username == self._username.encode()
             ).update({'change_password': int(bool(value))})
 
     def enabled(self, value):
@@ -230,9 +193,9 @@ class Modify():
 
         """
         # Update
-        with db.db_modify(20161, die=False) as session:
+        with db.db_modify(20161, die=True) as session:
             session.query(_User).filter(
-                _User.username == self._username
+                _User.username == self._username.encode()
             ).update({'enabled': int(bool(value))})
 
 
@@ -318,7 +281,7 @@ def insert_row(row):
     # Insert
     row = _User(
         username=username.encode(),
-        password=password.encode(),
+        password=crypt.crypt(password).encode(),
         first_name=first_name.encode(),
         last_name=last_name.encode(),
         user_type=user_type,
