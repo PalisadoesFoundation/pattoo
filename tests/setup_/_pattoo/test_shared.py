@@ -54,11 +54,11 @@ class Test_Shared(unittest.TestCase):
             self.assertEqual(result, expected)
 
     def test_unittest_environment_setup(self):
+        """Unittest to test the unittest_environment_setup function."""
         expected = os.path.join(os.path.expanduser('~'), '.pattoo-unittests')
-        print(f'\n\n{expected}')
         result = shared.unittest_environment_setup()
-        print(f'\n\nresult is: {result}')
         self.assertEqual(result, expected)
+
 
 if __name__ == '__main__':
     # Make sure the environment is OK to run unittests
