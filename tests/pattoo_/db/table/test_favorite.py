@@ -46,7 +46,8 @@ class TestBasicFunctions(unittest.TestCase):
                 password=passwrd,
                 first_name=f_name,
                 last_name=l_name,
-                enabled=0
+                enabled=0,
+                is_admin=0
             )
         )
 
@@ -94,7 +95,8 @@ class TestBasicFunctions(unittest.TestCase):
                 password=passwrd,
                 first_name=f_name,
                 last_name=l_name,
-                enabled=0
+                enabled=0,
+                is_admin=0
             )
         )
         # Make sure user entry exists
@@ -140,7 +142,8 @@ class TestBasicFunctions(unittest.TestCase):
                 password=passwrd,
                 first_name=f_name,
                 last_name=l_name,
-                enabled=0
+                enabled=0,
+                is_admin=0
             )
         )
 
