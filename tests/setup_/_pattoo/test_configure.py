@@ -109,7 +109,7 @@ class TestConfigure(unittest.TestCase):
             pattoo_server_config(temp_dir, False)
 
             # Extract pattoo_server config
-            result = read_config(file_path, None)
+            result = yaml.load(file_path, default_flow_style=False)
 
             # Changing jwt_secret_key to match in both expected and result
             # configs
