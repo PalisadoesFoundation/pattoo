@@ -236,34 +236,6 @@ class Modify():
             ).update({'enabled': int(bool(value))})
 
 
-class Create():
-    """User creation class."""
-
-    def __init__(self, username):
-        """Initialize the class.
-
-        Args:
-            username: Name of user
-
-        Returns:
-            None
-
-        """
-        # Initialize key variables
-        if bool(exists(username)) is False:
-            insert_row(
-                DbRowUser(
-                    username=username,
-                    password='',
-                    first_name='',
-                    last_name='',
-                    enabled=False,
-                    user_type=1,
-                    change_password=True
-                )
-            )
-
-
 def idx_exists(idx):
     """Determine whether primary key exists.
 
