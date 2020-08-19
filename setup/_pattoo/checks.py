@@ -83,7 +83,7 @@ def parser_check(parser, args):
     # Perform installation check to ensure the environment is okay
     installation_checks()
     if args.action == 'install':
-        if shared.root_check() is False:
+        if shared.root_check() is False and getpass.getuser() != 'travis':
             shared.log('Please run the script with sudo to continue.')
             print('Default Installation')
 
