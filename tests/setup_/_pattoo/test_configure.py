@@ -113,10 +113,9 @@ class TestConfigure(unittest.TestCase):
 
             # Changing jwt_secret_key to match in both expected and result
             # configs
-            expected['pattoo_apid']['jwt_secret_key'] = \
-             secrets.token_urlsafe(MAX_KEYPAIR_LENGTH)
-            result['pattoo_apid']['jwt_secret_key'] = \
-             secrets.token_urlsafe(MAX_KEYPAIR_LENGTH)
+            jwt_secret_key = secrets.token_urlsafe(MAX_KEYPAIR_LENGTH)
+            expected['pattoo_apid']['jwt_secret_key'] = jwt_secret_key
+            result['pattoo_apid']['jwt_secret_key'] = jwt_secret_key
 
             # Asserting that result and expected are the same
             self.assertEqual(result, expected)
