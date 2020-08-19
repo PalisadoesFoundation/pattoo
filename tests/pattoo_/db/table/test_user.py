@@ -37,12 +37,14 @@ class TestBasicFunctions(unittest.TestCase):
         # Add entry to database
         uname = data.hashstring(str(random()))
         passwrd = data.hashstring(str(random()))
+        salt_ = data.hashstring(str(random()))
         f_name = data.hashstring(str(random()))
         l_name = data.hashstring(str(random()))
         user.insert_row(
             DbRowUser(
                 username=uname,
                 password=passwrd,
+                salt=salt_,
                 first_name=f_name,
                 last_name=l_name,
                 enabled=0,
@@ -62,6 +64,7 @@ class TestBasicFunctions(unittest.TestCase):
         # Create a translation
         uname = data.hashstring(str(random()))
         passwrd = data.hashstring(str(random()))
+        salt_ = data.hashstring(str(random()))
         f_name = data.hashstring(str(random()))
         l_name = data.hashstring(str(random()))
 
@@ -74,6 +77,7 @@ class TestBasicFunctions(unittest.TestCase):
             DbRowUser(
                 username=uname,
                 password=passwrd,
+                salt=salt_,
                 first_name=f_name,
                 last_name=l_name,
                 enabled=0,
@@ -90,12 +94,14 @@ class TestBasicFunctions(unittest.TestCase):
         # Add an entry to the database
         uname = data.hashstring(str(random()))
         passwrd = data.hashstring(str(random()))
+        salt_ = data.hashstring(str(random()))
         f_name = data.hashstring(str(random()))
         l_name = data.hashstring(str(random()))
         user.insert_row(
             DbRowUser(
                 username=uname,
                 password=passwrd,
+                salt=salt_,
                 first_name=f_name,
                 last_name=l_name,
                 enabled=0,

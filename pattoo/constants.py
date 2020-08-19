@@ -32,7 +32,7 @@ ChecksumLookup = collections.namedtuple(
     'ChecksumLookup', 'idx_datapoint last_timestamp polling_interval')
 
 DbRowUser = collections.namedtuple(
-    'UserRow', 'username password first_name last_name is_admin enabled')
+    'UserRow', 'username password salt first_name last_name is_admin enabled')
 
 DbRowChartDataPoint = collections.namedtuple(
     'ChartDataPointRow', 'idx_datapoint idx_chart enabled')
