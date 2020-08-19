@@ -4,8 +4,6 @@
 import os
 import sys
 import unittest
-import tempfile
-from pwd import getpwuid
 
 
 # Try to create a working PYTHONPATH
