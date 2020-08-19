@@ -17,6 +17,14 @@ Interactive GraphQL
 
 If you are running it on your local machine go to the http://localhost:20202/pattoo/api/v1/web/igraphql to see the interactive query tool.
 
+User Authentication via GraphQL
+-------------------------------
+
+It's necessarry to limit access to Pattoo resources through the use of limited
+privilege controls. This is achieved through the use of `JSON Web Tokens(JWT)`
+
+
+
 View All DataPoints
 -------------------
 
