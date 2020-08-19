@@ -109,13 +109,13 @@ class TestConfigure(unittest.TestCase):
             pattoo_server_config(temp_dir, False)
 
             # Extract pattoo_server config
-            result = yaml.load(file_path)
+            result = yaml.safe_load(file_path)
 
             # Changing jwt_secret_key to match in both expected and result
             # configs
             jwt_secret_key = secrets.token_urlsafe(MAX_KEYPAIR_LENGTH)
             expected['pattoo_apid']['jwt_secret_key'] = jwt_secret_key
-            result['pattoo_apid']['jwt_secret_key'] = jwt_secret_key
+            result['default_config']['pattoo_apid']['jwt_secret_key'] = jwt_secret_key
 
             # Asserting that result and expected are the same
             self.assertEqual(result, expected)
