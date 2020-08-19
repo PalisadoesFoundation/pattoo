@@ -9,6 +9,7 @@ import unittest
 import sys
 import tempfile
 import yaml
+import secrets
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -27,6 +28,7 @@ else:
 '''.format(_EXPECTED))
     sys.exit(2)
 
+from pattoo_shared.constants import MAX_KEYPAIR_LENGTH
 from tests.libraries.configuration import UnittestConfig
 from setup._pattoo.configure import read_config, prompt, create_user
 from setup._pattoo.configure import pattoo_server_config, pattoo_config
@@ -73,35 +75,50 @@ class TestConfigure(unittest.TestCase):
     def test_pattoo_server_config(self):
         """Unittest to test the pattoo_server_config function."""
         # Initialize key variables
-        expected = '''\
-pattoo_api_agentd:
-ip_bind_port: 20201
-ip_listen_address: 0.0.0.0
-pattoo_apid:
-  ip_bind_port: 20202
-ip_listen_address: 0.0.0.0
-pattoo_db:
-db_hostname: localhost
-  db_max_overflow: 20
-db_name: pattoo
-  db_password: password
-db_pool_size: 10
-  db_username: pattoo
-pattoo_ingesterd:
-batch_size: 500
-  graceful_timeout: 10
-ingester_interval: 3600
-'''.strip().replace(' ', '')
+        expected = {
+            'pattoo_db': {
+                'db_pool_size': 10,
+                'db_max_overflow': 20,
+                'db_hostname': 'localhost',
+                'db_username': 'pattoo',
+                'db_password': 'password',
+                'db_name': 'pattoo'
+            },
+            'pattoo_api_agentd': {
+                'ip_listen_address': '0.0.0.0',
+                'ip_bind_port': 20201,
+            },
+            'pattoo_apid': {
+                'ip_listen_address': '0.0.0.0',
+                'ip_bind_port': 20202,
+                'jwt_secret_key': 'test_text',
+                'acesss_token_exp': '15_m',
+                'refresh_token_exp': '1_D'
+            },
+            'pattoo_ingesterd': {
+                'ingester_interval': 3600,
+                'batch_size': 500,
+                'graceful_timeout': 10
+            }
+        }
 
         # Initialize temporary directory
         with tempfile.TemporaryDirectory() as temp_dir:
             file_path = os.path.join(temp_dir, "pattoo_server.yaml")
             # Create config file
             pattoo_server_config(temp_dir, False)
-            with open(file_path, 'r') as temp_config:
 
-                # Remove all whitespace
-                result = temp_config.read().strip().replace(' ', '')
+            # Extract pattoo_server config
+            result = yaml.load(file_path)
+
+            # Changing jwt_secret_key to match in both expected and result
+            # configs
+            expected['pattoo_apid']['jwt_secret_key'] = \
+             secrets.token_urlsafe(MAX_KEYPAIR_LENGTH)
+            result['pattoo_apid']['jwt_secret_key'] = \
+             secrets.token_urlsafe(MAX_KEYPAIR_LENGTH)
+
+            # Asserting that result and expected are the same
             self.assertEqual(result, expected)
 
     def test_read_config(self):
