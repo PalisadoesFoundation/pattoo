@@ -43,8 +43,8 @@ class TestBasicFunctions(unittest.TestCase):
         user.insert_row(
             DbRowUser(
                 username=uname,
-                password=passwrd,
-                salt=salt_,
+                password=passwrd.encode(),
+                salt=salt_.encode(),
                 first_name=f_name,
                 last_name=l_name,
                 enabled=0,
@@ -76,8 +76,8 @@ class TestBasicFunctions(unittest.TestCase):
         user.insert_row(
             DbRowUser(
                 username=uname,
-                password=passwrd,
-                salt=salt_,
+                password=passwrd.encode(),
+                salt=salt_.encode(),
                 first_name=f_name,
                 last_name=l_name,
                 enabled=0,
@@ -100,8 +100,8 @@ class TestBasicFunctions(unittest.TestCase):
         user.insert_row(
             DbRowUser(
                 username=uname,
-                password=passwrd,
-                salt=salt_,
+                password=passwrd.encode(),
+                salt=salt_.encode(),
                 first_name=f_name,
                 last_name=l_name,
                 enabled=0,
