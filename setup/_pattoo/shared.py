@@ -4,6 +4,7 @@ import sys
 import subprocess
 import traceback
 import getpass
+import os
 
 
 def run_script(cli_string, die=True, verbose=True):
@@ -79,6 +80,31 @@ Bug: Exception Type:{}, Exception Instance: {}, Stack Trace Object: {}]\
 
     # Return
     return (returncode, stdoutdata, stderrdata)
+
+
+def unittest_environment_setup():
+    """Set up config dir to the unittest configdir if the user is not root.
+
+    Args:
+        None
+
+    Returns:
+        unittest_dir: The directory where unittest resources are stored
+
+    """
+    # Initialize key variables
+    config_suffix = '.pattoo-unittests{}config'.format(os.sep)
+    unittest_config_dir = (
+        '{}{}{}'.format(os.environ['HOME'], os.sep, config_suffix))
+    print('Setting config directory to {}'.format(unittest_config_dir))
+
+    # Sets PATTOO_CONFIGDIR environment varaible to the unittest config dir
+    if 'unittest' not in os.environ['PATTOO_CONFIGDIR']:
+        os.environ['PATTOO_CONFIGDIR'] = unittest_config_dir
+
+    unittest_dir = os.path.join(
+                        os.path.expanduser('~'), config_suffix.split(os.sep)[0])
+    return unittest_dir
 
 
 def root_check():

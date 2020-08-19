@@ -28,10 +28,6 @@ This script is not installed in the "{}" directory. Please fix.\
 # Importing shared to install pattoo_shared if its not installed
 from _pattoo import shared, checks
 
-# Attempt to import pattoo shared
-DEFAULT_PATH = '''\
-{}/.local/lib/pattoo/site-packages'''.format(os.path.expanduser('~'))
-
 
 class _Parser(argparse.ArgumentParser):
     """Class gathers all CLI information."""
@@ -268,7 +264,7 @@ def get_pattoo_home():
     """Retrieve home directory for pattoo user.
 
     Args:
-        unittest_dir: The directory for unittests
+        None
 
     Returns:
         The home directory for the pattoo user
@@ -288,33 +284,9 @@ def get_pattoo_home():
 
     # Set up pattoo home for unittest user if the user is not root
     else:
-        pattoo_home = unittest_environment_setup()
+        pattoo_home = shared.unittest_environment_setup()
 
     return pattoo_home
-
-
-def unittest_environment_setup():
-    """Set up config dir to the unittest configdir if the user is not root.
-
-    Args:
-        None
-
-    Returns:
-        unittest_dir: The directory where unittest resources are stored
-
-    """
-    # Initialize key variables
-    config_suffix = '.pattoo-unittests{}config'.format(os.sep)
-    unittest_config_dir = (
-        '{}{}{}'.format(os.environ['HOME'], os.sep, config_suffix))
-    print('Setting config directory to {}'.format(unittest_config_dir))
-
-    # Sets PATTOO_CONFIGDIR environment varaible to the unittest config dir
-    if 'unittest' not in os.environ['PATTOO_CONFIGDIR']:
-        os.environ['PATTOO_CONFIGDIR'] = unittest_config_dir
-
-    unittest_dir = config_suffix.split(os.sep)[0]
-    return unittest_dir
 
 
 def main():
