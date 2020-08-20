@@ -287,7 +287,7 @@ class Test_Systemd(unittest.TestCase):
             # Check for symlinks and sudo access
             with self.assertRaises(SystemExit) as cm_:
                 _check_symlinks(temp_dir, daemons)
-            self.assertEqual(cm_.exception.code, 3)
+            self.assertEqual(cm_.exception.code, 2)
 
         self.assertTrue(all(result))
 
