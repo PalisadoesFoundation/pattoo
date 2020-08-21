@@ -27,8 +27,8 @@ class User():
         rows = []
         self.first_name = None
         self.last_name = None
-        self.user_type = None
-        self.change_password = None
+        self.role = None
+        self.password_expired = None
         self.enabled = None
         self.exists = False
         self._username = username
@@ -42,8 +42,8 @@ class User():
         for row in rows:
             self.first_name = row.first_name.decode()
             self.last_name = row.last_name.decode()
-            self.user_type = row.user_type
-            self.change_password = bool(row.change_password)
+            self.role = row.role
+            self.password_expired = bool(row.password_expired)
             self.enabled = bool(row.enabled)
             self.username = username
             self.exists = True
@@ -149,7 +149,7 @@ class Modify():
                 _User.username == self._username.encode()
             ).update({'password': _value})
 
-    def user_type(self, value):
+    def role(self, value):
         """Modify.
 
         Args:
@@ -164,10 +164,10 @@ class Modify():
         with db.db_modify(20159, die=True) as session:
             session.query(_User).filter(
                 _User.username == self._username.encode()
-            ).update({'user_type': _value})
+            ).update({'role': _value})
 
-    def change_password(self, value):
-        """Set the change_password flag.
+    def password_expired(self, value):
+        """Set the password_expired flag.
 
         Args:
             value: New value to apply
@@ -180,7 +180,7 @@ class Modify():
         with db.db_modify(20160, die=True) as session:
             session.query(_User).filter(
                 _User.username == self._username.encode()
-            ).update({'change_password': int(bool(value))})
+            ).update({'password_expired': int(bool(value))})
 
     def enabled(self, value):
         """Modify enabled status.
@@ -274,8 +274,8 @@ def insert_row(row):
     password = row.password[:MAX_KEYPAIR_LENGTH]
     first_name = row.first_name.strip()[:MAX_KEYPAIR_LENGTH]
     last_name = row.last_name.strip()[:MAX_KEYPAIR_LENGTH]
-    user_type = int(row.user_type)
-    change_password = int(row.change_password)
+    role = int(row.role)
+    password_expired = int(row.password_expired)
     enabled = int(bool(row.enabled))
 
     # Insert
@@ -284,8 +284,8 @@ def insert_row(row):
         password=crypt.crypt(password).encode(),
         first_name=first_name.encode(),
         last_name=last_name.encode(),
-        user_type=user_type,
-        change_password=change_password,
+        role=role,
+        password_expired=password_expired,
         enabled=enabled
         )
     with db.db_modify(20054, die=True) as session:

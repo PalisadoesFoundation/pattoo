@@ -26,6 +26,9 @@ from graphql_relay.connection.arrayconnection import connection_from_list_slice
 from sqlalchemy import desc, asc
 
 # Import schemas
+from pattoo.db import db
+from pattoo.db.table import user as table_user
+from pattoo.db.models import User as UserModel
 from pattoo.db.schema.agent import Agent
 from pattoo.db.schema.agent_xlate import AgentXlate
 from pattoo.db.schema import chart as chart_
@@ -39,7 +42,6 @@ from pattoo.db.schema.pair import Pair
 from pattoo.db.schema.pair_xlate_group import PairXlateGroup
 from pattoo.db.schema.pair_xlate import PairXlate
 from pattoo.db.schema import user as user_
-
 
 ###############################################################################
 # Add filtering support:
@@ -187,6 +189,34 @@ class Query(graphene.ObjectType):
     chart_datapoint = graphene.relay.Node.Field(
         chart_datapoint_.ChartDataPoint)
     all_chart_datapoint = InstrumentedQuery(chart_datapoint_.ChartDataPoint)
+
+    # Query for username / password queries
+    authenticate = graphene.List(
+        user_.User,
+        username=graphene.String(required=True),
+        password=graphene.String(required=True)
+    )
+
+    def resolve_authenticate(self, info, **kwargs):
+        """Filter by row by User.username and User.password."""
+        # Initialize key variables
+        result = None
+
+        # Determine valid password
+        username_ = kwargs.get('username')
+        password_ = kwargs.get('password')
+        user_object = table_user.User(username_)
+        valid = user_object.valid_password(password_)
+        lookup = username_ if bool(valid) is True else ''
+
+        # Get data and return
+        if bool(valid) is True:
+            with db.db_query(20152, close=False) as session:
+                result = session.query(
+                    UserModel
+                    ).filter(
+                        UserModel.username == lookup.encode())
+        return result
 
 
 # Make the schema global

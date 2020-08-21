@@ -46,8 +46,8 @@ class TestBasicFunctions(unittest.TestCase):
                 password=passwrd,
                 first_name=f_name,
                 last_name=l_name,
-                user_type=1,
-                change_password=1,
+                role=1,
+                password_expired=1,
                 enabled=0
             )
         )
@@ -95,8 +95,8 @@ class TestBasicFunctions(unittest.TestCase):
                 username=uname,
                 password=passwrd,
                 first_name=f_name,
-                user_type=0,
-                change_password=1,
+                role=0,
+                password_expired=1,
                 last_name=l_name,
                 enabled=0
             )
@@ -144,8 +144,8 @@ class TestBasicFunctions(unittest.TestCase):
                 password=passwrd,
                 first_name=f_name,
                 last_name=l_name,
-                user_type=0,
-                change_password=1,
+                role=0,
+                password_expired=1,
                 enabled=0
             )
         )
