@@ -137,7 +137,7 @@ class UpdateUser(graphene.Mutation):
                 idx_user=data['idx_user']).update(data)
 
         # Get code from database
-        with db.db_query(20152, close=False) as session:
+        with db.db_query(20163, close=False) as session:
             user = session.query(UserModel).filter_by(
                 idx_user=data['idx_user']).first()
 
