@@ -358,7 +358,7 @@ def _insert_user():
                 first_name='pattoo',
                 last_name='pattoo',
                 role=1,
-                change_password=1,
+                password_expired=1,
                 enabled=0)
             )
 
@@ -372,7 +372,7 @@ def _insert_user():
                 first_name='admin',
                 last_name='admin',
                 role=0,
-                change_password=0,
+                password_expired=0,
                 enabled=1)
             )
 

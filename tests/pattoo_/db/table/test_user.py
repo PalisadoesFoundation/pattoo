@@ -49,7 +49,7 @@ def _random_user():
         first_name=data.hashstring(str(random())),
         last_name=data.hashstring(str(random())),
         role=1,
-        change_password=1,
+        password_expired=1,
         enabled=0
     )
     return result
@@ -85,7 +85,7 @@ class TestUser(unittest.TestCase):
         self.assertIsNone(test.first_name)
         self.assertIsNone(test.last_name)
         self.assertIsNone(test.role)
-        self.assertIsNone(test.change_password)
+        self.assertIsNone(test.password_expired)
         self.assertIsNone(test.enabled)
         self.assertFalse(test.exists)
 
@@ -97,8 +97,8 @@ class TestUser(unittest.TestCase):
         self.assertEqual(
             self.result.role, self.expected.role)
         self.assertEqual(
-            self.result.change_password,
-            bool(self.expected.change_password))
+            self.result.password_expired,
+            bool(self.expected.password_expired))
         self.assertEqual(
             self.result.enabled,
             bool(self.expected.enabled))
@@ -171,17 +171,17 @@ class TestModify(unittest.TestCase):
         result = user.User(user_.username)
         self.assertEqual(result.role, new)
 
-    def test_change_password(self):
-        """Testing function change_password."""
+    def test_password_expired(self):
+        """Testing function password_expired."""
         # Test existing attribute
         user_ = _insert_random_user()
         modify = user.Modify(user_.username)
 
         # Test modification
         new = bool(randint(0, 1))
-        modify.change_password(new)
+        modify.password_expired(new)
         result = user.User(user_.username)
-        self.assertEqual(result.change_password, new)
+        self.assertEqual(result.password_expired, new)
 
     def test_enabled(self):
         """Testing function enabled."""
@@ -213,7 +213,7 @@ class TestBasicFunctions(unittest.TestCase):
                 first_name=f_name,
                 last_name=l_name,
                 role=1,
-                change_password=1,
+                password_expired=1,
                 enabled=0
             )
         )
@@ -245,7 +245,7 @@ class TestBasicFunctions(unittest.TestCase):
                 first_name=f_name,
                 last_name=l_name,
                 role=1,
-                change_password=0,
+                password_expired=0,
                 enabled=0
             )
         )
@@ -265,7 +265,7 @@ class TestBasicFunctions(unittest.TestCase):
             first_name=data.hashstring(str(random())),
             last_name=data.hashstring(str(random())),
             role=1,
-            change_password=1,
+            password_expired=1,
             enabled=0
         )
         user.insert_row(expected)
@@ -286,7 +286,7 @@ class TestBasicFunctions(unittest.TestCase):
         self.assertEqual(expected.first_name, row.first_name.decode())
         self.assertEqual(expected.last_name, row.last_name.decode())
         self.assertEqual(expected.role, row.role)
-        self.assertEqual(expected.change_password, row.change_password)
+        self.assertEqual(expected.password_expired, row.password_expired)
         self.assertEqual(expected.enabled, row.enabled)
 
         # Test password

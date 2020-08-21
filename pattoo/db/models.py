@@ -62,7 +62,7 @@ class User(BASE):
     role = Column(
         BIGINT(unsigned=True), nullable=False, server_default='1')
 
-    change_password = Column(
+    password_expired = Column(
         BIGINT(unsigned=True), nullable=False, server_default='1')
 
     enabled = Column(

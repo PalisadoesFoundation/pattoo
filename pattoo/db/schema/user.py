@@ -14,8 +14,6 @@ from pattoo.db.schema import utils
 from pattoo_shared.constants import DATA_INT
 from pattoo.db.table.user import User as UserTable
 
-from pattoo_shared import log
-
 
 class UserAttribute():
     """Descriptive attributes of the User table.
@@ -40,7 +38,7 @@ class UserAttribute():
         resolver=utils.resolve_username,
         description='Username.')
 
-    change_password = graphene.String(
+    password_expired = graphene.String(
         resolver=utils.resolve_username,
         description='Change password if True.')
 
