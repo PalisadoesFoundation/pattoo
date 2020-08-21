@@ -59,7 +59,7 @@ class User(BASE):
         VARBINARY(MAX_KEYPAIR_LENGTH),
         nullable=False, default=None)
 
-    user_type = Column(
+    role = Column(
         BIGINT(unsigned=True), nullable=False, server_default='1')
 
     change_password = Column(

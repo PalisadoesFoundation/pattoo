@@ -904,6 +904,50 @@ This query will show:
       }
     }
 
+
+Authenticate Username and Password
+``````````````````````````````````
+
+This is a custom query that requires you enter a username and password. Regular query results are returned when found, a Null result is returned upon failure.
+
+.. code-block:: text
+
+    {
+      authenticate(username: "palisadoes@example.org", password: "123456") {
+        id
+      }
+    }
+
+Result
+......
+
+Results are returned when found.
+
+.. code-block:: text
+
+    {
+      "data": {
+        "authenticate": [
+          {
+            "id": "VXNlcjo3"
+          }
+        ]
+      }
+    }
+
+
+
+A Null result is returned when not found.
+
+.. code-block:: text
+
+    {
+      "data": {
+        "authenticate": null
+      }
+    }
+
+
 Pagination
 ----------
 
@@ -1242,7 +1286,7 @@ Mutation
     mutation {
       createUser(Input: {username: "foo@example.org", firstName: "Foo", lastName: "Fighter", password: "123456"}) {
         user {
-          Id
+          id
           idxUser
           firstName
           lastName

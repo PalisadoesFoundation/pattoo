@@ -33,7 +33,7 @@ ChecksumLookup = collections.namedtuple(
 
 DbRowUser = collections.namedtuple(
     'DbRowUser',
-    'username password first_name last_name enabled user_type change_password')
+    'username password first_name last_name enabled role change_password')
 DbRowChartDataPoint = collections.namedtuple(
     'DbRowChartDataPoint', 'idx_datapoint idx_chart enabled')
 

@@ -1,5 +1,8 @@
 """pattoo ORM Schema for the User table."""
 
+# Standard importations
+import crypt
+
 # PIP3 imports
 import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType
@@ -9,6 +12,9 @@ from pattoo.db import db
 from pattoo.db.models import User as UserModel
 from pattoo.db.schema import utils
 from pattoo_shared.constants import DATA_INT
+from pattoo.db.table.user import User as UserTable
+
+from pattoo_shared import log
 
 
 class UserAttribute():
@@ -34,12 +40,29 @@ class UserAttribute():
         resolver=utils.resolve_username,
         description='Username.')
 
-    password = graphene.String(
-        resolver=utils.resolve_password,
-        description='Password.')
+    change_password = graphene.String(
+        resolver=utils.resolve_username,
+        description='Change password if True.')
+
+    role = graphene.String(
+        resolver=utils.resolve_username,
+        description='Type of user.')
 
     enabled = graphene.String(
         description='True if enabled.')
+
+
+class UserAttributeWithPassword(UserAttribute):
+    """Descriptive attributes of the User table.
+
+    A generic class to mutualize description of attributes for both queries
+    and mutations.
+
+    """
+
+    password = graphene.String(
+        resolver=utils.resolve_password,
+        description='Password.')
 
 
 class User(SQLAlchemyObjectType, UserAttribute):
@@ -51,8 +74,11 @@ class User(SQLAlchemyObjectType, UserAttribute):
         model = UserModel
         interfaces = (graphene.relay.Node,)
 
+        # Hide certain fields as a tuple
+        exclude_fields = ('password', )
 
-class CreateUserInput(graphene.InputObjectType, UserAttribute):
+
+class CreateUserInput(graphene.InputObjectType, UserAttributeWithPassword):
     """Arguments to create a User."""
     pass
 
@@ -68,12 +94,17 @@ class CreateUser(graphene.Mutation):
 
     def mutate(self, info_, Input):
         data = _input_to_dictionary(Input)
-
         user = UserModel(**data)
-        with db.db_modify(20150, close=False) as session:
-            session.add(user)
 
-        return CreateUser(user=user)
+        # Create user only if they don't already exist
+        person = UserTable(user.username.decode())
+        if person.exists is False:
+            with db.db_modify(20150, close=False) as session:
+                session.add(user)
+            return CreateUser(user=user)
+
+        # Return nothing otherwise
+        return None
 
 
 class UpdateUserInput(graphene.InputObjectType, UserAttribute):
@@ -130,5 +161,11 @@ def _input_to_dictionary(input_):
         'idx_user': DATA_INT,
         'enabled': DATA_INT
     }
+
+    # Get password and encrypt
+    password = input_.get('password')
+    if password is not None:
+        input_['password'] = crypt.crypt(password)
+
     result = utils.input_to_dictionary(input_, column=column)
     return result

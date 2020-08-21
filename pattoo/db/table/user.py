@@ -27,7 +27,7 @@ class User():
         rows = []
         self.first_name = None
         self.last_name = None
-        self.user_type = None
+        self.role = None
         self.change_password = None
         self.enabled = None
         self.exists = False
@@ -42,7 +42,7 @@ class User():
         for row in rows:
             self.first_name = row.first_name.decode()
             self.last_name = row.last_name.decode()
-            self.user_type = row.user_type
+            self.role = row.role
             self.change_password = bool(row.change_password)
             self.enabled = bool(row.enabled)
             self.username = username
@@ -149,7 +149,7 @@ class Modify():
                 _User.username == self._username.encode()
             ).update({'password': _value})
 
-    def user_type(self, value):
+    def role(self, value):
         """Modify.
 
         Args:
@@ -164,7 +164,7 @@ class Modify():
         with db.db_modify(20159, die=True) as session:
             session.query(_User).filter(
                 _User.username == self._username.encode()
-            ).update({'user_type': _value})
+            ).update({'role': _value})
 
     def change_password(self, value):
         """Set the change_password flag.
@@ -274,7 +274,7 @@ def insert_row(row):
     password = row.password[:MAX_KEYPAIR_LENGTH]
     first_name = row.first_name.strip()[:MAX_KEYPAIR_LENGTH]
     last_name = row.last_name.strip()[:MAX_KEYPAIR_LENGTH]
-    user_type = int(row.user_type)
+    role = int(row.role)
     change_password = int(row.change_password)
     enabled = int(bool(row.enabled))
 
@@ -284,7 +284,7 @@ def insert_row(row):
         password=crypt.crypt(password).encode(),
         first_name=first_name.encode(),
         last_name=last_name.encode(),
-        user_type=user_type,
+        role=role,
         change_password=change_password,
         enabled=enabled
         )
