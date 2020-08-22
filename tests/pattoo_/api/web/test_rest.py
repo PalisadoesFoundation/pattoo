@@ -33,9 +33,8 @@ else:
 
 from pattoo_shared import data, times
 from pattoo_shared.constants import DATA_FLOAT, PattooDBrecord
-from pattoo_shared.configuration import Config
 
-from tests.libraries.configuration import UnittestConfig
+from tests.libraries.configuration import UnittestConfig, WebConfig
 from pattoo.api.web import PATTOO_API_WEB as APP
 from pattoo.constants import IDXTimestampValue
 from pattoo.db.table import datapoint
@@ -63,7 +62,7 @@ class TestBasicFunctions(LiveServerTestCase):
         """
         # Create APP and set configuration
         app = APP
-        config = Config()
+        config = WebConfig()
 
         app.config['TESTING'] = True
         app.config['LIVESERVER_PORT'] = config.web_api_ip_bind_port()
@@ -125,7 +124,7 @@ class TestBasicFunctions(LiveServerTestCase):
         expected = obj.data(ts_start, ts_stop)
 
         # Create URL
-        config = Config()
+        config = WebConfig()
         url = ('{}/{}'.format(
             config.web_api_server_url(graphql=False),
             idx_datapoint))

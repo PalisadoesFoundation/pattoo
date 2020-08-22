@@ -17,7 +17,101 @@ import secrets
 
 # Pattoo imports
 from pattoo_shared import log
+<<<<<<< HEAD
 from pattoo_shared.constants import MAX_KEYPAIR_LENGTH
+=======
+from pattoo_shared.configuration import BaseConfig, _config_reader, search
+from pattoo_shared.constants import PATTOO_API_WEB_PREFIX
+from pattoo_shared import url
+
+
+class WebConfig(BaseConfig):
+    """Class gathers all configuration information relating to pattoo web.
+
+    The configuration values for this class will be written to pattoo_webd.yaml
+    """
+
+    def __init__(self):
+        """Initialize the class.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Get the configuration
+        BaseConfig.__init__(self)
+        self._base_yaml_configuration = _config_reader('pattoo_webd.yaml')
+
+    def web_api_ip_address(self):
+        """Get web_api_ip_address.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Initialize key variables
+        key = 'pattoo_web_api'
+        sub_key = 'ip_address'
+
+        # Get result
+        result = search(
+            key, sub_key, self._base_yaml_configuration, die=True)
+        return result
+
+    def web_api_ip_bind_port(self):
+        """Get web_api_ip_bind_port.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Initialize key variables
+        key = 'pattoo_web_api'
+        sub_key = 'ip_bind_port'
+
+        # Get result
+        intermediate = search(
+            key, sub_key, self._base_yaml_configuration, die=False)
+        if intermediate is None:
+            result = 20202
+        else:
+            result = int(intermediate)
+        return result
+
+    def web_api_server_url(self, graphql=True):
+        """Get pattoo server's remote URL.
+
+        Args:
+            agent_id: Agent ID
+
+        Returns:
+            result: URL.
+
+        """
+        # Create the suffix
+        if bool(graphql) is True:
+            suffix = '/graphql'
+        else:
+            suffix = '/rest/data'
+
+        # Return
+        _ip = url.url_ip_address(self.web_api_ip_address())
+        result = (
+            'http://{}:{}{}{}'.format(
+                _ip,
+                self.web_api_ip_bind_port(),
+                PATTOO_API_WEB_PREFIX, suffix))
+        return result
+>>>>>>> 97d6587a82da5548550c1cee9bc4d351004e9cd7
 
 
 class UnittestConfig():
@@ -41,6 +135,7 @@ class UnittestConfig():
         # Make sure the configuration directory is OK
         if os.path.isdir(self._config_directory) is False:
             os.makedirs(self._config_directory, mode=0o750, exist_ok=True)
+<<<<<<< HEAD
         self._config = {
             'pattoo_server': {
                 'pattoo_db': {
@@ -66,22 +161,53 @@ class UnittestConfig():
                     'ingester_interval': 45,
                     'batch_size': 1503
                 },
+=======
+
+        self._server_config = {
+            'pattoo_db': {
+                'db_pool_size': 10,
+                'db_max_overflow': 20,
+                'db_hostname': 'localhost',
+                'db_username': 'travis',
+                'db_password': 'K2nJ8kFdthEbuwXE',
+                'db_name': 'pattoo_unittest'
             },
+            'pattoo_api_agentd': {
+                'ip_listen_address': '127.0.0.1',
+                'ip_bind_port': 40201,
+                'api_encryption_email': 'test_api@example.org'
+>>>>>>> 97d6587a82da5548550c1cee9bc4d351004e9cd7
+            },
+            'pattoo_apid': {
+                'ip_listen_address': '127.0.0.1',
+                'ip_bind_port': 40202,
+            },
+            'pattoo_ingesterd': {
+                'ingester_interval': 45,
+                'batch_size': 1503
+            },
+        }
+
+        self._config = {
             'pattoo': {
-                'pattoo': {
-                    'log_directory': self._log_directory,
-                    'log_level': 'debug',
-                    'cache_directory': self._cache_directory,
-                    'daemon_directory': self._daemon_directory
-                },
-                'pattoo_agent_api': {
-                    'ip_address': '127.0.0.1',
-                    'ip_bind_port': 40201
-                },
-                'pattoo_web_api': {
-                    'ip_address': '127.0.0.1',
-                    'ip_bind_port': 40202,
-                }
+                'log_directory': self._log_directory,
+                'log_level': 'debug',
+                'cache_directory': self._cache_directory,
+                'daemon_directory': self._daemon_directory
+            },
+        }
+
+        self._agent_config = {
+            'pattoo_agent_api': {
+                'ip_address': '127.0.0.1',
+                'ip_bind_port': 40203
+            },
+        }
+
+        self._web_config = {
+            'pattoo_web_api': {
+                'ip_address': '127.0.0.1',
+                'ip_bind_port': 40204,
             }
         }
 
@@ -95,12 +221,32 @@ class UnittestConfig():
             self.config_directory: Directory where the config is placed
 
         """
-        # Write good_config to file
-        for key, value in sorted(self._config.items()):
-            config_file = (
-                '{}{}{}.yaml'.format(self._config_directory, os.sep, key))
-            with open(config_file, 'w') as f_handle:
-                yaml.dump(value, f_handle, default_flow_style=False)
+        # Delete any existing configuration files to make a clean start
+        _delete_files(self._config_directory, delete_directory=False)
+
+        # Initialize filenames and their contents
+        data_ = {
+            '{}{}pattoo.yaml'.format(
+                self._config_directory, os.sep): self._config,
+            '{}{}pattoo_server.yaml'.format(
+                self._config_directory, os.sep): self._server_config,
+            '{}{}pattoo_agent.yaml'.format(
+                self._config_directory, os.sep): self._agent_config,
+            '{}{}pattoo_webd.yaml'.format(
+                self._config_directory, os.sep): self._web_config,
+        }
+
+        # Write configurations
+        for filename, contents in data_.items():
+            # Write to pattoo.yaml
+            try:
+                f_handle = open(filename, 'w')
+            except PermissionError:
+                log.log2die(20090, '''\
+Insufficient permissions for creating the file:{}'''.format(f_handle))
+            else:
+                with f_handle:
+                    yaml.dump(contents, f_handle, default_flow_style=False)
 
         # Return
         return self._config_directory
@@ -125,7 +271,7 @@ class UnittestConfig():
             _delete_files(directory)
 
 
-def _delete_files(directory):
+def _delete_files(directory, delete_directory=True):
     """Delete all files in directory."""
     # Cleanup files in temp directories
     filenames = [filename for filename in os.listdir(
@@ -138,7 +284,8 @@ def _delete_files(directory):
         os.remove(filepath)
 
     # Remove directory after files are deleted.
-    os.rmdir(directory)
+    if bool(delete_directory) is True:
+        os.rmdir(directory)
 
 
 def _environment(config_directory):

@@ -8,7 +8,7 @@ from flask_graphql_auth import (create_access_token, create_refresh_token,
                                 mutation_jwt_refresh_token_required)
 
 # pattoo imports
-from pattoo.db.table import user as _user
+from pattoo.db.table.user import User as UserTable
 
 
 class AuthMutationInput(graphene.InputObjectType):
@@ -35,18 +35,19 @@ class AuthMutation(graphene.Mutation):
         username, password = Input['username'], Input['password']
 
         # Username and password authentication
-        idx_user, enabled = _user.authenticate(username, password)
+        _user = UserTable(username)
+        valid_password = _user.valid_password(password)
 
         # Verifying that authentication was successful and that the user is
         # enabled
-        if (idx_user != None and bool(enabled)) is False:
+        if not(_user.exists and valid_password):
             err = ('''Authentication Failure: incorrect credentials or user not
                    enabled!''')
             raise GraphQLError(err)
 
         # Creating tokens
-        access_token = create_access_token(idx_user)
-        refresh_token = create_refresh_token(idx_user)
+        access_token = create_access_token(username)
+        refresh_token = create_refresh_token(username)
 
         return AuthMutation(access_token, refresh_token)
 
@@ -64,7 +65,7 @@ class RefreshMutation(graphene.Mutation):
 
         # Retrieves User claim(user id) from refresh_token and creates new
         # acces_token
-        idx_user = get_jwt_identity()
-        acces_token = create_access_token(identity=idx_user)
+        username = get_jwt_identity()
+        acces_token = create_access_token(identity=username)
 
         return RefreshMutation(acces_token)

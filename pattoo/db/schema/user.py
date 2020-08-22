@@ -1,5 +1,8 @@
 """pattoo ORM Schema for the User table."""
 
+# Standard importations
+import crypt
+
 # PIP3 imports
 import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType
@@ -13,6 +16,7 @@ from pattoo.db.models import User as UserModel
 from pattoo.db.table import user as _user
 from pattoo.db.schema import utils
 from pattoo_shared.constants import DATA_INT
+from pattoo.db.table.user import User as UserTable
 
 
 class UserAttribute():
@@ -38,8 +42,13 @@ class UserAttribute():
         resolver=utils.resolve_username,
         description='Username.')
 
-    is_admin = graphene.String(
-        description='Admin.')
+    password_expired = graphene.String(
+        resolver=utils.resolve_username,
+        description='Change password if True.')
+
+    role = graphene.String(
+        resolver=utils.resolve_username,
+        description='Type of user.')
 
     enabled = graphene.String(
         description='True if enabled.')
@@ -54,6 +63,8 @@ class User(SQLAlchemyObjectType, UserAttribute):
         model = UserModel
         interfaces = (graphene.relay.Node,)
 
+        # Hide certain fields as a tuple
+        exclude_fields = ('password', )
 
 class ProtectedUser(graphene.Union):
     class Meta:
@@ -62,8 +73,7 @@ class ProtectedUser(graphene.Union):
 
 class CreateUserInput(graphene.InputObjectType, UserAttribute):
     """Arguments to create a User."""
-
-    password = graphene.String(description='Password.')
+    pass
 
 
 class CreateUser(graphene.Mutation):
@@ -79,27 +89,26 @@ class CreateUser(graphene.Mutation):
     @classmethod
     @mutation_jwt_required
     def mutate(cls, _, info_, Input):
+
         data = _input_to_dictionary(Input)
-        token_idx_user = get_jwt_identity()
+        user = UserModel(**data)
+        token_username = get_jwt_identity()
+
+        # Getting current user making request to resource
+        current_user = UserTable(token_username)
+
+        # Accessing user data
+        person = UserTable(user.username.decode())
 
         # Checking that the user creating the new user is an admin
-        if _user.is_admin(token_idx_user) is False:
+        if current_user.role == 0:
             raise GraphQLError('Only admins can create a new user!')
 
         # Checking that a given username is not taken
-        idx_user = _user.exists(data['username'].decode())
-        if bool(idx_user) == True:
+        if person.exists:
             raise GraphQLError('Username already exists!')
 
-        # Generating password and salt User data
-        data['password'], data['salt'] = \
-        _user.generate_password_hash(data['password'].decode())
-
-        user = UserModel(**data)
-        with db.db_modify(20150, close=False) as session:
-            session.add(user)
-
-        return CreateUser(user)
+        return CreateUser(user=user)
 
 
 class UpdateUserInput(graphene.InputObjectType, UserAttribute):
@@ -137,7 +146,7 @@ class UpdateUser(graphene.Mutation):
                 idx_user=data['idx_user']).update(data)
 
         # Get code from database
-        with db.db_query(20152, close=False) as session:
+        with db.db_query(20163, close=False) as session:
             user = session.query(UserModel).filter_by(
                 idx_user=data['idx_user']).first()
 
@@ -159,5 +168,11 @@ def _input_to_dictionary(input_):
         'idx_user': DATA_INT,
         'enabled': DATA_INT
     }
+
+    # Get password and encrypt
+    password = input_.get('password')
+    if password is not None:
+        input_['password'] = crypt.crypt(password)
+
     result = utils.input_to_dictionary(input_, column=column)
     return result

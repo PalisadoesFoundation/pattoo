@@ -1,10 +1,9 @@
-#!/usr/bin/env/python3
-"""Test pattoo installation shared script"""
-
+#!/usr/bin/env python3
+"""Test pattoo shared shared script."""
 
 import os
-import unittest
 import sys
+import unittest
 
 
 # Try to create a working PYTHONPATH
@@ -24,6 +23,7 @@ else:
 '''.format(_EXPECTED))
     sys.exit(2)
 
+# Pattoo imports
 from tests.libraries.configuration import UnittestConfig
 from setup._pattoo import shared
 
@@ -50,6 +50,12 @@ class Test_Shared(unittest.TestCase):
             expected = 0
             result = shared.run_script("echo this works")[0]
             self.assertEqual(result, expected)
+
+    def test_unittest_environment_setup(self):
+        """Unittest to test the unittest_environment_setup function."""
+        expected = os.path.join(os.path.expanduser('~'), '.pattoo-unittests')
+        result = shared.unittest_environment_setup()
+        self.assertEqual(result, expected)
 
 
 if __name__ == '__main__':

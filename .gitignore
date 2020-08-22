@@ -156,5 +156,10 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+<<<<<<< HEAD
 # Vscode
 .vscode/
+=======
+# VS Code
+.vscode
+>>>>>>> 97d6587a82da5548550c1cee9bc4d351004e9cd7

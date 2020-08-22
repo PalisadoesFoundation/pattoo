@@ -10,12 +10,9 @@ Setting the  Configuration Directory Location
 
 Currently the configuration directory is automatically set when the installationscript is run
 
-
 *********************
 Configuration Options
-
 *********************
-
 
 There are two ways to configure ``pattoo``. These are the:
 
@@ -28,10 +25,14 @@ Quick Method
 Use the quick method if you are new to ``pattoo``.
 
 .. code-block:: bash
+
     $ sudo setup/pattoo_installation.py install configuration
 
 
 The above command will set the most optimal defaults for your system for pattoo.
+
+Additionally, the pattoo user and group will be created with the home directory for the pattoo user being /home/pattoo
+All related directories and their subdirectories will be owned by the pattoo user
 
 To guarantee success you will need to know the following beforehand.
 

@@ -42,7 +42,7 @@ def insertions():
     _insert_agent_xlate()
 
     # Insert User
-    username, password = _insert_user()
+    default_users = _insert_user()
 
     # Insert Chart
     _insert_chart()
@@ -50,8 +50,11 @@ def insertions():
     # Insert Favorite
     _insert_favorite()
 
-    print('Default Username: {}\nDefault Password: {}'.format(username,
-                                                              password))
+    # Printing out default user credentials
+    for username, password, role_no in default_users:
+        role = 'Admin' if role_no == 0 else 'Basic'
+        print('Username: {}\nPassword: {}\nRole: {} '.format(username, password,
+                                                            role))
 
 def _insert_language():
     """Insert starting default entries into the Language table.
@@ -346,10 +349,11 @@ def _insert_user():
         None
 
     Returns:
-        password: default password for pattoo user
+        default_users: dictionary containing the default user credentials
 
     """
-    username, password = 'pattoo', None
+    default_users = []
+
     # Insert into User
     if user.idx_exists(1) is False:
 
@@ -357,23 +361,37 @@ def _insert_user():
         password = ''.join(random.SystemRandom().choice(
             string.ascii_uppercase + string.digits) for _ in range(50))
 
-        password_hash, salt = \
-        (user.generate_password_hash(password))
-
         # Inserting default user
         user.insert_row(
             DbRowUser(
-                username=username,
-                password=password_hash,
-                salt=salt,
-                first_name=username,
-                last_name=username,
-                is_admin=1,
+                username='pattoo',
+                password=data.hashstring(password),
+                first_name='pattoo',
+                last_name='pattoo',
+                role=1,
+                password_expired=1,
+                enabled=0)
+            )
+        default_users.append(('pattoo', password, 1))
+
+    # Insert admin into User table
+    if user.idx_exists(2) is False:
+        # Creating initial password
+        password = ''.join(random.SystemRandom().choice(
+            string.ascii_uppercase + string.digits) for _ in range(50))
+        user.insert_row(
+            DbRowUser(
+                username='admin',
+                password=data.hashstring(password),
+                first_name='admin',
+                last_name='admin',
+                role=0,
+                password_expired=1,
                 enabled=1)
             )
+        default_users.append(('admin', password, 0))
 
-    return username, password
-
+    return default_users
 
 def _insert_chart():
     """Insert starting default entries into the Chart table.

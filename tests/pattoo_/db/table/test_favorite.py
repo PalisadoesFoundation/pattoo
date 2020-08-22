@@ -49,8 +49,14 @@ class TestBasicFunctions(unittest.TestCase):
                 salt=salt_.encode(),
                 first_name=f_name,
                 last_name=l_name,
+<<<<<<< HEAD
                 enabled=0,
                 is_admin=0
+=======
+                role=1,
+                password_expired=1,
+                enabled=0
+>>>>>>> 97d6587a82da5548550c1cee9bc4d351004e9cd7
             )
         )
 
@@ -99,6 +105,8 @@ class TestBasicFunctions(unittest.TestCase):
                 password=passwrd.encode(),
                 salt=salt_.encode(),
                 first_name=f_name,
+                role=0,
+                password_expired=1,
                 last_name=l_name,
                 enabled=0,
                 is_admin=0
@@ -149,8 +157,14 @@ class TestBasicFunctions(unittest.TestCase):
                 salt=salt_.encode(),
                 first_name=f_name,
                 last_name=l_name,
+<<<<<<< HEAD
                 enabled=0,
                 is_admin=0
+=======
+                role=0,
+                password_expired=1,
+                enabled=0
+>>>>>>> 97d6587a82da5548550c1cee9bc4d351004e9cd7
             )
         )
 

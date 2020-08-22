@@ -1,15 +1,25 @@
 #!/usr/bin/env python3
-"""Test pattoo configuration."""
+"""Unit test for encrypted post which includes
+the suite of the key exchange (receive public key
+and email address of agent via POST, send API
+email address, public key and nonce encrypted
+by agent public key via GET), the validation
+(receive symmetrically encrypted nonce, and the
+symmetric key encrypted by the public key of the
+API; decrypt everything and check if the decrypted
+nonce is the same as what was sent to the agent.
+Add the new symmetric key to the session and remove
+everything else from the session), and the receiving
+of symmetrically encrypted data"""
 
+# Import Python libraries
 import os
 import unittest
 import sys
 
-
-# PIP3 imports
+# Import Flask testing components
 from flask_testing import TestCase, LiveServerTestCase
 from flask_caching import Cache
-
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -29,9 +39,10 @@ else:
 '''.format(_EXPECTED))
     sys.exit(2)
 
+# Import Pattoo dependencies
 from pattoo_shared import data, converter, files
 from pattoo_shared.constants import DATA_INT
-from pattoo_shared.phttp import PostAgent
+from pattoo_shared.phttp import PostAgent, EncryptedPostAgent
 from pattoo_shared.configuration import Config, ServerConfig
 from pattoo_shared.variables import (
     DataPoint, TargetDataPoints, AgentPolledData)
@@ -40,12 +51,8 @@ from pattoo.constants import PATTOO_API_AGENT_NAME
 from tests.libraries.configuration import UnittestConfig
 
 
-class TestBasicFunctions(LiveServerTestCase):
-    """Checks all functions and methods."""
-
-    #########################################################################
-    # General object setup
-    #########################################################################
+class TestEncryptedPost(LiveServerTestCase):
+    """Unit testing for encrypted post suite"""
 
     def create_app(self):
         """Create the test APP for flask.
@@ -72,17 +79,42 @@ class TestBasicFunctions(LiveServerTestCase):
         # Return
         return app
 
-    def test_receive(self):
-        """Testing method / function receive."""
+    def setUp(self):
+        """This will run each time before a test is performed
+        """
+        print('setUp')
+        gconfig = Config()  # Get config for Pgpier
+
+        # Create Pgpier object for the API
+        api_gpg = files.set_gnupg(PATTOO_API_AGENT_NAME, gconfig,
+                                  "api_test@example.com")
+
+    def test_encrypted_post(self):
+        """Test that the API can receive and decrypt
+        encrypted data from agent"""
+
         # Initialize key variables
         config = ServerConfig()
-        apd = _create_apd()
-        expected = converter.posting_data_points(
-            converter.agentdata_to_post(apd))
 
-        # Post data
-        post = PostAgent(apd)
-        post.post()
+        # Get Pgpier object
+        gconfig = Config()  # Get config for Pgpier
+
+        # Create Pgpier object for the agent
+        agent_gpg = files.set_gnupg("test_encrypted_agent", gconfig,
+                        "agent_test@example.com")
+
+        # Make agent data
+        agent_data = _make_agent_data()
+
+        # Turn agent data into a dict to be compared to
+        # the data received by the API
+        expected = converter.posting_data_points(
+            converter.agentdata_to_post(agent_data)
+            )
+
+        # Make encrypted post
+        post_encrypted = EncryptedPostAgent(agent_data, agent_gpg)
+        post_encrypted.post()
 
         # Read data from directory
         cache_directory = config.agent_cache_directory(PATTOO_API_AGENT_NAME)
@@ -117,12 +149,11 @@ class TestBasicFunctions(LiveServerTestCase):
                 filepath = '{}{}{}'.format(cache_directory, os.sep, filename)
                 os.remove(filepath)
 
-
-def _create_apd():
-    """Testing method / function records."""
+def _make_agent_data():
+    """Create generate data to post to API server"""
     # Initialize key variables
     config = Config()
-    polling_interval = 20
+    polling_interval = 60
     pattoo_agent_program = 1
     pattoo_agent_polled_target = 2
     pattoo_key = '3'
@@ -148,6 +179,8 @@ def _create_apd():
 
     # Create a result
     apd.add(ddv)
+
+    # Return agent data
     return apd
 
 
