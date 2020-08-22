@@ -17,9 +17,6 @@ import secrets
 
 # Pattoo imports
 from pattoo_shared import log
-<<<<<<< HEAD
-from pattoo_shared.constants import MAX_KEYPAIR_LENGTH
-=======
 from pattoo_shared.configuration import BaseConfig, _config_reader, search
 from pattoo_shared.constants import PATTOO_API_WEB_PREFIX
 from pattoo_shared import url
@@ -117,7 +114,7 @@ class WebConfig(BaseConfig):
 class UnittestConfig():
     """Creates configuration for testing."""
 
-    def __init__(self, db_username='travis', db_password='K2nJ8kFdthEbuwXE'):
+    def __init__(self):
         """Initialize the class."""
         # Initialize GLOBAL variables
         config_suffix = '.pattoo-unittests{}config'.format(os.sep)
@@ -135,33 +132,6 @@ class UnittestConfig():
         # Make sure the configuration directory is OK
         if os.path.isdir(self._config_directory) is False:
             os.makedirs(self._config_directory, mode=0o750, exist_ok=True)
-<<<<<<< HEAD
-        self._config = {
-            'pattoo_server': {
-                'pattoo_db': {
-                    'db_pool_size': 10,
-                    'db_max_overflow': 20,
-                    'db_hostname': 'localhost',
-                    'db_username': db_username,
-                    'db_password': db_password,
-                    'db_name': 'pattoo_unittest'
-                },
-                'pattoo_api_agentd': {
-                    'ip_listen_address': '127.0.0.1',
-                    'ip_bind_port': 40201,
-                },
-                'pattoo_apid': {
-                    'ip_listen_address': '127.0.0.1',
-                    'ip_bind_port': 40202,
-                    'jwt_secret_key': secrets.token_urlsafe(MAX_KEYPAIR_LENGTH),
-                    'acesss_token_exp': '15_m',
-                    'refresh_token_exp': '1_D'
-                },
-                'pattoo_ingesterd': {
-                    'ingester_interval': 45,
-                    'batch_size': 1503
-                },
-=======
 
         self._server_config = {
             'pattoo_db': {
@@ -176,11 +146,13 @@ class UnittestConfig():
                 'ip_listen_address': '127.0.0.1',
                 'ip_bind_port': 40201,
                 'api_encryption_email': 'test_api@example.org'
->>>>>>> 97d6587a82da5548550c1cee9bc4d351004e9cd7
             },
             'pattoo_apid': {
                 'ip_listen_address': '127.0.0.1',
                 'ip_bind_port': 40202,
+                'jwt_secret_key': secrets.token_urlsafe(64),
+                'acesss_token_exp': '15_m',
+                'refresh_token_exp': '1_D'
             },
             'pattoo_ingesterd': {
                 'ingester_interval': 45,
