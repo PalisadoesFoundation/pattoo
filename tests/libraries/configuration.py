@@ -108,7 +108,6 @@ class WebConfig(BaseConfig):
                 self.web_api_ip_bind_port(),
                 PATTOO_API_WEB_PREFIX, suffix))
         return result
->>>>>>> 97d6587a82da5548550c1cee9bc4d351004e9cd7
 
 
 class UnittestConfig():
