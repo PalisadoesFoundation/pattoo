@@ -40,7 +40,7 @@ class User():
                 _User).filter(_User.username == username.encode()).first()
 
         # Assign variables
-        if row is None:
+        if not (row is None):
             self.first_name = row.first_name.decode()
             self.last_name = row.last_name.decode()
             self.role = row.role

@@ -13,10 +13,9 @@ from flask_graphql_auth import (mutation_jwt_required, get_jwt_identity,
 # pattoo imports
 from pattoo.db import db
 from pattoo.db.models import User as UserModel
-from pattoo.db.table import user as _user
+from pattoo.db.table.user import User as UserTable
 from pattoo.db.schema import utils
 from pattoo_shared.constants import DATA_INT
-from pattoo.db.table.user import User as UserTable
 
 
 class UserAttribute():
@@ -73,7 +72,8 @@ class ProtectedUser(graphene.Union):
 
 class CreateUserInput(graphene.InputObjectType, UserAttribute):
     """Arguments to create a User."""
-    pass
+
+    password = graphene.String(description="Password.")
 
 
 class CreateUser(graphene.Mutation):
@@ -101,12 +101,16 @@ class CreateUser(graphene.Mutation):
         person = UserTable(user.username.decode())
 
         # Checking that the user creating the new user is an admin
-        if current_user.role == 0:
+        if current_user.role != 0:
             raise GraphQLError('Only admins can create a new user!')
 
         # Checking that a given username is not taken
         if person.exists:
             raise GraphQLError('Username already exists!')
+
+        # Creating new user entry into User table
+        with db.db_modify(20150, close=False) as session:
+            session.add(user)
 
         return CreateUser(user=user)
 

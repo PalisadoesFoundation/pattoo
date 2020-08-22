@@ -53,8 +53,9 @@ def insertions():
     # Printing out default user credentials
     for username, password, role_no in default_users:
         role = 'Admin' if role_no == 0 else 'Basic'
-        print('Username: {}\nPassword: {}\nRole: {} '.format(username, password,
-                                                            role))
+        print('\n\nUsername: {}\nPassword: {}\nRole: {} \n\n'.format(username,
+                                                                     password,
+                                                                     role))
 
 def _insert_language():
     """Insert starting default entries into the Language table.
@@ -358,14 +359,14 @@ def _insert_user():
     if user.idx_exists(1) is False:
 
         # Creating initial password
-        password = ''.join(random.SystemRandom().choice(
-            string.ascii_uppercase + string.digits) for _ in range(50))
+        password = data.hashstring(''.join(random.SystemRandom().choice(
+            string.ascii_uppercase + string.digits) for _ in range(50)))
 
         # Inserting default user
         user.insert_row(
             DbRowUser(
                 username='pattoo',
-                password=data.hashstring(password),
+                password=password,
                 first_name='pattoo',
                 last_name='pattoo',
                 role=1,
@@ -377,12 +378,12 @@ def _insert_user():
     # Insert admin into User table
     if user.idx_exists(2) is False:
         # Creating initial password
-        password = ''.join(random.SystemRandom().choice(
-            string.ascii_uppercase + string.digits) for _ in range(50))
+        password = data.hashstring(''.join(random.SystemRandom().choice(
+            string.ascii_uppercase + string.digits) for _ in range(50)))
         user.insert_row(
             DbRowUser(
                 username='admin',
-                password=data.hashstring(password),
+                password=password,
                 first_name='admin',
                 last_name='admin',
                 role=0,
