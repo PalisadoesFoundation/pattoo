@@ -136,7 +136,7 @@ mutations{
   }
 }
 
-''').format(test_admin['pattoo_test'], test_admin['password'])
+''').format(test_admin['username'], test_admin['password'])
 
         access_request = _get(acesss_query)
         acesss_token = access_request['data']['authenticate']['accessToken']
