@@ -38,6 +38,8 @@ from pattoo.api.web import PATTOO_API_WEB as APP
 from pattoo.constants import IDXTimestampValue
 from pattoo.db.table import datapoint
 from pattoo.db.table import data as lib_data
+from pattoo.db.table import user
+from pattoo.constants import DbRowUser
 
 
 class TestBasicFunctions(LiveServerTestCase):
@@ -110,6 +112,18 @@ class TestBasicFunctions(LiveServerTestCase):
         # Insert rows of new data
         lib_data.insert_rows(_data)
 
+        # Creating required test admin
+        test_admin = {
+            "username" : "pattoo_test",
+            "first_name" : "Pattoo Test",
+            "last_name": "Pattoo Test",
+            "password": "pattoo_test_password",
+            "role": 0,
+            "password_expired": 0,
+            "enabled": 1
+        }
+        user.insert_row(DbRowUser(**test_admin))
+
         # Get accesss token to make test queries
         acesss_query = ('''\
 mutations{
@@ -122,13 +136,15 @@ mutations{
   }
 }
 
-''').format('admin', '')
+''').format(test_admin['pattoo_test'], test_admin['password'])
 
+        access_request = _get(acesss_query)
+        acesss_token = access_request['data']['authenticate']['accessToken']
 
         # Test
         query = ('''\
 {
-  allDatapoints(idxDatapoint: "IDX") {
+ allDatapoints(idxDatapoint: {}, token: {}) {
     edges {
       node {
         checksum
@@ -136,7 +152,7 @@ mutations{
     }
   }
 }
-'''.replace('IDX', str(idx_datapoint)))
+'''.format(idx_datapoint, acesss_token))
 
         # Test
         graphql_result = _get(query)

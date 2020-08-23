@@ -53,9 +53,10 @@ def insertions():
     # Printing out default user credentials
     for username, password, role_no in default_users:
         role = 'Admin' if role_no == 0 else 'Basic'
-        print('\n\nUsername: {}\nPassword: {}\nRole: {} \n\n'.format(username,
+        print('\n\nUsername: {}\nPassword: {}\nRole: {} '.format(username,
                                                                      password,
                                                                      role))
+    print('')
 
 def _insert_language():
     """Insert starting default entries into the Language table.
