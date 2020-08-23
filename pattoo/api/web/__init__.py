@@ -13,7 +13,6 @@ from pattoo_shared.constants import PATTOO_API_WEB_PREFIX
 
 # Import pattoo modules
 from pattoo.db import POOL
-from pattoo.configuration import ConfigPattoo as Config
 
 
 # Setup REST URI prefix
