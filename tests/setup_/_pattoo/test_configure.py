@@ -30,10 +30,8 @@ else:
 
 from pattoo_shared.constants import MAX_KEYPAIR_LENGTH
 from tests.libraries.configuration import UnittestConfig
-from setup._pattoo.configure import read_config, prompt, create_user
-from setup._pattoo.configure import pattoo_server_config, pattoo_config
-from setup._pattoo.configure import _mkdir, group_exists, user_exists
-from setup._pattoo.configure import check_pattoo_server, check_pattoo_client
+from setup._pattoo.configure import (create_user, pattoo_config, group_exists,
+                                     user_exists)
 
 
 class TestConfigure(unittest.TestCase):
