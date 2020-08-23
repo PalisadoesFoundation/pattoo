@@ -34,7 +34,7 @@ class Test_Shared(unittest.TestCase):
     def test_log(self):
         """Unittest to test the _log function."""
         with self.assertRaises(SystemExit) as cm_:
-            shared.log("Test Error Message")
+            shared.log('Test Error Message')
         self.assertEqual(cm_.exception.code, 3)
 
     def test_run_script(self):
@@ -42,13 +42,13 @@ class Test_Shared(unittest.TestCase):
         # Test case where the script should fail and exit with 2
         with self.subTest():
             with self.assertRaises(SystemExit) as cm_:
-                shared.run_script("this will exit with 2")
+                shared.run_script('this will exit with 2')
             self.assertEqual(cm_.exception.code, 2)
 
         # Test case where the script should print "this works" to the console
         with self.subTest():
             expected = 0
-            result = shared.run_script("echo this works")[0]
+            result = shared.run_script('echo this works')[0]
             self.assertEqual(result, expected)
 
     def test_unittest_environment_setup(self):

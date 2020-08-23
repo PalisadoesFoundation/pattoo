@@ -25,7 +25,7 @@ from pattoo_shared import log
 from pattoo_shared.agent import Agent, AgentCLI, EncryptedAgentAPI
 from pattoo.constants import (
     PATTOO_API_AGENT_NAME, PATTOO_API_AGENT_PROXY)
-from pattoo.configuration import ConfigAgent as Config
+from pattoo.configuration import ConfigAgentAPId as Config
 from pattoo.api.agents import PATTOO_API_AGENT
 from pattoo.db.db import connectivity
 
