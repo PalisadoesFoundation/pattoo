@@ -40,12 +40,16 @@ else:
     sys.exit(2)
 
 # Import Pattoo dependencies
-from pattoo_shared import data, converter, files
+from pattoo_shared import data
+from pattoo_shared import files
+from pattoo_shared import converter
 from pattoo_shared.constants import DATA_INT
 from pattoo_shared.phttp import PostAgent, EncryptedPostAgent
 from pattoo_shared.configuration import Config, ServerConfig
 from pattoo_shared.variables import (
     DataPoint, TargetDataPoints, AgentPolledData)
+
+from pattoo.configuration import ConfigAgentAPId
 from pattoo.api.agents import PATTOO_API_AGENT as APP
 from pattoo.constants import PATTOO_API_AGENT_NAME
 from tests.libraries.configuration import UnittestConfig
@@ -80,13 +84,9 @@ class TestEncryptedPost(LiveServerTestCase):
         return app
 
     def setUp(self):
-        """This will run each time before a test is performed
-        """
-        print('setUp')
-        gconfig = Config()  # Get config for Pgpier
-
+        """This will run each time before a test is performed."""
         # Create Pgpier object for the API
-        api_gpg = files.set_gnupg(PATTOO_API_AGENT_NAME, gconfig, "api_test@example.com")
+        files.set_gnupg(PATTOO_API_AGENT_NAME, ConfigAgentAPId())
 
     def test_encrypted_post(self):
         """Test that the API can receive and decrypt
@@ -95,12 +95,8 @@ class TestEncryptedPost(LiveServerTestCase):
         # Initialize key variables
         config = ServerConfig()
 
-        # Get Pgpier object
-        gconfig = Config()  # Get config for Pgpier
-
         # Create Pgpier object for the agent
-        agent_gpg = files.set_gnupg("test_encrypted_agent", gconfig,
-                        "agent_test@example.com")
+        agent_gpg = files.set_gnupg("test_encrypted_agent", Config())
 
         # Make agent data
         agent_data = _make_agent_data()
@@ -147,6 +143,7 @@ class TestEncryptedPost(LiveServerTestCase):
                 # Read file and add to string
                 filepath = '{}{}{}'.format(cache_directory, os.sep, filename)
                 os.remove(filepath)
+
 
 def _make_agent_data():
     """Create generate data to post to API server"""

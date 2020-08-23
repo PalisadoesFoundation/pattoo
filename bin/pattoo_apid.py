@@ -25,7 +25,7 @@ from pattoo_shared import log
 from pattoo_shared.agent import Agent, AgentCLI, AgentAPI
 from pattoo.constants import (
     PATTOO_API_WEB_NAME, PATTOO_API_WEB_PROXY)
-from pattoo.configuration import ConfigPattoo as Config
+from pattoo.configuration import ConfigAPId as Config
 from pattoo.api.web import PATTOO_API_WEB
 from pattoo.db.db import connectivity
 
