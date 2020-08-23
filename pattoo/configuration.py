@@ -227,8 +227,7 @@ class ConfigAPId(ServerConfig):
         sub_key = 'jwt_secret_key'
 
         # Process configuration
-        result = configuration.search(
-            key, sub_key, self._server_yaml_configuration)
+        result = search(key, sub_key, self._server_yaml_configuration)
 
         # Ensures that jwt_secret_key is set
         if (result is None) or result.strip(' ') == '':
@@ -255,8 +254,7 @@ class ConfigAPId(ServerConfig):
         sub_key = 'acesss_token_exp'
 
         # Process configuration
-        result = configuration.search(key, sub_key,
-                                      self._server_yaml_configuration)
+        result = search(key, sub_key, self._server_yaml_configuration)
 
         # Setting timedelta for result
         # Sets a default value if acesss_token_exp not found
@@ -285,8 +283,7 @@ class ConfigAPId(ServerConfig):
         sub_key = 'refresh_token_exp'
 
         # Process configuration
-        result = configuration.search(key, sub_key,
-                                      self._server_yaml_configuration)
+        result = search(key, sub_key, self._server_yaml_configuration)
 
         # Setting timedelta for result
         # Sets a default value if acesss_token_exp not found
