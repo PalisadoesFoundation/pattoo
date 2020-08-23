@@ -129,8 +129,8 @@ class TestBasicFunctions(LiveServerTestCase):
 mutation{
     authenticate(Input: {username: {}, password: {}}) {
         accessToken
-        refreshToken
-  }
+        jrefreshToken
+    }
 }
 
 ''').format(test_admin['username'], test_admin['password'])
@@ -141,7 +141,7 @@ mutation{
         # Test
         query = ('''\
 {
- allDatapoints(idxDatapoint: {}, token: {}) {
+allDatapoints(idxDatapoint: {}, token: {}) {
     edges {
       node {
         checksum
