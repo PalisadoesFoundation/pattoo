@@ -110,6 +110,21 @@ class TestBasicFunctions(LiveServerTestCase):
         # Insert rows of new data
         lib_data.insert_rows(_data)
 
+        # Get accesss token to make test queries
+        acesss_query = ('''\
+mutations{
+    authenticate(Input: {
+        username: {},
+        password: {}
+    }) {
+        accessToken
+        refreshToken
+  }
+}
+
+''').format('admin', '')
+
+
         # Test
         query = ('''\
 {
