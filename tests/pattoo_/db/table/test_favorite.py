@@ -102,7 +102,6 @@ class TestBasicFunctions(unittest.TestCase):
                 password_expired=1,
                 last_name=l_name,
                 enabled=0,
-                is_admin=0
             )
         )
         # Make sure user entry exists
