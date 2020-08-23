@@ -17,7 +17,7 @@ from sqlalchemy.pool import QueuePool
 
 # pattoo libraries
 from pattoo_shared import log
-from pattoo.configuration import ConfigPattoo as Config
+from pattoo.configuration import ConfigAPId as Config
 
 #############################################################################
 # Setup a global pool for database connections

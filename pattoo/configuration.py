@@ -12,7 +12,7 @@ from pattoo.constants import (
     PATTOO_INGESTERD_NAME)
 
 
-class ConfigPattoo(ServerConfig):
+class ConfigAPId(ServerConfig):
     """Class gathers all configuration information.
 
     Only processes the following YAML keys in the configuration file:
@@ -212,7 +212,7 @@ class ConfigPattoo(ServerConfig):
         return result
 
 
-class ConfigAgent(ServerConfig):
+class ConfigAgentAPId(ServerConfig):
     """Class gathers all configuration information.
 
     Only processes the following YAML keys in the configuration file:
