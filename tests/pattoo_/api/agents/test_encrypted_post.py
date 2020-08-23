@@ -86,8 +86,7 @@ class TestEncryptedPost(LiveServerTestCase):
         gconfig = Config()  # Get config for Pgpier
 
         # Create Pgpier object for the API
-        api_gpg = files.set_gnupg(PATTOO_API_AGENT_NAME, gconfig,
-                                  "api_test@example.com")
+        api_gpg = files.set_gnupg(PATTOO_API_AGENT_NAME, gconfig, "api_test@example.com")
 
     def test_encrypted_post(self):
         """Test that the API can receive and decrypt
