@@ -169,7 +169,10 @@ class UnittestConfig():
                 'ip_address': '127.0.0.1',
                 'ip_bind_port': 40203
             },
-        }
+            'encryption': {
+                'agent_email': 'agent_email@example.org'
+                }
+            }
 
         self._web_config = {
             'pattoo_web_api': {

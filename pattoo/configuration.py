@@ -4,7 +4,6 @@
 import os
 
 # Import project libraries
-from pattoo_shared import configuration
 from pattoo_shared.configuration import ServerConfig
 from pattoo_shared.configuration import search
 from pattoo.constants import (
@@ -49,7 +48,7 @@ class ConfigAPId(ServerConfig):
         sub_key = 'db_name'
 
         # Process configuration
-        result = configuration.search(
+        result = search(
             key, sub_key, self._server_yaml_configuration)
 
         # Get result
@@ -70,7 +69,7 @@ class ConfigAPId(ServerConfig):
         sub_key = 'db_username'
 
         # Process configuration
-        result = configuration.search(
+        result = search(
             key, sub_key, self._server_yaml_configuration)
 
         # Get result
@@ -94,7 +93,7 @@ class ConfigAPId(ServerConfig):
         if 'PATTOO_TRAVIS' in os.environ:
             result = ''
         else:
-            result = configuration.search(
+            result = search(
                 key, sub_key, self._server_yaml_configuration)
 
         # Get result
@@ -115,7 +114,7 @@ class ConfigAPId(ServerConfig):
         sub_key = 'db_hostname'
 
         # Process configuration
-        result = configuration.search(
+        result = search(
             key, sub_key, self._server_yaml_configuration)
 
         # Get result
@@ -134,7 +133,7 @@ class ConfigAPId(ServerConfig):
         # Get result
         key = 'pattoo_db'
         sub_key = 'db_pool_size'
-        intermediate = configuration.search(
+        intermediate = search(
             key, sub_key, self._server_yaml_configuration, die=False)
 
         # Set default
@@ -157,7 +156,7 @@ class ConfigAPId(ServerConfig):
         # Get result
         key = 'pattoo_db'
         sub_key = 'db_max_overflow'
-        intermediate = configuration.search(
+        intermediate = search(
             key, sub_key, self._server_yaml_configuration, die=False)
 
         # Set default
