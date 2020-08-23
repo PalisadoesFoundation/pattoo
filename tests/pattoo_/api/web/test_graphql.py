@@ -127,13 +127,17 @@ class TestBasicFunctions(LiveServerTestCase):
         # Get accesss token to make test queries
         acesss_query = ('''\
 mutation{
-    authenticate(Input: {username: {}, password: {}}) {
+    authenticate(Input: {username: "USERNAME", password: "PASSWORD"}) {
         accessToken
-        jrefreshToken
+        refreshToken
     }
 }
 
-''').format(test_admin['username'], test_admin['password'])
+''')
+
+        # Replacing username and password in access_query
+        acesss_query = acesss_query.replace("USERNAME", test_admin['username'])
+        acesss_query = acesss_query.replace("PASSWORD", test_admin['password'])
 
         access_request = _get(acesss_query)
         acesss_token = access_request['data']['authenticate']['accessToken']
@@ -141,7 +145,7 @@ mutation{
         # Test
         query = ('''\
 {
-allDatapoints(idxDatapoint: {}, token: {}) {
+allDatapoints(idxDatapoint: "IDX", token: "TOKEN") {
     edges {
       node {
         checksum
@@ -149,7 +153,11 @@ allDatapoints(idxDatapoint: {}, token: {}) {
     }
   }
 }
-'''.format(idx_datapoint, acesss_token))
+''')
+
+        # Replacing IDX and TOKEN in query
+        query = query.replace("IDX", str(idx_datapoint))
+        query = query.replace("TOKEN", str(acesss_token))
 
         # Test
         graphql_result = _get(query)
