@@ -19,6 +19,7 @@ graphene-sqlalchemy
 
 # Web server packages
 Flask
+Flask-CORS
 Flask-GraphQL
 Flask-GraphQL-Auth
 Flask-Caching

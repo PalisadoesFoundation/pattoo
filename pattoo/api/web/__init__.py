@@ -22,6 +22,7 @@ PATTOO_API_WEB_REST_PREFIX = '{}/rest'.format(PATTOO_API_WEB_PREFIX)
 # Setup flask and secret key config
 PATTOO_API_WEB = Flask(__name__)
 
+
 # Import GraphQLAuth from Flask-GraphQL-Auth
 from flask_graphql_auth import GraphQLAuth
 
@@ -47,6 +48,11 @@ CACHE = Cache(PATTOO_API_WEB, config={'CACHE_TYPE': 'simple'})
 from pattoo.api.web.graphql import GRAPHQL
 from pattoo.api.web.rest import REST_API_DATA
 from pattoo.api.web.status import API_STATUS
+
+# Importing and instantiating CORs on GRAPHQL and REST API endpoints
+# from flask_cors import CORS
+
+# CORS(GRAPHQL)
 
 # Register Blueprints
 PATTOO_API_WEB.register_blueprint(
