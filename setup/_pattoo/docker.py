@@ -82,7 +82,6 @@ def expose_ports(config_path, docker_path):
 
             # Retrieve the index of the line with 'Expose ports'
             for line in content:
-                print(line)
                 if line.startswith('# Expose ports'):
                     expose_index = content.index(line)
                     break
