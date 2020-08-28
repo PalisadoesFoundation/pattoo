@@ -28,6 +28,7 @@ RUN apt-get install -y systemd
 COPY . /pattoo
 
 # Expose ports
+EXPOSE 20203
 EXPOSE 20202
 EXPOSE 20201
 EXPOSE 3306
