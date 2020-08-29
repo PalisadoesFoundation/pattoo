@@ -148,7 +148,7 @@ def xch_key():
     except Exception as e:
         response = 500
         message = 'Server error'
-        
+
         log_msg = 'Could not retrieve Pgpier: >>>{}<<<'.format(e)
         log.log2warning(20167, log_msg)
         return message, response
@@ -273,7 +273,7 @@ def valid_key():
     except Exception as e:
         response = 500
         message = 'Server error'
-        
+
         log_msg = 'Could not retrieve Pgpier: >>>{}<<<'.format(e)
         log.log2warning(20172, log_msg)
         return message, response
@@ -330,6 +330,7 @@ def valid_key():
 
     return message, response
 
+
 @POST.route('/encrypted', methods=['POST'])
 def crypt_receive():
     """Receive encrypted data from agent
@@ -360,11 +361,11 @@ def crypt_receive():
     except Exception as e:
         response = 500
         message = 'Server error'
-        
+
         log_msg = 'Could not retrieve Pgpier: >>>{}<<<'.format(e)
         log.log2warning(20175, log_msg)
         return message, response
-    
+
     # Predefined error message and response
     response = 400
     message = 'Proceed to key exchange first'
@@ -374,7 +375,7 @@ def crypt_receive():
         message = 'No symmetric key'
         response = 403
         return message, response
-    
+
     if request.method == 'POST':
         # Get data from agent
         data_json = request.get_json(silent=False)
@@ -422,7 +423,7 @@ def crypt_receive():
                 log_message = '{} Invalid key'.format(prefix)
                 log.log2warning(20180, log_message)
                 abort(404)
-        
+
         # Extract key values from posting
         try:
             timestamp = posted_data['pattoo_agent_timestamp']
@@ -441,7 +442,7 @@ def crypt_receive():
                              cache_dir, os.sep, timestamp, source, suffix
                              )
                      )
-        
+
         # Create cache file
         try:
             with open(json_path, 'w+') as temp_file:
@@ -460,5 +461,5 @@ def crypt_receive():
         message = 'Decrypted and received'
         response = 202
         log.log2info(20184, message)
-        
+
     return message, response
