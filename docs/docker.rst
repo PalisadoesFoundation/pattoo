@@ -91,7 +91,7 @@ This copies all of the contents in the directory with the ``Dockerfile``, exclud
 
 **Expose the respective ports**
 
-To allow the daemons to communicate outside of the docker container, the respective ports will have to be exposed in the Dockerfile. Fortunately, if the installation is run with the installation script, all ports listed in the ``pattoo_server.yaml`` file will be automatically inserted in the ``Dcokerfile``.
+To allow the daemons to communicate outside of the docker container, the respective ports will have to be exposed in the Dockerfile. Fortunately, if the installation is run with the installation script, all ports listed in the ``pattoo_server.yaml`` file will be automatically inserted in the ``Dockerfile``.
 
     .. code-block:: bash
 
