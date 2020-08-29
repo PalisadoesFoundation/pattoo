@@ -27,6 +27,7 @@ class AuthMutation(graphene.Mutation):
     """
     access_token = graphene.String()
     refresh_token = graphene.String()
+    idx_user = graphene.String()
 
     class Arguments:
         Input = AuthMutationInput(required=True)
@@ -49,7 +50,7 @@ class AuthMutation(graphene.Mutation):
         access_token = create_access_token(username)
         refresh_token = create_refresh_token(username)
 
-        return AuthMutation(access_token, refresh_token)
+        return AuthMutation(access_token, refresh_token, _user.idx_user)
 
 
 class RefreshMutation(graphene.Mutation):

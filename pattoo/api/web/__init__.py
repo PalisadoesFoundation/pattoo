@@ -49,10 +49,6 @@ from pattoo.api.web.graphql import GRAPHQL
 from pattoo.api.web.rest import REST_API_DATA
 from pattoo.api.web.status import API_STATUS
 
-# Importing and instantiating CORs on GRAPHQL and REST API endpoints
-# from flask_cors import CORS
-
-# CORS(GRAPHQL)
 
 # Register Blueprints
 PATTOO_API_WEB.register_blueprint(
@@ -61,6 +57,10 @@ PATTOO_API_WEB.register_blueprint(
     API_STATUS, url_prefix=PATTOO_API_WEB_PREFIX)
 PATTOO_API_WEB.register_blueprint(
     REST_API_DATA, url_prefix=PATTOO_API_WEB_REST_PREFIX)
+
+# Importing and instantiating CORs on GRAPHQL and REST API endpoints
+from flask_cors import CORS
+CORS(PATTOO_API_WEB)
 
 
 @PATTOO_API_WEB.teardown_appcontext

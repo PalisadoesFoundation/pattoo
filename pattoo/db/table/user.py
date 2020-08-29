@@ -26,6 +26,7 @@ class User():
         """
         # Initialize key variables
         row = None
+        self.idx_user = None
         self.first_name = None
         self.last_name = None
         self.role = None
@@ -41,6 +42,7 @@ class User():
 
         # Assign variables
         if not (row is None):
+            self.idx_user = row.idx_user
             self.first_name = row.first_name.decode()
             self.last_name = row.last_name.decode()
             self.role = row.role
