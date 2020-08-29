@@ -325,6 +325,7 @@ To retrieve both an `access token` and `refresh token`:
         }){
             accessToken
             refreshToken
+            idxUser
         }
     }
 
@@ -337,7 +338,8 @@ Sample Result
       "data": {
         "authenticate": {
           "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI",
-          "refreshToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoicmVmcmVzaCIsImlhdCI6MTU5Nzg1OTI1NCwibmJmIjoxNTk3ODU5MjU0LCJqdGkiOiJjYWM3OWU0Yy1iNjAxLTQwNmQtYTFiNy1kYzgwOTdjNmYzMzUiLCJpZGVudGl0eSI6MywiZXhwIjoxNTk3OTQ1NjU0fQ.kjAWtIeK6n_Y8sDYbUzs4S9RRmTBdiQMNk4rFm8YN1w"
+          "refreshToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoicmVmcmVzaCIsImlhdCI6MTU5Nzg1OTI1NCwibmJmIjoxNTk3ODU5MjU0LCJqdGkiOiJjYWM3OWU0Yy1iNjAxLTQwNmQtYTFiNy1kYzgwOTdjNmYzMzUiLCJpZGVudGl0eSI6MywiZXhwIjoxNTk3OTQ1NjU0fQ.kjAWtIeK6n_Y8sDYbUzs4S9RRmTBdiQMNk4rFm8YN1w",
+          "idxUser": "1"
         }
       }
     }
