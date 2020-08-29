@@ -1,19 +1,23 @@
 """Initialize the PATTOO_API_AGENT module."""
 
-# Import PIP3 libraries
-from flask import Flask
-from flask_session import Session
+# Standard imports
 import hashlib
 import uuid
 
+# Import PIP3 libraries
+from flask import Flask
+from flask_session import Session
+
 # Define the global URL prefix
 from pattoo_shared.constants import PATTOO_API_AGENT_PREFIX
-from pattoo_shared.configuration import BaseConfig
+from pattoo_shared import configuration
 from pattoo_shared import files
+from pattoo_shared import encrypt
 
 # Import PATTOO_API_AGENT Blueprints
 from pattoo.api.agents.post import POST
 from pattoo.api.agents.status import STATUS
+from pattoo.constants import PATTOO_API_AGENT_NAME
 
 # Setup flask
 PATTOO_API_AGENT = Flask(__name__)
@@ -35,9 +39,8 @@ PATTOO_API_AGENT.config['SESSION_USE_SIGNER'] = True
 PATTOO_API_AGENT.config['SESSION_PERMANENT'] = False
 
 # Location to store cookies (for local session)
-config = BaseConfig()
 PATTOO_API_AGENT.config['SESSION_FILE_DIR'] = \
-    files.get_session_cache_dir(config)
+    files.get_session_cache_dir(configuration.BaseConfig())
 
 # Initialize Session plugin (for local session)
 sess = Session()
