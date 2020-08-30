@@ -197,7 +197,7 @@ def validation():
 
         # Checks if the decrypted nonce matches one sent
         if nonce != session['nonce']:
-            log_message = 'Nonce does not match "{}" "{}"'.format(nonce, session['nonce'])
+            log_message = 'Nonce does not match'
             log.log2info(20166, log_message)
             return (log_message, 401)
 
