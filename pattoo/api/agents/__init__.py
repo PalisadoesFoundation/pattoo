@@ -3,6 +3,7 @@
 # Standard imports
 import hashlib
 import uuid
+import datetime
 
 # Import PIP3 libraries
 from flask import Flask
@@ -33,8 +34,9 @@ PATTOO_API_AGENT.config['SESSION_FILE_THRESHOLD'] = 500
 # Sign cookies (for local session)
 PATTOO_API_AGENT.config['SESSION_USE_SIGNER'] = True
 
-# Store cookies permanently (for local session)
-PATTOO_API_AGENT.config['SESSION_PERMANENT'] = False
+# Don't keep cookies forever
+PATTOO_API_AGENT.config[
+    'PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=1)
 
 # Location to store cookies (for local session)
 PATTOO_API_AGENT.config['SESSION_FILE_DIR'] = \
