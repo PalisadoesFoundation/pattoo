@@ -11,13 +11,15 @@ import uuid
 # Flask imports
 from flask import Blueprint, request, abort, session, jsonify
 
-# pattoo imports
+# Pattoo imports
 from pattoo_shared import log
+from pattoo_shared import encrypt
 from pattoo_shared.constants import CACHE_KEYS
-from pattoo_shared.configuration import ServerConfig as Config
-from pattoo.constants import PATTOO_API_AGENT_NAME
-from pattoo_shared.files import get_gnupg
 
+from pattoo.constants import PATTOO_API_AGENT_NAME
+from pattoo import configuration
+
+encryption = encrypt.Encryption(PATTOO_API_AGENT_NAME)
 
 # Define the POST global variable
 POST = Blueprint('POST', __name__)
@@ -34,65 +36,17 @@ def receive(source):
         Text response of Received
 
     """
-    # Initialize key variables
-    prefix = 'Invalid posted data.'
-
-    # Read configuration
-    config = Config()
-    cache_dir = config.agent_cache_directory(PATTOO_API_AGENT_NAME)
-
     # Get JSON from incoming agent POST
     try:
-        posted_data = request.json
+        data = request.json
     except:
         # Don't crash if we cannot convert JSON
-        abort(404)
+        abort(500, description='Invalid data format received.')
 
-    # Abort if posted_data isn't a list
-    if isinstance(posted_data, dict) is False:
-        log_message = '{} Not a dictionary'.format(prefix)
-        log.log2warning(20024, log_message)
-        abort(404)
-    if len(posted_data) != len(CACHE_KEYS):
-        log_message = ('''\
-{} Incorrect length. Expected length of {}'''.format(prefix, len(CACHE_KEYS)))
-        log.log2warning(20019, log_message)
-        abort(404)
-    for key in posted_data.keys():
-        if key not in CACHE_KEYS:
-            log_message = '{} Invalid key'.format(prefix)
-            log.log2warning(20018, log_message)
-            abort(404)
-
-    # Extract key values from posting
-    try:
-        timestamp = posted_data['pattoo_agent_timestamp']
-    except:
-        _exception = sys.exc_info()
-        log_message = ('API Failure')
-        log.log2exception(20025, _exception, message=log_message)
-        abort(404)
-
-    # Create filename. Add a suffix in the event the source is posting
-    # frequently.
-    suffix = str(randrange(100000)).zfill(6)
-    json_path = (
-        '{}{}{}_{}_{}.json'.format(
-            cache_dir, os.sep, timestamp, source, suffix))
-
-    # Create cache file
-    try:
-        with open(json_path, 'w+') as temp_file:
-            json.dump(posted_data, temp_file)
-    except Exception as err:
-        log_message = '{}'.format(err)
-        log.log2warning(20016, log_message)
-        abort(404)
-    except:
-        _exception = sys.exc_info()
-        log_message = ('API Failure')
-        log.log2exception(20017, _exception, message=log_message)
-        abort(404)
+    # Save data
+    success = _save_data(data, source)
+    if bool(success) is False:
+        abort(500, description='Invalid JSON data received.')
 
     # Return
     return 'OK'
@@ -114,124 +68,96 @@ def index():
 
 
 @POST.route('/key', methods=['POST', 'GET'])
-def xch_key():
-    """Handles public key exhange
+def key_exchange():
+    """Process public key exhange.
+
     Args:
         None
 
     Returns:
-        message (str): Key exchange response
-        response (int): HTTP response code
+        result: Various responses
+
     """
+    # Initialize key variables
+    required_keys = ['pattoo_agent_email', 'pattoo_agent_key']
+
     # If a symmetric key has already been established, skip
     if 'symm_key' in session:
-        message = 'Symmetric key already set'
-        response = 208
-        log.log2info(20148, message)
-        return message, response
+        log_message = 'Symmetric key already set.'
+        log.log2info(20148, log_message)
+        return (log_message, 208)
 
-
-    # Read configuration
-    config = Config()
-
-    try:
-        # Retrieves Pgpier class
-        gpg = get_gnupg(PATTOO_API_AGENT_NAME, config)
-
-        #Sets key ID
-        gpg.set_keyid()
-
-        # Checks if a Pgpier object exists
-        if gpg is None:
-            raise Exception('Could not retrieve Pgpier for {}'
-                            .format(PATTOO_API_AGENT_NAME))
-    except Exception as e:
-        response = 500
-        message = 'Server error'
-        
-        log_msg = 'Could not retrieve Pgpier: >>>{}<<<'.format(e)
-        log.log2warning(20167, log_msg)
-        return message, response
-
-    response = 400
-    message = 'Error'
-    log_mem = None
-
+    # Get data from incoming agent POST
     if request.method == 'POST':
-
-        # Get data from incoming agent POST
         try:
             # Get data from agent
-            data_json = request.get_json(silent=False)
-            data_dict = json.loads(data_json)
-            log_mem = data_dict
+            data_dict = json.loads(request.get_json(silent=False))
+        except:
+            _exception = sys.exc_info()
+            log_message = 'Client sent corrupted JSON data'
+            log.log2exception(20167, _exception, message=log_message)
+            return (log_message, 500)
 
-            # Save email in session
-            session['email'] = data_dict['pattoo_agent_email']
+        # Check for minimal keys
+        for key in required_keys:
+            if key not in data_dict.keys():
+                log_message = '''\
+Required JSON key "{}" missing in key exchange'''.format(key)
+                log.log2warning(20164, log_message)
+                abort(404)
 
-            # Save agent public key in keyring
-            result = gpg.imp_pub_key(data_dict['pattoo_agent_key'])
+        # Save email in session
+        session['email'] = data_dict['pattoo_agent_email']
 
-            # Sent receive response
-            response = 202
-            message = 'Email and key received: {}, {}'\
-                      .format(session['email'], result)
+        # Save agent public key in keyring
+        encryption.pimport(data_dict['pattoo_agent_key'])
+        return('Key received', 202)
 
-            log.log2info(20168, message)
-
-        except Exception as e:
-            log_msg = 'Invalid email and key entry: >>>{}<<<'.format(e)
-            log_msg+= '--->{}<---'.format(log_mem)
-            log.log2warning(20169, log_msg)
-            message = 'Key not received'
-
+    # Get data from incoming agent POST
     if request.method == 'GET':
-        # Predefined error if email and key was not sent first
-        response = 403
-        message = 'Send email and key first'
         if 'email' in session:
             # Generate server nonce
-            session['nonce'] = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
+            session['nonce'] = hashlib.sha256(
+                str(uuid.uuid4()).encode()).hexdigest()
 
-            # Set email address in Pgpier object
-            gpg.set_email()
-
-            # Export public key
-            api_key = gpg.exp_pub_key()
-            api_email = gpg.email_addr
-            api_nonce = session['nonce']
-
-            # Retrieve information from session
-            agent_email = session['email']
-            agent_fingerprint = gpg.email_to_key(agent_email)
+            # Retrieve information from session. Set previously in POST
+            agent_fingerprint = encryption.fingerprint(session['email'])
 
             # Trust agent key
-            gpg.trust_key(agent_fingerprint)
+            encryption.trust(agent_fingerprint)
 
             # Encrypt api nonce with agent public key
-            encrypted_nonce = gpg.encrypt_data(api_nonce, agent_fingerprint)
+            encrypted_nonce = encryption.encrypt(
+                session['nonce'], agent_fingerprint)
 
-            data = {'api_email': api_email, 'api_key': api_key,
-                    'encrypted_nonce': encrypted_nonce}
+            data_dict = {
+                'api_email': encryption.email,
+                'api_key': encryption.pexport(),
+                'encrypted_nonce': encrypted_nonce
+            }
 
             # Send api email, public key and encrypted nonce
-            message = 'API information sent'
-            log.log2info(20170, message)
-            response = 200
-            return jsonify(data=data), response
+            log_message = 'API information sent'
+            return jsonify(data_dict)
 
-    return message, response
+        # Otherwise send error message
+        return ('Send email and key first', 403)
+
+    # Return aborted status
+    abort(400)
+
 
 @POST.route('/validation', methods=['POST'])
-def valid_key():
-    """Handles validation by decrypting the received symmetric key from
-    the agent and then symmetrically decrypting the nonce from
-    agent and check if it's the same as the nonce sent
+def validation():
+    """Validate remote agent.
 
-    The symmetric key is stored in session so that it can be attached
-    to the cached data for future decryption
+    Process:
 
-    The agent public key is then deleted
+    1) Decrypt the symmetric key received from the agent
+    2) Decrypting the nonce from agent
+    3) Verify that nonce is the same as originally sent.
+    4) Store symmetric key in session to be used for future decryption.
+    6) Delete the agent public key
 
     Args:
         None
@@ -239,96 +165,58 @@ def valid_key():
     Returns:
         message (str): Validation response message
         response (int): HTTP response code
-    """
 
+    """
     # If a symmetric key has already been established, skip
     if 'symm_key' in session:
-        message = 'Symmetric key already set'
-        response = 208
-        log.log2info(20171, message)
-        return message, response
-
-    # Predefined error message and response
-    response = 403
-    message = 'Proceed to key exchange first'
+        log_message = 'Symmetric key already set.'
+        log.log2info(20165, log_message)
+        return (log_message, 208)
 
     # If no nonce is set, inform agent to exchange keys
     if 'nonce' not in session:
-        return message, response
+        return ('Proceed to key exchange first', 403)
 
-    # Read configuration
-    config = Config()
-
-    try:
-        # Retrieves Pgpier class
-        gpg = get_gnupg(PATTOO_API_AGENT_NAME, config)
-
-        #Sets key ID
-        gpg.set_keyid()
-
-        # Checks if a Pgpier object exists
-        if gpg is None:
-            raise Exception('Could not retrieve Pgpier for {}'
-                            .format(PATTOO_API_AGENT_NAME))
-    except Exception as e:
-        response = 500
-        message = 'Server error'
-        
-        log_msg = 'Could not retrieve Pgpier: >>>{}<<<'.format(e)
-        log.log2warning(20172, log_msg)
-        return message, response
-
+    # Get data from incoming agent POST
     if request.method == 'POST':
-        # Get data from incoming agent POST
         try:
             # Get data from agent
-            data_json = request.get_json(silent=False)
-            data_dict = json.loads(data_json)
+            data_dict = json.loads(request.get_json(silent=False))
+        except:
+            _exception = sys.exc_info()
+            log_message = 'Client sent corrupted validation JSON data'
+            log.log2exception(20168, _exception, message=log_message)
+            return (log_message, 500)
 
-            # Retrieved symmetrically encrypted nonce
-            encrypted_nonce = data_dict['encrypted_nonce']
+        # Decrypt symmetric key
+        symmetric_key = encryption.decrypt(data_dict['encrypted_sym_key'])
 
-            # Retrieved encrypted symmetric key
-            encrypted_sym_key = data_dict['encrypted_sym_key']
+        # Symmetrically decrypt nonce
+        nonce = encryption.sdecrypt(
+            data_dict['encrypted_nonce'], symmetric_key)
 
-            # Decrypt symmetric key
-            passphrase = gpg.passphrase
-            decrypted_symm_key = gpg.decrypt_data(encrypted_sym_key, passphrase)
+        # Checks if the decrypted nonce matches one sent
+        if nonce != session['nonce']:
+            log_message = 'Nonce does not match "{}" "{}"'.format(nonce, session['nonce'])
+            log.log2info(20166, log_message)
+            return (log_message, 401)
 
-            # Symmetrically decrypt nonce
-            nonce = gpg.symmetric_decrypt(encrypted_nonce, decrypted_symm_key)
+        # Delete agent public key
+        encryption.pdelete(encryption.fingerprint(session['email']))
 
-            # Checks if the decrypted nonce matches one sent
-            if nonce != session['nonce']:
-                response = 401
-                message = 'Nonce does not match'
+        # Session parameter cleanup
+        session['symm_key'] = symmetric_key
+        session.pop('email', None)
+        session.pop('nonce', None)
 
-                return message, response
+        # Return response
+        log_message = 'Symmetric key saved'
+        log.log2info(20173, log_message)
+        return (log_message, 200)
 
-            # Set symmetric key
-            session['symm_key'] = decrypted_symm_key
+    # Otherwise abort
+    abort(404)
 
-            # Retrieve information from session
-            agent_email = session['email']
-            agent_fingerprint = gpg.email_to_key(agent_email)
-
-            # Delete agent public key
-            result = gpg.del_pub_key(agent_fingerprint)
-            session.pop('email', None)
-            session.pop('nonce', None)
-
-            response = 200
-            message = 'Symmetric key saved. Del public key: {}'\
-                      .format(result)
-            log.log2info(20173, message)
-
-        except Exception as e:
-            log_msg = 'Invalid email and key entry: >>>{}<<<'.format(e)
-            log.log2warning(20174, log_msg)
-            message = 'Message not received'
-            response = 400
-
-    return message, response
 
 @POST.route('/encrypted', methods=['POST'])
 def crypt_receive():
@@ -341,124 +229,115 @@ def crypt_receive():
         message (str): Reception result
         response (int): HTTP response code
     """
-
-    # Read configuration
-    config = Config()
-    cache_dir = config.agent_cache_directory(PATTOO_API_AGENT_NAME)
-
-    try:
-        # Retrieves Pgpier class
-        gpg = get_gnupg(PATTOO_API_AGENT_NAME, config)
-
-        #Sets key ID
-        gpg.set_keyid()
-
-        # Checks if a Pgpier object exists
-        if gpg is None:
-            raise Exception('Could not retrieve Pgpier for {}'
-                            .format(PATTOO_API_AGENT_NAME))
-    except Exception as e:
-        response = 500
-        message = 'Server error'
-        
-        log_msg = 'Could not retrieve Pgpier: >>>{}<<<'.format(e)
-        log.log2warning(20175, log_msg)
-        return message, response
-    
-    # Predefined error message and response
-    response = 400
-    message = 'Proceed to key exchange first'
-
-    # Block connection if a symmetric key was not stored
+    # If a symmetric key has already been established, skip
     if 'symm_key' not in session:
-        message = 'No symmetric key'
-        response = 403
-        return message, response
-    
-    if request.method == 'POST':
-        # Get data from agent
-        data_json = request.get_json(silent=False)
-        data_dict = json.loads(data_json)
+        log_message = 'No session symmetric key'
+        log.log2info(20171, log_message)
+        return (log_message, 208)
 
-        # Retrieved symmetrically encrypted data
-        encrypted_data = data_dict['encrypted_data']
+    if request.method == 'POST':
+        try:
+            # Get data from agent
+            data_dict = json.loads(request.get_json(silent=False))
+        except:
+            _exception = sys.exc_info()
+            log_message = 'Client sent corrupted validation JSON data'
+            log.log2exception(20169, _exception, message=log_message)
+            return (log_message, 500)
 
         # Symmetrically decrypt data
-        data = gpg.symmetric_decrypt(encrypted_data, session['symm_key'])
-
-        # Initialize key variables
-        prefix = 'Invalid posted data.'
-
-        posted_data = None
-        source = None
+        data = encryption.sdecrypt(
+            data_dict['encrypted_data'], session['symm_key'])
 
         # Extract posted data and source
         try:
-            data_extract = json.loads(data)
-            posted_data = data_extract['data']
-            source = data_extract['source']
-
-        except Exception as e:
-            log_message = 'Decrypted data extraction failed: {}'\
-                          .format(e)
-            log.log2warning(20176, log_message)
-
-        log_message = 'Decrypted data extraction successful'
-        log.log2info(20177, log_message)
-
-        # Abort if posted_data isn't a list
-        if isinstance(posted_data, dict) is False:
-            log_message = '{} Not a dictionary'.format(prefix)
-            log.log2warning(20178, log_message)
-            abort(404)
-        if len(posted_data) != len(CACHE_KEYS):
-            log_message = ('''{} Incorrect length. Expected length of {}
-                           '''.format(prefix, len(CACHE_KEYS)))
-            log.log2warning(20179, log_message)
-            abort(404)
-
-        for key in posted_data.keys():
-            if key not in CACHE_KEYS:
-                log_message = '{} Invalid key'.format(prefix)
-                log.log2warning(20180, log_message)
-                abort(404)
-        
-        # Extract key values from posting
-        try:
-            timestamp = posted_data['pattoo_agent_timestamp']
+            final_data = json.loads(data)
         except:
             _exception = sys.exc_info()
-            log_message = ('API Failure')
-            log.log2exception(20181, _exception, message=log_message)
-            abort(404)
+            log_message = 'Decrypted data extraction failed'
+            log.log2exception(20174, _exception, message=log_message)
+            abort(500, description=log_message)
 
-        # Create filename. Add a suffix in the event the source is posting
-        # frequently.
-        suffix = str(randrange(100000)).zfill(6)
-        json_path = (
-                     '{}{}{}_{}_{}.json'
-                     .format(
-                             cache_dir, os.sep, timestamp, source, suffix
-                             )
-                     )
-        
-        # Create cache file
-        try:
-            with open(json_path, 'w+') as temp_file:
-                json.dump(posted_data, temp_file)
-        except Exception as err:
-            log_message = '{}'.format(err)
-            log.log2warning(20182, log_message)
-            abort(404)
-        except:
-            _exception = sys.exc_info()
-            log_message = ('API Failure')
-            log.log2exception(20183, _exception, message=log_message)
-            abort(404)
+        # Save data
+        success = _save_data(final_data['data'], final_data['source'])
+        if bool(success) is False:
+            abort(500, description='Invalid JSON data received.')
 
         # Return
-        message = 'Decrypted and received'
-        response = 202
-        log.log2info(20184, message)
-        
-    return message, response
+        log_message = 'Decrypted and received'
+        log.log2info(20184, log_message)
+        return(log_message, 202)
+
+    # Otherwise abort
+    return ('Proceed to key exchange first', 400)
+
+
+def _save_data(data, source):
+    """Handle the agent posting route.
+
+    Args:
+        data: Data dict received from agents
+
+    Returns:
+        success: True if successful
+
+    """
+    # Initialize key variables
+    success = False
+    prefix = 'Invalid posted data.'
+
+    # Read configuration
+    config = configuration.ConfigAgentAPId()
+    cache_dir = config.agent_cache_directory(PATTOO_API_AGENT_NAME)
+
+    # Abort if data isn't a list
+    if isinstance(data, dict) is False:
+        log_message = '{} Not a dictionary'.format(prefix)
+        log.log2warning(20024, log_message)
+        abort(404)
+    if len(data) != len(CACHE_KEYS):
+        log_message = ('''\
+{} Incorrect length. Expected length of {}'''.format(prefix, len(CACHE_KEYS)))
+        log.log2warning(20019, log_message)
+        return success
+
+    # Basic integrity check of required JSON fields
+    for key in data.keys():
+        if key not in CACHE_KEYS:
+            log_message = '{} Invalid key'.format(prefix)
+            log.log2warning(20018, log_message)
+            return success
+
+    # Extract key values from posting
+    try:
+        timestamp = data['pattoo_agent_timestamp']
+    except:
+        _exception = sys.exc_info()
+        log_message = ('API Failure')
+        log.log2exception(20025, _exception, message=log_message)
+        return success
+
+    # Create filename. Add a suffix in the event the source is posting
+    # frequently.
+    suffix = str(randrange(100000)).zfill(6)
+    json_path = (
+        '{}{}{}_{}_{}.json'.format(
+            cache_dir, os.sep, timestamp, source, suffix))
+
+    # Create cache file
+    try:
+        with open(json_path, 'w+') as temp_file:
+            json.dump(data, temp_file)
+    except Exception as err:
+        log_message = '{}'.format(err)
+        log.log2warning(20016, log_message)
+        return success
+    except:
+        _exception = sys.exc_info()
+        log_message = ('API Failure')
+        log.log2exception(20017, _exception, message=log_message)
+        return success
+
+    # Return
+    success = True
+    return success
