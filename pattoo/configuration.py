@@ -277,25 +277,6 @@ class ConfigAgentAPId(ServerConfig):
             result = int(intermediate)
         return result
 
-    def api_email_address(self):
-        """GET API email address from yaml file.
-
-        Args:
-            None
-
-        Returns:
-            email (str): Email address of API
-        """
-        # Initialize key variables
-        key = PATTOO_API_AGENT_NAME
-        sub_key = 'api_encryption_email'
-
-        result = search(
-            key, sub_key, self._server_yaml_configuration, die=False)
-        if result is None:
-            result = 'pattoo_api@example.org'
-        return result
-
 
 class ConfigIngester(ServerConfig):
     """Class gathers all configuration information.
