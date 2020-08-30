@@ -16,6 +16,7 @@ of symmetrically encrypted data"""
 import os
 import unittest
 import sys
+import tempfile
 
 # Import Flask testing components
 from flask_testing import TestCase, LiveServerTestCase
@@ -45,6 +46,7 @@ from pattoo_shared import files
 from pattoo_shared import converter
 from pattoo_shared.constants import DATA_INT
 from pattoo_shared.phttp import PostAgent, EncryptedPostAgent
+from pattoo_shared.agent import EncryptedAgent
 from pattoo_shared.configuration import Config, ServerConfig
 from pattoo_shared.variables import (
     DataPoint, TargetDataPoints, AgentPolledData)
@@ -74,6 +76,8 @@ class TestEncryptedPost(LiveServerTestCase):
 
         app.config['TESTING'] = True
         app.config['LIVESERVER_PORT'] = config.agent_api_ip_bind_port()
+        # app.config['errorlog'] = config.log_file_api()
+        # app.config['accesslog'] = config.log_file_api()
         os.environ['FLASK_ENV'] = 'development'
 
         # Clear the flask cache
@@ -86,7 +90,7 @@ class TestEncryptedPost(LiveServerTestCase):
     def setUp(self):
         """This will run each time before a test is performed."""
         # Create Pgpier object for the API
-        files.set_gnupg(PATTOO_API_AGENT_NAME, ConfigAgentAPId())
+        # files.set_gnupg(PATTOO_API_AGENT_NAME, ConfigAgentAPId())
 
     def test_encrypted_post(self):
         """Test that the API can receive and decrypt
@@ -94,9 +98,11 @@ class TestEncryptedPost(LiveServerTestCase):
 
         # Initialize key variables
         config = ServerConfig()
+        agent_name = 'test_encrypted_agent'
 
-        # Create Pgpier object for the agent
-        agent_gpg = files.set_gnupg("test_encrypted_agent", Config())
+        # Create a directory for the Agent keyring as by default the
+        # API and agent use the same keyring directory
+        keyring_directory = tempfile.mkdtemp()
 
         # Make agent data
         agent_data = _make_agent_data()
@@ -105,10 +111,13 @@ class TestEncryptedPost(LiveServerTestCase):
         # the data received by the API
         expected = converter.posting_data_points(
             converter.agentdata_to_post(agent_data)
-            )
+        )
 
         # Make encrypted post
-        post_encrypted = EncryptedPostAgent(agent_data, agent_gpg)
+        encrypted_agent = EncryptedAgent(
+            agent_name, directory=keyring_directory)
+        post_encrypted = EncryptedPostAgent(
+            agent_data, encrypted_agent.encryption)
         post_encrypted.post()
 
         # Read data from directory
@@ -123,7 +132,7 @@ class TestEncryptedPost(LiveServerTestCase):
         # Result and expected are not quite the same. 'expected' will have
         # lists of tuples where 'result' will have lists of lists
         for key, value in result.items():
-            if key != 'pattoo_datapoints':
+            if key not in ['pattoo_agent_timestamp', 'pattoo_datapoints']:
                 self.assertEqual(value, expected[key])
         self.assertEqual(
             result['pattoo_datapoints']['datapoint_pairs'],

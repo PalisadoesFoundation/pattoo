@@ -106,7 +106,7 @@ def key_exchange():
             if key not in data_dict.keys():
                 log_message = '''\
 Required JSON key "{}" missing in key exchange'''.format(key)
-                log.log2warning(20018, log_message)
+                log.log2warning(20164, log_message)
                 abort(404)
 
         # Save email in session
@@ -141,7 +141,6 @@ Required JSON key "{}" missing in key exchange'''.format(key)
 
             # Send api email, public key and encrypted nonce
             log_message = 'API information sent'
-            log.log2info(20170, log_message)
             return jsonify(data_dict)
 
         # Otherwise send error message
@@ -152,7 +151,7 @@ Required JSON key "{}" missing in key exchange'''.format(key)
 
 
 @POST.route('/validation', methods=['POST'])
-def valid_key():
+def validation():
     """Validate remote agent.
 
     Process:
@@ -174,7 +173,7 @@ def valid_key():
     # If a symmetric key has already been established, skip
     if 'symm_key' in session:
         log_message = 'Symmetric key already set.'
-        log.log2info(20171, log_message)
+        log.log2info(20165, log_message)
         return (log_message, 208)
 
     # If no nonce is set, inform agent to exchange keys
@@ -189,7 +188,7 @@ def valid_key():
         except:
             _exception = sys.exc_info()
             log_message = 'Client sent corrupted validation JSON data'
-            log.log2exception(20174, _exception, message=log_message)
+            log.log2exception(20168, _exception, message=log_message)
             return (log_message, 500)
 
         # Decrypt symmetric key
@@ -201,7 +200,9 @@ def valid_key():
 
         # Checks if the decrypted nonce matches one sent
         if nonce != session['nonce']:
-            return ('Nonce does not match', 401)
+            log_message = 'Nonce does not match "{}" "{}"'.format(nonce, session['nonce'])
+            log.log2info(20166, log_message)
+            return (log_message, 401)
 
         # Delete agent public key
         encryption.pdelete(encryption.fingerprint(session['email']))
@@ -244,7 +245,7 @@ def crypt_receive():
         except:
             _exception = sys.exc_info()
             log_message = 'Client sent corrupted validation JSON data'
-            log.log2exception(20174, _exception, message=log_message)
+            log.log2exception(20169, _exception, message=log_message)
             return (log_message, 500)
 
         # Symmetrically decrypt data
