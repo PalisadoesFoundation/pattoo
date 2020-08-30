@@ -19,10 +19,7 @@ from pattoo_shared.constants import CACHE_KEYS
 from pattoo.constants import PATTOO_API_AGENT_NAME
 from pattoo import configuration
 
-encryption = encrypt.Encryption(
-    PATTOO_API_AGENT_NAME,
-    configuration.ConfigAgentAPId().api_email_address()
-)
+encryption = encrypt.Encryption(PATTOO_API_AGENT_NAME)
 
 # Define the POST global variable
 POST = Blueprint('POST', __name__)
