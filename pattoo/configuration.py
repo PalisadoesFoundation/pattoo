@@ -2,10 +2,12 @@
 """Pattoo classes that manage various configurations."""
 
 import os
+import stat
 
 # Import project libraries
 from pattoo_shared.configuration import ServerConfig
 from pattoo_shared.configuration import search
+from pattoo_shared import files
 from pattoo.constants import (
     PATTOO_API_WEB_NAME, PATTOO_API_AGENT_NAME,
     PATTOO_INGESTERD_NAME)
@@ -277,23 +279,25 @@ class ConfigAgentAPId(ServerConfig):
             result = int(intermediate)
         return result
 
-    def api_email_address(self):
-        """GET API email address from yaml file.
+    def session_directory(self):
+        """Get directory for storing session infomation.
 
         Args:
             None
 
         Returns:
-            email (str): Email address of API
-        """
-        # Initialize key variables
-        key = PATTOO_API_AGENT_NAME
-        sub_key = 'api_encryption_email'
+            result: result
 
-        result = search(
-            key, sub_key, self._server_yaml_configuration, die=False)
-        if result is None:
-            result = 'pattoo_api@example.org'
+        """
+        # Get result
+        result = '{}{}session'.format(self.cache_directory(), os.sep)
+
+        # Create directory if it doesn't exist
+        files.mkdir(result)
+
+        # Change filemode to 700
+        # Only allow the user to access the flash session folder
+        os.chmod(result, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
         return result
 
 
