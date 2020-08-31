@@ -129,7 +129,7 @@ Ensure that docker is installed before creating the pattoo docker container.'''
         message = '''\
 Unknown error code.
 Ensure that docker is running and has the adequate permissions'''
-    log.log2die_safe(20164, message)
+    log.log2die_safe(20172, message)
 
 
 def image_check(image_name):
@@ -146,7 +146,7 @@ def image_check(image_name):
                 'docker image inspect {}'.format(image_name), die=False)[0]
     if status == 0:
         message = 'The docker image "{}" already exists'.format(image_name)
-        log.log2die_safe(20165, message)
+        log.log2die_safe(20170, message)
 
 
 def install(container_name, config_files, verbose=True):
