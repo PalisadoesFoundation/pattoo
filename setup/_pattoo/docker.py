@@ -173,7 +173,7 @@ def install(container_name, config_files, verbose=True):
 
     # Build pattoo container
     image_check('pattoo')
-    print('Building Pattoo Container. This may take up to 10 minutes...')
+    print('Building Pattoo Container. This could take some time...')
     shared.run_script('docker build -t {} .'.format(container_name))
 
     # Run container in detached mode as pattoo
