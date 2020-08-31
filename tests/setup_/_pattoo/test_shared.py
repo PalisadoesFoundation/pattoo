@@ -29,7 +29,7 @@ from setup._pattoo import shared
 
 
 class Test_Shared(unittest.TestCase):
-    """Checks all functions for the Pattoo config script."""
+    """Checks all functions for the Pattoo shared script."""
 
     def test_log(self):
         """Unittest to test the _log function."""

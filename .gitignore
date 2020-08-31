@@ -136,6 +136,7 @@ celerybeat-schedule
 
 # Environments
 .env
+**/.env
 .venv
 env/
 venv/
@@ -158,3 +159,5 @@ venv.bak/
 
 # VS Code
 .vscode
+**/.vs
+**/.vscode
