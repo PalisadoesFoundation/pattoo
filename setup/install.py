@@ -222,6 +222,7 @@ Set up pattoo for unittesting. Type --help to see additional arguments'''
 
         Returns:
             None
+
         """
         # Initialize key variables
         parser = self.subparsers.add_parser(
@@ -234,6 +235,22 @@ Set up pattoo for unittesting. Type --help to see additional arguments'''
             '--verbose',
             action='store_true',
             help='Enable verbose mode.')
+    
+    def docker(self, width=80):
+        """CLI command to build and install the docker container for pattoo
+
+        Arg:
+            widht: Width of the help text string to STDIO before wrapping
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        parser = self.subparsers.add_parser(
+            'docker',
+            help=textwrap.fill('Install pattoo docker container.', width=width)
+        )
 
     def _execute_methods(self, width=80):
         """Execute class methods.
@@ -305,6 +322,7 @@ def main():
         'pattoo_api_agentd',
         'pattoo_ingesterd'
     ]
+    config_files = ['pattoo.yaml', 'pattoo_server.yaml', 'pattoo_agent.yaml']
     template_dir = os.path.join(ROOT_DIR, 'setup/systemd/system')
 
     # Process the CLI
@@ -317,7 +335,7 @@ def main():
     checks.venv_check()
 
     # Import packages that depend on pattoo shared
-    from _pattoo import configure
+    from _pattoo import configure, docker
     from pattoo_shared.installation import packages, systemd, environment
 
     # Set up essentials for creating the virtualenv
@@ -351,6 +369,14 @@ def main():
         # Import db after pip3 packages are installed
         from _pattoo import db
         db.install()
+
+    # Builds docker container and installs pattoo
+    elif args.qualifier == 'docker':
+        print('Installing pattoo docker container')
+        if shared.root_check() is True:
+            docker.install('pattoo', config_files)
+        else:
+            shared.log('You need to be running as root.')
 
     # Installs and starts system daemons
     elif args.qualifier == 'systemd':

@@ -306,59 +306,6 @@ DataPoint Table Queries
 
 Here we have some representative queries you can do:
 
-User Authentication via GraphQL
--------------------------------
-
-It's necessarry to limit access to Pattoo resources through the use of limited
-privilege controls. This is achieved through the use of `JSON Web Tokens(JWT)`.
-
-Both an `access token` and `refresh token` is used to authenticate a given User.
-
-To retrieve both an `access token` and `refresh token`:
-
-.. code-block:: text
-
-    mutation{
-        authenticate(Input: {
-            username: "pattoo",
-            password: "associated pattoo user password"
-        }){
-            accessToken
-            refreshToken
-            idxUser
-        }
-    }
-
-Sample Result
-^^^^^^^^^^^^^
-
-.. code-block:: text
-
-    {
-      "data": {
-        "authenticate": {
-          "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI",
-          "refreshToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoicmVmcmVzaCIsImlhdCI6MTU5Nzg1OTI1NCwibmJmIjoxNTk3ODU5MjU0LCJqdGkiOiJjYWM3OWU0Yy1iNjAxLTQwNmQtYTFiNy1kYzgwOTdjNmYzMzUiLCJpZGVudGl0eSI6MywiZXhwIjoxNTk3OTQ1NjU0fQ.kjAWtIeK6n_Y8sDYbUzs4S9RRmTBdiQMNk4rFm8YN1w",
-          "idxUser": "1"
-        }
-      }
-    }
-
-All queries require a `token` input attribute when querying the GraphQL server.
-
-.. code-block:: text
-
-    {
-        allUsers(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
-            edges{
-                nodes{
-                    idxUser
-                    username
-                }
-            }
-        }
-    }
-
 View All DataPoints
 ````````````````````
 
@@ -957,8 +904,6 @@ This query will show:
       }
     }
 
-<<<<<<< HEAD
-=======
 
 Authenticate Username and Password
 ``````````````````````````````````
@@ -1003,7 +948,6 @@ A Null result is returned when not found.
     }
 
 
->>>>>>> 2020-08
 Pagination
 ----------
 
@@ -1342,11 +1286,7 @@ Mutation
     mutation {
       createUser(Input: {username: "foo@example.org", firstName: "Foo", lastName: "Fighter", password: "123456"}) {
         user {
-<<<<<<< HEAD
-          Id
-=======
           id
->>>>>>> 2020-08
           idxUser
           firstName
           lastName
