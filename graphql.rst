@@ -904,8 +904,6 @@ This query will show:
       }
     }
 
-<<<<<<< HEAD
-=======
 
 Authenticate Username and Password
 ``````````````````````````````````
@@ -950,7 +948,6 @@ A Null result is returned when not found.
     }
 
 
->>>>>>> 2020-08
 Pagination
 ----------
 
@@ -1289,11 +1286,7 @@ Mutation
     mutation {
       createUser(Input: {username: "foo@example.org", firstName: "Foo", lastName: "Fighter", password: "123456"}) {
         user {
-<<<<<<< HEAD
-          Id
-=======
           id
->>>>>>> 2020-08
           idxUser
           firstName
           lastName

@@ -26,11 +26,7 @@ This script is not installed in the "{}" directory. Please fix.\
     sys.exit(2)
 
 # Importing shared to install pattoo_shared if its not installed
-from _pattoo import shared
-
-# Attempt to import pattoo shared
-DEFAULT_PATH = '''\
-{}/.local/lib/python3.6/site-packages'''.format(os.path.expanduser('~'))
+from _pattoo import shared, checks
 
 
 class _Parser(argparse.ArgumentParser):
@@ -109,27 +105,32 @@ class _Install():
 
     def __init__(self, subparsers, width=80):
         """Intialize the class."""
-        # Initialize key variables
-        parser = subparsers.add_parser(
+        # Initialize key variables for normal installation
+        install_help = '''\
+Install pattoo. Type install --help to see additional arguments'''
+        install_parser = subparsers.add_parser(
             'install',
-            help=textwrap.fill('Install pattoo.', width=width)
+            help=textwrap.fill(install_help, width=width)
         )
+
         # Add subparser
-        self.subparsers = parser.add_subparsers(dest='qualifier')
+        self.subparsers = install_parser.add_subparsers(dest='qualifier')
 
         # Execute all methods in this Class
-        for name in dir(self):
-            # Get all attributes of Class
-            attribute = getattr(self, name)
+        self._execute_methods(width=width)
 
-            # Determine whether attribute is a method
-            if ismethod(attribute):
-                # Ignore if method name is reserved (eg. __Init__)
-                if name.startswith('_'):
-                    continue
+        # Initialize key variables for developer installation
+        developer_help = '''\
+Set up pattoo for unittesting. Type --help to see additional arguments'''
+        developer_parser = subparsers.add_parser(
+            'developer',
+            help=textwrap.fill(developer_help, width=width)
+            )
+        # Add subparser
+        self.subparsers = developer_parser.add_subparsers(dest='qualifier')
 
-                # Execute
-                attribute(width=width)
+        # Execute class methods
+        self._execute_methods(width=width)
 
     def all(self, width=80):
         """CLI command to install all pattoo components.
@@ -221,6 +222,7 @@ class _Install():
 
         Returns:
             None
+
         """
         # Initialize key variables
         parser = self.subparsers.add_parser(
@@ -233,6 +235,46 @@ class _Install():
             '--verbose',
             action='store_true',
             help='Enable verbose mode.')
+    
+    def docker(self, width=80):
+        """CLI command to build and install the docker container for pattoo
+
+        Arg:
+            widht: Width of the help text string to STDIO before wrapping
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        parser = self.subparsers.add_parser(
+            'docker',
+            help=textwrap.fill('Install pattoo docker container.', width=width)
+        )
+
+    def _execute_methods(self, width=80):
+        """Execute class methods.
+
+        Args:
+            width: Width of the help text string to STDIO before wrapping
+
+        Returns:
+            None
+
+        """
+        # Execute all methods in this Class
+        for name in dir(self):
+            # Get all attributes of Class
+            attribute = getattr(self, name)
+
+            # Determine whether attribute is a method
+            if ismethod(attribute):
+                # Ignore if method name is reserved (eg. __Init__)
+                if name.startswith('_'):
+                    continue
+
+                # Execute
+                attribute(width=width)
 
 
 def get_pattoo_home():
@@ -245,50 +287,23 @@ def get_pattoo_home():
         The home directory for the pattoo user
 
     """
-    try:
-        # No exception will be thrown if the pattoo user exists
-        pattoo_home = pwd.getpwnam('pattoo').pw_dir
-    # Set defaults if pattoo user doesn't exist
-    except KeyError:
-        pattoo_home = '/home/pattoo'
+    if shared.root_check() is True:
+        try:
+            # No exception will be thrown if the pattoo user exists
+            pattoo_home = pwd.getpwnam('pattoo').pw_dir
+        # Set defaults if pattoo user doesn't exist
+        except KeyError:
+            pattoo_home = '/home/pattoo'
 
-    # Ensure that the pattoo home directory is not set to non-existent
-    if pattoo_home == '/nonexistent':
-        pattoo_home = '/home/pattoo'
+        # Ensure that the pattoo home directory is not set to non-existent
+        if pattoo_home == '/nonexistent':
+            pattoo_home = '/home/pattoo'
+
+    # Set up pattoo home for unittest user if the user is not root
+    else:
+        pattoo_home = shared.unittest_environment_setup()
 
     return pattoo_home
-
-
-def installation_checks():
-    """Validate conditions needed to start installation.
-
-    Prevents installation if the script is not run as root and prevents
-    installation if script is run in a home related directory
-
-    Args:
-        None
-
-    Returns:
-        True: If conditions for installation are satisfied
-
-    """
-    # Check user
-    if getpass.getuser() != 'travis':
-        if getpass.getuser() != 'root':
-            shared.log('You are currently not running the script as root.\
-Run as root to continue')
-        # Check installation directory
-        if os.getcwd().startswith('/home'):
-            shared.log('''\
-You cloned the repository in a home related directory, please clone in a\
- non-home directory to continue''')
-
-        # Check if virtualenv is installed
-        try:
-            import virtualenv
-        except ModuleNotFoundError:
-            print('virtualenv is not installed. Installing virtualenv')
-            shared.run_script('pip3 install virtualenv')
 
 
 def main():
@@ -307,87 +322,90 @@ def main():
         'pattoo_api_agentd',
         'pattoo_ingesterd'
     ]
+    config_files = ['pattoo.yaml', 'pattoo_server.yaml', 'pattoo_agent.yaml']
     template_dir = os.path.join(ROOT_DIR, 'setup/systemd/system')
-
-    # Setup virtual environment
-    if getpass.getuser() != 'travis':
-        pattoo_home = get_pattoo_home()
-        venv_dir = os.path.join(pattoo_home, 'pattoo-venv')
-        environment.environment_setup(venv_dir)
-        venv_interpreter = os.path.join(venv_dir, 'bin/python3')
-        installation_dir = '{} {}'.format(venv_interpreter, ROOT_DIR)
-    else:
-        # Set default directories for travis
-        pattoo_home = os.path.join(os.path.expanduser('~'), 'pattoo')
-        venv_dir = DEFAULT_PATH
-        installation_dir = ROOT_DIR
 
     # Process the CLI
     _parser = Parser(additional_help=_help)
     (args, parser) = _parser.args()
 
-    # Process CLI options
-    if args.action == 'install':
-        # Installs all pattoo components
-        if args.qualifier == 'all':
-            print('Installing everything')
-            configure.install(pattoo_home)
-            packages.install(ROOT_DIR, venv_dir, args.verbose)
+    # Perform checks
+    checks.parser_check(_parser.args()[1], _parser.args()[0])
+    checks.pattoo_shared_check()
+    checks.venv_check()
 
-            # Import db after pip3 packages are installed
-            from _pattoo import db
-            db.install()
+    # Import packages that depend on pattoo shared
+    from _pattoo import configure, docker
+    from pattoo_shared.installation import packages, systemd, environment
+
+    # Set up essentials for creating the virtualenv
+    pattoo_home = get_pattoo_home()
+    venv_dir = os.path.join(pattoo_home, 'pattoo-venv')
+    if getpass.getuser() != 'travis':
+        environment.environment_setup(venv_dir)
+    venv_interpreter = os.path.join(venv_dir, 'bin/python3')
+    installation_dir = '{} {}'.format(venv_interpreter, ROOT_DIR)
+
+    # Installs all pattoo components
+    if args.qualifier == 'all':
+        print('Installing everything')
+        configure.install(pattoo_home)
+        packages.install(ROOT_DIR, venv_dir, args.verbose)
+
+        # Import db after pip3 packages are installed
+        from _pattoo import db
+        db.install()
+        if shared.root_check() is True and args.action != 'developer':
             systemd.install(daemon_list=daemon_list,
                             template_dir=template_dir,
                             installation_dir=installation_dir,
                             verbose=args.verbose)
 
-        # Configures pattoo and sets up database tables
-        elif args.qualifier == 'database':
-            print('Installing database tables')
-            configure.install(pattoo_home)
-            packages.install(ROOT_DIR, venv_dir)
-            # Import db after pip3 packages are installed
-            from _pattoo import db
-            db.install()
+    # Configures pattoo and sets up database tables
+    elif args.qualifier == 'database':
+        print('Installing database tables')
+        configure.install(pattoo_home)
+        packages.install(ROOT_DIR, venv_dir)
+        # Import db after pip3 packages are installed
+        from _pattoo import db
+        db.install()
 
-        # Installs and starts system daemons
-        elif args.qualifier == 'systemd':
-            print('Installing systemd daemons')
+    # Builds docker container and installs pattoo
+    elif args.qualifier == 'docker':
+        print('Installing pattoo docker container')
+        if shared.root_check() is True:
+            docker.install('pattoo', config_files)
+        else:
+            shared.log('You need to be running as root.')
+
+    # Installs and starts system daemons
+    elif args.qualifier == 'systemd':
+        print('Installing systemd daemons')
+        if shared.root_check() is True:
             systemd.install(daemon_list=daemon_list,
                             template_dir=template_dir,
                             installation_dir=installation_dir,
                             verbose=True)
-
-        elif args.qualifier == 'pip':
-            # Installs additionally required pip3 packages
-            packages.install(ROOT_DIR, venv_dir, args.verbose)
-
-        # Sets up the configuration for pattoo
-        elif args.qualifier == 'configuration':
-            configure.install(pattoo_home)
-
-        # Print help if no argument options were triggered
         else:
-            parser.print_help(sys.stderr)
-            sys.exit(1)
+            shared.log('You need to be running as root to install the daemons')
+
+    elif args.qualifier == 'pip':
+        # Installs additionally required pip3 packages
+        packages.install(ROOT_DIR, venv_dir, args.verbose)
+
+    # Sets up the configuration for pattoo
+    elif args.qualifier == 'configuration':
+        configure.install(pattoo_home)
+
+    # Print help if no argument options were triggered
+    else:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
 
         # Done
         print('Done')
 
 
 if __name__ == '__main__':
-    # Ensure environment is okay
-    installation_checks()
-
-    try:
-        import pattoo_shared
-    except ModuleNotFoundError:
-        shared.run_script('pip3 install PattooShared')
-
-    # Import packages that depend on pattoo shared
-    from _pattoo import configure
-    from pattoo_shared.installation import packages, systemd, environment
-
     # Execute main
     main()

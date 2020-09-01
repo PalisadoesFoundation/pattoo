@@ -59,6 +59,7 @@ Follow these steps.
 
    .. code-block:: bash
 
-      $ sudo setup/pattoo_installation.py
+      $ sudo setup/install.py install all
 
+#. View additional installation options :doc:`installation_modes`
 #. Configure the required ``cron`` jobs. :doc:`cron`

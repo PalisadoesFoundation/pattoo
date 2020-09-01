@@ -11,7 +11,7 @@ from sqlalchemy import create_engine
 # Pattoo libraries
 from pattoo_shared import log
 from pattoo_shared import data
-from pattoo.configuration import ConfigPattoo as Config
+from pattoo.configuration import ConfigAPId as Config
 from pattoo.db import URL
 from pattoo.db.models import BASE
 from pattoo.db.table import (
@@ -357,8 +357,8 @@ def _insert_user():
                 password=data.hashstring(password),
                 first_name='pattoo',
                 last_name='pattoo',
-                user_type=1,
-                change_password=1,
+                role=1,
+                password_expired=1,
                 enabled=0)
             )
 
@@ -371,8 +371,8 @@ def _insert_user():
                 password=data.hashstring(password),
                 first_name='admin',
                 last_name='admin',
-                user_type=0,
-                change_password=0,
+                role=0,
+                password_expired=0,
                 enabled=1)
             )
 

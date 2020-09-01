@@ -2,17 +2,18 @@
 """Pattoo classes that manage various configurations."""
 
 import os
+import stat
 
 # Import project libraries
-from pattoo_shared import configuration
 from pattoo_shared.configuration import ServerConfig
 from pattoo_shared.configuration import search
+from pattoo_shared import files
 from pattoo.constants import (
     PATTOO_API_WEB_NAME, PATTOO_API_AGENT_NAME,
     PATTOO_INGESTERD_NAME)
 
 
-class ConfigPattoo(ServerConfig):
+class ConfigAPId(ServerConfig):
     """Class gathers all configuration information.
 
     Only processes the following YAML keys in the configuration file:
@@ -49,7 +50,7 @@ class ConfigPattoo(ServerConfig):
         sub_key = 'db_name'
 
         # Process configuration
-        result = configuration.search(
+        result = search(
             key, sub_key, self._server_yaml_configuration)
 
         # Get result
@@ -70,7 +71,7 @@ class ConfigPattoo(ServerConfig):
         sub_key = 'db_username'
 
         # Process configuration
-        result = configuration.search(
+        result = search(
             key, sub_key, self._server_yaml_configuration)
 
         # Get result
@@ -94,7 +95,7 @@ class ConfigPattoo(ServerConfig):
         if 'PATTOO_TRAVIS' in os.environ:
             result = ''
         else:
-            result = configuration.search(
+            result = search(
                 key, sub_key, self._server_yaml_configuration)
 
         # Get result
@@ -115,7 +116,7 @@ class ConfigPattoo(ServerConfig):
         sub_key = 'db_hostname'
 
         # Process configuration
-        result = configuration.search(
+        result = search(
             key, sub_key, self._server_yaml_configuration)
 
         # Get result
@@ -134,7 +135,7 @@ class ConfigPattoo(ServerConfig):
         # Get result
         key = 'pattoo_db'
         sub_key = 'db_pool_size'
-        intermediate = configuration.search(
+        intermediate = search(
             key, sub_key, self._server_yaml_configuration, die=False)
 
         # Set default
@@ -157,7 +158,7 @@ class ConfigPattoo(ServerConfig):
         # Get result
         key = 'pattoo_db'
         sub_key = 'db_max_overflow'
-        intermediate = configuration.search(
+        intermediate = search(
             key, sub_key, self._server_yaml_configuration, die=False)
 
         # Set default
@@ -212,7 +213,7 @@ class ConfigPattoo(ServerConfig):
         return result
 
 
-class ConfigAgent(ServerConfig):
+class ConfigAgentAPId(ServerConfig):
     """Class gathers all configuration information.
 
     Only processes the following YAML keys in the configuration file:
@@ -276,6 +277,27 @@ class ConfigAgent(ServerConfig):
             result = 20202
         else:
             result = int(intermediate)
+        return result
+
+    def session_directory(self):
+        """Get directory for storing session infomation.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        result = '{}{}session'.format(self.cache_directory(), os.sep)
+
+        # Create directory if it doesn't exist
+        files.mkdir(result)
+
+        # Change filemode to 700
+        # Only allow the user to access the flash session folder
+        os.chmod(result, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
         return result
 
 
