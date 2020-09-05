@@ -38,6 +38,8 @@ from pattoo.api.web import PATTOO_API_WEB as APP
 from pattoo.constants import IDXTimestampValue
 from pattoo.db.table import datapoint
 from pattoo.db.table import data as lib_data
+from pattoo.db.table import user
+from pattoo.constants import DbRowUser
 
 
 class TestBasicFunctions(LiveServerTestCase):
@@ -110,10 +112,40 @@ class TestBasicFunctions(LiveServerTestCase):
         # Insert rows of new data
         lib_data.insert_rows(_data)
 
+        # Creating required test admin
+        test_admin = {
+            "username" : "pattoo_test",
+            "first_name" : "Pattoo Test",
+            "last_name": "Pattoo Test",
+            "password": "pattoo_test_password",
+            "role": 0,
+            "password_expired": 0,
+            "enabled": 1
+        }
+        user.insert_row(DbRowUser(**test_admin))
+
+        # Get accesss token to make test queries
+        acesss_query = ('''\
+mutation{
+    authenticate(Input: {username: "USERNAME", password: "PASSWORD"}) {
+        accessToken
+        refreshToken
+    }
+}
+
+''')
+
+        # Replacing username and password in access_query
+        acesss_query = acesss_query.replace("USERNAME", test_admin['username'])
+        acesss_query = acesss_query.replace("PASSWORD", test_admin['password'])
+
+        access_request = _query(acesss_query, query_type="Mutation")
+        acesss_token = access_request['data']['authenticate']['accessToken']
+
         # Test
         query = ('''\
 {
-  allDatapoints(idxDatapoint: "IDX") {
+allDatapoints(idxDatapoint: "IDX", token: "TOKEN") {
     edges {
       node {
         checksum
@@ -121,19 +153,24 @@ class TestBasicFunctions(LiveServerTestCase):
     }
   }
 }
-'''.replace('IDX', str(idx_datapoint)))
+''')
+
+        # Replacing IDX and TOKEN in query
+        query = query.replace("IDX", str(idx_datapoint))
+        query = query.replace("TOKEN", str(acesss_token))
 
         # Test
-        graphql_result = _get(query)
+        graphql_result = _query(query)
         result = graphql_result['data']['allDatapoints']['edges'][0]['node']
         self.assertEqual(result['checksum'], pattoo_checksum)
 
 
-def _get(query):
+def _query(query, query_type='Query'):
     """Get pattoo API server GraphQL query results.
 
     Args:
         query: GraphQL query string
+        query_type: Type of request to be made to graphql server
 
     Returns:
         result: Dict of JSON response
@@ -147,7 +184,11 @@ def _get(query):
     # Get the data from the GraphQL API
     url = config.web_api_server_url()
     try:
-        response = requests.get(url, params={'query': query})
+
+        if query_type == "Mutation":
+            response = requests.post(url, params={'query': query})
+        else:
+            response = requests.get(url, params={'query': query})
 
         # Trigger HTTP errors if present
         response.raise_for_status()

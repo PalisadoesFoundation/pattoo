@@ -22,8 +22,10 @@ from graphene import relay
 from graphene.utils.str_converters import to_snake_case
 from graphene.relay.connection import PageInfo
 from graphene_sqlalchemy import SQLAlchemyConnectionField
+from graphql import GraphQLError
 from graphql_relay.connection.arrayconnection import connection_from_list_slice
 from sqlalchemy import desc, asc
+from flask_graphql_auth import query_jwt_required, AuthInfoField
 
 # Import schemas
 from pattoo.db import db
@@ -42,6 +44,7 @@ from pattoo.db.schema.pair import Pair
 from pattoo.db.schema.pair_xlate_group import PairXlateGroup
 from pattoo.db.schema.pair_xlate import PairXlate
 from pattoo.db.schema import user as user_
+from pattoo.db.schema import auth
 
 ###############################################################################
 # Add filtering support:
@@ -62,6 +65,7 @@ class InstrumentedQuery(SQLAlchemyConnectionField):
     """
 
     def __init__(self, type_, **kwargs):
+        """InstrumentedQuery constructor"""
         self.query_args = {}
         for key, value in type_._meta.fields.items():
             if isinstance(value, graphene.Field):
@@ -70,11 +74,18 @@ class InstrumentedQuery(SQLAlchemyConnectionField):
                 if isinstance(field_type, graphene.NonNull):
                     field_type = field_type.of_type
                 self.query_args[key] = field_type()
+
+        # Retrieving field keys and names
         args = kwargs.pop('args', dict())
         args.update(self.query_args)
         args['sort_by'] = graphene.List(graphene.String, required=False)
+
+        # Required token field
+        args['token'] = graphene.String(required=True)
+
         SQLAlchemyConnectionField.__init__(self, type_, args=args, **kwargs)
 
+    @query_jwt_required
     def get_query(self, model, info, **args):
         """Replace the get_query method."""
         query_filters = {k: v for k, v in args.items() if k in self.query_args}
@@ -95,7 +106,17 @@ class InstrumentedQuery(SQLAlchemyConnectionField):
             self, resolver, connection, model, root, info, **args):
         query = resolver(
             root, info, **args) or self.get_query(model, info, **args)
+
+        if type(query) == AuthInfoField:
+            message = query.message
+
+            if query.message == "Invalid header padding":
+                message = "Invalid Token Provided"
+
+            raise GraphQLError(message)
+
         count = query.count()
+
         connection = connection_from_list_slice(
             query,
             args,
@@ -122,14 +143,27 @@ class InstrumentedQuery(SQLAlchemyConnectionField):
 
 
 class Mutation(graphene.ObjectType):
+    """Define GraphQL mutations"""
+
+    # Chart Mutations
     createChart = chart_.CreateChart.Field()
     updateChart = chart_.UpdateChart.Field()
+
+    # Chart Datapoints Mutation
     createChartDataPoint = chart_datapoint_.CreateChartDataPoint.Field()
     updateChartDataPoint = chart_datapoint_.UpdateChartDataPoint.Field()
+
+    # Chart Favorites Mutation
     createFavorite = favorite_.CreateFavorite.Field()
     updateFavorite = favorite_.UpdateFavorite.Field()
+
+    # User Mutations
     createUser = user_.CreateUser.Field()
     updateUser = user_.UpdateUser.Field()
+
+    # Authentication mutations
+    authenticate = auth.AuthMutation.Field()
+    authRefresh = auth.RefreshMutation.Field()
 
 
 class Query(graphene.ObjectType):

@@ -135,6 +135,11 @@ class Language(BASE):
     ts_created = Column(
         DATETIME, server_default=text('CURRENT_TIMESTAMP'))
 
+    def __init__(self, code, name, enabled=1):
+        """Language Constructor"""
+        self.code = code
+        self.name = name
+        self.enabled = enabled
 
 class Favorite(BASE):
     """Class defining the pt_favorite table of the database."""
@@ -218,6 +223,13 @@ class AgentXlate(BASE):
         backref=backref(
             'agent_xlate_language', uselist=True, cascade='delete,all'))
 
+    def __init__(self, idx_language, agent_program, translation, enabled=1):
+        """PairXlate Constructor"""
+        self.idx_language = idx_language
+        self.agent_program = agent_program
+        self.translation = translation
+        self.enabled = enabled
+
 
 class PairXlateGroup(BASE):
     """Class defining the pt_pair_xlate_group table of the database."""
@@ -245,6 +257,11 @@ class PairXlateGroup(BASE):
 
     ts_created = Column(
         DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+    def __init__(self, name, enabled=1):
+        """PairXlateGroup Constructor"""
+        self.name = name
+        self.enabled = enabled
 
 
 class PairXlate(BASE):
@@ -303,6 +320,16 @@ class PairXlate(BASE):
         Language,
         backref=backref(
             'pair_xlate_language', uselist=True, cascade='delete,all'))
+
+    def __init__(self, idx_pair_xlate_group, idx_language, key, translation,
+                 units, enabled=1):
+        """PairXlate Constructor"""
+        self.idx_pair_xlate_group = idx_pair_xlate_group
+        self.idx_language = idx_language
+        self.key = key
+        self.translation = translation
+        self.units = units
+        self.enabled = enabled
 
 
 class Agent(BASE):

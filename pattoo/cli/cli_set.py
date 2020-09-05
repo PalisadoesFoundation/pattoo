@@ -62,7 +62,7 @@ def _process_pair_xlate_group(args):
         duplicate = pair_xlate_group.exists(args.name)
         if bool(duplicate) is True:
             log_message = ('''\
-Translation group  "{}" already exists.'''.format(args.name))
+Translation group "{}" already exists.'''.format(args.name))
             log.log2die(20075, log_message)
 
         # Update
@@ -74,5 +74,5 @@ Translation group  "{}" already exists.'''.format(args.name))
             log.log2die(20072, log_message)
     else:
         log_message = ('''\
-Translation group  "{}" not found.'''.format(args.idx_pair_xlate_group))
+Translation group "{}" not found.'''.format(args.idx_pair_xlate_group))
         log.log2die(20074, log_message)

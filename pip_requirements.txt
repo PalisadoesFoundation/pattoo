@@ -12,13 +12,16 @@ Flask-Session
 # Database packages
 PyMySQL
 SQLAlchemy
+mysqlclient
 
 # GraphQL packages
 graphene-sqlalchemy
 
 # Web server packages
 Flask
+Flask-CORS
 Flask-GraphQL
+Flask-GraphQL-Auth
 Flask-Caching
 Flask-Testing
 gunicorn

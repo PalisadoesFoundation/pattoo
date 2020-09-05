@@ -6,13 +6,16 @@ import crypt
 # PIP3 imports
 import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType
+from graphql import GraphQLError
+from flask_graphql_auth import (mutation_jwt_required, get_jwt_identity,
+                                AuthInfoField)
 
 # pattoo imports
 from pattoo.db import db
 from pattoo.db.models import User as UserModel
+from pattoo.db.table.user import User as UserTable
 from pattoo.db.schema import utils
 from pattoo_shared.constants import DATA_INT
-from pattoo.db.table.user import User as UserTable
 
 
 class UserAttribute():
@@ -50,19 +53,6 @@ class UserAttribute():
         description='True if enabled.')
 
 
-class UserAttributeWithPassword(UserAttribute):
-    """Descriptive attributes of the User table.
-
-    A generic class to mutualize description of attributes for both queries
-    and mutations.
-
-    """
-
-    password = graphene.String(
-        resolver=utils.resolve_password,
-        description='Password.')
-
-
 class User(SQLAlchemyObjectType, UserAttribute):
     """User node."""
 
@@ -75,34 +65,54 @@ class User(SQLAlchemyObjectType, UserAttribute):
         # Hide certain fields as a tuple
         exclude_fields = ('password', )
 
+class ProtectedUser(graphene.Union):
+    class Meta:
+        types = (User, AuthInfoField)
 
-class CreateUserInput(graphene.InputObjectType, UserAttributeWithPassword):
+
+class CreateUserInput(graphene.InputObjectType, UserAttribute):
     """Arguments to create a User."""
-    pass
+
+    password = graphene.String(description="Password.")
 
 
 class CreateUser(graphene.Mutation):
     """Create a User Mutation."""
 
-    user = graphene.Field(
-        lambda: User, description='User created by this mutation.')
+    user = graphene.Field(lambda: ProtectedUser,
+                          description='User created by this mutation.')
 
     class Arguments:
         Input = CreateUserInput(required=True)
+        token = graphene.String()
 
-    def mutate(self, info_, Input):
+    @classmethod
+    @mutation_jwt_required
+    def mutate(cls, _, info_, Input):
+
         data = _input_to_dictionary(Input)
         user = UserModel(**data)
+        token_username = get_jwt_identity()
 
-        # Create user only if they don't already exist
+        # Getting current user making request to resource
+        current_user = UserTable(token_username)
+
+        # Accessing user data
         person = UserTable(user.username.decode())
-        if person.exists is False:
-            with db.db_modify(20150, close=False) as session:
-                session.add(user)
-            return CreateUser(user=user)
 
-        # Return nothing otherwise
-        return None
+        # Checking that the user creating the new user is an admin
+        if current_user.role != 0:
+            raise GraphQLError('Only admins can create a new user!')
+
+        # Checking that a given username is not taken
+        if person.exists:
+            raise GraphQLError('Username already exists!')
+
+        # Creating new user entry into User table
+        with db.db_modify(20150, close=False) as session:
+            session.add(user)
+
+        return CreateUser(user=user)
 
 
 class UpdateUserInput(graphene.InputObjectType, UserAttribute):
@@ -122,13 +132,16 @@ class UpdateUserInput(graphene.InputObjectType, UserAttribute):
 
 class UpdateUser(graphene.Mutation):
     """Update a User."""
-    user = graphene.Field(
-        lambda: User, description='User updated by this mutation.')
+    user = graphene.Field(lambda: ProtectedUser,
+                          description='User updated by this mutation.')
 
     class Arguments:
         Input = UpdateUserInput(required=True)
+        token = graphene.String()
 
-    def mutate(self, info_, Input):
+    @classmethod
+    @mutation_jwt_required
+    def mutate(cls, _, info_, Input):
         data = _input_to_dictionary(Input)
 
         # Update database

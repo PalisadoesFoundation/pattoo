@@ -13,6 +13,7 @@ from __future__ import print_function
 import tempfile
 import os
 import yaml
+import secrets
 
 # Pattoo imports
 from pattoo_shared import log
@@ -148,6 +149,9 @@ class UnittestConfig():
             'pattoo_apid': {
                 'ip_listen_address': '127.0.0.1',
                 'ip_bind_port': 40202,
+                'jwt_secret_key': secrets.token_urlsafe(64),
+                'acesss_token_exp': '15_m',
+                'refresh_token_exp': '1_D'
             },
             'pattoo_ingesterd': {
                 'ingester_interval': 45,

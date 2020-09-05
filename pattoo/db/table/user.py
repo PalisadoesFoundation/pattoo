@@ -1,5 +1,6 @@
 """Pattoo classes querying the User table."""
 
+# Python imports
 import crypt
 
 # Import project libraries
@@ -24,7 +25,8 @@ class User():
 
         """
         # Initialize key variables
-        rows = []
+        row = None
+        self.idx_user = None
         self.first_name = None
         self.last_name = None
         self.role = None
@@ -35,11 +37,12 @@ class User():
 
         # Get data
         with db.db_query(20162) as session:
-            rows = session.query(
-                _User).filter(_User.username == username.encode())
+            row = session.query(
+                _User).filter(_User.username == username.encode()).first()
 
         # Assign variables
-        for row in rows:
+        if not (row is None):
+            self.idx_user = row.idx_user
             self.first_name = row.first_name.decode()
             self.last_name = row.last_name.decode()
             self.role = row.role
@@ -47,7 +50,6 @@ class User():
             self.enabled = bool(row.enabled)
             self.username = username
             self.exists = True
-            break
 
     def valid_password(self, value):
         """Get.
@@ -239,9 +241,6 @@ def exists(username):
     result = False
     rows = []
 
-    # Lowercase the name
-    username = username.lower().strip()
-
     # Get name from database
     with db.db_query(20031) as session:
         rows = session.query(_User.idx_user).filter(
@@ -288,5 +287,6 @@ def insert_row(row):
         password_expired=password_expired,
         enabled=enabled
         )
+
     with db.db_modify(20054, die=True) as session:
         session.add(row)

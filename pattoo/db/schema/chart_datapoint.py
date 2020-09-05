@@ -3,6 +3,8 @@
 # PIP3 imports
 import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType
+from flask_graphql_auth import (mutation_jwt_required, get_jwt_identity,
+                                AuthInfoField)
 
 # pattoo imports
 from pattoo.db import db
@@ -42,6 +44,11 @@ class ChartDataPoint(SQLAlchemyObjectType, ChartDataPointAttribute):
         interfaces = (graphene.relay.Node,)
 
 
+class ProtectedChartDataPoint(graphene.Union):
+    class Meta:
+        types = (ChartDataPoint, AuthInfoField)
+
+
 class CreateChartDataPointInput(
         graphene.InputObjectType, ChartDataPointAttribute):
     """Arguments to create a ChartDataPoint entry."""
@@ -52,13 +59,16 @@ class CreateChartDataPoint(graphene.Mutation):
     """Create a ChartDataPoint Mutation."""
 
     chart_datapoint = graphene.Field(
-        lambda: ChartDataPoint,
+        lambda: ProtectedChartDataPoint,
         description='ChartDataPoint created by this mutation.')
 
     class Arguments:
         Input = CreateChartDataPointInput(required=True)
+        token = graphene.String()
 
-    def mutate(self, info_, Input):
+    @classmethod
+    @mutation_jwt_required
+    def mutate(cls, _, info_, Input):
         data = _input_to_dictionary(Input)
 
         chart_datapoint = ChartDataPointModel(**data)
@@ -87,13 +97,16 @@ class UpdateChartDataPointInput(
 class UpdateChartDataPoint(graphene.Mutation):
     """Update a ChartDataPoint entry."""
     chart_datapoint = graphene.Field(
-        lambda: ChartDataPoint,
+        lambda: ProtectedChartDataPoint,
         description='ChartDataPoint updated by this mutation.')
 
     class Arguments:
         Input = UpdateChartDataPointInput(required=True)
+        token = graphene.String()
 
-    def mutate(self, info_, Input):
+    @classmethod
+    @mutation_jwt_required
+    def mutate(cls, _, info_, Input):
         data = _input_to_dictionary(Input)
 
         # Update database

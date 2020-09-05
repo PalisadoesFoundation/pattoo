@@ -204,6 +204,7 @@ class TestBasicFunctions(unittest.TestCase):
         # Add entry to database
         uname = data.hashstring(str(random()))
         passwrd = data.hashstring(str(random()))
+        salt_ = data.hashstring(str(random()))
         f_name = data.hashstring(str(random()))
         l_name = data.hashstring(str(random()))
         user.insert_row(
@@ -230,6 +231,7 @@ class TestBasicFunctions(unittest.TestCase):
         # Create a translation
         uname = data.hashstring(str(random()))
         passwrd = data.hashstring(str(random()))
+        salt_ = data.hashstring(str(random()))
         f_name = data.hashstring(str(random()))
         l_name = data.hashstring(str(random()))
 

@@ -33,11 +33,13 @@ from pattoo.constants import DbRowUser, DbRowChart, DbRowFavorite
 class TestBasicFunctions(unittest.TestCase):
     """Checks all functions and methods."""
 
+
     def test_idx_exists(self):
         """Testing method or function named "idx_exists"."""
         # Add user entry to database
         uname = data.hashstring(str(random()))
         passwrd = data.hashstring(str(random()))
+        salt_ = data.hashstring(str(random()))
         f_name = data.hashstring(str(random()))
         l_name = data.hashstring(str(random()))
         user.insert_row(
@@ -88,6 +90,7 @@ class TestBasicFunctions(unittest.TestCase):
         # Add user entry to database
         uname = data.hashstring(str(random()))
         passwrd = data.hashstring(str(random()))
+        salt_ = data.hashstring(str(random()))
         f_name = data.hashstring(str(random()))
         l_name = data.hashstring(str(random()))
         user.insert_row(
@@ -98,7 +101,7 @@ class TestBasicFunctions(unittest.TestCase):
                 role=0,
                 password_expired=1,
                 last_name=l_name,
-                enabled=0
+                enabled=0,
             )
         )
         # Make sure user entry exists
@@ -136,6 +139,7 @@ class TestBasicFunctions(unittest.TestCase):
         # Add user entry to database
         uname = data.hashstring(str(random()))
         passwrd = data.hashstring(str(random()))
+        salt_ = data.hashstring(str(random()))
         f_name = data.hashstring(str(random()))
         l_name = data.hashstring(str(random()))
         user.insert_row(

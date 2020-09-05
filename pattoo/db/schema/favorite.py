@@ -3,6 +3,8 @@
 # PIP3 imports
 import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType
+from flask_graphql_auth import (mutation_jwt_required, get_jwt_identity,
+                                AuthInfoField)
 
 # pattoo imports
 from pattoo.db import db
@@ -45,6 +47,11 @@ class Favorite(SQLAlchemyObjectType, FavoriteAttribute):
         interfaces = (graphene.relay.Node,)
 
 
+class ProtectedFavorite(graphene.Union):
+    class Meta:
+        types = (Favorite, AuthInfoField)
+
+
 class CreateFavoriteInput(graphene.InputObjectType, FavoriteAttribute):
     """Arguments to create a Favorite."""
     pass
@@ -53,13 +60,16 @@ class CreateFavoriteInput(graphene.InputObjectType, FavoriteAttribute):
 class CreateFavorite(graphene.Mutation):
     """Create a Favorite Mutation."""
 
-    favorite = graphene.Field(
-        lambda: Favorite, description='Favorite created by this mutation.')
+    favorite = graphene.Field(lambda: ProtectedFavorite, description='''Favorite
+                              created by this mutation.''')
 
     class Arguments:
         Input = CreateFavoriteInput(required=True)
+        token = graphene.String()
 
-    def mutate(self, info_, Input):
+    @classmethod
+    @mutation_jwt_required
+    def mutate(cls, _, info_, Input):
         data = _create(Input)
 
         favorite = FavoriteModel(**data)
@@ -86,13 +96,16 @@ class UpdateFavoriteInput(graphene.InputObjectType, FavoriteAttribute):
 
 class UpdateFavorite(graphene.Mutation):
     """Update a Favorite."""
-    favorite = graphene.Field(
-        lambda: Favorite, description='Favorite updated by this mutation.')
+    favorite = graphene.Field(lambda: ProtectedFavorite, description='''Favorite
+                              updated by this mutation.''')
 
     class Arguments:
         Input = UpdateFavoriteInput(required=True)
+        token = graphene.String()
 
-    def mutate(self, info_, Input):
+    @classmethod
+    @mutation_jwt_required
+    def mutate(cls, _, info_, Input):
         data = _update(Input)
 
         # Update database

@@ -2,6 +2,9 @@
 
 # Main python libraries
 import os
+import secrets
+
+# Pattoo libraries
 from _pattoo import shared as _shared
 from pattoo_shared.installation import configure, shared
 from pattoo_shared import files
@@ -60,6 +63,9 @@ def install(pattoo_home):
         'pattoo_apid': {
             'ip_listen_address': '0.0.0.0',
             'ip_bind_port': 20202,
+            'jwt_secret_key': secrets.token_urlsafe(64),
+            'acesss_token_exp': '15_m',
+            'refresh_token_exp': '1_D'
         },
         'pattoo_ingesterd': {
             'ingester_interval': 3600,
