@@ -17,7 +17,7 @@ Below is the workflow for having your contribution accepted into the ``pattoo`` 
 #. Create a branch named after your issue like this using `git checkout -b issue-789` where `789` is the number of your issue.
 #. Write code modifying this branch and commit your changes locally. An example of a proper git commit` message can be seen below:
 
-    .. code-block::
+    .. code-block:: text
 
         Make the example in CONTRIBUTING imperative and concrete ...
 
@@ -36,7 +36,7 @@ Below is the workflow for having your contribution accepted into the ``pattoo`` 
 
 #. We periodically update the master branch of our code. To synchronize the latest changes from our main repository into your current branch do:
 
-    .. code-block:: bash
+    .. code-block:: text
 
         git fetch upstream
         git merge upstream/master
@@ -46,7 +46,7 @@ Below is the workflow for having your contribution accepted into the ``pattoo`` 
 #. Run all the tests to assure nothing else was accidentally broken
 #. Push your changes to your forked repository:
 
-    .. code-block:: bash
+    .. code-block:: text
 
       git push origin issue-789
 
@@ -65,7 +65,7 @@ For ease of readability and maintainability code for all ``pattoo`` projects mus
 #. All strings must be enclosed in single quotes.
 #. All code must be compliant with:
 
-.. code-block::
+.. code-block:: text
 
     pylint
     PEP8
