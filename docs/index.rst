@@ -86,4 +86,5 @@ Developers
    :caption: Developers:
 
    contributing
+   maintainers
    unittest
