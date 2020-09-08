@@ -145,7 +145,7 @@ mutation{
         # Test
         query = ('''\
 {
-allDatapoints(idxDatapoint: "IDX", token: "TOKEN") {
+  datapoint(idxDatapoint: "IDX", token: "TOKEN") {
     edges {
       node {
         checksum
@@ -161,7 +161,7 @@ allDatapoints(idxDatapoint: "IDX", token: "TOKEN") {
 
         # Test
         graphql_result = _query(query)
-        result = graphql_result['data']['allDatapoints']['edges'][0]['node']
+        result = graphql_result['data']['datapoint']['edges'][0]['node']
         self.assertEqual(result['checksum'], pattoo_checksum)
 
 
