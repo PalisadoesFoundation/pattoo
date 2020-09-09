@@ -173,11 +173,10 @@ The agentProgram value will be used later for getting a translation into a meani
 .. code-block:: text
 
     {
-      allAgent(token:
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImp0aSI6IjcyMzFmZjk5LTE0NDktNDRhMS04YzE2LTY4OTMzNjgwZTU4YSIsImlhdCI6MTU5OTQyMjk5MywiZXhwIjoxNTk5NDI2NTkzfQ.UP1FSU3hNOI6EiEt2sMJ4V5n2BN3ttICsJFhJXJTowU'){
+      agent(token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImp0aSI6IjcyMzFmZjk5LTE0NDktNDRhMS04YzE2LTY4OTMzNjgwZTU4YSIsImlhdCI6MTU5OTQyMjk5MywiZXhwIjoxNTk5NDI2NTkzfQ.UP1FSU3hNOI6EiEt2sMJ4V5n2BN3ttICsJFhJXJTowU"){
         edges {
           node {
-            id
             idxAgent
             agentPolledTarget
             agentProgram
@@ -207,7 +206,7 @@ To retrieve both an `access token` and `refresh token`:
     mutation{
       authenticate(Input: {
         username: "pattoo",
-        password: "associated pattoo user password"
+        password: "password"
       }){
           accessToken
           refreshToken
@@ -296,7 +295,7 @@ To see all DataPoints and their data enter this query on the left hand side of t
       datapoint(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
         edges {
           node {
-    				idxDatapoint
+            idxDatapoint
             checksum
             dataType
             lastTimestamp
@@ -623,7 +622,7 @@ There are some things to note:
 .. code-block:: text
 
     {
-      allAgentXlate(idxAgentXlate: "4", token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      agentXlate(idxAgentXlate: "4", token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         edges {
           node {
             idxAgentXlate
@@ -963,6 +962,26 @@ Mutation Examples
 
 `Mutation` is the terminology that GraphQL uses for database updates. Here are some query examples using the example database table we have been using. Run these queries in the `/igraphql` url.
 
+All `Mutations` utilize a `Protected Query` type, which forces clients to
+include access tokens withint queries. The `AuthInfoField` only has one
+attribute being a `message` field.
+
+Example ___typename AuthInfoField Result
+........................................
+
+.. code-block:: text
+
+    {
+      "data": {
+        "createChart": {
+          "chart": {
+            "___typename": "AuthInfoField",
+            "message": "Signature Expired"
+          }
+        }
+      }
+    }
+
 Chart Table Mutation
 --------------------
 This section outlines how to mutate chart data.
@@ -971,7 +990,7 @@ Add a New Chart
 ```````````````
 This mutation will add the chart then return the resulting fields:
 
-#. `id`
+#. `idxChart`
 #. `name`
 #. Enabled status
 
@@ -983,8 +1002,16 @@ Mutation
     mutation {
       createChart(Input: {name: "Flying Fish"}, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         chart {
-          name
-          enabled
+          ___typename
+          ... on Chart{
+            idxChart
+            name
+            enabled
+          }
+          ___typename
+          ... on AuthInfoField{
+            message
+          }
         }
       }
     }
@@ -998,6 +1025,7 @@ Result
       "data": {
         "createChart": {
           "chart": {
+            "___typename": "Chart",
             "name": "Flying Fish",
             "enabled": "1"
           }
@@ -1018,13 +1046,18 @@ Mutation
     mutation {
       updateChart(Input: {idxChart: "239", name: "Teddy Bear"}, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         chart {
-          name
-          enabled
+          ___typename
+          ... on Chart{
+            name
+            enabled
+         }
+         ___typename
+         ... on AuthInfoField{
+            message
+          }
         }
       }
     }
-
-
 
 Result
 ......
@@ -1035,6 +1068,7 @@ Result
       "data": {
         "updateChart": {
           "chart": {
+            "___typename": "Chart",
             "name": "Teddy Bear",
             "enabled": "1"
           }
@@ -1059,9 +1093,16 @@ Mutation
     mutation {
       createChartDataPoint(Input: {idxDatapoint: "3", idxChart: "239"}, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         chartDatapoint {
-          idxChartDatapoint
-          idxDatapoint
-          idxChart
+          ___typename
+          ... on ChartDataPoint{
+            idxChartDatapoint
+            idxDatapoint
+            idxChart
+         }
+        ___typename
+        ... on AuthInfoField{
+            message
+         }
         }
       }
     }
@@ -1077,6 +1118,7 @@ Result
       "data": {
         "createChartDataPoint": {
           "chartDatapoint": {
+            "___typename": "ChartDataPoint",
             "idxChartDatapoint": "242",
             "idxDatapoint": "3",
             "idxChart": "239"
@@ -1100,15 +1142,20 @@ Mutation
       updateChartDataPoint(Input: {idxChartDatapoint: "242", enabled: "0"},
       token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         chartDatapoint {
-          idxChartDatapoint
-          idxDatapoint
-          idxChart
-          enabled
+          ___typename
+          ... on ChartDataPoint {
+            idxChartDatapoint
+            idxDatapoint
+            idxChart
+            enabled
+          }
+          ___typename
+          ... on AuthInfoField{
+            message
+          }
         }
       }
     }
-
-
 
 Result
 ......
@@ -1119,6 +1166,7 @@ Result
       "data": {
         "updateChartDataPoint": {
           "chartDatapoint": {
+            "___typename": "ChartDataPoint",
             "idxChartDatapoint": "242",
             "idxDatapoint": "3",
             "idxChart": "239",
@@ -1146,11 +1194,18 @@ Mutation
     mutation {
       createUser(Input: {username: "foo@example.org", firstName: "Foo", lastName: "Fighter", password: "123456"}, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         user {
-          idxUser
-          firstName
-          lastName
-          username
-          enabled
+          ___typename
+          ... on User{
+            idxUser
+            firstName
+            lastName
+            username
+            enabled
+          }
+          ___typename
+          ... AuthInfoField{
+            message
+          }
         }
       }
     }
@@ -1164,6 +1219,7 @@ Result
       "data": {
         "createUser": {
           "user": {
+            "___typename": "User",
             "idxUser": "3",
             "firstName": "Foo",
             "lastName": "Fighter",
@@ -1187,11 +1243,18 @@ Mutation
     mutation {
       updateUser(Input: {idxUser: "3", firstName: "Street"}, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         user {
-          idxUser
-          firstName
-          lastName
-          username
-          enabled
+          ___typename
+          ... on User{
+            idxUser
+            firstName
+            lastName
+            username
+            enabled
+          }
+          ___typename
+          ... on AuthInfoField{
+            message
+          }
         }
       }
     }
@@ -1207,6 +1270,7 @@ Result
       "data": {
         "updateUser": {
           "user": {
+            "___typename": "User",
             "idxUser": "3",
             "firstName": "Street",
             "lastName": "Fighter",
@@ -1234,10 +1298,17 @@ Mutation
     mutation {
       createFavorite(Input: {idxUser: "3", idxChart: "149", order: "2"}, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         favorite{
-          idxFavorite
-          idxChart
-          idxUser
-          enabled
+          ___typename
+          ... on Favorite{
+            idxFavorite
+            idxChart
+            idxUser
+            enabled
+          }
+          ___typename
+          ... on AuthInfoField{
+            message
+          }
         }
       }
     }
@@ -1253,6 +1324,7 @@ Result
       "data": {
         "createFavorite": {
           "favorite": {
+            "___typename": "Favorite",
             "idxFavorite": "2",
             "idxChart": "149",
             "idxUser": "3",
@@ -1276,10 +1348,13 @@ Mutation
     mutation {
       updateFavorite(Input: {idxFavorite: "2", enabled: "0"}, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         favorite {
-          idxFavorite
-          idxChart
-          idxUser
-          enabled
+          ___typename
+          ... on Favorite{
+            idxFavorite
+            idxChart
+            idxUser
+            enabled
+          }
         }
       }
     }
@@ -1293,6 +1368,7 @@ Result
       "data": {
         "updateFavorite": {
           "favorite": {
+            "___typename": "Favorite",
             "idxFavorite": "2",
             "idxChart": "149",
             "idxUser": "3",
