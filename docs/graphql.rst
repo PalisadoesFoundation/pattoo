@@ -245,6 +245,46 @@ All queries require a `token` input attribute when querying the GraphQL server.
       }
     }
 
+
+Refreshing Access Token
+```````````````````````
+
+Access tokens usually have a short time of life, for the purposes of security.
+If an access token is comprised it cannot be utilize once expired. The `default`
+expiration period for an access token being about `15 mintues`. The purpose
+of `refresh tokens` are to provide a client with the ability to obtain a new
+access token.
+
+`Note:` **Refresh Tokens cannot be used access resources from the GraphQL server**
+
+To generate a new `access token`, utilizeing a `refresh token`:
+
+.. code-block:: text
+
+    mutation{
+      authRefresh(refreshToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoicmVmcmVzaCIsImlhdCI6MTU5OTY2OTg5NywibmJmIjoxNTk5NjY5ODk3LCJqdGkiOiI0MzRjMDBkZi1hNmQ1LTQwOGUtOWQ1OS00OWYwMDY4OWM4YTYiLCJpZGVudGl0eSI6IkRldi1Eb21pbmljIiwiZXhwIjoxNTk5NzU2Mjk3fQ.9VVKdoUkKwFn8T0aKb5Be7Fgo-nI9S2y4-znLTaCYWE"){
+        accessToken
+      }
+    }
+
+The newly generate access token should then be stored as the new `access token`,
+and the expired `access token` discarded.
+
+
+Sample Result
+^^^^^^^^^^^^^
+
+.. code-block:: text
+
+    {
+      "data": {
+        "authRefresh": {
+          "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk5NjcwMzM0LCJuYmYiOjE1OTk2NzAzMzQsImp0aSI6Ijk3ZjhiZWFlLWM2OGYtNDAwZi05MDI3LWIwM2JmNmNmMjE3ZiIsImlkZW50aXR5IjoiRGV2LURvbWluaWMiLCJleHAiOjE1OTk2NzEyMzR9.GuZrvfcsjUoNuuadvHcZLeg9ftrCmmLHGLNVJX7rjr4"
+        }
+      }
+    }
+
+
 View All DataPoints
 ````````````````````
 
@@ -268,8 +308,7 @@ To see all DataPoints and their data enter this query on the left hand side of t
     }
 
 Sample Result
-.............
-
+^^^^^^^^^^^^^
 .. code-block:: json
 
     {
@@ -326,7 +365,7 @@ To see all Key-Pair-Values enter this query on the left hand side of the viewer.
 
 
 Sample Result
-.............
+^^^^^^^^^^^^^
 
 Here is the result of all Key-Pair-Values.
 
@@ -392,7 +431,7 @@ To see all GluePoints enter this query on the left hand side of the viewer. This
     }
 
 Sample Result
-.............
+^^^^^^^^^^^^^
 
 .. code-block:: json
 
@@ -459,7 +498,7 @@ To see all numeric data for a specific datapoint ``1``.
 
 
 Sample Result
-.............
+^^^^^^^^^^^^^
 
 Here is all the timeseries data from idxDatapoint ```3```.
 
