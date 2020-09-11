@@ -30,9 +30,8 @@ before_install:
 
 install:
   - setup/install.py install database --verbose
-
-docker_setup:
   - sudo setup/install.py install docker
+  
 
 # Run the unittest scripts
 script:
