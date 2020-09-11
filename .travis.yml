@@ -30,7 +30,11 @@ before_install:
 
 install:
   - setup/install.py install database --verbose
-  - setup/install.py install docker
+
+before_script:
+  - docker build -t pattoo .
+  - docker run --privileged -d --network=host --name=pattoo pattoo
+  - docker exec -i pattoo setup/install.py install all
   
 
 # Run the unittest scripts
