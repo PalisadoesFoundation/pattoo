@@ -34,7 +34,8 @@ install:
 before_script:
   - docker build -t pattoo .
   - docker run --privileged -d --network=host --name=pattoo pattoo
-  - docker exec -i pattoo setup/install.py install all
+  - docker exec -i pattoo setup/install.py install database &&  pattoo setup/install.py install systemd
+
   
 
 # Run the unittest scripts
