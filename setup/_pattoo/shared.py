@@ -117,7 +117,7 @@ def root_check():
         True: If the user is root
         False: If the user is not root
     """
-    if getpass.getuser() == 'root' or getpass.getuser() == 'travis':
+    if getpass.getuser() == 'root':
         return True
     else:
         return False

@@ -373,7 +373,7 @@ def main():
     # Builds docker container and installs pattoo
     elif args.qualifier == 'docker':
         print('Installing pattoo docker container')
-        if shared.root_check() is True:
+        if shared.root_check() is True or getpass.getuser() == 'travis':
             docker.install('pattoo', config_files)
         else:
             shared.log('You need to be running as root.')
