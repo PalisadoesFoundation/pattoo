@@ -31,15 +31,6 @@ before_install:
 install:
   - setup/install.py install database --verbose
 
-before_script:
-  - docker build -t pattoo .
-  - docker run --privileged -d --network=host --name=pattoo pattoo
-  - docker exec -i pattoo pip3 install -r pip_requirements.txt && \
-      pattoo setup/install.py install database && \
-      pattoo setup/install.py install systemd
-
-  
-
 # Run the unittest scripts
 script:
   - tests/bin/do_all_tests.py --verbose
