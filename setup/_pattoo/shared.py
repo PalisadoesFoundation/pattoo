@@ -108,7 +108,7 @@ def unittest_environment_setup():
 
 
 def root_check():
-    """Check if the user is root.
+    """Check if the user is root or travis.
 
     Args:
         None
@@ -117,7 +117,7 @@ def root_check():
         True: If the user is root
         False: If the user is not root
     """
-    if getpass.getuser() == 'root':
+    if getpass.getuser() == 'root' or getpass.getuser() == 'travis':
         return True
     else:
         return False
