@@ -365,7 +365,7 @@ def main():
     elif args.qualifier == 'database':
         print('Installing database tables')
         configure.install(pattoo_home)
-        #packages.install(ROOT_DIR, venv_dir)
+        packages.install(ROOT_DIR, venv_dir)
         # Import db after pip3 packages are installed
         from _pattoo import db
         db.install()
