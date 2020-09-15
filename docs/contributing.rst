@@ -8,16 +8,16 @@ Introduction
 
 Below is the workflow for having your contribution accepted into the ``pattoo`` repository.
 
-#. Create an Issue or comment on an existing issue to discuss the feature
-#. If the feature is approved, assign the issue to yourself
-#. Fork the project
-#. Clone the fork to your local machine
-#. Add the original project as a remote (git remote add upstream https://github.com/PalisadoesFoundation/pattoo, check with: git remote -v)
-#. Create a topic branch for your change (git checkout -b ``BranchName``\ )
-#. you may create additional branches if modifying multiple parts of the code
-#. Write code and Commit your changes locally. An example of a proper ``git commit`` message can be seen below:
+#. `Check for open issues or open a fresh issue to start a discussion <https://github.com/PalisadoesFoundation/pattoo/issues>`_ around a feature idea or a bug. There is a `good first issue` tag for issues that should be ideal for people who are not very familiar with the codebase yet
+   * Assign an interesting existing issue to yourself.
+   * If you created a discussion issue for a new feature or bugfix, then make sure it's `approved by a maintainer <maintainers>`_ before assigning the issue to yourself.
+#. `Fork the repository on GitHub <https://github.com/PalisadoesFoundation/pattoo/issues>`_ in preparation for your changes
+#. Clone your GitHub repository to your local machine
+#. Add the original project as a remote repository `git remote add upstream https://github.com/PalisadoesFoundation/pattoo`. Check everything is OK with `git remote -v`.
+#. Create a branch named after your issue like this using `git checkout -b issue-789` where `789` is the number of your issue.
+#. Write code modifying this branch and commit your changes locally. An example of a proper git commit` message can be seen below:
 
-    .. code-block::
+    .. code-block:: text
 
         Make the example in CONTRIBUTING imperative and concrete ...
 
@@ -34,32 +34,49 @@ Below is the workflow for having your contribution accepted into the ``pattoo`` 
         Resolves Issue: #123
         See also: #456, #789
 
-#. When you need to synch with upstream (pull the latest changes from main repo into your current branch), do:
+#. We periodically update the master branch of our code. To synchronize the latest changes from our main repository into your current branch do:
 
-     #. ``git fetch upstream``
-     #. ``git merge upstream/master``
+    .. code-block:: text
 
-#. Check for unnecessary white space with ``git diff --check``.
+        git fetch upstream
+        git merge upstream/master
+
+#. Read the documentation on how to `setup and run tests. <unittest>`_
 #. Write the necessary unit tests for your changes.
 #. Run all the tests to assure nothing else was accidentally broken
-#. Push your changes to your forked repository (git push origin ``branch``\ )
-#. Perform a pull request on GitHub
-#. Your code will be reviewed
-#. If your code passes review, your pull request will be accepted
+#. Push your changes to your forked repository:
+
+    .. code-block:: text
+
+      git push origin issue-789
+
+#. Perform a pull request on GitHub.
+#. `Bug the maintainer <maintainers>`_ until it gets accepted and merged. :)
+#. Make sure to add yourself to `CONTRIBUTORS.rst <https://github.com/PalisadoesFoundation/pattoo/CONTRIBUTORS.rst>`_
 
 Code Style Guide
 ----------------
 
 For ease of readability and maintainability code for all ``pattoo`` projects must follow these guidelines. Code that does not comply will not be added to the ``master`` branch.
 
-#. All ``pattoo`` projects use the `Google Python Style Guide <https://google.github.io/styleguide/pyguide.html#Exceptions>`_ for general style requirements
+#. All ``pattoo`` python projects use the `Google Python Style Guide <https://google.github.io/styleguide/pyguide.html#Exceptions>`_ for general style requirements
 #. All ``pattoo`` python projects use the The Chromium Projects Python Style Guidelines for docstrings.
 #. Indentations must be multiples of 4 blank spaces. No tabs.
-#. All strings must be enclosed in single quotes
+#. All strings must be enclosed in single quotes.
+#. All code must be compliant with:
+
+.. code-block:: text
+
+    pylint
+    PEP8
+    PEP257
+    pydocstyle
+    pycodestyle
+
 #. In addition too being ``pylint`` compliant, the code must be PEP8 and PEP257 compliant too.
 #. There should be no trailing spaces in files
 
-Guidelines to remember
+Guidelines to Remember
 ^^^^^^^^^^^^^^^^^^^^^^
 
 * Always opt for the most pythonic solution to a problem
@@ -77,56 +94,3 @@ The ``pattoo`` projects strive to maintain a proper log of development through w
 
 #. https://robots.thoughtbot.com/5-useful-tips-for-a-better-commit-message
 #. http://chris.beams.io/posts/git-commit/
-
-Sample .vimrc File for Compliance
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-You can use this sample .vimrc file to help meet our style requirements
-
-.. code-block::
-
-   " Activate syntax
-   syntax on
-   " set number
-
-   " Disable automatic comment insertion
-   autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
-
-   " Delete trailing whitespace
-   autocmd BufWritePre * :%s/\s\+$//e
-
-   " Convert tabs to spaces
-   set expandtab
-
-   " Set tabs to 4 spaces
-   set tabstop=4
-
-   " Set the number of spaces for indentation
-   set shiftwidth=4
-
-   " Switch on highlighting the last used search pattern when the terminal has colors
-   if &t_Co > 2 || has("gui_running")
-     set hlsearch
-   endif
-
-   " Tell vim to remember certain things when we exit
-   "  '10  :  marks will be remembered for up to 10 previously edited files
-   "  "100 :  will save up to 100 lines for each register
-   "  :20  :  up to 20 lines of command-line history will be remembered
-   "  %    :  saves and restores the buffer list
-   "  n... :  where to save the viminfo files
-   set viminfo='10,\"100,:20,%,n~/.viminfo
-
-   " Function for viminfo to work
-   function! ResCur()
-     if line("'\"") <= line("$")
-       normal! g`"
-       return 1
-     endif
-   endfunction
-
-   " Function for viminfo to work
-   augroup resCur
-     autocmd!
-     autocmd BufWinEnter * call ResCur()
-   augroup END
