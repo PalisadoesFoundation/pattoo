@@ -36,6 +36,17 @@ Create a database and grant full privileges to the `travis` user.
       MariaDB [(none)]> FLUSH PRIVILEGES;
       MariaDB [(none)]> exit;
       #
+      
+Setting up Database Tables
+--------------------------
+
+Running the following script will set up the database tables and your environment for unittesting
+
+
+.. code-block:: text
+
+    $ setup/install.py developer all
+
 
 Setting up Syslog Error Codes
 -----------------------------

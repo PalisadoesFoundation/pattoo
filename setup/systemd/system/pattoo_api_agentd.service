@@ -15,6 +15,8 @@ ExecReload=INSTALLATION_DIRECTORY/bin/pattoo_api_agentd.py --restart
 RemainAfterExit=yes
 GuessMainPID=yes
 Type=forking
+ProtectSystem=full
+ProtectHome=read-only
 
 [Install]
 WantedBy=multi-user.target

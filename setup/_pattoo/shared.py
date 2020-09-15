@@ -108,7 +108,7 @@ def unittest_environment_setup():
 
 
 def root_check():
-    """Check if the user is root.
+    """Check if the user is root or travis.
 
     Args:
         None

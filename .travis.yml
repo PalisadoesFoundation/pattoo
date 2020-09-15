@@ -16,6 +16,7 @@ python:
 # Setup services
 services:
   - mysql
+  - docker
 
 # Setup global environmental variables
 env:
