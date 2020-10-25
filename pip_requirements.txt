@@ -12,7 +12,7 @@ Flask-Session
 # Database packages
 PyMySQL
 SQLAlchemy
-mysqlclient
+#mysqlclient
 
 # GraphQL packages
 graphene-sqlalchemy
