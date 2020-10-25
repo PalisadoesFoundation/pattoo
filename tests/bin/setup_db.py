@@ -31,7 +31,7 @@ from pattoo.db.models import BASE
 DB_NAME = 'pattoo_unittest'
 DB_NAME_ERROR = '''An error occurred: {} database does not exist!\nPlease create
 before running tests!'''.format(DB_NAME)
-DB_URI='mysql://:@localhost/{}'.format(DB_NAME)
+DB_URI='mysql+pymysql://:@localhost/{}'.format(DB_NAME)
 
 def create_tables(tables):
     """Create mock tables for testing in DB_NAME
