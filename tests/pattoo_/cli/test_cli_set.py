@@ -6,8 +6,6 @@ import os
 import unittest
 import sys
 import argparse
-import tempfile
-import csv
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))

@@ -82,7 +82,7 @@ class TestCLIImport(unittest.TestCase):
                                                  '{}'.format(fptr.name)])
 
             # Determine how to run callback based on value of process
-            if process == True:
+            if process is True:
                 with self.assertRaises(SystemExit):
                     callback(args)
             else:
@@ -134,11 +134,10 @@ class TestCLIImport(unittest.TestCase):
 
         log_obj = log._GetLog()
         with self.assertLogs(log_obj.stdout(), level='CRITICAL') as cm:
-            print('''Excepton thrown testing for {}:
-                  '''.format(callback.__name__))
+            print('''\
+Excepton thrown testing for {}:'''.format(callback.__name__))
             with self.assertRaises(SystemExit):
                 callback(args)
-        print(cm.output[0])
         self.assertIn(expected_included_str, cm.output[0])
 
     @classmethod
@@ -153,8 +152,12 @@ class TestCLIImport(unittest.TestCase):
         # Skips class setup if using travis-ci
         if not self.travis_ci:
             # Create test tables for Import test
-            self.tables = [PairXlate.__table__, AgentXlate.__table__,
-                           PairXlateGroup.__table__, Language.__table__]
+            self.tables = [
+                PairXlate.__table__,
+                AgentXlate.__table__,
+                PairXlateGroup.__table__,
+                Language.__table__
+            ]
 
             # Returns engine object
             self.engine = create_tables(self.tables)
@@ -165,7 +168,7 @@ class TestCLIImport(unittest.TestCase):
 
     @classmethod
     def tearDownClass(self):
-        """End session and drop all test tables from pattoo_unittest database"""
+        """End session and drop all test tables from database."""
 
         # Skips class teardown if using travis-ci
         if not self.travis_ci:
@@ -184,8 +187,12 @@ class TestCLIImport(unittest.TestCase):
         # Testing for proper key_translation execution
         #
         ####################################################################
-        expected = {'language': 'en', 'key': 'test_key',
-                    'translation':'test_translation', 'units': 'test_units'}
+        expected = {
+            'language': 'en',
+            'key': 'test_key',
+            'translation': 'test_translation',
+            'units': 'test_units'
+        }
         cmd_args = ['import', 'key_translation', '--idx_pair_xlate_group', '1']
         result = self.populate_fn(expected, cmd_args, PairXlate, process, True)
 
@@ -197,18 +204,24 @@ class TestCLIImport(unittest.TestCase):
         # Testing for proper agent_translation execution
         #
         ####################################################################
-        expected = {'language': 'en', 'key': 'test_key', 'translation':
-                    'test_translation'}
+        expected = {
+            'language': 'en',
+            'key': 'test_key',
+            'translation': 'test_translation'
+        }
         cmd_args = ['import', 'agent_translation']
-        self.populate_fn(expected, cmd_args, AgentXlate,  process, True)
+        self.populate_fn(expected, cmd_args, AgentXlate, process, True)
 
     def test__process_key_translation(self):
         """Tests process_key_translation"""
 
         # Valid Input Testing
-        expected = {'language': 'en', 'key': 'test_key_process_translation',
-                    'translation':'test_key_translation', 'units':
-                    'test_key_units'}
+        expected = {
+            'language': 'en',
+            'key': 'test_key_process_translation',
+            'translation': 'test_key_translation',
+            'units': 'test_key_units'
+        }
         cmd_args = ['import', 'key_translation', '--idx_pair_xlate_group', '1']
         result = self.populate_fn(expected, cmd_args, PairXlate,
                                   _process_key_translation, False)
@@ -222,11 +235,14 @@ class TestCLIImport(unittest.TestCase):
     def test__process_agent_translation(self):
         """Tests process_key_translation"""
 
-        expected = {'language': 'en', 'key': 'test_agent', 'translation':
-                    'test_agent_translation'}
+        expected = {
+            'language': 'en',
+            'key': 'test_agent',
+            'translation': 'test_agent_translation'
+        }
         cmd_args = ['import', 'agent_translation']
-        self.populate_fn(expected, cmd_args, AgentXlate,
-                                  _process_agent_translation, False)
+        self.populate_fn(
+            expected, cmd_args, AgentXlate, _process_agent_translation, False)
 
         # Testing for log message invalid filename is passed
         self._process_log_test(_process_agent_translation)
