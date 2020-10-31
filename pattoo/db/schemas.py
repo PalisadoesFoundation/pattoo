@@ -169,60 +169,20 @@ class Mutation(graphene.ObjectType):
 class Query(graphene.ObjectType):
     """Define GraphQL queries."""
 
-    node = relay.Node.Field()
-
-    # Results as a single entry filtered by 'id' and as a list
-    glue = graphene.relay.Node.Field(Glue)
-    all_glues = InstrumentedQuery(Glue)
-
-    # Results as a single entry filtered by 'id' and as a list
-    datapoint = graphene.relay.Node.Field(DataPoint)
-    all_datapoints = InstrumentedQuery(DataPoint)
-
-    # Results as a single entry filtered by 'id' and as a list
-    pair = graphene.relay.Node.Field(Pair)
-    all_pairs = InstrumentedQuery(Pair)
-
-    # Results as a single entry filtered by 'id' and as a list
-    data = graphene.relay.Node.Field(Data)
-    all_data = InstrumentedQuery(Data)
-
-    # Results as a single entry filtered by 'id' and as a list
-    language = graphene.relay.Node.Field(Language)
-    all_language = InstrumentedQuery(Language)
-
-    # Results as a single entry filtered by 'id' and as a list
-    pair_xlate_group = graphene.relay.Node.Field(PairXlateGroup)
-    all_pair_xlate_group = InstrumentedQuery(PairXlateGroup)
-
-    # Results as a single entry filtered by 'id' and as a list
-    pair_xlate = graphene.relay.Node.Field(PairXlate)
-    all_pair_xlate = InstrumentedQuery(PairXlate)
-
-    # Results as a single entry filtered by 'id' and as a list
-    agent_xlate = graphene.relay.Node.Field(AgentXlate)
-    all_agent_xlate = InstrumentedQuery(AgentXlate)
-
-    # Results as a single entry filtered by 'id' and as a list
-    agent = graphene.relay.Node.Field(Agent)
-    all_agent = InstrumentedQuery(Agent)
-
-    # Results as a single entry filtered by 'id' and as a list
-    chart = graphene.relay.Node.Field(chart_.Chart)
-    all_chart = InstrumentedQuery(chart_.Chart)
-
-    # Results as a single entry filtered by 'id' and as a list
-    user = graphene.relay.Node.Field(user_.User)
-    all_user = InstrumentedQuery(user_.User)
-
-    # Results as a single entry filtered by 'id' and as a list
-    favorite = graphene.relay.Node.Field(favorite_.Favorite)
-    all_favorite = InstrumentedQuery(favorite_.Favorite)
-
-    # Results as a single entry filtered by 'id' and as a list
-    chart_datapoint = graphene.relay.Node.Field(
-        chart_datapoint_.ChartDataPoint)
-    all_chart_datapoint = InstrumentedQuery(chart_datapoint_.ChartDataPoint)
+    # Query types
+    glue = InstrumentedQuery(Glue)
+    datapoint = InstrumentedQuery(DataPoint)
+    pair = InstrumentedQuery(Pair)
+    data = InstrumentedQuery(Data)
+    language = InstrumentedQuery(Language)
+    pair_xlate_group = InstrumentedQuery(PairXlateGroup)
+    pair_xlate = InstrumentedQuery(PairXlate)
+    agent_xlate = InstrumentedQuery(AgentXlate)
+    agent = InstrumentedQuery(Agent)
+    chart = InstrumentedQuery(chart_.Chart)
+    user = InstrumentedQuery(user_.User)
+    favorite = InstrumentedQuery(favorite_.Favorite)
+    chart_datapoint = InstrumentedQuery(chart_datapoint_.ChartDataPoint)
 
     # Query for username / password queries
     authenticate = graphene.List(
