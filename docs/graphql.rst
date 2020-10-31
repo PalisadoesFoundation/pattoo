@@ -2,9 +2,11 @@
 GraphQL API
 ===========
 
-You can use the `pattoo` API to retrieve data using a GraphQL interface. It's best to become familiar with GraphQL before reading further.
+You can use the `pattoo` API to retrieve data using a GraphQL interface. It's
+best to become familiar with GraphQL before reading further.
 
-After completing this tutorial you'll be able to do programmatic GraphQL queries.
+After completing this tutorial you'll be able to do programmatic GraphQL
+queries.
 
 Queries with GraphQL
 ====================
@@ -15,24 +17,32 @@ Interactive GraphQL
 -------------------
 Interactive GraphQL allows you to test your queries using your web browser.
 
-If you are running it on your local machine go to the http://localhost:20202/pattoo/api/v1/web/igraphql to see the interactive query tool.
+If you are running it on your local machine go to the
+http://localhost:20202/pattoo/api/v1/web/igraphql to see the interactive query
+tool.
 
 Non Interactive GraphQL
 -----------------------
 
-If you want to access GraphQL programmatically, without using your browser then you'll need to access the non-interactive GraphQL URL.
+If you want to access GraphQL programmatically, without using your browser then
+you'll need to access the non-interactive GraphQL URL.
 
-If you are running it on your local machine go to the http://localhost:20202/pattoo/api/v1/web/graphql URL to get your results.
+If you are running it on your local machine go to the
+http://localhost:20202/pattoo/api/v1/web/graphql URL to get your results.
 
 How The Database Maps to GraphQL Queries
 ========================================
 
-**Note** This section is very detailed, but it will help you with understanding how the GraphQL keywords required for your queries were created.
+**Note** This section is very detailed, but it will help you with understanding
+how the GraphQL keywords required for your queries were created.
 
-There are two important files in the repository's `pattoo/db <https://github.com/palisadoes/pattoo/tree/master/pattoo/db>`_ directory.
+There are two important files in the repository's `pattoo/db
+<https://github.com/palisadoes/pattoo/tree/master/pattoo/db>`_ directory.
 
-#. *models.py*: Defines the database structure using the python SQLAlchemy package
-#. *schema.py*: Maps the database structure from SQLAlchemy to GraphQL queries using the graphene-sqlalchemy package.
+#. *models.py*: Defines the database structure using the python SQLAlchemy
+   package
+#. *schema.py*: Maps the database structure from SQLAlchemy to GraphQL queries
+   using the graphene-sqlalchemy package.
 
 Models.py
 ---------
@@ -40,11 +50,15 @@ Models.py
 This file defines the tables and columns in the database.
 
 #. Each class defines a table
-#. Each variable in the class defines the columns. The variable name is the column name
+#. Each variable in the class defines the columns. The variable name is the
+   column name
 
-The python `graphene-sqlalchemy` package used to present GraphQL will convert column names into camelCase, removing any underscores. Therefore a column named `idx_datapoint` will be `idxDatapoint` in your GraphQL queries.
+The python `graphene-sqlalchemy` package used to present GraphQL will convert
+column names into camelCase, removing any underscores. Therefore a column named
+`idx_datapoint` will be `idxDatapoint` in your GraphQL queries.
 
-You will notice some tables will have foreign keys as part of the RDBMS structure. Here is an example in the AgentXlate table:
+You will notice some tables will have foreign keys as part of the RDBMS
+structure. Here is an example in the AgentXlate table:
 
 .. code-block:: text
 
@@ -67,7 +81,10 @@ You will notice some tables will have foreign keys as part of the RDBMS structur
               index=True, nullable=False, server_default='1')
 
 
-You will also notice that this class also has a backref relationship near the bottom. This is what `graphene-sqlalchemy` uses to track the relationships for queries. In this case, the backref has the name `Agent_xlate_language` which will be converted to `agentXlateLanguage` camelCase in your GraphQL queries
+You will also notice that this class also has a backref relationship near the
+bottom. This is what `graphene-sqlalchemy` uses to track the relationships for
+queries. In this case, the backref has the name `Agent_xlate_language` which
+will be converted to `agentXlateLanguage` camelCase in your GraphQL queries
 
 .. code-block:: text
 
@@ -79,10 +96,15 @@ You will also notice that this class also has a backref relationship near the bo
 Schemas.py
 ----------
 
-This file contains the mappings from SQLAlchemy table definitions to GraphQL queries.
+This file contains the mappings from SQLAlchemy table definitions to GraphQL
+queries.
 
-#. Database tables defined as SQLAlchemy classes in models.py are imported as `Model` classes in this file.
-#. You’ll notice that if you manually type in your GraphQL queries in the `/igraphql` URL that you’ll see lists of each available table column with explanations. These explanations are defined in the `Attribute` classes in this file.
+#. Database tables defined as SQLAlchemy classes in models.py are imported as
+   `Model` classes in this file.
+#. You’ll notice that if you manually type in your GraphQL queries in the
+   `/igraphql` URL that you’ll see lists of each available table column with
+   explanations. These explanations are defined in the `Attribute` classes in
+   this file.
 #. Attributes and models are tied together in the `SQLAlchemyObjectType` classes.
 
 .. code-block:: text
@@ -133,12 +155,24 @@ This file contains the mappings from SQLAlchemy table definitions to GraphQL que
 
 Next we'll discuss the `Query` class  you'll find further down the file. This class:
 
-#. Uses the `InstrumentedQuery` class to filter queries by database column values. This `InstrumentedQuery` class makes things a lot easier. The `graphene-sqlalchemy` implementation of GraphQL has limited filtering capabilities. For example:
-    #. Every row of every database table has a fixed unique automatically generated GraphQL ID which is a `graphene.relay.node.GlobalID` object. You can filter specifically on this ID.
-    #. You also get lists of database row results containing the first X and last X rows.
-    #. Lists of database row results can also be obtained for values before and/or after X GraphQL ID values retrieved from a database table.
-    #. Custom filtering for specific values in a database column can be using resolvers, but you have to manually create a resolver for each table’s column. This per query customization is not ideal.
-#. Has `Node` entries for single value GraphQL queries, or as a definition inside an "edges" section of a GraphQL query. You can filter Nodes by the GraphQL `graphene.relay.node.GlobalID` too. This will be shown later.
+#. Uses the `InstrumentedQuery` class to filter queries by database column
+   values. This `InstrumentedQuery` class makes things a lot easier. The
+   `graphene-sqlalchemy` implementation of GraphQL has limited filtering
+   capabilities. For example:
+   #. Every row of every database table has a fixed unique automatically
+         generated GraphQL ID which is a `graphene.relay.node.GlobalID` object.
+         You can filter specifically on this ID.
+    #. You also get lists of database row results containing the first X and
+           last X rows.
+    #. Lists of database row results can also be obtained for values before
+           and/or after X GraphQL ID values retrieved from a database table.
+    #. Custom filtering for specific values in a database column can be using
+           resolvers, but you have to manually create a resolver for each
+           table’s column. This per query customization is not ideal.
+   #. Has `Node` entries for single value GraphQL queries, or as a definition
+         inside an "edges" section of a GraphQL query. You can filter Nodes by
+         the GraphQL `graphene.relay.node.GlobalID` too. This will be shown
+         later.
 
 .. code-block:: text
 
@@ -152,12 +186,16 @@ Next we'll discuss the `Query` class  you'll find further down the file. This cl
 Query Examples
 ==============
 
-Here are some query examples using the example database table we have been using. Run these queries in the /igraphql url.
+Here are some query examples using the example database table we have been
+using. Run these queries in the /igraphql url.
 
 **Note:**
 
-#. In all the examples in this section the “id” represents the `graphene.relay.node.GlobalID` string. You can use this to get information on a specific row of a specific table.
-#. The `InstrumentedQuery` related queries in the Query class can only filter on a database table value, not the `graphene.relay.node.GlobalID` string.
+#. In all the examples in this section the “id” represents the
+   `graphene.relay.node.GlobalID` string. You can use this to get information on
+   a specific row of a specific table.  #. The `InstrumentedQuery` related
+   queries in the Query class can only filter on a database table value, not the
+   `graphene.relay.node.GlobalID` string.
 
 Agent Table Queries
 -------------------
@@ -168,14 +206,16 @@ All Known Agents
 
 This will provide information on all the known polling agents.
 
-The agentProgram value will be used later for getting a translation into a meaningful name.
+The agentProgram value will be used later for getting a translation into a
+meaningful name.
 
 .. code-block:: text
 
     {
       agent(token:
-      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImp0aSI6IjcyMzFmZjk5LTE0NDktNDRhMS04YzE2LTY4OTMzNjgwZTU4YSIsImlhdCI6MTU5OTQyMjk5MywiZXhwIjoxNTk5NDI2NTkzfQ.UP1FSU3hNOI6EiEt2sMJ4V5n2BN3ttICsJFhJXJTowU"){
-        edges {
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI...
+      ...J4V5n2BN3ttICsJFhJXJTowU"){
+      edges {
           node {
             idxAgent
             agentPolledTarget
@@ -222,8 +262,10 @@ Sample Result
     {
       "data": {
         "authenticate": {
-          "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI",
-          "refreshToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoicmVmcmVzaCIsImlhdCI6MTU5Nzg1OTI1NCwibmJmIjoxNTk3ODU5MjU0LCJqdGkiOiJjYWM3OWU0Yy1iNjAxLTQwNmQtYTFiNy1kYzgwOTdjNmYzMzUiLCJpZGVudGl0eSI6MywiZXhwIjoxNTk3OTQ1NjU0fQ.kjAWtIeK6n_Y8sDYbUzs4S9RRmTBdiQMNk4rFm8YN1w",
+          "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+          ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI",
+          "refreshToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+          ...fQ.kjAWtIeK6n_Y8sDYbUzs4S9RRmTBdiQMNk4rFm8YN1w",
           "idxUser": "1"
         }
       }
@@ -234,7 +276,8 @@ All queries require a `token` input attribute when querying the GraphQL server.
 .. code-block:: text
 
     {
-      user(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
+      user(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
         edges{
           nodes{
             idxUser
@@ -250,8 +293,8 @@ Refreshing Access Token
 
 Access tokens usually have a short time of life, for the purposes of security.
 If an access token is comprised it cannot be utilize once expired. The `default`
-expiration period for an access token being about `15 mintues`. The purpose
-of `refresh tokens` are to provide a client with the ability to obtain a new
+expiration period for an access token being about `15 mintues`. The purpose of
+`refresh tokens` are to provide a client with the ability to obtain a new
 access token.
 
 `Note:` **Refresh Tokens cannot be used access resources from the GraphQL server**
@@ -261,7 +304,9 @@ To generate a new `access token`, utilizeing a `refresh token`:
 .. code-block:: text
 
     mutation{
-      authRefresh(refreshToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoicmVmcmVzaCIsImlhdCI6MTU5OTY2OTg5NywibmJmIjoxNTk5NjY5ODk3LCJqdGkiOiI0MzRjMDBkZi1hNmQ1LTQwOGUtOWQ1OS00OWYwMDY4OWM4YTYiLCJpZGVudGl0eSI6IkRldi1Eb21pbmljIiwiZXhwIjoxNTk5NzU2Mjk3fQ.9VVKdoUkKwFn8T0aKb5Be7Fgo-nI9S2y4-znLTaCYWE"){
+      authRefresh(refreshToken:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ...IjoxNTk5NzU2Mjk3fQ.9VVKdoUkKwFn8T0aKb5Be7Fgo-nI9S2y4-znLTaCYWE"){
         accessToken
       }
     }
@@ -278,7 +323,8 @@ Sample Result
     {
       "data": {
         "authRefresh": {
-          "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk5NjcwMzM0LCJuYmYiOjE1OTk2NzAzMzQsImp0aSI6Ijk3ZjhiZWFlLWM2OGYtNDAwZi05MDI3LWIwM2JmNmNmMjE3ZiIsImlkZW50aXR5IjoiRGV2LURvbWluaWMiLCJleHAiOjE1OTk2NzEyMzR9.GuZrvfcsjUoNuuadvHcZLeg9ftrCmmLHGLNVJX7rjr4"
+          "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+          ...OjE1OTk2NzEyMzR9.GuZrvfcsjUoNuuadvHcZLeg9ftrCmmLHGLNVJX7rjr4"
         }
       }
     }
@@ -287,12 +333,14 @@ Sample Result
 View All DataPoints
 ````````````````````
 
-To see all DataPoints and their data enter this query on the left hand side of the viewer.
+To see all DataPoints and their data enter this query on the left hand side of
+the viewer.
 
 .. code-block:: text
 
     {
-      datapoint(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
+      datapoint(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
         edges {
           node {
             idxDatapoint
@@ -317,7 +365,9 @@ Sample Result
             {
               "node": {
                 "idxDatapoint": "1",
-                "checksum":  "ea5ee349b38fa7dc195b3689872c8487e7696201407ef27231b19be837fbc6da0847f5227f1813d893100802c70ffb18646e2097a848db0b7ea4ec15caced101",
+                "checksum":
+                "ea5ee349b38fa7dc195b3689872c8487e7696201407ef2...
+                ...8646e2097a848db0b7ea4ec15caced101",
                 "dataType": 99,
                 "lastTimestamp": 1575174588079,
                 "pollingInterval": 10000,
@@ -327,7 +377,9 @@ Sample Result
             {
               "node": {
                 "idxDatapoint": "2",
-                "checksum":  "2b15d147330183c49a1672790bf09f54f8e849f9391c82385fd8758204e87940ab1ffef1bb67ac725de7cc0aa6aba9b6baeff34497ee494c38bee7f24eef65df",
+                "checksum":
+                "2b15d147330183c49a1672790bf09f54f8e...
+                ...5de7cc0aa6aba9b6baeff34497ee494c38bee7f24eef65df",
                 "dataType": 99,
                 "lastTimestamp": 1575174588084,
                 "pollingInterval": 10000,
@@ -351,7 +403,8 @@ To see all Key-Pair-Values enter this query on the left hand side of the viewer.
 .. code-block:: text
 
     {
-      pair(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      pair(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         edges {
           node {
             idxPair
@@ -385,8 +438,10 @@ Here is the result of all Key-Pair-Values.
               "node": {
                 "idxPair": "2",
                 "key":  "pattoo_agent_id",
-                "value":  "23a224313e4aaa4678a81638025ab02b42cb8a5b7c47b3dd2efced06d1a13d39"
-              }
+                "value":
+                "23a224313e4aaa4678a8163...
+                ..ab02b42cb8a5b7c47b3dd2efced06d1a13d39"
+                }
             },
             {
               "node": {
@@ -414,12 +469,14 @@ Here we have some representative queries you can do:
 View All GluePoints
 ```````````````````
 
-To see all GluePoints enter this query on the left hand side of the viewer. This table maps all the key-value pairs associated with an individual DataPoint
+To see all GluePoints enter this query on the left hand side of the viewer. This
+table maps all the key-value pairs associated with an individual DataPoint
 
 .. code-block:: text
 
     {
-      glue(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      glue(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         edges {
           node {
             idxPair
@@ -479,7 +536,9 @@ To see all numeric data for a specific datapoint ``1``.
 .. code-block:: text
 
     {
-      datapoint(idxDatapoint: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      datapoint(idxDatapoint: "1", token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         idxDatapoint
         checksum
         dataType
@@ -507,7 +566,9 @@ Here is all the timeseries data from idxDatapoint ```3```.
       "data": {
         "datapoint": {
           "idxDatapoint": "1",
-          "checksum":  "ea5ee349b38fa7dc195b3689872c8487e7696201407ef27231b19be837fbc6da0847f5227f1813d893100802c70ffb18646e2097a848db0b7ea4ec15caced101",
+          "checksum":
+          "ea5ee349b38fa7dc195b3689872c8487e7696201407ef....
+          ...fb18646e2097a848db0b7ea4ec15caced101",
           "dataType": 99,
           "pollingInterval": 10000,
           "dataChecksum": {
@@ -539,12 +600,15 @@ Here is all the timeseries data from idxDatapoint ```3```.
 Language Table Queries
 ----------------------
 
-This query provides all the configured languages. The `code` returned is the language code. In the results, a code of `en` is english. Make translation queries based on this code value.
+This query provides all the configured languages. The `code` returned is the
+language code. In the results, a code of `en` is english. Make translation
+queries based on this code value.
 
 .. code-block:: text
 
     {
-      language(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      language(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         edges {
           node {
             idxLanguage
@@ -563,12 +627,14 @@ This section outlines how to view Agent translation data.
 
 All Agent Translation Table Entries
 ```````````````````````````````````
-You can use this query to get the translation for an agentProgram name for a specific language.This is useful for the home page.
+You can use this query to get the translation for an agentProgram name for a
+specific language.This is useful for the home page.
 
 .. code-block:: text
 
     {
-      agentXlate(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
+      agentXlate(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
         edges {
           node {
             idxAgentXlate
@@ -595,7 +661,9 @@ In this case we get translations for the `agentProgram` named `pattoo_agent_snmp
 .. code-block:: text
 
     {
-      agentXlate(agentProgram: "pattoo_agent_snmp_ifmibd", token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      agentXlate(agentProgram: "pattoo_agent_snmp_ifmibd", token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         edges {
           node {
             idxAgentXlate
@@ -616,13 +684,19 @@ Filtered Agent Translation table entry with Language where idxAgentXlate = “4�
 
 There are some things to note:
 
-#. This will provide a list of translations for all configured languages. The translation for the agentProgram is in the “translation” field.
-#. Normally you’d be able to filter by “id” with GraphQL. Unfortunately this capability was lost when we added the customized ability to filter by any database table column. Hopefully the Python Graphene (GraphQL) team will be able to fix this later as part of their standard build.
+#. This will provide a list of translations for all configured languages. The
+   translation for the agentProgram is in the “translation” field.  #. Normally
+   you’d be able to filter by “id” with GraphQL. Unfortunately this capability
+   was lost when we added the customized ability to filter by any database table
+   column. Hopefully the Python Graphene (GraphQL) team will be able to fix this
+   later as part of their standard build.
 
 .. code-block:: text
 
     {
-      agentXlate(idxAgentXlate: "4", token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      agentXlate(idxAgentXlate: "4", token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         edges {
           node {
             idxAgentXlate
@@ -651,7 +725,8 @@ Here's the query you'll need to view all translations:
 .. code-block:: text
 
     {
-      pairXlate(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
+      pairXlate(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
         edges {
           node {
             idxLanguage
@@ -671,7 +746,9 @@ In this example, we filter by `idxPairXlateGroup`
 .. code-block:: text
 
     {
-      pairXlate (idxPairXlateGroup: "2", token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
+      pairXlate (idxPairXlateGroup: "2", token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
         edges {
           node {
             idxLanguage
@@ -696,7 +773,8 @@ This is the query string you'll need to see all the favorites in the database.
 .. code-block:: text
 
     {
-      favorite (token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
+      favorite (token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
         edges {
           node {
             idxFavorite
@@ -739,7 +817,8 @@ This query will show:
 .. code-block:: text
 
     {
-      user (token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
+      user (token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
         edges {
           node {
             username
@@ -773,7 +852,9 @@ This query will show:
 .. code-block:: text
 
     {
-      user(username: "pattoo", token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      user(username: "pattoo", token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         edges {
           node {
             username
@@ -806,7 +887,9 @@ This query will show:
 .. code-block:: text
 
     {
-      favorite(idxUser: "4", token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk5NDM0Mzc4LCJuYmYiOjE1OTk0MzQzNzgsImp0aSI6ImFjZWVlMWRlLWQ0YTctNDkyYi04N2MxLWQ4NDhkZWU1YjU5MSIsImlkZW50aXR5IjoiRGV2LURvbWluaWMiLCJleHAiOjE1OTk0MzUyNzh9.MGKMSeF8a_XFt6m1vCS40CSuVMMANblqMcZSxSS_nnM") {
+      favorite(idxUser: "4", token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ...OjE1OTk0MzUyNzh9.MGKMSeF8a_XFt6m1vCS40CSuVMMANblqMcZSxSS_nnM") {
         edges {
           node {
             order
@@ -832,7 +915,8 @@ This query will return all Datapoint values.
 .. code-block:: text
 
     {
-      datapoints (token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
+      datapoints (token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI"){
         edges {
           node {
             idxDatapoint
@@ -847,12 +931,17 @@ This query will return all Datapoint values.
 View First X Datapoints
 ```````````````````````
 
-It’s important to note the `startCursor` and `endCursor` values when wanting to paginate.  They are useful in subsequent queries where you may want ranges of values that are not relative to the very start and very end of database table rows.
+It’s important to note the `startCursor` and `endCursor` values when wanting to
+paginate.  They are useful in subsequent queries where you may want ranges of
+values that are not relative to the very start and very end of database table
+rows.
 
 .. code-block:: text
 
     {
-      datapoint(first: x, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      datapoint(first: x, token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         edges {
           node {
             idxDatapoint
@@ -873,12 +962,16 @@ It’s important to note the `startCursor` and `endCursor` values when wanting t
 View Last X Datapoints
 ``````````````````````
 
-It’s important to note the `startCursor` and `endCursor` values when wanting to paginate.  They are useful in subsequent queries where you may want ranges of values that are not relative to the very start and very end of database table rows.
+It’s important to note the `startCursor` and `endCursor` values when wanting to
+paginate.  They are useful in subsequent queries where you may want ranges of
+values that are not relative to the very start and very end of database table
+rows.
 
 .. code-block:: text
 
     {
-      datapoint(last: x, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      datapoint(last: x, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         edges {
           node {
             idxDatapoint
@@ -902,12 +995,15 @@ Next X Datapoints
 **Note:**
 
 #. It’s important to note the `endCursor` of the previous query.
-#. The next X results would need a query like the one below, starting at the `endCursor` value of the previous query.
+#. The next X results would need a query like the one below, starting at the
+   `endCursor` value of the previous query.
 
 .. code-block:: text
 
     {
-      datapoint(first: X, after: "END_CURSOR_VALUE", token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      datapoint(first: X, after: "END_CURSOR_VALUE", token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         edges {
           node {
             idxDatapoint
@@ -933,12 +1029,15 @@ Previous X Datapoints
 **Note:**
 
 #. It’s important to note the startCursor of the previous query.
-#. The previous X results would need a query like the one below, starting at the `startCursor` value of the previous query.
+#. The previous X results would need a query like the one below, starting at the
+   `startCursor` value of the previous query.
 
 .. code-block:: text
 
     {
-      datapoint(last: X, before: "START_CURSOR_VALUE", token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      datapoint(last: X, before: "START_CURSOR_VALUE", token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         edges {
           node {
             idxDatapoint
@@ -960,7 +1059,9 @@ Previous X Datapoints
 Mutation Examples
 =================
 
-`Mutation` is the terminology that GraphQL uses for database updates. Here are some query examples using the example database table we have been using. Run these queries in the `/igraphql` url.
+`Mutation` is the terminology that GraphQL uses for database updates. Here are
+some query examples using the example database table we have been using. Run
+these queries in the `/igraphql` url.
 
 All `Mutations` utilize a `Protected Query` type, which forces clients to
 include access tokens withint queries. The `AuthInfoField` only has one
@@ -1000,7 +1101,9 @@ Mutation
 .. code-block:: text
 
     mutation {
-      createChart(Input: {name: "Flying Fish"}, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      createChart(Input: {name: "Flying Fish"}, token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         chart {
           ___typename
           ... on Chart{
@@ -1044,7 +1147,9 @@ Mutation
 .. code-block:: text
 
     mutation {
-      updateChart(Input: {idxChart: "239", name: "Teddy Bear"}, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      updateChart(Input: {idxChart: "239", name: "Teddy Bear"}, token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         chart {
           ___typename
           ... on Chart{
@@ -1083,7 +1188,8 @@ This section outlines how to mutate ChartDataPoint data.
 
 Add a New ChartDataPoint
 ````````````````````````
-This mutation will add a `DataPoint` to an existing chart then return the resulting fields:
+This mutation will add a `DataPoint` to an existing chart then return the
+resulting fields:
 
 Mutation
 ........
@@ -1091,7 +1197,9 @@ Mutation
 .. code-block:: text
 
     mutation {
-      createChartDataPoint(Input: {idxDatapoint: "3", idxChart: "239"}, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      createChartDataPoint(Input: {idxDatapoint: "3", idxChart: "239"}, token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         chartDatapoint {
           ___typename
           ... on ChartDataPoint{
@@ -1140,7 +1248,8 @@ Mutation
 
     mutation {
       updateChartDataPoint(Input: {idxChartDatapoint: "242", enabled: "0"},
-      token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         chartDatapoint {
           ___typename
           ... on ChartDataPoint {
@@ -1192,7 +1301,10 @@ Mutation
 .. code-block:: text
 
     mutation {
-      createUser(Input: {username: "foo@example.org", firstName: "Foo", lastName: "Fighter", password: "123456"}, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      createUser(Input: {username: "foo@example.org", firstName: "Foo",
+      lastName: "Fighter", password: "123456"}, token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         user {
           ___typename
           ... on User{
@@ -1233,7 +1345,8 @@ Result
 
 Modify User FirstName
 `````````````````````
-This mutation will remove a DataPoint from the ChartDataPoint entry (Disable the entry for the chart):
+This mutation will remove a DataPoint from the ChartDataPoint entry (Disable the
+entry for the chart):
 
 Mutation
 ........
@@ -1241,7 +1354,9 @@ Mutation
 .. code-block:: text
 
     mutation {
-      updateUser(Input: {idxUser: "3", firstName: "Street"}, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      updateUser(Input: {idxUser: "3", firstName: "Street"}, token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         user {
           ___typename
           ... on User{
@@ -1296,7 +1411,9 @@ Mutation
 .. code-block:: text
 
     mutation {
-      createFavorite(Input: {idxUser: "3", idxChart: "149", order: "2"}, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      createFavorite(Input: {idxUser: "3", idxChart: "149", order: "2"}, token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         favorite{
           ___typename
           ... on Favorite{
@@ -1346,7 +1463,9 @@ Mutation
 .. code-block:: text
 
     mutation {
-      updateFavorite(Input: {idxFavorite: "2", enabled: "0"}, token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNTk3ODU5MjU0LCJuYmYiOjE1OTc4NTkyNTQsImp0aSI6IjM5MTQzNzg1LTgyOWItNDAzZi05NGU4LTAwOTAxYTFmZjFhMiIsImlkZW50aXR5IjozLCJleHAiOjE1OTc4NjAxNTR9.MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
+      updateFavorite(Input: {idxFavorite: "2", enabled: "0"}, token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjo...
+      ....MrPBtBTYj4aeX0ICRIEGyawbIWZTuOc7bYivud8MaSI") {
         favorite {
           ___typename
           ... on Favorite{
