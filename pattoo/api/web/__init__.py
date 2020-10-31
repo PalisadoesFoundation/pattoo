@@ -35,7 +35,7 @@ from flask_graphql_auth import GraphQLAuth
 # Getting pattoo configuration and setting JWT secrete key
 config = Config()
 PATTOO_API_WEB.config['JWT_SECRET_KEY'] = config.jwt_secret_key()
-PATTOO_API_WEB.config['JWT_ACCESS_TOKEN_EXPIRES'] = config.acesss_token_exp()
+PATTOO_API_WEB.config['JWT_ACCESS_TOKEN_EXPIRES'] = config.access_token_exp()
 PATTOO_API_WEB.config['JWT_REFRESH_TOKEN_EXPIRES'] = config.refresh_token_exp()
 
 # Initialize authentication for pattoo api web flask app instance
