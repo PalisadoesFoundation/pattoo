@@ -238,7 +238,7 @@ class ConfigAPId(ServerConfig):
         # Get result
         return result
 
-    def acesss_token_exp(self):
+    def access_token_exp(self):
         """Gets access_token_exp.
 
         Parsing config where:
@@ -248,18 +248,18 @@ class ConfigAPId(ServerConfig):
             None
 
         Return:
-           exp: acesss token expiration time using datetie.timedelta
+           exp: access token expiration time using datetie.timedelta
 
         """
         # Initialize key variables
         key = PATTOO_API_WEB_NAME
-        sub_key = 'acesss_token_exp'
+        sub_key = 'access_token_exp'
 
         # Process configuration
         result = search(key, sub_key, self._server_yaml_configuration)
 
         # Setting timedelta for result
-        # Sets a default value if acesss_token_exp not found
+        # Sets a default value if accesss_token_exp not found
         exp = self.__exp(result)
 
         if exp is None:
@@ -288,7 +288,7 @@ class ConfigAPId(ServerConfig):
         result = search(key, sub_key, self._server_yaml_configuration)
 
         # Setting timedelta for result
-        # Sets a default value if acesss_token_exp not found
+        # Sets a default value if access_token_exp not found
         exp = self.__exp(result)
 
         if exp is None:

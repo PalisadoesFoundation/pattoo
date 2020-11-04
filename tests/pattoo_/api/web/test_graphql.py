@@ -124,7 +124,7 @@ class TestBasicFunctions(LiveServerTestCase):
         }
         user.insert_row(DbRowUser(**test_admin))
 
-        # Get accesss token to make test queries
+        # Get access token to make test queries
         acesss_query = ('''\
 mutation{
     authenticate(Input: {username: "USERNAME", password: "PASSWORD"}) {
