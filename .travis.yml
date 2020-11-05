@@ -9,7 +9,7 @@ language: python
 python:
   - 3.6
 
-# Run tests only against the master branch
+# Run tests only against the master branch.
 # branches:
 #   only:
 #     - master
