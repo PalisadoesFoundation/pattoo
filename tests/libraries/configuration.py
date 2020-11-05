@@ -91,7 +91,7 @@ class WebConfig(BaseConfig):
             agent_id: Agent ID
 
         Returns:
-            result: URL.
+            result: URL
 
         """
         # Create the suffix
