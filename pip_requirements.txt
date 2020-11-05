@@ -3,7 +3,7 @@
 #############################################
 
 # Pattoo packages
-PattooShared>=0.0.100
+PattooShared>=0.0.104
 
 # Miscellaneous packages
 PyYAML
@@ -12,7 +12,6 @@ Flask-Session
 # Database packages
 PyMySQL
 SQLAlchemy
-#mysqlclient
 
 # GraphQL packages
 graphene-sqlalchemy

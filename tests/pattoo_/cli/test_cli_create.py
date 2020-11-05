@@ -135,7 +135,7 @@ class TestCLIImport(unittest.TestCase):
         code = 'ru'
         name = 'Russian'
 
-        expected = {'code': code, 'name': name,}
+        expected = {'code': code, 'name': name}
         cmd_args = ['create', 'language', '--code', code, '--name', name]
 
         self.create_fn(expected, cmd_args, Language, process, True)
@@ -161,7 +161,7 @@ class TestCLIImport(unittest.TestCase):
         code = 'kr'
         name = 'Korean'
 
-        expected = {'code': code, 'name': name,}
+        expected = {'code': code, 'name': name}
         cmd_args = ['create', 'language', '--code', code, '--name', name]
 
         self.create_fn(expected, cmd_args, Language, _process_language, False)
@@ -177,8 +177,6 @@ Language code "{}" already exists.'''.format(args.code))
             print('Exception thrown testing test__process_language: ')
             with self.assertRaises(SystemExit):
                 _process_language(args)
-        print(cm.output[0])
-        print('')
         self.assertIn(expected_included_str, cm.output[0])
 
     def test_process_pair_xlate_group(self):
@@ -204,9 +202,8 @@ Agent group name "{}" already exists.'''.format(args.name))
             print('Exception thrown testing test__process_pair_xlate_group: ')
             with self.assertRaises(SystemExit):
                 _process_pair_xlate_group(args)
-        print(cm.output[0])
-        print('')
         self.assertIn(expected_included_str, cm.output[0])
+
 
 if __name__ == "__main__":
     # Make sure the environment is OK to run unittests

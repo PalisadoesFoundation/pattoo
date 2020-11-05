@@ -12,7 +12,7 @@ EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(
     os.path.abspath(os.path.join(
         os.path.abspath(os.path.join(
-                EXEC_DIR, os.pardir)), os.pardir)), os.pardir))
+            EXEC_DIR, os.pardir)), os.pardir)), os.pardir))
 _EXPECTED = '{0}pattoo{0}tests{0}pattoo_{0}cli'.format(os.sep)
 if EXEC_DIR.endswith(_EXPECTED) is True:
     # We need to prepend the path in case the repo has been installed
@@ -67,7 +67,7 @@ class TestCLIAssign(unittest.TestCase):
         args = self.parser.parse_args(cmd_args)
 
         # Determine how to run callback based on value of process
-        if process == True:
+        if process is True:
             with self.assertRaises(SystemExit):
                 callback(args)
         else:
@@ -99,8 +99,11 @@ class TestCLIAssign(unittest.TestCase):
         # Skips class setup if using travis-ci
         if not self.travis_ci:
             # Create test tables for Import test
-            self.tables = [Agent.__table__, PairXlateGroup.__table__,
-                           Language.__table__]
+            self.tables = [
+                Agent.__table__,
+                PairXlateGroup.__table__,
+                Language.__table__
+            ]
 
             # Returns engine object
             self.engine = create_tables(self.tables)
@@ -111,14 +114,14 @@ class TestCLIAssign(unittest.TestCase):
 
     @classmethod
     def tearDownClass(self):
-        """End session and drop all test tables from pattoo_unittest database"""
+        """End session and drop all test tables from database."""
 
         # Skips class teardown if using travis-ci
         if not self.travis_ci:
             teardown_tables(self.tables, self.engine)
 
     def test_process(self):
-        """Tests assign argument process function"""
+        """Tests assign argument process function."""
 
         # Testing for invalid args.qualifier
         args = self.parser.parse_args([])
@@ -142,9 +145,13 @@ class TestCLIAssign(unittest.TestCase):
 
         # Derfining expected data and command line entries to be passed to
         # process function
-        expected = {'idx_agent': idx_agent, 'idx_pair_xlate_group': '1'}
-        cmd_args = ['assign', 'agent', '--idx_agent', str(idx_agent),
-                    '--idx_pair_xlate_group', expected['idx_pair_xlate_group']]
+        expected = {
+            'idx_agent': idx_agent,
+            'idx_pair_xlate_group': '1'
+        }
+        cmd_args = [
+            'assign', 'agent', '--idx_agent', str(idx_agent),
+            '--idx_pair_xlate_group', expected['idx_pair_xlate_group']]
 
         self.assign_fn(expected, cmd_args, Agent, process, True)
 
@@ -162,9 +169,13 @@ class TestCLIAssign(unittest.TestCase):
 
         # Derfining expected data and command line entries to be passed to
         # process function
-        expected = {'idx_agent': idx_agent, 'idx_pair_xlate_group': '1'}
-        cmd_args = ['assign', 'agent', '--idx_agent', str(idx_agent),
-                    '--idx_pair_xlate_group', expected['idx_pair_xlate_group']]
+        expected = {
+            'idx_agent': idx_agent,
+            'idx_pair_xlate_group': '1'
+        }
+        cmd_args = [
+            'assign', 'agent', '--idx_agent', str(idx_agent),
+            '--idx_pair_xlate_group', expected['idx_pair_xlate_group']]
 
         self.assign_fn(expected, cmd_args, Agent, _process_agent, False)
 
@@ -179,8 +190,6 @@ idx_pair_xlate_group "{}" not found.'''.format(args.idx_pair_xlate_group))
             print('Exception thrown testing test__process_agent: ')
             with self.assertRaises(SystemExit):
                 _process_agent(args)
-        print(cm.output[0])
-        print('')
         self.assertIn(expected_included_str, cm.output[0])
 
         # Asserting that appropriate log message is ran if idx_agent does not
@@ -195,8 +204,6 @@ idx_agent "{}" not found.'''.format(args.idx_agent))
             print('Exception thrown testing test__process_agent: ')
             with self.assertRaises(SystemExit):
                 _process_agent(args)
-        print(cm.output[0])
-        print('')
         self.assertIn(expected_included_str, cm.output[0])
 
 
