@@ -1,5 +1,5 @@
 dist: bionic
-os:linux
+os: linux
 
 # Enable sudo
 # sudo: true
