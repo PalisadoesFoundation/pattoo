@@ -1,4 +1,3 @@
-
 """Set up pattoo database."""
 
 # Main python libraries
