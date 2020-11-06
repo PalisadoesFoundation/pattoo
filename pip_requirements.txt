@@ -2,7 +2,7 @@
 # These additional PIP3 packages are required
 #############################################
 
-# Pattoo packages.
+# Pattoo packages
 PattooShared>=0.0.109
 
 # Miscellaneous packages
