@@ -141,6 +141,7 @@ class Language(BASE):
         self.name = name
         self.enabled = enabled
 
+
 class Favorite(BASE):
     """Class defining the pt_favorite table of the database."""
 

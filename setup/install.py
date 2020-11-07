@@ -235,7 +235,7 @@ Set up pattoo for unittesting. Type --help to see additional arguments'''
             '--verbose',
             action='store_true',
             help='Enable verbose mode.')
-    
+
     def docker(self, width=80):
         """CLI command to build and install the docker container for pattoo
 
@@ -356,10 +356,11 @@ def main():
         from _pattoo import db
         db.install()
         if shared.root_check() is True and args.action != 'developer':
-            systemd.install(daemon_list=daemon_list,
-                            template_dir=template_dir,
-                            installation_dir=installation_dir,
-                            verbose=args.verbose)
+            systemd.install(
+                daemon_list=daemon_list,
+                template_dir=template_dir,
+                installation_dir=installation_dir,
+                verbose=args.verbose)
 
     # Configures pattoo and sets up database tables
     elif args.qualifier == 'database':

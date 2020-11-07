@@ -5,8 +5,11 @@
 from __future__ import print_function
 import random
 import string
+import sys
+
 # pip3 imports
 from sqlalchemy import create_engine
+
 # Pattoo libraries
 from pattoo_shared import log
 from pattoo_shared import data
@@ -14,8 +17,124 @@ from pattoo.configuration import ConfigAPId as Config
 from pattoo.db import URL
 from pattoo.db.models import BASE
 from pattoo.db.table import (
-   language, pair_xlate_group, pair_xlate, agent_xlate, user, chart, favorite)
+    language, pair_xlate_group, pair_xlate, agent_xlate, user, chart, favorite)
 from pattoo.constants import DbRowUser, DbRowChart, DbRowFavorite
+
+_ALLOWED_DB = 'pattoo_unittest'
+
+
+class Database():
+    """Unittest database manipulation."""
+
+    def __init__(self, verbose=False):
+        """Initialize the class.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        self._config = Config()
+        self._verbose = verbose
+        self._allowed_db = _ALLOWED_DB
+
+        # Add MySQL to the pool
+        self.engine = create_engine(
+            URL, echo=False,
+            encoding='utf8',
+            max_overflow=self._config.db_max_overflow(),
+            pool_size=self._config.db_pool_size(),
+            pool_recycle=3600)
+
+    def create(self):
+        """Create database tables.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Try to create the database
+        if bool(self._verbose):
+            print('Connecting to configured database. Altering character set.')
+        try:
+            sql_string = ('''\
+ALTER DATABASE {} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci\
+'''.format(self._config.db_name()))
+            self.engine.execute(sql_string)
+        except:
+            _exception = sys.exc_info()
+            log_message = (
+                '''\
+ERROR: Cannot connect to database "{}" on server "{}". Verify database server \
+is started. Verify database is created. Verify that the configured database \
+authentication is correct.'''.format(self._config.db_name(),
+                                     self._config.db_hostname()))
+            log.log2die_safe_exception(20086, _exception, log_message)
+
+        # Apply schemas
+        if bool(self._verbose):
+            print('Creating database tables.')
+        BASE.metadata.create_all(self.engine)
+
+    def drop(self):
+        """Drop the database.
+
+        Args:
+            None
+
+        Return:
+            None
+
+        """
+        # Initialize key variables
+        db_name = self._config.db_name()
+
+        # Only allow dropping of the pattoo_unittest database
+        if db_name != self._allowed_db:
+            log_message = '''\
+Only the "{}" database can be dropped'''.format(self._allowed_db)
+            log.log2die_safe(20177, log_message)
+
+        # Remove bindings
+        try:
+            BASE.metadata.bind.remove()
+        except:
+            _exception = sys.exc_info()
+            log_message = 'Error dropping database {}.'.format(db_name)
+            log.log2die_safe_exception(20178, _exception, log_message)
+
+        # Drop database
+        try:
+            BASE.metadata.drop_all(self.engine)
+        except:
+            _exception = sys.exc_info()
+            log_message = 'Error dropping database {}.'.format(db_name)
+            log.log2die_safe_exception(20179, _exception, log_message)
+
+    def recreate(self):
+        """Recreate a clean database.
+
+        Args:
+            None
+
+        Return:
+            None
+
+        """
+        # Process
+        self.drop()
+        self.create()
+
+        # Reinsert test values
+        db_name = self._config.db_name()
+        if db_name == self._allowed_db:
+            insertions()
 
 
 def insertions():
@@ -28,6 +147,9 @@ def insertions():
         None
 
     """
+    # Initialize key variables
+    config = Config()
+
     # Say what we are doing
     print('Inserting default database table entries.')
 
@@ -49,19 +171,22 @@ def insertions():
     # Insert Favorite
     _insert_favorite()
 
-    # Print default user credentials
-    if bool(default_users) is True:
-        print('''\
-Creating default users. Change passwords immediately for better security.''')
+    # Print default user credentials if not testing
+    if config.db_name() != _ALLOWED_DB:
+        if bool(default_users) is True:
+            print('''\
 
-    for username, password, role_no in default_users:
-        role = 'Admin' if role_no == 0 else 'Basic'
-        print('''\
+Creating default users. Change passwords immediately for better security.
+''')
 
+        for username, password, role_no in default_users:
+            role = 'Admin' if role_no == 0 else 'Basic'
+            print('''\
 Username: {}
 Password: {}
 Role: {}
-'''.format(username, password, role))
+
+    '''.format(username, password, role))
 
 
 def _insert_language():
@@ -332,8 +457,10 @@ def _insert_agent_xlate():
     """
     # Initialize key variables
     agent_xlate_data = [
-        ('en', 'pattoo_agent_linux_autonomousd', 'Pattoo Standard Linux Autonomous Agent'),
-        ('en', 'pattoo_agent_linux_spoked', 'Pattoo Standard Linux Spoked Agent'),
+        ('en', 'pattoo_agent_linux_autonomousd',
+         'Pattoo Standard Linux Autonomous Agent'),
+        ('en', 'pattoo_agent_linux_spoked',
+         'Pattoo Standard Linux Spoked Agent'),
         ('en', 'pattoo_agent_snmpd', 'Pattoo Standard SNMP Agent'),
         ('en', 'pattoo_agent_snmp_ifmibd', 'Pattoo Standard IfMIB SNMP Agent'),
         ('en', 'pattoo_agent_modbustcpd', 'Pattoo Standard Modbus TCP Agent'),
@@ -401,6 +528,7 @@ def _insert_user():
 
     return default_users
 
+
 def _insert_chart():
     """Insert starting default entries into the Chart table.
 
@@ -433,48 +561,6 @@ def _insert_favorite():
             DbRowFavorite(idx_chart=1, idx_user=1, order=0, enabled=0))
 
 
-def _mysql():
-    """Create database tables.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    """
-    # Initialize key variables
-    config = Config()
-    pool_size = config.db_pool_size()
-    max_overflow = config.db_max_overflow()
-
-    # Add MySQL to the pool
-    engine = create_engine(
-        URL, echo=True,
-        encoding='utf8',
-        max_overflow=max_overflow,
-        pool_size=pool_size, pool_recycle=3600)
-
-    # Try to create the database
-    print('Connecting to configured database. Altering character set.')
-    try:
-        sql_string = ('''\
-ALTER DATABASE {} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci\
-'''.format(config.db_name()))
-        engine.execute(sql_string)
-    except:
-        log_message = (
-            '''\
-ERROR: Cannot connect to database "{}" on server "{}". Verify database server \
-is started. Verify database is created. Verify that the configured database \
-authentication is correct.'''.format(config.db_name(), config.db_hostname()))
-        log.log2die(20086, log_message)
-
-    # Apply schemas
-    print('Creating database tables.')
-    BASE.metadata.create_all(engine)
-
-
 def install():
     """
     Create pattoo database with the necessary insertions.
@@ -485,12 +571,9 @@ def install():
     Returns:
         True for a successful creation
     """
-    # Initialize key variables
-    use_mysql = True
-
     # Create DB
-    if use_mysql is True:
-        _mysql()
+    database = Database()
+    database.create()
 
     # Insert starting default entries in database tables
     insertions()

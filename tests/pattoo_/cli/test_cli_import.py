@@ -14,7 +14,7 @@ EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(
     os.path.abspath(os.path.join(
         os.path.abspath(os.path.join(
-                EXEC_DIR, os.pardir)), os.pardir)), os.pardir))
+            EXEC_DIR, os.pardir)), os.pardir)), os.pardir))
 _EXPECTED = '{0}pattoo{0}tests{0}pattoo_{0}cli'.format(os.sep)
 if EXEC_DIR.endswith(_EXPECTED) is True:
     # We need to prepend the path in case the repo has been installed
@@ -26,17 +26,18 @@ else:
     sys.exit(2)
 
 # Pattoo imports
-from pattoo.cli.cli_import import (process, _process_key_translation,
-                                   _process_agent_translation)
+from pattoo.cli.cli_import import (
+    process, _process_key_translation, _process_agent_translation)
 from pattoo_shared import log
 from pattoo.db import db
 from pattoo.cli.cli import _Import
-from pattoo.db.table import language, pair_xlate_group
-from pattoo.db.models import PairXlate, AgentXlate, PairXlateGroup, Language
+from pattoo.db.table import language
+from pattoo.db.models import PairXlate, AgentXlate
 
 # Pattoo unittest imports
-from tests.bin.setup_db import (create_tables, teardown_tables, DB_URI)
+from setup._pattoo import db as db_cli
 from tests.libraries.configuration import UnittestConfig
+from tests.libraries import general
 
 
 class TestCLIImport(unittest.TestCase):
@@ -48,7 +49,12 @@ class TestCLIImport(unittest.TestCase):
     # Determine whether should setup up test for travis-ci tool
     travis_ci = os.getenv('travis_ci')
 
-    def populate_fn(self, expected, cmd_args, target_table, callback, process):
+    # Number of expected languages
+    language_code = general.random_string()
+    language_count = 2
+
+    def populate_fn(
+            self, expected, cmd_args, target_table, callback, _process):
         """Allows for creation of csv file to test importation of translations
         for the process functions of cli_import
 
@@ -59,7 +65,7 @@ class TestCLIImport(unittest.TestCase):
             target_table: database table to be queried
             callback: specific translation process function from cli_import
             module
-            process: Boolean to indicate whether process is used to run either
+            _process: Boolean to indicate whether process is used to run either
             _process_key_translation or _process_agent_translation
 
         Return:
@@ -78,11 +84,11 @@ class TestCLIImport(unittest.TestCase):
             fptr.seek(0)
 
             # Importing key_translation from temporary csv file
-            args = self.parser.parse_args(cmd_args + ['--filename',
-                                                 '{}'.format(fptr.name)])
+            args = self.parser.parse_args(
+                cmd_args + ['--filename', '{}'.format(fptr.name)])
 
             # Determine how to run callback based on value of process
-            if process is True:
+            if _process is True:
                 with self.assertRaises(SystemExit):
                     callback(args)
             else:
@@ -96,8 +102,8 @@ class TestCLIImport(unittest.TestCase):
         # Retrives result using stored key translation
         with db.db_query(30002) as session:
             query = session.query(target_table)
-            result = query.filter_by(translation =
-                                     expected['translation'].encode()).first()
+            result = query.filter_by(
+                translation=expected['translation'].encode()).first()
 
         # Asserting that each inserted element into target_table test tables
         # matches arguments passed to 'callback' function
@@ -133,46 +139,31 @@ class TestCLIImport(unittest.TestCase):
         expected_included_str = 'File {} does not exist'.format(args.filename)
 
         log_obj = log._GetLog()
-        with self.assertLogs(log_obj.stdout(), level='CRITICAL') as cm:
-            print('''\
-Excepton thrown testing for {}:'''.format(callback.__name__))
+        with self.assertLogs(log_obj.stdout(), level='CRITICAL') as cm_:
             with self.assertRaises(SystemExit):
                 callback(args)
-        self.assertIn(expected_included_str, cm.output[0])
+        self.assertIn(expected_included_str, cm_.output[0])
 
     @classmethod
-    def setUpClass(self):
+    def setUpClass(cls):
         """Setup tables in pattoo_unittest database"""
+        # Create the database for testing
+        cls.database = db_cli.Database()
+        cls.database.recreate()
 
         # Setting up arpser to be able to parse import cli commands
-        subparser = self.parser.add_subparsers(dest='action')
+        subparser = cls.parser.add_subparsers(dest='action')
         _Import(subparser)
 
-        self.language_count = 1
-        # Skips class setup if using travis-ci
-        if not self.travis_ci:
-            # Create test tables for Import test
-            self.tables = [
-                PairXlate.__table__,
-                AgentXlate.__table__,
-                PairXlateGroup.__table__,
-                Language.__table__
-            ]
-
-            # Returns engine object
-            self.engine = create_tables(self.tables)
-
-            # Creating test data in Language and PairXlateGroup tables
-            language.insert_row('en', 'English')
-            pair_xlate_group.insert_row('pair_1')
+        # Creating test data in Language and PairXlateGroup tables
+        language.insert_row(cls.language_code, general.random_string)
 
     @classmethod
-    def tearDownClass(self):
-        """End session and drop all test tables from database."""
+    def tearDownClass(cls):
+        """Cleanup."""
 
-        # Skips class teardown if using travis-ci
-        if not self.travis_ci:
-            teardown_tables(self.engine)
+        # Recreate a fresh database so that other tests can run without error
+        cls.database.recreate()
 
     def test_process(self):
         """Test import argument process function"""
@@ -188,7 +179,7 @@ Excepton thrown testing for {}:'''.format(callback.__name__))
         #
         ####################################################################
         expected = {
-            'language': 'en',
+            'language': self.language_code,
             'key': 'test_key',
             'translation': 'test_translation',
             'units': 'test_units'
@@ -205,7 +196,7 @@ Excepton thrown testing for {}:'''.format(callback.__name__))
         #
         ####################################################################
         expected = {
-            'language': 'en',
+            'language': self.language_code,
             'key': 'test_key',
             'translation': 'test_translation'
         }
@@ -217,7 +208,7 @@ Excepton thrown testing for {}:'''.format(callback.__name__))
 
         # Valid Input Testing
         expected = {
-            'language': 'en',
+            'language': self.language_code,
             'key': 'test_key_process_translation',
             'translation': 'test_key_translation',
             'units': 'test_key_units'
@@ -236,7 +227,7 @@ Excepton thrown testing for {}:'''.format(callback.__name__))
         """Tests process_key_translation"""
 
         expected = {
-            'language': 'en',
+            'language': self.language_code,
             'key': 'test_agent',
             'translation': 'test_agent_translation'
         }

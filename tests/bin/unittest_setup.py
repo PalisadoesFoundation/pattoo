@@ -27,6 +27,7 @@ else:
 
 # Pattoo imports
 from tests.libraries.configuration import UnittestConfig
+from setup._pattoo import db
 
 
 def main():
@@ -35,6 +36,10 @@ def main():
     # Check environment
     config = UnittestConfig()
     _ = config.create()
+
+    # Attempt to create database tables
+    database = db.Database()
+    database.recreate()
 
 
 if __name__ == '__main__':

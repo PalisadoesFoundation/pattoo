@@ -12,7 +12,7 @@ EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(
     os.path.abspath(os.path.join(
         os.path.abspath(os.path.join(
-                EXEC_DIR, os.pardir)), os.pardir)), os.pardir))
+            EXEC_DIR, os.pardir)), os.pardir)), os.pardir))
 _EXPECTED = '{0}pattoo{0}tests{0}pattoo_{0}cli'.format(os.sep)
 if EXEC_DIR.endswith(_EXPECTED) is True:
     # We need to prepend the path in case the repo has been installed
@@ -33,8 +33,9 @@ from pattoo.db.models import PairXlateGroup, Language
 from pattoo.db.table import language, pair_xlate_group
 
 # Pattoo unittest imports
-from tests.bin.setup_db import (create_tables, teardown_tables, DB_URI)
+from setup._pattoo import db as db_cli
 from tests.libraries.configuration import UnittestConfig
+from tests.libraries import general
 
 
 class TestCLIImport(unittest.TestCase):
@@ -49,7 +50,7 @@ class TestCLIImport(unittest.TestCase):
     # Determine whether should setup up test for travis-ci tool
     travis_ci = os.getenv('travis_ci')
 
-    def create_fn(self, expected, cmd_args, target_table, callback, process):
+    def create_fn(self, expected, cmd_args, target_table, callback, process_):
         """Creates either new key_translation_group or language entries
 
         Args:
@@ -58,7 +59,7 @@ class TestCLIImport(unittest.TestCase):
             callback
             target_table: database table to be queried
             callback: specific cli_create function to be ran
-            process: Boolean to indicate whether process is used to run either
+            process_: Boolean to indicate whether process is used to run either
 
         Return:
             None
@@ -68,7 +69,7 @@ class TestCLIImport(unittest.TestCase):
         args = self.parser.parse_args(cmd_args)
 
         # Determine how to run callback based on value of process
-        if process == True:
+        if process_ is True:
             with self.assertRaises(SystemExit):
                 callback(args)
         else:
@@ -78,44 +79,34 @@ class TestCLIImport(unittest.TestCase):
         # Retrieves updated result
         with db.db_query(33000) as session:
             query = session.query(target_table)
-            result = query.filter_by(name = expected['name'].encode()).first()
+            result = query.filter_by(name=expected['name'].encode()).first()
 
         # Asserts that changes made usin the 'callback' function was reflected
         # in target_table
         for key, value in expected.items():
             result_value = result.__dict__[key]
-            if type(result_value) == int:
+            if isinstance(result_value, int) is True:
                 self.assertEqual(result_value, int(value))
             else:
                 self.assertEqual(result_value, value.encode())
 
     @classmethod
-    def setUpClass(self):
+    def setUpClass(cls):
         """Setup tables in pattoo_unittest database"""
+        # Create the database for testing
+        cls.database = db_cli.Database()
+        cls.database.recreate()
 
         # Setting up arpser to be able to parse import cli commands
-        subparser = self.parser.add_subparsers(dest='action')
+        subparser = cls.parser.add_subparsers(dest='action')
         _Create(subparser)
 
-        # Skips class setup if using travis-ci
-        if not self.travis_ci:
-            # Create test tables for Import test
-            self.tables = [PairXlateGroup.__table__, Language.__table__]
-
-            # Returns engine object
-            self.engine = create_tables(self.tables)
-
-            # Inserting default entries
-            language.insert_row('en', 'English')
-            pair_xlate_group.insert_row('pair_1')
-
     @classmethod
-    def tearDownClass(self):
-        """End session and drop all test tables from pattoo_unittest database"""
+    def tearDownClass(cls):
+        """Cleanup."""
 
-        # Skips class teardown if using travis-ci
-        if not self.travis_ci:
-            teardown_tables(self.engine)
+        # Recreate a fresh database so that other tests can run without error
+        cls.database.recreate()
 
     def test_process(self):
         """Test create argument process function"""
@@ -132,8 +123,8 @@ class TestCLIImport(unittest.TestCase):
         ####################################################################
 
         # Defining table and expected entries into Language table
-        code = 'ru'
-        name = 'Russian'
+        code = general.random_string()
+        name = general.random_string()
 
         expected = {'code': code, 'name': name}
         cmd_args = ['create', 'language', '--code', code, '--name', name]
@@ -158,8 +149,8 @@ class TestCLIImport(unittest.TestCase):
         """Test _process_language"""
 
         # Defining table and expected entries into Language table
-        code = 'kr'
-        name = 'Korean'
+        code = general.random_string()
+        name = general.random_string()
 
         expected = {'code': code, 'name': name}
         cmd_args = ['create', 'language', '--code', code, '--name', name]
@@ -183,7 +174,7 @@ Language code "{}" already exists.'''.format(args.code))
         """Tests process_pair_xlate_group"""
 
         # Defining table and expected entries into PairXlateGroup table
-        name = 'pair_group_test'
+        name = general.random_string()
 
         expected = {'name': name}
         cmd_args = ['create', 'key_translation_group', '--name', name]

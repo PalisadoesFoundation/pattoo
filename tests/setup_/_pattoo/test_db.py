@@ -28,7 +28,7 @@ from pattoo.db.table import (
 from pattoo.constants import DbRowUser, DbRowChart, DbRowFavorite
 from setup._pattoo.db import _insert_chart, _insert_favorite, _insert_language
 from setup._pattoo.db import _insert_agent_xlate, _insert_user, insertions
-from setup._pattoo.db import _insert_pair_xlate_group, install, _mysql
+from setup._pattoo.db import _insert_pair_xlate_group, install
 
 
 class TestDb(unittest.TestCase):
