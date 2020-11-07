@@ -1,8 +1,7 @@
+# Run on an ubuntu VM
 dist: bionic
 os: linux
-
-# Enable sudo
-# sudo: true
+virt: vm
 
 # Define the application testing language and versions
 language: python
