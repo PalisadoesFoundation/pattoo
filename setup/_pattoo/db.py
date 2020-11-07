@@ -49,13 +49,20 @@ def insertions():
     # Insert Favorite
     _insert_favorite()
 
-    # Printing out default user credentials
+    # Print default user credentials
+    if bool(default_users) is True:
+        print('''\
+Creating default users. Change passwords immediately for better security.''')
+
     for username, password, role_no in default_users:
         role = 'Admin' if role_no == 0 else 'Basic'
-        print('\n\nUsername: {}\nPassword: {}\nRole: {} '.format(username,
-                                                                     password,
-                                                                     role))
-    print('')
+        print('''\
+
+Username: {}
+Password: {}
+Role: {}
+'''.format(username, password, role))
+
 
 def _insert_language():
     """Insert starting default entries into the Language table.
