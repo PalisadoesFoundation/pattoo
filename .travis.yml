@@ -1,6 +1,5 @@
 dist: bionic
 os: linux
-virt: vm
 
 # Define the application testing language and versions
 language: python
