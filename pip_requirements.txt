@@ -2,8 +2,8 @@
 # These additional PIP3 packages are required
 #############################################
 
-# Pattoo packages
-PattooShared>=0.0.100
+# Pattoo packages.
+PattooShared>=0.0.120
 
 # Miscellaneous packages
 PyYAML
@@ -12,7 +12,6 @@ Flask-Session
 # Database packages
 PyMySQL
 SQLAlchemy
-#mysqlclient
 
 # GraphQL packages
 graphene-sqlalchemy

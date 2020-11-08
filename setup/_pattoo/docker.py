@@ -5,7 +5,6 @@ import os
 # Import pattoo related libraries
 from _pattoo import shared
 from pattoo_shared import files, log
-from pattoo_shared.installation import configure
 
 
 def copy_config(file_path, config_dir, container_name):

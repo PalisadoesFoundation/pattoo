@@ -26,13 +26,10 @@ def install(pattoo_home):
     shared_config = {
         'pattoo': {
             'language': 'en',
-            'log_directory': (
-                '/var/log/pattoo'),
+            'log_directory': '/var/log/pattoo',
             'log_level': 'debug',
-            'cache_directory': (
-                '/opt/pattoo/cache'),
-            'daemon_directory': (
-                '/opt/pattoo/daemon'),
+            'cache_directory': '/opt/pattoo/cache',
+            'daemon_directory': '/opt/pattoo/daemon',
             'system_daemon_directory': '/var/run/pattoo',
         }
     }

@@ -102,8 +102,8 @@ def unittest_environment_setup():
     if 'unittest' not in os.environ['PATTOO_CONFIGDIR']:
         os.environ['PATTOO_CONFIGDIR'] = unittest_config_dir
 
-    unittest_dir = os.path.join(
-                        os.path.expanduser('~'), config_suffix.split(os.sep)[0])
+    unittest_dir = os.path.join(os.path.expanduser(
+        '~'), config_suffix.split(os.sep)[0])
     return unittest_dir
 
 

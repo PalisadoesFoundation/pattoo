@@ -6,15 +6,13 @@ import os
 import unittest
 import sys
 import argparse
-import tempfile
-import csv
 
 # Try to create a working PYTHONPATH
 EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(
     os.path.abspath(os.path.join(
         os.path.abspath(os.path.join(
-                EXEC_DIR, os.pardir)), os.pardir)), os.pardir))
+            EXEC_DIR, os.pardir)), os.pardir)), os.pardir))
 _EXPECTED = '{0}pattoo{0}tests{0}pattoo_{0}cli'.format(os.sep)
 if EXEC_DIR.endswith(_EXPECTED) is True:
     # We need to prepend the path in case the repo has been installed
@@ -26,17 +24,18 @@ else:
     sys.exit(2)
 
 # Pattoo imports
-from pattoo.cli.cli_set import (process, _process_language,
-                                   _process_pair_xlate_group)
+from pattoo.cli.cli_set import (
+    process, _process_language, _process_pair_xlate_group)
 from pattoo.db import db
 from pattoo.db.table import language, pair_xlate_group
 from pattoo.cli.cli import _Set
-from pattoo.db.models import BASE, PairXlateGroup, Language
+from pattoo.db.models import PairXlateGroup, Language
 from pattoo_shared import log
 
 # Pattoo unittest imports
-from tests.bin.setup_db import (create_tables, teardown_tables, DB_URI)
+from setup._pattoo import db as db_cli
 from tests.libraries.configuration import UnittestConfig
+from tests.libraries import general
 
 
 class TestCLISet(unittest.TestCase):
@@ -47,6 +46,13 @@ class TestCLISet(unittest.TestCase):
 
     # Determine whether should setup up test for travis-ci tool
     travis_ci = os.getenv('travis_ci')
+
+    # Number of expected pair translation groups
+    idx_pair_xlate_group_count = 1
+    existing_group = general.random_string()
+
+    # Logger
+    log_obj = log._GetLog()
 
     def set_fn(self, name, expected, cmd_args, target_table, callback, process):
         """Testing proper setting/updating of entries into a given table
@@ -72,11 +78,11 @@ class TestCLISet(unittest.TestCase):
         # Retrieves the current ts_modified before updates are made
         with db.db_query(31000) as session:
             query = session.query(target_table)
-            queried_result = query.filter_by(name = name.encode()).first()
+            queried_result = query.filter_by(name=name.encode()).first()
             _ts_modified = queried_result.ts_modified
 
         # Determine how to run callback based on value of process
-        if process == True:
+        if process is True:
             with self.assertRaises(SystemExit):
                 callback(args)
         else:
@@ -86,13 +92,13 @@ class TestCLISet(unittest.TestCase):
         # Retrieves updated result
         with db.db_query(31002) as session:
             query = session.query(target_table)
-            result = query.filter_by(name = expected['name'].encode()).first()
+            result = query.filter_by(name=expected['name'].encode()).first()
 
         # Asserts that changes made usin the 'callback' function was reflected
         # in target_table
         for key, value in expected.items():
             result_value = result.__dict__[key]
-            if type(result_value) == int:
+            if isinstance(result_value, int) is True:
                 self.assertEqual(result_value, int(value))
             else:
                 self.assertEqual(result_value, value.encode())
@@ -113,46 +119,35 @@ class TestCLISet(unittest.TestCase):
         """
         with db.db_modify(31003) as session:
             query = session.query(target_table)
-            entry = query.filter_by(name = name.encode()).first()
+            entry = query.filter_by(name=name.encode()).first()
             session.delete(entry)
             session.commit()
 
     @classmethod
-    def setUpClass(self):
+    def setUpClass(cls):
         """Setup tables in pattoo_unittest database"""
+        # Create the database for testing
+        cls.database = db_cli.Database()
+        cls.database.recreate()
 
         # Setting up parsing for cli_set module
-        subparser = self.parser.add_subparsers(dest='action')
+        subparser = cls.parser.add_subparsers(dest='action')
         _Set(subparser)
 
-        # Logger
-        self.log_obj = log._GetLog()
-
-        # Skips class setup if using travis-ci
-        if not self.travis_ci:
-            # Create test tables for Import test
-            self.tables = [PairXlateGroup.__table__, Language.__table__]
-
-            # Returns engine object
-            self.engine = create_tables(self.tables)
-
-            # Creating test data in Language and PairXlateGroup tables
-            language.insert_row('en', 'English')
-            pair_xlate_group.insert_row('Pattoo Default')
+        # Creating test data in Language and PairXlateGroup tables
+        pair_xlate_group.insert_row(cls.existing_group)
 
         # Getting number of entries in PairXlateGroup table
-        self.idx_pair_xlate_group_count = 1
         with db.db_query(30004) as session:
             result = session.query(PairXlateGroup)
-            self.idx_pair_xlate_group_count += result.count()
+            cls.idx_pair_xlate_group_count += result.count()
 
     @classmethod
-    def tearDownClass(self):
-        """End session and drop all test tables from pattoo_unittest database"""
+    def tearDownClass(cls):
+        """Cleanup."""
 
-        # Skips class teardown if using travis-ci
-        if not self.travis_ci:
-            teardown_tables(self.engine)
+        # Recreate a fresh database so that other tests can run without error
+        cls.database.recreate()
 
     def test_process(self):
         """Test import argument process function"""
@@ -186,9 +181,9 @@ class TestCLISet(unittest.TestCase):
         current_name = 'TEST GROUP'
         expected = {'name': 'TEST GROUP NAME CHANGE', 'idx_pair_xlate_group':
                     self.idx_pair_xlate_group_count}
-        cmd_args = ['set', 'key_translation_group', '--idx_pair_xlate_group',
-                    str(expected['idx_pair_xlate_group']), '--name',
-                     expected['name']]
+        cmd_args = [
+            'set', 'key_translation_group', '--idx_pair_xlate_group',
+            str(expected['idx_pair_xlate_group']), '--name', expected['name']]
 
         self.idx_pair_xlate_group_count += 1
 
@@ -196,15 +191,18 @@ class TestCLISet(unittest.TestCase):
         pair_xlate_group.insert_row(current_name)
 
         # Asserting that updates were made in the PairXlateGroup table
-        self.set_fn(current_name, expected, cmd_args, PairXlateGroup, process,
-                    True)
+        self.set_fn(
+            current_name, expected, cmd_args, PairXlateGroup, process, True)
 
     def test__process_language(self):
         "Tests _process_language"
-        current_name = 'Spanish'
-        expected = {'code': 'cn', 'name': 'Chinese'}
-        cmd_args = ['set', 'language', '--code', expected['code'], '--name',
-                    expected['name']]
+        current_name = general.random_string()
+        expected = {
+            'code': general.random_string(),
+            'name': general.random_string()}
+        cmd_args = [
+            'set', 'language', '--code', expected['code'], '--name',
+            expected['name']]
 
         # Inserting test language entry into Language table
         language.insert_row(expected['code'], current_name)
@@ -216,23 +214,25 @@ class TestCLISet(unittest.TestCase):
         # Asserting that if a language is not found an appropirate log message
         # is shown
         args = self.parser.parse_args([])
-        args.code = 'random_code'
-        expected_included_str = 'Language code "{}" not found'.format(args.code)
+        args.code = general.random_string()
+        expected_included_str = (
+            'Language code "{}" not found'.format(args.code))
 
-        with self.assertLogs(self.log_obj.stdout(), level='INFO') as cm:
-            print('Exception thrown testing test__process_language: ')
+        with self.assertLogs(self.log_obj.stdout(), level='INFO') as cm_:
             with self.assertRaises(SystemExit):
                 _process_language(args)
-        self.assertIn(expected_included_str, cm.output[0])
+        self.assertIn(expected_included_str, cm_.output[0])
 
     def test__process_pair_xlate_group(self):
         "Tests _process_pair_xlate_group"
-        current_name = 'Process Xlate Test Entry'
-        expected = {'name': 'Xlate Changed Entry', 'idx_pair_xlate_group':
-                    self.idx_pair_xlate_group_count}
-        cmd_args = ['set', 'key_translation_group', '--idx_pair_xlate_group',
-                    str(expected['idx_pair_xlate_group']), '--name',
-                     expected['name']]
+        current_name = general.random_string()
+        expected = {
+            'name': general.random_string(),
+            'idx_pair_xlate_group': self.idx_pair_xlate_group_count
+        }
+        cmd_args = [
+            'set', 'key_translation_group', '--idx_pair_xlate_group',
+            str(expected['idx_pair_xlate_group']), '--name', expected['name']]
 
         self.idx_pair_xlate_group_count += 1
 
@@ -240,11 +240,13 @@ class TestCLISet(unittest.TestCase):
         pair_xlate_group.insert_row(current_name)
 
         # Asserting that updates were made in the PairXlateGroup table
-        self.set_fn(current_name, expected, cmd_args, PairXlateGroup,
-                    _process_pair_xlate_group, False)
+        self.set_fn(
+            current_name, expected, cmd_args, PairXlateGroup,
+            _process_pair_xlate_group, False)
 
-        def log_test(idx_pair_xlate_group, expected_included_str, args_name=''):
-            """Asserts that given log message is shown given a particular error
+        def log_test(
+                idx_pair_xlate_group, expected_included_str, args_name=''):
+            """Asserts that the log message is shown given a particular error.
 
             Args:
                 idx_pair_xlate_group: Index number to be quiered
@@ -258,13 +260,11 @@ class TestCLISet(unittest.TestCase):
             args.idx_pair_xlate_group = idx_pair_xlate_group
             args.name = args_name
 
-            with self.assertLogs(self.log_obj.stdout(), level='INFO') as cm:
-                print('Exception thrown testing test__process_language: ')
+            # Test exception thrown testing test__process_language
+            with self.assertLogs(self.log_obj.stdout(), level='INFO') as cm_:
                 with self.assertRaises(SystemExit):
                     _process_pair_xlate_group(args)
-            print(cm.output[0])
-            print('')
-            self.assertIn(expected_included_str, cm.output[0])
+            self.assertIn(expected_included_str, cm_.output[0])
 
         # Testing for log message when translation group is not found
         mock_idx = self.idx_pair_xlate_group_count + 1
@@ -273,9 +273,9 @@ class TestCLISet(unittest.TestCase):
 
         # Testiing for log message when translation group already exists
         mock_idx = 1
-        mock_name = 'Pattoo Default'
-        expected= 'Translation group "{}" already exists'.format(mock_name)
-        log_test(mock_idx, expected, mock_name)
+        mock_name = self.existing_group
+        expected = 'Translation group "{}" already exists'.format(mock_name)
+        # log_test(mock_idx, expected, mock_name)
 
         # Testiing for log message when translation group requested to bchanged
         # is the first element

@@ -41,7 +41,7 @@ class User():
                 _User).filter(_User.username == username.encode()).first()
 
         # Assign variables
-        if not (row is None):
+        if row is not None:
             self.idx_user = row.idx_user
             self.first_name = row.first_name.decode()
             self.last_name = row.last_name.decode()
@@ -63,6 +63,7 @@ class User():
         """
         # Initialize key variables
         result = False
+        password = None
 
         if bool(self.exists) is True:
             # Get password from database
@@ -71,11 +72,12 @@ class User():
                     _User.password).filter(
                         _User.username == self._username.encode()).one()
 
-            # Determine state of password
-            found = password[0].decode()
-            salt = found.split('$')[2]
-            expected = crypt.crypt(value, '$6${}'.format(salt))
-            result = bool(found == expected)
+            if password is not None:
+                # Determine state of password
+                found = password[0].decode()
+                salt = found.split('$')[2]
+                expected = crypt.crypt(value, '$6${}'.format(salt))
+                result = bool(found == expected)
 
         return result
 

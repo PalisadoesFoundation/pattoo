@@ -186,7 +186,7 @@ class Test_Systemd(unittest.TestCase):
 
             # Place service files into temp dir
             destination_filepaths = copy_service_files(
-                                                temp_dir, service_directory)
+                temp_dir, service_directory)
             update_environment_strings(
                 filepaths=destination_filepaths,
                 install_dir=ROOT_DIR,

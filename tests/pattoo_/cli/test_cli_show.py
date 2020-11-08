@@ -17,7 +17,7 @@ EXEC_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(
     os.path.abspath(os.path.join(
         os.path.abspath(os.path.join(
-                EXEC_DIR, os.pardir)), os.pardir)), os.pardir))
+            EXEC_DIR, os.pardir)), os.pardir)), os.pardir))
 _EXPECTED = '{0}pattoo{0}tests{0}pattoo_{0}cli'.format(os.sep)
 if EXEC_DIR.endswith(_EXPECTED) is True:
     # We need to prepend the path in case the repo has been installed
@@ -29,20 +29,17 @@ else:
     sys.exit(2)
 
 # Pattoo imports
-from pattoo.cli.cli_show import (process, _process_agent, _process_language,
-                                 _process_pair_xlate_group,
-                                 _process_pair_xlate, _process_agent_xlate,
-                                 _printer)
+from pattoo.cli.cli_show import (
+    process, _process_agent, _process_language, _process_pair_xlate_group,
+    _process_pair_xlate, _process_agent_xlate, _printer)
 from pattoo.cli.cli import _Show
 from pattoo.db import db
-from pattoo.db.table import (agent, language, pair_xlate, pair_xlate_group,
-                             agent_xlate)
-from pattoo.db.models import (Agent, AgentXlate, Language, PairXlate,
-                              PairXlateGroup)
+from pattoo.db.table import (
+    agent, language, pair_xlate, pair_xlate_group, agent_xlate)
 from setup._pattoo import db as setup_database
 
 # Pattoo unittest imports
-from tests.bin.setup_db import (create_tables, teardown_tables, DB_URI)
+from setup._pattoo import db as db_cli
 from tests.libraries.configuration import UnittestConfig
 
 
@@ -52,13 +49,10 @@ class TestCLIShow(unittest.TestCase):
     # Parser Instantiation
     parser = argparse.ArgumentParser()
 
-    # Binding engine
-    engine = create_engine(DB_URI)
-
     # Determine whether should setup up test for travis-ci tool
     travis_ci = os.getenv('travis_ci')
 
-    def show_fn(self, table_module, callback, process=False, cmd_args=None):
+    def show_fn(self, table_module, callback, cmd_args=None):
         """
 
         Args:
@@ -77,7 +71,7 @@ class TestCLIShow(unittest.TestCase):
         args = None
 
         # Gets callback stdout output
-        with patch('sys.stdout', new = StringIO()) as output:
+        with patch('sys.stdout', new=StringIO()) as output:
             if callback.__name__ in ['_process_pair_xlate', 'process']:
                 args = self.parser.parse_args(cmd_args)
 
@@ -91,32 +85,29 @@ class TestCLIShow(unittest.TestCase):
             callback_output = output.getvalue()
 
         # Generating expected stdout output
-        if (callback.__name__ == '_process_pair_xlate' or table_module ==
-            pair_xlate):
+        if (callback.__name__ == '_process_pair_xlate') or (
+                table_module == pair_xlate):
             data = table_module.cli_show_dump(args.idx_pair_xlate_group)
         else:
             data = table_module.cli_show_dump()
 
         # Gets expected stoud output using _printer
-        with patch('sys.stdout', new = StringIO()) as output:
+        with patch('sys.stdout', new=StringIO()) as output:
             _printer(data)
             expected = output.getvalue()
 
         self.assertEqual(callback_output, expected)
 
     @classmethod
-    def setUpClass(self):
+    def setUpClass(cls):
         """Setup tables in pattoo_unittest database"""
+        # Create the database for testing
+        cls.database = db_cli.Database()
+        cls.database.recreate()
 
         # Setting up arpser to be able to parse import cli commands
-        subparser = self.parser.add_subparsers(dest='action')
+        subparser = cls.parser.add_subparsers(dest='action')
         _Show(subparser)
-
-        # Creates new database tables for test cli_show module
-        self.tables = [Agent.__table__, AgentXlate.__table__,
-                       Language.__table__, PairXlate.__table__,
-                       PairXlateGroup.__table__]
-        create_tables(self.tables)
 
         # Test Insertions
         setup_database._insert_language()
@@ -124,16 +115,15 @@ class TestCLIShow(unittest.TestCase):
         setup_database._insert_agent_xlate()
 
         agent.insert_row('agent_id', 'agent_test_target', 'agent_program')
-        pair_xlate.insert_row('xlate_key', 'xlate_translation', 'xlate_units',
-                              1, 1)
+        pair_xlate.insert_row(
+            'xlate_key', 'xlate_translation', 'xlate_units', 1, 1)
 
     @classmethod
-    def tearDownClass(self):
-        """End session and drop all test tables from pattoo_unittest database"""
+    def tearDownClass(cls):
+        """Cleanup."""
 
-        # Skips class teardown if using travis-ci
-        if not self.travis_ci:
-            teardown_tables(self.engine)
+        # Recreate a fresh database so that other tests can run without error
+        cls.database.recreate()
 
     def test_process(self):
         """Tests show process function"""
@@ -143,17 +133,19 @@ class TestCLIShow(unittest.TestCase):
         args.qualifier = ''
         self.assertIsNone(process(args))
 
-        test_vars = [('agent', agent), ('language', language),
-                 ('key_translation_group', pair_xlate_group),
-                 ('key_translation', pair_xlate), ('agent_translation',
-                                                   agent_xlate)]
+        test_vars = [
+            ('agent', agent),
+            ('language', language),
+            ('key_translation_group', pair_xlate_group),
+            ('key_translation', pair_xlate),
+            ('agent_translation', agent_xlate)
+        ]
 
         for arg, fn in test_vars:
             if arg == 'key_translation':
                 cmd_args = ['show', arg, '--idx_pair_xlate_group', '1']
-                self.show_fn(fn, process, True, cmd_args)
-            self.show_fn(fn, process, True, ['show', arg])
-
+                self.show_fn(fn, process, cmd_args)
+            self.show_fn(fn, process, ['show', arg])
 
     def test__process_agent(self):
         """Tests _process_agent"""

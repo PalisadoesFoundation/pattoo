@@ -36,6 +36,11 @@ def main():
     config = UnittestConfig()
     _ = config.create()
 
+    # Attempt to create database tables
+    from setup._pattoo import db
+    database = db.Database()
+    database.recreate()
+
 
 if __name__ == '__main__':
     # Do the unit test

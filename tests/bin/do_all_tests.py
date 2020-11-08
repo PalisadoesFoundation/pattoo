@@ -31,9 +31,8 @@ else:
     sys.exit(2)
 
 # pattoo libraries
-from pattoo_shared import errors
-from pattoo_shared import files
 from tests.libraries.configuration import UnittestConfig
+from setup._pattoo import db
 
 
 def main():
@@ -46,19 +45,17 @@ def main():
         None
 
     """
-    # Set up parser
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--verbose', '-v', help='', action='store_true')
-    args = parser.parse_args()
-
     # Determine unittest directory
     root_dir = ROOT_DIR
     test_dir = '{}{}tests'.format(root_dir, os.sep)
 
+    # Attempt to create database tables
+    database = db.Database()
+    database.recreate()
+
     # Run the test
-    command = 'python3 -m unittest discover --start {}'.format(test_dir)
-    if args.verbose is True:
-        command = '{} --verbose'.format(command)
+    command = (
+        'python3 -m unittest discover --start {} --verbose'.format(test_dir))
     run_script(command)
 
     # Check error codes

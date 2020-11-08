@@ -27,7 +27,7 @@ from tests.libraries.configuration import UnittestConfig
 from pattoo import sysinfo
 
 
-class TestBasicFunctiions(unittest.TestCase):
+class TestBasicFunctions(unittest.TestCase):
     """Checks all functions and methods."""
 
     #########################################################################

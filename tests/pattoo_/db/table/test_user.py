@@ -73,10 +73,11 @@ def _insert_random_user():
 class TestUser(unittest.TestCase):
     """Checks all functions and methods."""
 
-    # Add an entry to the database
-    expected = _random_user()
-    user.insert_row(expected)
-    result = user.User(expected.username)
+    def setUp(self):
+        """Setup user before each test."""
+        # Add an entry to the database
+        self.inserted_user = _random_user()
+        user.insert_row(self.inserted_user)
 
     def test___init__(self):
         """Testing function __init__."""
@@ -90,27 +91,34 @@ class TestUser(unittest.TestCase):
         self.assertFalse(test.exists)
 
         # Test all the attributes
+        result = user.User(self.inserted_user.username)
         self.assertEqual(
-            self.result.first_name, self.expected.first_name)
+            result.first_name, self.inserted_user.first_name)
         self.assertEqual(
-            self.result.last_name, self.expected.last_name)
+            result.last_name, self.inserted_user.last_name)
         self.assertEqual(
-            self.result.role, self.expected.role)
+            result.role, self.inserted_user.role)
         self.assertEqual(
-            self.result.password_expired,
-            bool(self.expected.password_expired))
+            result.password_expired,
+            bool(self.inserted_user.password_expired))
         self.assertEqual(
-            self.result.enabled,
-            bool(self.expected.enabled))
+            result.enabled,
+            bool(self.inserted_user.enabled))
 
     def test_valid_password(self):
         """Testing function valid_password."""
+        # Test whether user exists
+        result = user.exists(self.inserted_user.username)
+        self.assertTrue(result)
+
         # Test with a valid password
-        result = self.result.valid_password(self.expected.password)
+        meta = user.User(self.inserted_user.username)
+        result = meta.valid_password(self.inserted_user.password)
         self.assertTrue(result)
 
         # Test with an invalid password
-        result = self.result.valid_password(data.hashstring(str(random())))
+        meta = user.User(self.inserted_user.username)
+        result = meta.valid_password(data.hashstring(str(random())))
         self.assertFalse(result)
 
 
